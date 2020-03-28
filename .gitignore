@@ -4,7 +4,8 @@
 
 
 ##自定义
-*/.DS_Store
+.DS_Store
+*.xcuserstate
 
 
 ## User settings
