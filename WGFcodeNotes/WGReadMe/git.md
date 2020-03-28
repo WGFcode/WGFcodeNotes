@@ -63,6 +63,8 @@
     1.在工程目录中，touch .gitignore 创建配置文件(若不现实，使用ls -ah 显示隐藏文件)
     2.open .gitignore 打开配置文件，将https://github.com/github/gitignore/blob/master/Swift.gitignore中的内容复制粘贴
     3.添加到仓库中
+    4.如果.gitignore规则不生效:先把本地缓存删除然后更新
+    git rm -r --cached .
 
 
 #其它命令行分析
