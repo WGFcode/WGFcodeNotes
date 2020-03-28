@@ -66,6 +66,10 @@
     3.添加到仓库中
     4.如果.gitignore规则不生效:先把本地缓存删除然后更新
     git rm -r --cached .
+    5.在合并代码的时候，.DS_Store和.xcuserstate文件冲突无法合并解决方法
+    (1)open .gitignore打开文件，添加.DS_Store和*.xcuserstate
+    (2)git rm --cached .DS_Store  git rm --cached *.xcuserstate移除忽略这两个文件
+    (3)然后git add .  git commit -m "更新gitignore"  git pull  git push
 
 
 #其它命令行分析

@@ -5,8 +5,7 @@
 
 ##自定义
 .DS_Store
-*.xcuserstate
-
+/.xcuserstate
 
 ## User settings
 xcuserdata/
