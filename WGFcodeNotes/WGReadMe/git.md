@@ -70,7 +70,9 @@
     (1)open .gitignore打开文件，添加.DS_Store和*.xcuserstate
     (2)git rm --cached .DS_Store  git rm --cached *.xcuserstate移除忽略这两个文件
     (3)然后git add .  git commit -m "更新gitignore"  git pull  git push
-
+    (4)思考：为什么先git pull 再git push，这样仓库的代码会覆盖我本地代码呀！！！
+       在多人开发中，pull是为了本地commit和远程commit进行对比，如果有冲突，git会把这个冲突标记出来，这个时候需要先和最近一次push代码的人协商，解决冲突，然后在push，如果没有冲突git就直接将pull下来的代码和本地进行合并了，不会覆盖代码
+       代码覆盖或者丢失：小白和小黑本地都是刚pull下来的代码，然后小白本地修改了代码，并且push到了远程(push1-push2),这时候小黑本地也修改了代码，但是没有commit,直接pull了小白的代码(push1-push2)到本地，此刻小黑的本地代码已经到push2了，然后小黑继续修改，如果修改了小白写过的代码文件white1，然后进行了commit&push到远程仓库push3,那么小白之前提交的white1文件就会被覆盖，所以多人开发一定要先commit,然后再pull,最后再push
 
 #其它命令行分析
 
