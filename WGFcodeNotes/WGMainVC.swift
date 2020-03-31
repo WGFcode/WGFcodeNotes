@@ -10,47 +10,32 @@ import Foundation
 import UIKit
 
 public class WGMainVC : UIViewController {
+    var appleTotalNum = 20
+    private var lockObjc = NSLock()
+    
     public override func viewDidLoad() {
         super.viewDidLoad()
         self.view.backgroundColor = UIColor.green
         
-        let thread1 = Thread(target: self, selector: #selector(testMethod), object: nil)
-        //开启线程
-        thread1.start()
-        /*属性含义
-         name: 设置线程名称
-         threadDictionary: 每个线程都有个字典，在线程中任何地方被访问
-         threadPriority:设置线程优先级(0-1.0)
-         stackSize: 线程使用栈区大小(默认是512K)
-         isExecuting: 线程是否正在执行
-         isFinished: 线程是否执行完成
-         isCancelled: 线程是否撤销
-         isMainThread: 是否是主线程
-         */
-        //2.类方法创建线程并自动开启
-        Thread.detachNewThreadSelector(#selector(textMethod1(title:)), toTarget: self, with: "传递给调用方法的参数")
-        if #available(iOS 10.0, *) {
-            Thread.detachNewThread {
-                NSLog("Block方式创建线程并启动")
-            }
-        } else {
-            // Fallback on earlier versions
-        }
-        /*
-         调用类方法阻塞当前线程
-         Thread.sleep(until: <#T##Date#>)
-         Thread.sleep(forTimeInterval: <#T##TimeInterval#>)
-         //推出当前线程
-         Thread.exit()
-         */
-        
-        
+        let people1 = Thread(target: self, selector: #selector(eatApple), object: nil)
+        people1.start()
+        let people2 = Thread(target: self, selector: #selector(eatApple), object: nil)
+        people2.start()
+        let people3 = Thread(target: self, selector: #selector(eatApple), object: nil)
+        people3.start()
     }
     
-    @objc func testMethod() {
+    @objc func eatApple() {
+        lockObjc.lock()
+        appleTotalNum -= 1
+        NSLog("当前是否是主线程:\(Thread.isMainThread)-当前剩余的苹果数:\(appleTotalNum)")
+        lockObjc.unlock()
     }
     
-    @objc func textMethod1(title: String) {
-        NSLog("\(title)")
-    }
+    
+//    public override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+//        NSLog("剩余的苹果数是:\(appleTotalNum)")
+//        objc_sync_enter(self)
+//        objc_sync_exit(self)
+//    }
 }
