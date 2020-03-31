@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		30C1F2B82431F0C7003B30B3 /* 面试题.md in Resources */ = {isa = PBXBuildFile; fileRef = 30C1F2B72431F0C7003B30B3 /* 面试题.md */; };
+		30DF9993243310F900310CCD /* 多线程.md in Resources */ = {isa = PBXBuildFile; fileRef = 30DF9992243310F900310CCD /* 多线程.md */; };
+		30DF99962433363300310CCD /* Thread1.png in Resources */ = {isa = PBXBuildFile; fileRef = 30DF99952433363300310CCD /* Thread1.png */; };
 		548AC953242F4B3100EEE11C /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 548AC952242F4B3100EEE11C /* AppDelegate.swift */; };
 		548AC955242F4B3100EEE11C /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 548AC954242F4B3100EEE11C /* SceneDelegate.swift */; };
 		548AC957242F4B3100EEE11C /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 548AC956242F4B3100EEE11C /* ViewController.swift */; };
@@ -42,6 +45,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		30C1F2B72431F0C7003B30B3 /* 面试题.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "面试题.md"; sourceTree = "<group>"; };
+		30DF9992243310F900310CCD /* 多线程.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "多线程.md"; sourceTree = "<group>"; };
+		30DF99952433363300310CCD /* Thread1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Thread1.png; sourceTree = "<group>"; };
 		548AC94F242F4B3100EEE11C /* WGFcodeNotes.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WGFcodeNotes.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		548AC952242F4B3100EEE11C /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		548AC954242F4B3100EEE11C /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -90,6 +96,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		30DF99942433361600310CCD /* WGPhoto */ = {
+			isa = PBXGroup;
+			children = (
+				30DF99952433363300310CCD /* Thread1.png */,
+			);
+			path = WGPhoto;
+			sourceTree = "<group>";
+		};
 		548AC946242F4B3100EEE11C = {
 			isa = PBXGroup;
 			children = (
@@ -113,6 +127,7 @@
 		548AC951242F4B3100EEE11C /* WGFcodeNotes */ = {
 			isa = PBXGroup;
 			children = (
+				30DF99942433361600310CCD /* WGPhoto */,
 				548AC984242F4C9200EEE11C /* WGReadMe */,
 				548AC952242F4B3100EEE11C /* AppDelegate.swift */,
 				548AC954242F4B3100EEE11C /* SceneDelegate.swift */,
@@ -153,6 +168,8 @@
 				548AC988242F4CAD00EEE11C /* KeyWords.md */,
 				548AC987242F4CAD00EEE11C /* PackageIpaWithShell.md */,
 				548AC985242F4CAD00EEE11C /* WG.sh */,
+				30C1F2B72431F0C7003B30B3 /* 面试题.md */,
+				30DF9992243310F900310CCD /* 多线程.md */,
 			);
 			path = WGReadMe;
 			sourceTree = "<group>";
@@ -263,6 +280,8 @@
 			files = (
 				548AC98C242F4CAD00EEE11C /* git.md in Resources */,
 				548AC98F242F4CAD00EEE11C /* Carthage.md in Resources */,
+				30C1F2B82431F0C7003B30B3 /* 面试题.md in Resources */,
+				30DF9993243310F900310CCD /* 多线程.md in Resources */,
 				548AC98E242F4CAD00EEE11C /* KeyWords.md in Resources */,
 				548AC98B242F4CAD00EEE11C /* WG.sh in Resources */,
 				548AC95F242F4B3200EEE11C /* LaunchScreen.storyboard in Resources */,
@@ -270,6 +289,7 @@
 				548AC990242F4CAD00EEE11C /* Framework.md in Resources */,
 				548AC95C242F4B3200EEE11C /* Assets.xcassets in Resources */,
 				548AC95A242F4B3100EEE11C /* Main.storyboard in Resources */,
+				30DF99962433363300310CCD /* Thread1.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
