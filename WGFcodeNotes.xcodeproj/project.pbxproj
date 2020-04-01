@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		30A7DC8124348703008DDCF9 /* lock1.png in Resources */ = {isa = PBXBuildFile; fileRef = 30A7DC8024348703008DDCF9 /* lock1.png */; };
+		30A7DC832434A43E008DDCF9 /* lock2.png in Resources */ = {isa = PBXBuildFile; fileRef = 30A7DC822434A43E008DDCF9 /* lock2.png */; };
 		30C1F2B82431F0C7003B30B3 /* 面试题.md in Resources */ = {isa = PBXBuildFile; fileRef = 30C1F2B72431F0C7003B30B3 /* 面试题.md */; };
 		30DF9993243310F900310CCD /* 多线程.md in Resources */ = {isa = PBXBuildFile; fileRef = 30DF9992243310F900310CCD /* 多线程.md */; };
 		548AC953242F4B3100EEE11C /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 548AC952242F4B3100EEE11C /* AppDelegate.swift */; };
@@ -44,6 +46,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		30A7DC8024348703008DDCF9 /* lock1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = lock1.png; sourceTree = "<group>"; };
+		30A7DC822434A43E008DDCF9 /* lock2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = lock2.png; sourceTree = "<group>"; };
 		30C1F2B72431F0C7003B30B3 /* 面试题.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "面试题.md"; sourceTree = "<group>"; };
 		30DF9992243310F900310CCD /* 多线程.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "多线程.md"; sourceTree = "<group>"; };
 		548AC94F242F4B3100EEE11C /* WGFcodeNotes.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WGFcodeNotes.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -94,6 +98,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		30A7DC7D24348382008DDCF9 /* WGScreenshots */ = {
+			isa = PBXGroup;
+			children = (
+				30A7DC8024348703008DDCF9 /* lock1.png */,
+				30A7DC822434A43E008DDCF9 /* lock2.png */,
+			);
+			path = WGScreenshots;
+			sourceTree = "<group>";
+		};
 		548AC946242F4B3100EEE11C = {
 			isa = PBXGroup;
 			children = (
@@ -117,6 +130,7 @@
 		548AC951242F4B3100EEE11C /* WGFcodeNotes */ = {
 			isa = PBXGroup;
 			children = (
+				30A7DC7D24348382008DDCF9 /* WGScreenshots */,
 				548AC984242F4C9200EEE11C /* WGReadMe */,
 				548AC952242F4B3100EEE11C /* AppDelegate.swift */,
 				548AC954242F4B3100EEE11C /* SceneDelegate.swift */,
@@ -267,6 +281,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				30A7DC832434A43E008DDCF9 /* lock2.png in Resources */,
 				548AC98C242F4CAD00EEE11C /* git.md in Resources */,
 				548AC98F242F4CAD00EEE11C /* Carthage.md in Resources */,
 				30C1F2B82431F0C7003B30B3 /* 面试题.md in Resources */,
@@ -277,6 +292,7 @@
 				548AC98D242F4CAD00EEE11C /* PackageIpaWithShell.md in Resources */,
 				548AC990242F4CAD00EEE11C /* Framework.md in Resources */,
 				548AC95C242F4B3200EEE11C /* Assets.xcassets in Resources */,
+				30A7DC8124348703008DDCF9 /* lock1.png in Resources */,
 				548AC95A242F4B3100EEE11C /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
