@@ -7,14 +7,16 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3066E0F02435DD48004C71F7 /* GCD.md in Resources */ = {isa = PBXBuildFile; fileRef = 3066E0EF2435DD48004C71F7 /* GCD.md */; };
+		309F9D682435D98700FFB705 /* ThreadLock.md in Resources */ = {isa = PBXBuildFile; fileRef = 309F9D672435D98700FFB705 /* ThreadLock.md */; };
 		30A7DC8124348703008DDCF9 /* lock1.png in Resources */ = {isa = PBXBuildFile; fileRef = 30A7DC8024348703008DDCF9 /* lock1.png */; };
 		30A7DC832434A43E008DDCF9 /* lock2.png in Resources */ = {isa = PBXBuildFile; fileRef = 30A7DC822434A43E008DDCF9 /* lock2.png */; };
-		30C1F2B82431F0C7003B30B3 /* 面试题.md in Resources */ = {isa = PBXBuildFile; fileRef = 30C1F2B72431F0C7003B30B3 /* 面试题.md */; };
-		30DF9993243310F900310CCD /* 多线程.md in Resources */ = {isa = PBXBuildFile; fileRef = 30DF9992243310F900310CCD /* 多线程.md */; };
+		30C1F2B82431F0C7003B30B3 /* face.md in Resources */ = {isa = PBXBuildFile; fileRef = 30C1F2B72431F0C7003B30B3 /* face.md */; };
 		30FD75F824357E3800431678 /* WGMainObjcVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 30FD75F724357E3800431678 /* WGMainObjcVC.m */; };
 		30FD75FA24358F1E00431678 /* lock3.png in Resources */ = {isa = PBXBuildFile; fileRef = 30FD75F924358F1E00431678 /* lock3.png */; };
 		30FD75FC243596BB00431678 /* lock4.png in Resources */ = {isa = PBXBuildFile; fileRef = 30FD75FB243596BB00431678 /* lock4.png */; };
 		30FD75FE2435C88B00431678 /* lock5.png in Resources */ = {isa = PBXBuildFile; fileRef = 30FD75FD2435C88B00431678 /* lock5.png */; };
+		30FD76012435CD3100431678 /* NSThread.md in Resources */ = {isa = PBXBuildFile; fileRef = 30FD76002435CD3100431678 /* NSThread.md */; };
 		548AC953242F4B3100EEE11C /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 548AC952242F4B3100EEE11C /* AppDelegate.swift */; };
 		548AC955242F4B3100EEE11C /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 548AC954242F4B3100EEE11C /* SceneDelegate.swift */; };
 		548AC957242F4B3100EEE11C /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 548AC956242F4B3100EEE11C /* ViewController.swift */; };
@@ -50,16 +52,18 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		3066E0EF2435DD48004C71F7 /* GCD.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = GCD.md; sourceTree = "<group>"; };
+		309F9D672435D98700FFB705 /* ThreadLock.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = ThreadLock.md; sourceTree = "<group>"; };
 		30A7DC8024348703008DDCF9 /* lock1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = lock1.png; sourceTree = "<group>"; };
 		30A7DC822434A43E008DDCF9 /* lock2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = lock2.png; sourceTree = "<group>"; };
-		30C1F2B72431F0C7003B30B3 /* 面试题.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "面试题.md"; sourceTree = "<group>"; };
-		30DF9992243310F900310CCD /* 多线程.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "多线程.md"; sourceTree = "<group>"; };
+		30C1F2B72431F0C7003B30B3 /* face.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = face.md; sourceTree = "<group>"; };
 		30FD75F524357E3800431678 /* WGFcodeNotes-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "WGFcodeNotes-Bridging-Header.h"; sourceTree = "<group>"; };
 		30FD75F624357E3800431678 /* WGMainObjcVC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WGMainObjcVC.h; sourceTree = "<group>"; };
 		30FD75F724357E3800431678 /* WGMainObjcVC.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WGMainObjcVC.m; sourceTree = "<group>"; };
 		30FD75F924358F1E00431678 /* lock3.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = lock3.png; sourceTree = "<group>"; };
 		30FD75FB243596BB00431678 /* lock4.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = lock4.png; sourceTree = "<group>"; };
 		30FD75FD2435C88B00431678 /* lock5.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = lock5.png; sourceTree = "<group>"; };
+		30FD76002435CD3100431678 /* NSThread.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = NSThread.md; sourceTree = "<group>"; };
 		548AC94F242F4B3100EEE11C /* WGFcodeNotes.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WGFcodeNotes.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		548AC952242F4B3100EEE11C /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		548AC954242F4B3100EEE11C /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -118,6 +122,16 @@
 				30FD75FD2435C88B00431678 /* lock5.png */,
 			);
 			path = WGScreenshots;
+			sourceTree = "<group>";
+		};
+		30FD75FF2435CD1200431678 /* 多线程 */ = {
+			isa = PBXGroup;
+			children = (
+				3066E0EF2435DD48004C71F7 /* GCD.md */,
+				30FD76002435CD3100431678 /* NSThread.md */,
+				309F9D672435D98700FFB705 /* ThreadLock.md */,
+			);
+			path = "多线程";
 			sourceTree = "<group>";
 		};
 		548AC946242F4B3100EEE11C = {
@@ -181,14 +195,14 @@
 		548AC984242F4C9200EEE11C /* WGReadMe */ = {
 			isa = PBXGroup;
 			children = (
+				30FD75FF2435CD1200431678 /* 多线程 */,
 				548AC989242F4CAD00EEE11C /* Carthage.md */,
 				548AC98A242F4CAD00EEE11C /* Framework.md */,
 				548AC986242F4CAD00EEE11C /* git.md */,
 				548AC988242F4CAD00EEE11C /* KeyWords.md */,
 				548AC987242F4CAD00EEE11C /* PackageIpaWithShell.md */,
 				548AC985242F4CAD00EEE11C /* WG.sh */,
-				30C1F2B72431F0C7003B30B3 /* 面试题.md */,
-				30DF9992243310F900310CCD /* 多线程.md */,
+				30C1F2B72431F0C7003B30B3 /* face.md */,
 			);
 			path = WGReadMe;
 			sourceTree = "<group>";
@@ -301,17 +315,19 @@
 				30A7DC832434A43E008DDCF9 /* lock2.png in Resources */,
 				548AC98C242F4CAD00EEE11C /* git.md in Resources */,
 				548AC98F242F4CAD00EEE11C /* Carthage.md in Resources */,
-				30C1F2B82431F0C7003B30B3 /* 面试题.md in Resources */,
+				30FD76012435CD3100431678 /* NSThread.md in Resources */,
+				30C1F2B82431F0C7003B30B3 /* face.md in Resources */,
 				30FD75FA24358F1E00431678 /* lock3.png in Resources */,
-				30DF9993243310F900310CCD /* 多线程.md in Resources */,
 				548AC98E242F4CAD00EEE11C /* KeyWords.md in Resources */,
 				30FD75FC243596BB00431678 /* lock4.png in Resources */,
 				548AC98B242F4CAD00EEE11C /* WG.sh in Resources */,
+				3066E0F02435DD48004C71F7 /* GCD.md in Resources */,
 				548AC95F242F4B3200EEE11C /* LaunchScreen.storyboard in Resources */,
 				30FD75FE2435C88B00431678 /* lock5.png in Resources */,
 				548AC98D242F4CAD00EEE11C /* PackageIpaWithShell.md in Resources */,
 				548AC990242F4CAD00EEE11C /* Framework.md in Resources */,
 				548AC95C242F4B3200EEE11C /* Assets.xcassets in Resources */,
+				309F9D682435D98700FFB705 /* ThreadLock.md in Resources */,
 				30A7DC8124348703008DDCF9 /* lock1.png in Resources */,
 				548AC95A242F4B3100EEE11C /* Main.storyboard in Resources */,
 			);
