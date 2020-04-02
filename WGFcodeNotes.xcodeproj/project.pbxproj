@@ -11,6 +11,9 @@
 		30A7DC832434A43E008DDCF9 /* lock2.png in Resources */ = {isa = PBXBuildFile; fileRef = 30A7DC822434A43E008DDCF9 /* lock2.png */; };
 		30C1F2B82431F0C7003B30B3 /* 面试题.md in Resources */ = {isa = PBXBuildFile; fileRef = 30C1F2B72431F0C7003B30B3 /* 面试题.md */; };
 		30DF9993243310F900310CCD /* 多线程.md in Resources */ = {isa = PBXBuildFile; fileRef = 30DF9992243310F900310CCD /* 多线程.md */; };
+		30FD75F824357E3800431678 /* WGMainObjcVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 30FD75F724357E3800431678 /* WGMainObjcVC.m */; };
+		30FD75FA24358F1E00431678 /* lock3.png in Resources */ = {isa = PBXBuildFile; fileRef = 30FD75F924358F1E00431678 /* lock3.png */; };
+		30FD75FC243596BB00431678 /* lock4.png in Resources */ = {isa = PBXBuildFile; fileRef = 30FD75FB243596BB00431678 /* lock4.png */; };
 		548AC953242F4B3100EEE11C /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 548AC952242F4B3100EEE11C /* AppDelegate.swift */; };
 		548AC955242F4B3100EEE11C /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 548AC954242F4B3100EEE11C /* SceneDelegate.swift */; };
 		548AC957242F4B3100EEE11C /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 548AC956242F4B3100EEE11C /* ViewController.swift */; };
@@ -50,6 +53,11 @@
 		30A7DC822434A43E008DDCF9 /* lock2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = lock2.png; sourceTree = "<group>"; };
 		30C1F2B72431F0C7003B30B3 /* 面试题.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "面试题.md"; sourceTree = "<group>"; };
 		30DF9992243310F900310CCD /* 多线程.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "多线程.md"; sourceTree = "<group>"; };
+		30FD75F524357E3800431678 /* WGFcodeNotes-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "WGFcodeNotes-Bridging-Header.h"; sourceTree = "<group>"; };
+		30FD75F624357E3800431678 /* WGMainObjcVC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WGMainObjcVC.h; sourceTree = "<group>"; };
+		30FD75F724357E3800431678 /* WGMainObjcVC.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WGMainObjcVC.m; sourceTree = "<group>"; };
+		30FD75F924358F1E00431678 /* lock3.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = lock3.png; sourceTree = "<group>"; };
+		30FD75FB243596BB00431678 /* lock4.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = lock4.png; sourceTree = "<group>"; };
 		548AC94F242F4B3100EEE11C /* WGFcodeNotes.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WGFcodeNotes.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		548AC952242F4B3100EEE11C /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		548AC954242F4B3100EEE11C /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -103,6 +111,8 @@
 			children = (
 				30A7DC8024348703008DDCF9 /* lock1.png */,
 				30A7DC822434A43E008DDCF9 /* lock2.png */,
+				30FD75F924358F1E00431678 /* lock3.png */,
+				30FD75FB243596BB00431678 /* lock4.png */,
 			);
 			path = WGScreenshots;
 			sourceTree = "<group>";
@@ -110,10 +120,13 @@
 		548AC946242F4B3100EEE11C = {
 			isa = PBXGroup;
 			children = (
+				30FD75F624357E3800431678 /* WGMainObjcVC.h */,
+				30FD75F724357E3800431678 /* WGMainObjcVC.m */,
 				548AC951242F4B3100EEE11C /* WGFcodeNotes */,
 				548AC968242F4B3200EEE11C /* WGFcodeNotesTests */,
 				548AC973242F4B3200EEE11C /* WGFcodeNotesUITests */,
 				548AC950242F4B3100EEE11C /* Products */,
+				30FD75F524357E3800431678 /* WGFcodeNotes-Bridging-Header.h */,
 			);
 			sourceTree = "<group>";
 		};
@@ -245,6 +258,7 @@
 				TargetAttributes = {
 					548AC94E242F4B3100EEE11C = {
 						CreatedOnToolsVersion = 11.3.1;
+						LastSwiftMigration = 1130;
 					};
 					548AC964242F4B3200EEE11C = {
 						CreatedOnToolsVersion = 11.3.1;
@@ -285,8 +299,10 @@
 				548AC98C242F4CAD00EEE11C /* git.md in Resources */,
 				548AC98F242F4CAD00EEE11C /* Carthage.md in Resources */,
 				30C1F2B82431F0C7003B30B3 /* 面试题.md in Resources */,
+				30FD75FA24358F1E00431678 /* lock3.png in Resources */,
 				30DF9993243310F900310CCD /* 多线程.md in Resources */,
 				548AC98E242F4CAD00EEE11C /* KeyWords.md in Resources */,
+				30FD75FC243596BB00431678 /* lock4.png in Resources */,
 				548AC98B242F4CAD00EEE11C /* WG.sh in Resources */,
 				548AC95F242F4B3200EEE11C /* LaunchScreen.storyboard in Resources */,
 				548AC98D242F4CAD00EEE11C /* PackageIpaWithShell.md in Resources */,
@@ -320,6 +336,7 @@
 			files = (
 				548AC957242F4B3100EEE11C /* ViewController.swift in Sources */,
 				548AC983242F4C7100EEE11C /* WGMainVC.swift in Sources */,
+				30FD75F824357E3800431678 /* WGMainObjcVC.m in Sources */,
 				548AC953242F4B3100EEE11C /* AppDelegate.swift in Sources */,
 				548AC955242F4B3100EEE11C /* SceneDelegate.swift in Sources */,
 			);
@@ -494,6 +511,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 27V68Z7BA3;
 				INFOPLIST_FILE = WGFcodeNotes/Info.plist;
@@ -504,6 +522,8 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = WG.WGFcodeNotes;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "WGFcodeNotes-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -513,6 +533,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 27V68Z7BA3;
 				INFOPLIST_FILE = WGFcodeNotes/Info.plist;
@@ -523,6 +544,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = WG.WGFcodeNotes;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "WGFcodeNotes-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};

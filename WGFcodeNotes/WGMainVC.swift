@@ -10,39 +10,25 @@ import Foundation
 import UIKit
 
 public class WGMainVC : UIViewController {
-    private var lock = NSCondition()
-    private var appleNum = 0 //苹果数量
+    private var pageNum = 10
     public override func viewDidLoad() {
         super.viewDidLoad()
         self.view.backgroundColor = UIColor.green
-        let apple1 = Thread(target: self, selector: #selector(eatApple), object: nil)
-        apple1.start()
-        //为了能否演示效果，先吃-if(没有苹果)-wait(阻塞线程等待)-再去采摘-signal(唤醒阻塞的线程继续执行)
-        Thread.sleep(forTimeInterval: 2.0)
-        let apple2 = Thread(target: self, selector: #selector(pickApple), object: nil)
-        apple2.start()
+        let thread1 = Thread(target: self, selector: #selector(method1), object: nil)
+        thread1.start()
+        let thread2 = Thread(target: self, selector: #selector(method1), object: nil)
+        thread2.start()
     }
-    @objc func eatApple() {
-        lock.lock()
-        NSLog("开始判断是否有苹果")
-        while appleNum == 0 {
-            NSLog("1当前没有苹果,阻塞当前线程")
-            lock.wait() //会阻塞当前线程，下面的代码不会执行，直到被唤醒
-            NSLog("1wait已经被唤醒了")
-        }
-        NSLog("1已经有苹果可以吃了")
-        appleNum -= 1
-        NSLog("1开始解锁当前的线程")
-        lock.unlock()
+    @objc func method1() {
+        objc_sync_enter(self)
+        pageNum -= 1
+        NSLog("当前的pageNum为:\(pageNum)")
+        //如果objc和objc_sync_enter中的objc不一致，该对象会被锁定但并未解锁，当点击屏幕另一个线程访问时，会crash
+        objc_sync_exit("")
+        NSLog("----------")
     }
-    @objc func pickApple() {
-        lock.lock()
-        NSLog("2开始采摘苹果")
-        appleNum += 1
-        //当摘到一个苹果之后，通过signal方法唤醒wait
-        NSLog("2开始唤醒被wait阻塞的线程")
-        lock.signal()  //不会阻塞当前线程，会继续执行
-        NSLog("2开始解锁当前的线程")
-        lock.unlock()
+    public override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        let thread3 = Thread(target: self, selector: #selector(method1), object: nil)
+        thread3.start()
     }
 }
