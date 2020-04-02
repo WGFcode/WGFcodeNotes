@@ -14,6 +14,7 @@
 		30FD75F824357E3800431678 /* WGMainObjcVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 30FD75F724357E3800431678 /* WGMainObjcVC.m */; };
 		30FD75FA24358F1E00431678 /* lock3.png in Resources */ = {isa = PBXBuildFile; fileRef = 30FD75F924358F1E00431678 /* lock3.png */; };
 		30FD75FC243596BB00431678 /* lock4.png in Resources */ = {isa = PBXBuildFile; fileRef = 30FD75FB243596BB00431678 /* lock4.png */; };
+		30FD75FE2435C88B00431678 /* lock5.png in Resources */ = {isa = PBXBuildFile; fileRef = 30FD75FD2435C88B00431678 /* lock5.png */; };
 		548AC953242F4B3100EEE11C /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 548AC952242F4B3100EEE11C /* AppDelegate.swift */; };
 		548AC955242F4B3100EEE11C /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 548AC954242F4B3100EEE11C /* SceneDelegate.swift */; };
 		548AC957242F4B3100EEE11C /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 548AC956242F4B3100EEE11C /* ViewController.swift */; };
@@ -58,6 +59,7 @@
 		30FD75F724357E3800431678 /* WGMainObjcVC.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WGMainObjcVC.m; sourceTree = "<group>"; };
 		30FD75F924358F1E00431678 /* lock3.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = lock3.png; sourceTree = "<group>"; };
 		30FD75FB243596BB00431678 /* lock4.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = lock4.png; sourceTree = "<group>"; };
+		30FD75FD2435C88B00431678 /* lock5.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = lock5.png; sourceTree = "<group>"; };
 		548AC94F242F4B3100EEE11C /* WGFcodeNotes.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WGFcodeNotes.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		548AC952242F4B3100EEE11C /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		548AC954242F4B3100EEE11C /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -113,6 +115,7 @@
 				30A7DC822434A43E008DDCF9 /* lock2.png */,
 				30FD75F924358F1E00431678 /* lock3.png */,
 				30FD75FB243596BB00431678 /* lock4.png */,
+				30FD75FD2435C88B00431678 /* lock5.png */,
 			);
 			path = WGScreenshots;
 			sourceTree = "<group>";
@@ -305,6 +308,7 @@
 				30FD75FC243596BB00431678 /* lock4.png in Resources */,
 				548AC98B242F4CAD00EEE11C /* WG.sh in Resources */,
 				548AC95F242F4B3200EEE11C /* LaunchScreen.storyboard in Resources */,
+				30FD75FE2435C88B00431678 /* lock5.png in Resources */,
 				548AC98D242F4CAD00EEE11C /* PackageIpaWithShell.md in Resources */,
 				548AC990242F4CAD00EEE11C /* Framework.md in Resources */,
 				548AC95C242F4B3200EEE11C /* Assets.xcassets in Resources */,

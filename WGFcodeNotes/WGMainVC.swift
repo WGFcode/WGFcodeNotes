@@ -10,25 +10,26 @@ import Foundation
 import UIKit
 
 public class WGMainVC : UIViewController {
-    private var pageNum = 10
+    
+    private var appleTotalNum = 10
+    //1.创建信号量，初始化为1，系统规定当信号量为0的时候必须等待
+    private let semaphore = DispatchSemaphore(value: -2)
     public override func viewDidLoad() {
         super.viewDidLoad()
         self.view.backgroundColor = UIColor.green
-        let thread1 = Thread(target: self, selector: #selector(method1), object: nil)
-        thread1.start()
-        let thread2 = Thread(target: self, selector: #selector(method1), object: nil)
-        thread2.start()
+        
+        let people1 = Thread(target: self, selector: #selector(eatApple), object: nil)
+        people1.start()
+        let people2 = Thread(target: self, selector: #selector(eatApple), object: nil)
+        people2.start()
+        let people3 = Thread(target: self, selector: #selector(eatApple), object: nil)
+        people3.start()
     }
-    @objc func method1() {
-        objc_sync_enter(self)
-        pageNum -= 1
-        NSLog("当前的pageNum为:\(pageNum)")
-        //如果objc和objc_sync_enter中的objc不一致，该对象会被锁定但并未解锁，当点击屏幕另一个线程访问时，会crash
-        objc_sync_exit("")
-        NSLog("----------")
-    }
-    public override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        let thread3 = Thread(target: self, selector: #selector(method1), object: nil)
-        thread3.start()
+    @objc func eatApple() {
+        //如果信号量>0,使信号量-1，否则阻塞线程直到该信号量的值大于0或者达到等待时间。
+        semaphore.wait() //使信号量-1(告诉其他线程，现在里面资源已经减1了，没有资源了，需要等待资源释放后才能访问)
+        appleTotalNum -= 1
+        NSLog("剩余苹果数:\(appleTotalNum)")
+        semaphore.signal()  //使信号量+1(告诉其他线程，现在里面有资源了，可以访问了)
     }
 }
