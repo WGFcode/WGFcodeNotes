@@ -38,21 +38,24 @@ public class WGMainVC : UIViewController {
 //        thread1.start()
         
         
+
+        //创建组
+        let group = DispatchGroup()
+        //将全局队列+异步任务添加到组中
+        DispatchQueue.global().async(group: group, execute: DispatchWorkItem.init(block: {
+            NSLog("11111--\(Thread.current)")
+        }))
+        DispatchQueue.global().async(group: group, execute: DispatchWorkItem.init(block: {
+            NSLog("22222--\(Thread.current)")
+        }))
         
-        //5.全局队列(并发队列) + 异步任务
-        NSLog("当前的线程是:\(Thread.current)")
-        let globalQueue = DispatchQueue.global()
-        globalQueue.async {
-            NSLog("11111开始执行异步任务，当前的线程是:\(Thread.current)")
-            NSLog("11111开始执行异步任务，当前的线程是:\(Thread.current)")
-        }
-        globalQueue.async {
-            NSLog("22222开始执行异步任务，当前的线程是:\(Thread.current)")
-        }
-        globalQueue.async {
-            NSLog("33333开始执行异步任务，当前的线程是:\(Thread.current)")
-        }
-        NSLog("全局队列外的任务开始执行")
+        DispatchQueue.global().async(group: group, execute: DispatchWorkItem.init(block: {
+            NSLog("33333--\(Thread.current)")
+        }))
+        group.enter()
+        group.notify(queue: DispatchQueue.main, work: DispatchWorkItem.init(block: {
+            NSLog("00000--\(Thread.current)")
+        }))
         
     }
     
