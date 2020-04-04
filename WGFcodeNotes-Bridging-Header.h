@@ -4,3 +4,5 @@
 
 
 #import "WGMainObjcVC.h"
+#import "WGTestModel.h"
+

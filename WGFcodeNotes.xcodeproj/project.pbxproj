@@ -12,6 +12,7 @@
 		30A7DC8124348703008DDCF9 /* lock1.png in Resources */ = {isa = PBXBuildFile; fileRef = 30A7DC8024348703008DDCF9 /* lock1.png */; };
 		30A7DC832434A43E008DDCF9 /* lock2.png in Resources */ = {isa = PBXBuildFile; fileRef = 30A7DC822434A43E008DDCF9 /* lock2.png */; };
 		30C1F2B82431F0C7003B30B3 /* face.md in Resources */ = {isa = PBXBuildFile; fileRef = 30C1F2B72431F0C7003B30B3 /* face.md */; };
+		30CBD68A24389E13000C49E6 /* WGTestModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 30CBD68924389E13000C49E6 /* WGTestModel.m */; };
 		30FD75F824357E3800431678 /* WGMainObjcVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 30FD75F724357E3800431678 /* WGMainObjcVC.m */; };
 		30FD75FA24358F1E00431678 /* lock3.png in Resources */ = {isa = PBXBuildFile; fileRef = 30FD75F924358F1E00431678 /* lock3.png */; };
 		30FD75FC243596BB00431678 /* lock4.png in Resources */ = {isa = PBXBuildFile; fileRef = 30FD75FB243596BB00431678 /* lock4.png */; };
@@ -57,6 +58,8 @@
 		30A7DC8024348703008DDCF9 /* lock1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = lock1.png; sourceTree = "<group>"; };
 		30A7DC822434A43E008DDCF9 /* lock2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = lock2.png; sourceTree = "<group>"; };
 		30C1F2B72431F0C7003B30B3 /* face.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = face.md; sourceTree = "<group>"; };
+		30CBD68824389E13000C49E6 /* WGTestModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WGTestModel.h; sourceTree = "<group>"; };
+		30CBD68924389E13000C49E6 /* WGTestModel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WGTestModel.m; sourceTree = "<group>"; };
 		30FD75F524357E3800431678 /* WGFcodeNotes-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "WGFcodeNotes-Bridging-Header.h"; sourceTree = "<group>"; };
 		30FD75F624357E3800431678 /* WGMainObjcVC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WGMainObjcVC.h; sourceTree = "<group>"; };
 		30FD75F724357E3800431678 /* WGMainObjcVC.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WGMainObjcVC.m; sourceTree = "<group>"; };
@@ -137,6 +140,8 @@
 		548AC946242F4B3100EEE11C = {
 			isa = PBXGroup;
 			children = (
+				30CBD68824389E13000C49E6 /* WGTestModel.h */,
+				30CBD68924389E13000C49E6 /* WGTestModel.m */,
 				30FD75F624357E3800431678 /* WGMainObjcVC.h */,
 				30FD75F724357E3800431678 /* WGMainObjcVC.m */,
 				548AC951242F4B3100EEE11C /* WGFcodeNotes */,
@@ -357,6 +362,7 @@
 				548AC957242F4B3100EEE11C /* ViewController.swift in Sources */,
 				548AC983242F4C7100EEE11C /* WGMainVC.swift in Sources */,
 				30FD75F824357E3800431678 /* WGMainObjcVC.m in Sources */,
+				30CBD68A24389E13000C49E6 /* WGTestModel.m in Sources */,
 				548AC953242F4B3100EEE11C /* AppDelegate.swift in Sources */,
 				548AC955242F4B3100EEE11C /* SceneDelegate.swift in Sources */,
 			);

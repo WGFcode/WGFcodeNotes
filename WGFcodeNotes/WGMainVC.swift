@@ -9,6 +9,13 @@
 import Foundation
 import UIKit
 
+public final class WGTestEntity : NSObject {
+    static let instance = WGTestEntity()
+    override init() {
+        super.init()
+    }
+}
+
 public class WGMainVC : UIViewController {
     
     private var appleTotalNum = 10
@@ -36,30 +43,31 @@ public class WGMainVC : UIViewController {
 //        let globalQueue = DispatchQueue.global()
 //        let thread1 = Thread.init(target: self, selector: #selector(method1), object: nil)
 //        thread1.start()
-        
-        
 
-        //创建组
+        
+        DispatchQueue
+
+        NSLog("开始了")
         let group = DispatchGroup()
-        //将全局队列+异步任务添加到组中
+        //告诉group,这里有个未完成的任务，group中未执行完成的任务数+1，直到遇到leave方法，才算告诉group该方法执行完成了
+        group.enter()
         DispatchQueue.global().async(group: group, execute: DispatchWorkItem.init(block: {
+            //并发队列中的异步任务中由嵌套了一个异步任务
+            DispatchQueue.global().async {
+                Thread.sleep(forTimeInterval: 5.0)
+                NSLog("模拟一下耗时操作:--\(Thread.current)")
+                group.leave() //告诉group该方法执行完成了，group中未执行完成的任务数-1
+            }
             NSLog("11111--\(Thread.current)")
         }))
+        group.wait()
         DispatchQueue.global().async(group: group, execute: DispatchWorkItem.init(block: {
             NSLog("22222--\(Thread.current)")
         }))
-        
-        DispatchQueue.global().async(group: group, execute: DispatchWorkItem.init(block: {
-            NSLog("33333--\(Thread.current)")
-        }))
-        group.enter()
-        group.notify(queue: DispatchQueue.main, work: DispatchWorkItem.init(block: {
-            NSLog("00000--\(Thread.current)")
-        }))
-        
+        NSLog("---完成了---")
     }
     
-    func testMethod() {
+    func getObjc() {
 
     }
 }

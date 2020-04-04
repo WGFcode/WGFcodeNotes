@@ -364,3 +364,391 @@
                   不会阻塞当前线程    不会阻塞当前线程      不会阻塞当前线程     不会阻塞当前线程
         异步任务    开启一条线程         开启多条线程       在当前主线程中执行    开启多条线程 
                   顺序执行任务         并发执行任务        顺序执行任务        并发执行任务
+
+## GCD组
+##### GCD组(DispatchGroup) 是什么？Apple文档这么说的A group of blocks submitted to queues for asynchronous invocation. 白话就是将【存放在队列中的多个Block】(多个任务)放在一个组里面，用于异步调用。
+
+## 常用的方法分析
+### 1.通知方法 notify 当group中所有的任务都执行完成时，通知去执行接下来的操作
+        //创建组
+        let group = DispatchGroup()
+        //将全局队列(并发队列)+异步任务添加到group中
+        DispatchQueue.global().async(group: group, execute: DispatchWorkItem.init(block: {
+            NSLog("11111--\(Thread.current)")
+        }))
+        DispatchQueue.global().async(group: group, execute: DispatchWorkItem.init(block: {
+            Thread.sleep(forTimeInterval: 2)
+            NSLog("22222--\(Thread.current)")
+        }))
+        //group发送通知，告知后续的操作，我完成了，该你们执行了
+        group.notify(queue: DispatchQueue.global(), work: DispatchWorkItem.init(block: {
+            NSLog("添加到group内的所有任务都完成了，我开始执行了--\(Thread.current)")
+        }))
+        NSLog("---完成了---")
+        输出结果: 
+
+        ---完成了---
+        11111--<NSThread: 0x60000185ca40>{number = 5, name = (null)}
+        22222--<NSThread: 0x6000018357c0>{number = 4, name = (null)}
+        添加到group内的所有任务都完成了，我开始执行了--<NSThread: 0x6000018357c0>{number = 4, name = (null)}
+##### 分析：上来就打印了"---完成了---"说明group并不会阻塞当前的线程；组内添加的(并发队列+异步任务)任务是并发执行的，当组内任务全部完成后，才通知notify中Block中的方法执行
+
+### 2. 等待方法wait 会阻塞当前线程，group中指定的任务完成后才开始执行后面的任务
+        NSLog("开始了")
+        //创建组
+        let group = DispatchGroup()
+        //将全局队列(并发队列)+异步任务添加到group中
+        DispatchQueue.global().async(group: group, execute: DispatchWorkItem.init(block: {
+            //给任务1添加个耗时的任务，来验证wait阻塞线程
+            Thread.sleep(forTimeInterval: 5.0)
+            NSLog("11111--\(Thread.current)")
+        }))
+        group.wait()
+        DispatchQueue.global().async(group: group, execute: DispatchWorkItem.init(block: {
+            NSLog("22222--\(Thread.current)")
+        }))
+        //group发送通知，告知后续的操作，我完成了，该你们执行了
+        group.notify(queue: DispatchQueue.global(), work: DispatchWorkItem.init(block: {
+            NSLog("添加到group内的所有任务都完成了，我开始执行了--\(Thread.current)")
+        }))
+        NSLog("---完成了---")
+        
+        输出结果:
+        
+        开始了
+        11111--<NSThread: 0x6000025c4500>{number = 4, name = (null)}
+        ---完成了---
+        22222--<NSThread: 0x6000025c4500>{number = 4, name = (null)}
+        添加到group内的所有任务都完成了，我开始执行了--<NSThread: 0x6000025c4500>{number = 4, name = (null)}
+##### 分析：wait阻塞了当前的线程，所以"---完成了---"的打印是在11111打印完成后才执行的，
+
+### 3. enter方法和leave方法，成对出现的，用于标记队列中的未执行完毕和已执行完毕的任务数，enter使任务数+1，leave使任务数-1，当任务数为0的时候，才会使wait方法解除阻塞或者触发notify方法，通过例子来引出这两个方法
+
+        NSLog("开始了")
+        //创建组
+        let group = DispatchGroup()
+        //将全局队列(并发队列)+异步任务添加到group中
+        DispatchQueue.global().async(group: group, execute: DispatchWorkItem.init(block: {
+            //并发队列中的异步任务中由嵌套了一个异步任务
+            DispatchQueue.global().async {
+                Thread.sleep(forTimeInterval: 5.0)
+                NSLog("模拟一下耗时操作:--\(Thread.current)")
+            }
+            NSLog("11111--\(Thread.current)")
+        }))
+        DispatchQueue.global().async(group: group, execute: DispatchWorkItem.init(block: {
+            NSLog("22222--\(Thread.current)")
+        }))
+        group.notify(queue: DispatchQueue.global(), work: DispatchWorkItem.init(block: {
+            NSLog("所有任务都完成了，我开始执行了--\(Thread.current)")
+        }))
+        NSLog("---完成了---")
+
+        输出结果:
+
+        2020-04-04 17:31:57.865336+0800 WGFcodeNotes[2353:94252] 开始了
+        2020-04-04 17:31:57.865677+0800 WGFcodeNotes[2353:94252] ---完成了---
+        2020-04-04 17:31:57.865779+0800 WGFcodeNotes[2353:94318] 22222--<NSThread: 0x6000031d0340>{number = 5, name = (null)}
+        2020-04-04 17:31:57.865780+0800 WGFcodeNotes[2353:94307] 11111--<NSThread: 0x6000031c5cc0>{number = 4, name = (null)}
+        2020-04-04 17:31:57.865965+0800 WGFcodeNotes[2353:94307] 所有任务都完成了，我开始执行了--<NSThread: 0x6000031c5cc0>{number = 4, name = (null)}
+        2020-04-04 17:32:02.869768+0800 WGFcodeNotes[2353:94304] 模拟一下耗时操作:--<NSThread: 0x600003128980>{number = 6, name = (null)}
+##### 分析：发现group并没有等待所有的异步任务都执行完成后才执行notify中的方法，为什么？因为 异步任务1中又开启了个线程去执行嵌套的异步任务，而异步线程(异步任务)是直接返回的,所以group就认为是执行完成了。如果解决这个问题？enter和leave方法要登场了
+        NSLog("开始了")
+        //创建组
+        let group = DispatchGroup()
+        group.enter()
+        DispatchQueue.global().async(group: group, execute: DispatchWorkItem.init(block: {
+            //并发队列中的异步任务中由嵌套了一个异步任务
+            DispatchQueue.global().async {
+                Thread.sleep(forTimeInterval: 5.0)
+                NSLog("模拟一下耗时操作:--\(Thread.current)")
+                group.leave()
+            }
+            NSLog("11111--\(Thread.current)")
+        }))
+        DispatchQueue.global().async(group: group, execute: DispatchWorkItem.init(block: {
+            NSLog("22222--\(Thread.current)")
+        }))
+        group.notify(queue: DispatchQueue.global(), work: DispatchWorkItem.init(block: {
+            NSLog("所有任务都完成了，我开始执行了--\(Thread.current)")
+        }))
+        NSLog("---完成了---")
+
+        输出结果:
+        
+        2020-04-04 17:46:42.086209+0800 WGFcodeNotes[2583:104409] 开始了
+        2020-04-04 17:46:42.086542+0800 WGFcodeNotes[2583:104409] ---完成了---
+        2020-04-04 17:46:42.087041+0800 WGFcodeNotes[2583:104458] 22222--<NSThread: 0x6000004243c0>{number = 4, name = (null)}
+        2020-04-04 17:46:42.087184+0800 WGFcodeNotes[2583:104462] 11111--<NSThread: 0x60000042cc00>{number = 5, name = (null)}
+        2020-04-04 17:46:47.089302+0800 WGFcodeNotes[2583:104459] 模拟一下耗时操作:--<NSThread: 0x60000044e840>{number = 6, name = (null)}
+        2020-04-04 17:46:47.089733+0800 WGFcodeNotes[2583:104459] 所有任务都完成了，我开始执行了--<NSThread: 0x60000044e840>{number = 6, name = (null)}
+##### 分析：现在达到了group等待所有任务都完成了才开始去执行notify后的方法，在任务开始前调用group.enter()方法，其实就是告诉group，这里有一个未完成的任务，未完成的任务数会+1，等到任务完成后调用group.leave()方法，就是告诉group，这个任务已经完成了，未完成的任务数会-1，当任务数为0的时候，才会去执行notify方法,那么如何影响wait方法？接着来看
+
+        NSLog("开始了")
+        let group = DispatchGroup()
+        DispatchQueue.global().async(group: group, execute: DispatchWorkItem.init(block: {
+            //并发队列中的异步任务中由嵌套了一个异步任务
+            DispatchQueue.global().async {
+                Thread.sleep(forTimeInterval: 5.0)
+                NSLog("模拟一下耗时操作:--\(Thread.current)")
+            }
+            NSLog("11111--\(Thread.current)")
+        }))
+        group.wait()
+        DispatchQueue.global().async(group: group, execute: DispatchWorkItem.init(block: {
+            NSLog("22222--\(Thread.current)")
+        }))
+        NSLog("---完成了---")
+
+        输出结果：
+
+        2020-04-04 17:55:25.912878+0800 WGFcodeNotes[2687:109524] 开始了
+        2020-04-04 17:55:25.913724+0800 WGFcodeNotes[2687:109579] 11111--<NSThread: 0x600003500180>{number = 4, name = (null)}
+        2020-04-04 17:55:25.914085+0800 WGFcodeNotes[2687:109524] ---完成了---
+        2020-04-04 17:55:25.914298+0800 WGFcodeNotes[2687:109579] 22222--<NSThread: 0x600003500180>{number = 4, name = (null)}
+        2020-04-04 17:55:30.914158+0800 WGFcodeNotes[2687:109578] 模拟一下耗时操作:--<NSThread: 0x60000351aa00>{number = 3, name = (null)}
+##### 分析: 上面已经说过了，wait会阻塞当前的线程，那么为什么没有等到嵌套任务的任务执行完再执行后面的操作那？原因和上面一样，嵌套的异步任务直接返回了，所以wait认为方法执行完成了，所以就不再阻塞了，这时候用enter和leave就可以解决
+
+        NSLog("开始了")
+        let group = DispatchGroup()
+        //告诉group,这里有个未完成的任务，group中未执行完成的任务数+1，直到遇到leave方法，才算告诉group该方法执行完成了
+        group.enter()
+        DispatchQueue.global().async(group: group, execute: DispatchWorkItem.init(block: {
+            //并发队列中的异步任务中由嵌套了一个异步任务
+            DispatchQueue.global().async {
+                Thread.sleep(forTimeInterval: 5.0)
+                NSLog("模拟一下耗时操作:--\(Thread.current)")
+                group.leave() //告诉group该方法执行完成了，group中未执行完成的任务数-1
+            }
+            NSLog("11111--\(Thread.current)")
+        }))
+        group.wait()
+        DispatchQueue.global().async(group: group, execute: DispatchWorkItem.init(block: {
+            NSLog("22222--\(Thread.current)")
+        }))
+        NSLog("---完成了---")
+
+        输出结果: 
+
+        2020-04-04 18:01:36.980687+0800 WGFcodeNotes[2746:113701] 开始了
+        2020-04-04 18:01:36.981235+0800 WGFcodeNotes[2746:113757] 11111--<NSThread: 0x600002f0eb40>{number = 3, name = (null)}
+        2020-04-04 18:01:41.986551+0800 WGFcodeNotes[2746:113753] 模拟一下耗时操作:--<NSThread: 0x600002f56200>{number = 6, name = (null)}
+        2020-04-04 18:01:41.987052+0800 WGFcodeNotes[2746:113701] ---完成了---
+        2020-04-04 18:01:41.987295+0800 WGFcodeNotes[2746:113752] 22222--<NSThread: 0x600002f70540>{number = 7, name = (null)}
+##### 分析： enter方法告诉group(这里其实就是告诉wait方法)这里有个未完成的任务，任务数+1，leval方法就是告诉group(这里其实就是告诉wait方法)这里有个未完成的任务已经完成了，任务数-1,等任务数为0的时候，告诉wait方法可以执行后续的任务了
+
+
+## GCD 实现单例 
+##### 使用dispatch_once方法实现，dispatch_once能够保证在程序运行过程中，指定的代码只会被执行一次
+        OC单利实现方式
+        //声明一个静态变量
+        static WGTestModel *_instance;
+        +(instancetype)shareInstance {
+            static dispatch_once_t onceToken;
+            dispatch_once(&onceToken, ^{
+                _instance = [[WGTestModel alloc]init];
+            });
+            return _instance;
+        }
+        //swift中单例实现 final将WGTestEntity类终止被继承,其实static let的背后用的就是dispatch_once方法
+        //设置初始化方法为私有，避免外部对象通过访问init方法创建单例类的实例。
+        public final class WGTestEntity : NSObject {
+            static let instance = WGTestEntity()
+            private override init() {
+                super.init()
+            }
+        }
+
+
+
+
+
+## 使用场景：有多个异步任务完成后，才开始执行group.notify中Block中的操作
+        //创建组
+        let group = DispatchGroup()
+        //将全局队列+异步任务添加到组中(DispatchQueue.global()全局队列其实就是个并发队列)
+        DispatchQueue.global().async(group: group, execute: DispatchWorkItem.init(block: {
+            NSLog("11111--\(Thread.current)")
+        }))
+        DispatchQueue.global().async(group: group, execute: DispatchWorkItem.init(block: {
+            NSLog("22222--\(Thread.current)")
+        }))
+        DispatchQueue.global().async(group: group, execute: DispatchWorkItem.init(block: {
+            NSLog("33333--\(Thread.current)")
+        }))
+        //组内的所有任务执行完成后，才通知主线程去执行主线程要执行的任务
+        group.notify(queue: DispatchQueue.main, work: DispatchWorkItem.init(block: {
+            NSLog("00000--\(Thread.current)")
+        }))
+        输出结果:
+
+        11111--<NSThread: 0x600003644c40>{number = 4, name = (null)}
+        22222--<NSThread: 0x60000361fb40>{number = 6, name = (null)}
+        33333--<NSThread: 0x600003645b00>{number = 7, name = (null)}
+        00000--<NSThread: 0x60000361a140>{number = 1, name = main}
+### 结论：DispatchGroup().notify其实通知的是队列，一般用于系统创建的队列(主队列)，如果你通知了我们自己手动创建的队列（串行队列/并发队列）或者系统创建的全局队列，都不会有问题的，但是无意义，因为这些队列中添加的任务，并不是因为group的notify触发的，而是按照自己该有的顺序去执行，也就是说notify对这些队列中添加的任务是没有任何影响的，因为notify真正通知的是跟随在notify后面block中的任务，文末有验证的demo和分析来证明这个结论
+
+
+
+
+
+## 下面是验证结论的
+##### 分析：可以发现，放在DispatchGroup组里面的任务的执行顺序是不确定的(不要让打印结果误导哦，打印多次就会发现是无序的)，并发执行的；只有组内的任务全部完成后，group才开始通知主线程去执行主线程要执行的任务，这里应该注意到，group通知的并不是主线程，而是通知的一个主队列，让主队列中的任务继续执行，因为主队列内的任务是在主线程中执行的，所以我们一般说是通知主线程做事情， group可以通知主队列，是否可以通知其他队列(串行队列，并发队列)？答案是可以的
+
+        //创建组
+        let group = DispatchGroup()
+        //将全局队列+异步任务添加到组中(DispatchQueue.global()全局队列其实就是个并发队列)
+        DispatchQueue.global().async(group: group, execute: DispatchWorkItem.init(block: {
+            NSLog("11111--\(Thread.current)")
+        }))
+        DispatchQueue.global().async(group: group, execute: DispatchWorkItem.init(block: {
+            NSLog("22222--\(Thread.current)")
+        }))
+        DispatchQueue.global().async(group: group, execute: DispatchWorkItem.init(block: {
+            NSLog("33333--\(Thread.current)")
+        }))
+        //这里我们创建一个串行队列,并添加同步任务
+        let serialQueue = DispatchQueue(label: "串行队列名称")
+        serialQueue.sync {
+            NSLog("串行队列同步任务--\(Thread.current)")
+        }
+        group.notify(queue: serialQueue, work: DispatchWorkItem.init(block: {
+            NSLog("开始去执行串行队列中的任务吧----\(Thread.current)")
+        }))
+        
+        输出结果:
+        
+        串行队列同步任务--<NSThread: 0x600003add6c0>{number = 1, name = main}
+        33333--<NSThread: 0x600003aa0840>{number = 6, name = (null)}
+        11111--<NSThread: 0x600003aac040>{number = 4, name = (null)}
+        22222--<NSThread: 0x600003a85a40>{number = 3, name = (null)}
+        开始去执行串行队列中的任务吧----<NSThread: 0x600003aac040>{number = 4, name = (null)}
+##### 分析：我们手动创建了串行队列，并添加了同步任务，然后group内任务全部完成后，去通知该串行队列去执行它里面的任务，但是结果却是，串行队列中的同步任务并没有收到通知(group.notify)后才去执行同步任务，串行队列中的同步任务并没有受到group的影响，而是按照自己该有的方式去执行了，通过线程打印信息还能发现，如果group通知到了创建的线程，那么group内的线程应该和创建的线程是一样的啊，为什么？开始介绍Group说的是：它是用来执行异步任务的，同步任务不能执行的，👌，我们继续创建异步任务验证
+        //创建组
+        let group = DispatchGroup()
+        //将全局队列+异步任务添加到组中(DispatchQueue.global()全局队列其实就是个并发队列)
+        DispatchQueue.global().async(group: group, execute: DispatchWorkItem.init(block: {
+            NSLog("11111--\(Thread.current)")
+        }))
+        DispatchQueue.global().async(group: group, execute: DispatchWorkItem.init(block: {
+            NSLog("22222--\(Thread.current)")
+        }))
+        DispatchQueue.global().async(group: group, execute: DispatchWorkItem.init(block: {
+            NSLog("33333--\(Thread.current)")
+        }))
+        //这里我们创建一个串行队列,并添加异步任务
+        let serialQueue = DispatchQueue(label: "串行队列名称")
+        serialQueue.async {
+            NSLog("11111串行队列同步任务--\(Thread.current)")
+        }
+        serialQueue.async {
+            NSLog("22222串行队列同步任务--\(Thread.current)")
+        }
+        group.notify(queue: serialQueue, work: DispatchWorkItem.init(block: {
+            NSLog("开始去执行串行队列中的任务吧----\(Thread.current)")
+        }))
+        输出结果:
+        11111串行队列同步任务--<NSThread: 0x600000cda7c0>{number = 6, name = (null)}
+        22222串行队列同步任务--<NSThread: 0x600000cda7c0>{number = 6, name = (null)}
+        11111--<NSThread: 0x600000cf1880>{number = 5, name = (null)}
+        22222--<NSThread: 0x600000cdc400>{number = 4, name = (null)}
+        33333--<NSThread: 0x600000cda7c0>{number = 6, name = (null)}
+        开始去执行串行队列中的任务吧----<NSThread: 0x600000cda7c0>{number = 6, name = (null)}
+##### 分析:通过结果打印，发现在串行队列中添加异步任务，group仍然没有通知到队列中的任务去执行，而是串行队列中的异步任务按照自己的方式去执行了，为什么？难道group不能通知串行队列(除了主队列)，只支持通知异步队列？我们继续验证
+
+        //创建组
+        let group = DispatchGroup()
+        //将全局队列+异步任务添加到组中(DispatchQueue.global()全局队列其实就是个并发队列)
+        DispatchQueue.global().async(group: group, execute: DispatchWorkItem.init(block: {
+            NSLog("11111--\(Thread.current)")
+        }))
+        DispatchQueue.global().async(group: group, execute: DispatchWorkItem.init(block: {
+            NSLog("22222--\(Thread.current)")
+        }))
+        DispatchQueue.global().async(group: group, execute: DispatchWorkItem.init(block: {
+            NSLog("33333--\(Thread.current)")
+        }))
+        //这里我们创建一个并发队列,并添加同步任务
+        let concurrencyQueue = DispatchQueue.init(label: "并发队列名称", attributes: .concurrent)
+        concurrencyQueue.sync {
+            NSLog("11111并发队列同步任务--\(Thread.current)")
+        }
+        concurrencyQueue.sync {
+            NSLog("22222并发队列同步任务--\(Thread.current)")
+        }
+        group.notify(queue: concurrencyQueue, work: DispatchWorkItem.init(block: {
+            NSLog("开始去执行并发队列中的任务吧----\(Thread.current)")
+        }))
+
+        输出结果:
+
+        11111并发队列同步任务--<NSThread: 0x600000d76c40>{number = 1, name = main}
+        22222并发队列同步任务--<NSThread: 0x600000d76c40>{number = 1, name = main}
+        22222--<NSThread: 0x600000d3c900>{number = 5, name = (null)}
+        11111--<NSThread: 0x600000d799c0>{number = 6, name = (null)}
+        33333--<NSThread: 0x600000d02880>{number = 7, name = (null)}
+        开始去执行并发队列中的任务吧----<NSThread: 0x600000d02880>{number = 7, name = (null)}
+##### 分析：发现创建的异步队列，并添加了同步任务，group依然没有通知到，暴脾气上来了，为什么？难道group只支持通知并发队列中的异步任务，👌，我们继续验证并发队列下的异步任务
+        
+        //创建组
+        let group = DispatchGroup()
+        //将全局队列+异步任务添加到组中(DispatchQueue.global()全局队列其实就是个并发队列)
+        DispatchQueue.global().async(group: group, execute: DispatchWorkItem.init(block: {
+            NSLog("11111--\(Thread.current)")
+        }))
+        DispatchQueue.global().async(group: group, execute: DispatchWorkItem.init(block: {
+            NSLog("22222--\(Thread.current)")
+        }))
+        DispatchQueue.global().async(group: group, execute: DispatchWorkItem.init(block: {
+            NSLog("33333--\(Thread.current)")
+        }))
+        //这里我们创建一个并发队列,并添加异步任务
+        let concurrencyQueue = DispatchQueue.init(label: "并发队列名称", attributes: .concurrent)
+        concurrencyQueue.async {
+            NSLog("11111并发队列异步任务--\(Thread.current)")
+        }
+        concurrencyQueue.async {
+            NSLog("22222并发队列异步任务--\(Thread.current)")
+        }
+        group.notify(queue: concurrencyQueue, work: DispatchWorkItem.init(block: {
+            NSLog("开始去执行并发队列中的任务吧----\(Thread.current)")
+        }))
+        
+        输出结果：
+        
+        22222并发队列异步任务--<NSThread: 0x6000001e8480>{number = 6, name = (null)}
+        11111并发队列异步任务--<NSThread: 0x6000001bd240>{number = 4, name = (null)}
+        33333--<NSThread: 0x6000001eca80>{number = 8, name = (null)}
+        22222--<NSThread: 0x6000001e8a00>{number = 7, name = (null)}
+        11111--<NSThread: 0x6000001bd800>{number = 5, name = (null)}
+        开始去执行并发队列中的任务吧----<NSThread: 0x6000001bd800>{number = 5, name = (null)}
+##### 分析：答案依旧是😠😠group不能通知到并发队列中的异步任务，容我想思考一下，刚才group通知的都是需要我们程序员手动创建的队列，那么GCD自己创建的队列(主队列和全局队列)可以吗，目前我们知道group是可以通知到主队列的，那么系统创建的全局队列可以通知到吗？
+
+        //创建组
+        let group = DispatchGroup()
+        //将全局队列+异步任务添加到组中(DispatchQueue.global()全局队列其实就是个并发队列)
+        DispatchQueue.global().async(group: group, execute: DispatchWorkItem.init(block: {
+            NSLog("11111--\(Thread.current)")
+        }))
+        DispatchQueue.global().async(group: group, execute: DispatchWorkItem.init(block: {
+            NSLog("22222--\(Thread.current)")
+        }))
+        DispatchQueue.global().async(group: group, execute: DispatchWorkItem.init(block: {
+            NSLog("33333--\(Thread.current)")
+        }))
+        DispatchQueue.global().async {
+            NSLog("全局队列异步任务--\(Thread.current)")
+        }
+        group.notify(queue: DispatchQueue.global(), work: DispatchWorkItem.init(block: {
+            NSLog("开始去执行并发队列中的任务吧----\(Thread.current)")
+        }))
+
+        输出结果:
+
+        全局队列异步任务--<NSThread: 0x600001e3c080>{number = 3, name = (null)}
+        22222--<NSThread: 0x600001e2cc00>{number = 6, name = (null)}
+        33333--<NSThread: 0x600001e344c0>{number = 7, name = (null)}
+        11111--<NSThread: 0x600001e2a680>{number = 5, name = (null)}
+        开始去执行并发队列中的任务吧----<NSThread: 0x600001e2a680>{number = 5, name = (null)}
+##### 分析: 发现group通知了DispatchQueue.global()并发队列，但是并没有通知到(并发队列中的任务并不是group通知触发的)
+
