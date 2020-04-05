@@ -1,6 +1,6 @@
 ## GCD
-##### GCD(Grand Central Dispatch)：伟大的中央调度器，是苹果公司为多核的并行运算提供的一种基于纯C语言的解决方案
-## GCD特点
+### GCD(Grand Central Dispatch)：伟大的中央调度器，是苹果公司为多核的并行运算提供的一种基于纯C语言的解决方案
+### GCD特点
      1.会自动利用更多的CPU内核
      2.自动管理线程的生命周期(创建线程/调度任务/销毁线程)
      3.我们只需要告诉GCD想要执行什么任务，并追加任务到队列中即可，不需要编写任何线程管理的代码
@@ -386,11 +386,11 @@
         异步任务    开启一条线程         开启多条线程       在当前主线程中执行    开启多条线程 
                   顺序执行任务         并发执行任务        顺序执行任务        并发执行任务
 
-## GCD组
-##### GCD组(DispatchGroup) 是什么？Apple文档这么说的A group of blocks submitted to queues for asynchronous invocation. 白话就是将【存放在队列中的多个Block】(多个任务)放在一个组里面，用于异步调用。
+## 9.GCD组
+### GCD组(DispatchGroup) 是什么？Apple文档这么说的A group of blocks submitted to queues for asynchronous invocation. 白话就是将【存放在队列中的多个Block】(多个任务)放在一个组里面，用于异步调用。
 
-## 常用的方法分析
-### 1.通知方法 notify 当group中所有的任务都执行完成时，通知去执行接下来的操作
+#### 常用的方法分析
+### 9.1 通知方法 notify 当group中所有的任务都执行完成时，通知去执行接下来的操作
         //创建组
         let group = DispatchGroup()
         //将全局队列(并发队列)+异步任务添加到group中
@@ -414,7 +414,7 @@
         添加到group内的所有任务都完成了，我开始执行了--<NSThread: 0x6000018357c0>{number = 4, name = (null)}
 ##### 分析：上来就打印了"---完成了---"说明group并不会阻塞当前的线程；组内添加的(并发队列+异步任务)任务是并发执行的，当组内任务全部完成后，才通知notify中Block中的方法执行
 
-### 2. 等待方法wait 会阻塞当前线程，group中指定的任务完成后才开始执行后面的任务
+### 9.2 等待方法wait 会阻塞当前线程，group中指定的任务完成后才开始执行后面的任务
         NSLog("开始了")
         //创建组
         let group = DispatchGroup()
@@ -443,7 +443,7 @@
         添加到group内的所有任务都完成了，我开始执行了--<NSThread: 0x6000025c4500>{number = 4, name = (null)}
 ##### 分析：wait阻塞了当前的线程，所以"---完成了---"的打印是在11111打印完成后才执行的，
 
-### 3. enter方法和leave方法，成对出现的，用于标记队列中的未执行完毕和已执行完毕的任务数，enter使任务数+1，leave使任务数-1，当任务数为0的时候，才会使wait方法解除阻塞或者触发notify方法，通过例子来引出这两个方法
+### 9.3 enter方法和leave方法，成对出现的，用于标记队列中的未执行完毕和已执行完毕的任务数，enter使任务数+1，leave使任务数-1，当任务数为0的时候，才会使wait方法解除阻塞或者触发notify方法，通过例子来引出这两个方法
 
         NSLog("开始了")
         //创建组
@@ -559,7 +559,7 @@
 ##### 分析： enter方法告诉group(这里其实就是告诉wait方法)这里有个未完成的任务，任务数+1，leval方法就是告诉group(这里其实就是告诉wait方法)这里有个未完成的任务已经完成了，任务数-1,等任务数为0的时候，告诉wait方法可以执行后续的任务了
 
 
-## GCD 实现单例 
+## 10. GCD 实现单例 
 ##### 使用dispatch_once方法实现，dispatch_once能够保证在程序运行过程中，指定的代码只会被执行一次
         OC单利实现方式
         //声明一个静态变量
@@ -580,7 +580,7 @@
             }
         }
 
-## GCD 的asyncAfter方法
+## 11. GCD 的asyncAfter方法
 ### asyncAfter Apple文档描述：Submits a work item to a dispatch queue for asynchronous execution after a specified time；即改方法并不是在指定时间后执行处理，而是在指定时间后将任务追加到队列中异步执行
         NSLog("开始")
         DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 0.1) {
@@ -598,10 +598,10 @@
         2020-04-04 22:26:50.918647+0800 WGFcodeNotes[4409:248519] ----2----
 ##### 分析，发现asyncAfter不会阻塞当前线程，在2秒时间过后，才开始执行里面的任务，同时发现了一个现象，如果NSLog("结束")后面还有其他任务（暂时用任务A代替）的话，asyncAfter会一直等到任务A结束后，再过2秒才开始执行asyncAfter内的任务，所以我们就能理解asyncAfter方法一般用在网络请求成功后，等到展示完提示后的信息后，才开始跳转，因为后续没有什么任务了
 
-#### DispatchTime.now()+2指相对当前时间的2秒后，也可以使用DispatchTimeInterval.seconds(2)表示，或者DispatchTimeInterval的其他单位表示，毫秒(milliseconds),微秒(milliseconds),纳秒(nanoseconds),也可以使用DispatchWallTime 表示绝对时间（系统时间，设备休眠计时不暂停），精度是微秒。DispatchWallTime的用法和DispatchTime差不多。
+##### DispatchTime.now()+2指相对当前时间的2秒后，也可以使用DispatchTimeInterval.seconds(2)表示，或者DispatchTimeInterval的其他单位表示，毫秒(milliseconds),微秒(milliseconds),纳秒(nanoseconds),也可以使用DispatchWallTime 表示绝对时间（系统时间，设备休眠计时不暂停），精度是微秒。DispatchWallTime的用法和DispatchTime差不多。
 
-## GCD中 barrier标志
-### OC中应该说是barrier栅栏函数,在swift中是barrier标识，主要用于多个异步任务之间，控制指定的任务先执行，指定的任务后执行，其实类似GCD中的notify，但是区别就是，notify指的是添加到group内的所有任务都执行完才去通知notify block中的方法去执行，而barrier可以针对那些没有放在group组内的任务，可以是多个并发队列+异步任务，比如下面场景，任务4依赖任务1任务2任务3，任务5依赖任务4，而任务1任务2任务3都是可以分别独立执行，而任务5也可以独立执行，那么就可以使用栅栏将这些任务“分割”开来达到实际业务的需求
+## 12. GCD中 barrier标志
+#### OC中应该说是barrier栅栏函数,在swift中是barrier标识，主要用于多个异步任务之间，控制指定的任务先执行，指定的任务后执行，其实类似GCD中的notify，但是区别就是，notify指的是添加到group内的所有任务都执行完才去通知notify block中的方法去执行，而barrier可以针对那些没有放在group组内的任务，可以是多个并发队列+异步任务，比如下面场景，任务4依赖任务1任务2任务3，任务5依赖任务4，而任务1任务2任务3都是可以分别独立执行，而任务5也可以独立执行，那么就可以使用栅栏将这些任务“分割”开来达到实际业务的需求
         //如果是系统创建的全局队列，barrier并没有起到效果，所以barrier不能用于全局队列
         //let concurrencyQueue = DispatchQueue.global()
         let concurrencyQueue = DispatchQueue.init(label: "并发队列", attributes: .concurrent)
@@ -635,7 +635,7 @@
 
 
 
-## GCD 信号量
+## 13. GCD 信号量
 ### GCD中信号量DispatchSemaphore，用于控制线程并发数，初始化一个值创建信号量对象，wait()方法使信号量-1，signal()方法使信号量+1，当信号量为0的时候会阻塞当前线程，等待信号量大于0，恢复线程，主要用于多线程之间的同步，锁也可以实现多线程同步，但不同的是，锁是锁住某一资源，而信号量是逻辑上的“锁住”
 
         let semp = DispatchSemaphore.init(value: 0)
