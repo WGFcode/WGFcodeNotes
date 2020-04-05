@@ -44,30 +44,24 @@ public class WGMainVC : UIViewController {
 //        let thread1 = Thread.init(target: self, selector: #selector(method1), object: nil)
 //        thread1.start()
 
-        
-        DispatchQueue
-
-        NSLog("开始了")
+        //创建组
         let group = DispatchGroup()
-        //告诉group,这里有个未完成的任务，group中未执行完成的任务数+1，直到遇到leave方法，才算告诉group该方法执行完成了
         group.enter()
         DispatchQueue.global().async(group: group, execute: DispatchWorkItem.init(block: {
             //并发队列中的异步任务中由嵌套了一个异步任务
             DispatchQueue.global().async {
                 Thread.sleep(forTimeInterval: 5.0)
                 NSLog("模拟一下耗时操作:--\(Thread.current)")
-                group.leave() //告诉group该方法执行完成了，group中未执行完成的任务数-1
+                group.leave()
             }
             NSLog("11111--\(Thread.current)")
         }))
-        group.wait()
         DispatchQueue.global().async(group: group, execute: DispatchWorkItem.init(block: {
             NSLog("22222--\(Thread.current)")
         }))
+        group.notify(queue: DispatchQueue.global(), work: DispatchWorkItem.init(block: {
+            NSLog("所有任务都完成了，我开始执行了--\(Thread.current)")
+        }))
         NSLog("---完成了---")
-    }
-    
-    func getObjc() {
-
     }
 }

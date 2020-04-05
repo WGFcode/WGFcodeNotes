@@ -4,6 +4,27 @@
      1.会自动利用更多的CPU内核
      2.自动管理线程的生命周期(创建线程/调度任务/销毁线程)
      3.我们只需要告诉GCD想要执行什么任务，并追加任务到队列中即可，不需要编写任何线程管理的代码
+     
+## GCD 总结
+* GCD处理多线程，首先就是创建队列，然后向队列中添加任务；
+* GCD中队列有串行队列，并发队列，全局队列(系统创建的一种并发队列)，主队列(系统创建的一种串行队列)；
+* 串行队列和并发队列是需要我们手动去创建的，而全局队列和主队列是系统提供的；
+* 串行队列每次只有一个任务被执行，一个任务执行完成后才执行下一个任务；
+* 并发队列中的任务，在开启多个线程的情况下可以并发执行，并发队列中只有在添加异步任务的情况下才会并发执行任务；
+* 串行队列和主队列最大区别就是，主队列中的任务必须在主线程中执行；
+* GCD中任务分为 同步任务和异步任务；
+* 同步任务会阻塞当前线程，不具备开启线程的能力；
+* 异步任务不会阻塞当前线程，具备开启线程的能力；
+* 异步任务不一定会开启新的线程，比如在串行队列+异步任务中，多个任务却只开启了一条线程；在主线程+异步任务中，没有开启线程，因为所有的异步任务都是在主线程中执行的
+* 主队列+同步任务会造成死锁
+* 一般项目中用到的最多的就是 并发队列+异步任务 来实现并发执行(多条线程同一时间执行多个任务)，提高执行效率
+* GCD中DispatchGroup组其实就是用来将多个任务存放在group中，然后实现异步调用
+* GCD组中notify方法，当添加到group中所有的任务都执行完成后，才开始执行 notify 中Block内的任务，一般可以用于任务C依赖任务A任务B的完成这样的业务逻辑中，notify不会阻塞当前线程
+* 在GCD组中，如果我想控制组内的任务执行顺序，比如组内有任务A，任务B，任务C都是异步执行的，执行顺序是无序的，如果想让组内的任务按照任务A->任务B->任务C顺序执行，怎么办？这时候就可以用group中的wait方法来控制，任务A->group.wait()->任务B->group.wait()-任务C， wait方法会阻塞当前线程
+* 除了wait方法控制group组内的任务执行顺序(实现多线程中的同步，还可以使用信号量DispatchSemaphore来控制)，创建信号量并设置初始信号量值为0->任务A(A执行完成后调用signal方法使信号量+1)->wait(信号量为0时，阻塞wait后的任务执行，直到信号量值大于0)->任务B(signal)-wait()->任务C
+* GCD中实现多线程任务的同步执行，其实同步执行就是控制多个异步任务的执行顺序，有两种方式：第一种就是GCD组内可以利用wait方法阻塞当前线程达到同步，第二种就是利用信号量的signal和wait方法实现多个任务之间的同步执行，区别就是第一种只能用在group种，第三种可以用在group种也可以用在非group中
+* GCD组中使用notify和wait方法时，需要注意，如果组内的任务中嵌套了异步任务，例如group中有任务A(异步任务A1)，任务B，任务C，如果遇到这种情况【组内所有任务完成后，才notify任务D开始执行】和【利用wait方法来使任务A执行完成后才开始执行任务B】时，其实是不能满足我们的要求的，因为任务A中嵌套了异步任务A1，而异步任务是直接返回的，所以notify或者wait就认为任务A完成了，其实并没有完成，这种情况下 ，我们需要使用group中的enter和leave方法，来分别告诉group（或者理解成告诉notify或者wait）存在一个未完成的任务和未完成的任务已经离开了，来实现任务A真正的执行完成了
+
 
 ## GCD中重要的概念: 任务、队列
 ###  任务
@@ -321,7 +342,7 @@
         全局队列外的任务开始执行
 ##### 分析：没有开启新线程，阻塞了当前的线程，任务之间是按照顺序执行的
 ##### 总结: 全局队列+同步任务 没有开启新线程，同步任务阻塞了当前线程（全局队列所有任务外的后续任务会被全局队列中的所有任务阻塞，直到队列中的所有任务都执行完成后才执行），同步任务之间是按照顺序执行的，因为没有开启新的线程，所以即便是在全局队列中也只能按照顺序执行
-## 7.全局队列+异步任务
+## 8.全局队列+异步任务
         //5.全局队列(并发队列) + 异步任务
         NSLog("当前的线程是:\(Thread.current)")
         let globalQueue = DispatchQueue.global()
@@ -559,7 +580,93 @@
             }
         }
 
+## GCD 的asyncAfter方法
+### asyncAfter Apple文档描述：Submits a work item to a dispatch queue for asynchronous execution after a specified time；即改方法并不是在指定时间后执行处理，而是在指定时间后将任务追加到队列中异步执行
+        NSLog("开始")
+        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 0.1) {
+            for i in 0...2 {
+                NSLog("----\(i)----")
+            }
+        }
+        NSLog("结束")
+        输出结果:
 
+        2020-04-04 22:26:50.811534+0800 WGFcodeNotes[4409:248519] 开始
+        2020-04-04 22:26:50.812228+0800 WGFcodeNotes[4409:248519] 结束
+        2020-04-04 22:26:50.918052+0800 WGFcodeNotes[4409:248519] ----0----
+        2020-04-04 22:26:50.918392+0800 WGFcodeNotes[4409:248519] ----1----
+        2020-04-04 22:26:50.918647+0800 WGFcodeNotes[4409:248519] ----2----
+##### 分析，发现asyncAfter不会阻塞当前线程，在2秒时间过后，才开始执行里面的任务，同时发现了一个现象，如果NSLog("结束")后面还有其他任务（暂时用任务A代替）的话，asyncAfter会一直等到任务A结束后，再过2秒才开始执行asyncAfter内的任务，所以我们就能理解asyncAfter方法一般用在网络请求成功后，等到展示完提示后的信息后，才开始跳转，因为后续没有什么任务了
+
+#### DispatchTime.now()+2指相对当前时间的2秒后，也可以使用DispatchTimeInterval.seconds(2)表示，或者DispatchTimeInterval的其他单位表示，毫秒(milliseconds),微秒(milliseconds),纳秒(nanoseconds),也可以使用DispatchWallTime 表示绝对时间（系统时间，设备休眠计时不暂停），精度是微秒。DispatchWallTime的用法和DispatchTime差不多。
+
+## GCD中 barrier标志
+### OC中应该说是barrier栅栏函数,在swift中是barrier标识，主要用于多个异步任务之间，控制指定的任务先执行，指定的任务后执行，其实类似GCD中的notify，但是区别就是，notify指的是添加到group内的所有任务都执行完才去通知notify block中的方法去执行，而barrier可以针对那些没有放在group组内的任务，可以是多个并发队列+异步任务，比如下面场景，任务4依赖任务1任务2任务3，任务5依赖任务4，而任务1任务2任务3都是可以分别独立执行，而任务5也可以独立执行，那么就可以使用栅栏将这些任务“分割”开来达到实际业务的需求
+        //如果是系统创建的全局队列，barrier并没有起到效果，所以barrier不能用于全局队列
+        //let concurrencyQueue = DispatchQueue.global()
+        let concurrencyQueue = DispatchQueue.init(label: "并发队列", attributes: .concurrent)
+        concurrencyQueue.async {
+            Thread.sleep(forTimeInterval: 2)
+            NSLog("11111--\(Thread.current)")
+        }
+        concurrencyQueue.async {
+            NSLog("22222--\(Thread.current)")
+        }
+        concurrencyQueue.async {
+            NSLog("33333--\(Thread.current)")
+        }
+        //添加barrier栅栏，阻塞当前线程，直到任务1任务2任务3完成之后，才去执行下面任务4任务5
+        concurrencyQueue.async(group: nil, qos: .default, flags: .barrier) {
+            Thread.sleep(forTimeInterval: 3.0)
+            NSLog("44444--\(Thread.current)")
+        }
+        concurrencyQueue.async {
+            NSLog("5555--\(Thread.current)")
+        }
+        输出结果:
+
+        2020-04-05 09:39:02.621259+0800 WGFcodeNotes[1370:43152] 22222--<NSThread: 0x6000016f18c0>{number = 6, name = (null)}
+        2020-04-05 09:39:02.621259+0800 WGFcodeNotes[1370:43154] 33333--<NSThread: 0x6000016a80c0>{number = 4, name = (null)}
+        2020-04-05 09:39:04.626118+0800 WGFcodeNotes[1370:43153] 11111--<NSThread: 0x6000016a0480>{number = 5, name = (null)}
+        2020-04-05 09:39:07.631711+0800 WGFcodeNotes[1370:43153] 44444--<NSThread: 0x6000016a0480>{number = 5, name = (null)}
+        2020-04-05 09:39:07.632105+0800 WGFcodeNotes[1370:43153] 5555--<NSThread: 0x6000016a0480>{number = 5, name = (null)}
+##### 分析:任务1+任务2+任务3完成之前，barrier会阻塞当前线程，直到任务1+任务2+任务3全部完成后，才去执行任务4和任务5，同时注意到，任务4一定是比任务5优先执行的，同时也验证了将异步任务添加到系统创建的全局队列中，barrier是不会阻塞线程的，是达不到上面的执行顺序的，所以 barrier不能用于全局队列(全局并发队列)
+### 结论:barrier用于任务块之间的执行顺序上的分割，这些任务必须放在同一个队列中，但是barrier不能用于全局队列
+
+
+
+## GCD 信号量
+### GCD中信号量DispatchSemaphore，用于控制线程并发数，初始化一个值创建信号量对象，wait()方法使信号量-1，signal()方法使信号量+1，当信号量为0的时候会阻塞当前线程，等待信号量大于0，恢复线程，主要用于多线程之间的同步，锁也可以实现多线程同步，但不同的是，锁是锁住某一资源，而信号量是逻辑上的“锁住”
+
+        let semp = DispatchSemaphore.init(value: 0)
+        DispatchQueue.global().async {
+            NSLog("11111--\(Thread.current)")
+            semp.signal()
+        }
+        //因为信号量初始值为0，所以wait方法阻塞当前线程，直到信号量变为1(调用了signal方法)，才执行wait后的任务,
+        semp.wait()
+        //需要注意的是此时信号量是0，但是是不会阻塞下面代码执行的，因为信号量为0阻塞线程是根据wait方法来判断的
+        //如果遇到wait方法，此时判断信号量是否为0，如果是0，那么会阻塞wait方法后的代码执行，而wait前的代码仍然可以执行
+        DispatchQueue.global().async {
+            for _ in 0...2 {
+                NSLog("22222--\(Thread.current)")
+            }
+            semp.signal()
+        }
+        //此时信号量是0，所以wait方法后的代码会被阻塞，知道任务2中调用signal方法，使信号量+1
+        semp.wait()
+        DispatchQueue.global().async {
+            NSLog("33333--\(Thread.current)")
+        }
+
+        输出结果: 
+
+        2020-04-05 13:50:11.471740+0800 WGFcodeNotes[2602:149807] 11111--<NSThread: 0x600003a74200>{number = 4, name = (null)}
+        2020-04-05 13:50:11.472221+0800 WGFcodeNotes[2602:149807] 22222--<NSThread: 0x600003a74200>{number = 4, name = (null)}
+        2020-04-05 13:50:11.472344+0800 WGFcodeNotes[2602:149807] 22222--<NSThread: 0x600003a74200>{number = 4, name = (null)}
+        2020-04-05 13:50:11.472485+0800 WGFcodeNotes[2602:149807] 22222--<NSThread: 0x600003a74200>{number = 4, name = (null)}
+        2020-04-05 13:50:11.472711+0800 WGFcodeNotes[2602:149807] 33333--<NSThread: 0x600003a74200>{number = 4, name = (null)}
+##### 分析： 通过信号量的变化来控制多线程中的任务实现同步(即控制多个异步任务的执行顺序)，从中可以发现，信号量为0并不一定会阻塞线程，比如初始化信号量设置为0，并没有阻塞接下来的任务执行，通过信号量为0来决定是否阻塞当前线程是根据遇到wait方法的时候来判断的，如果执行到wait方法了，此时如果信号量为0，那么wait方法后的代码就会被阻塞，知道wait前的方法执行完成后并且调用了signal方法
 
 
 
@@ -587,9 +694,6 @@
         33333--<NSThread: 0x600003645b00>{number = 7, name = (null)}
         00000--<NSThread: 0x60000361a140>{number = 1, name = main}
 ### 结论：DispatchGroup().notify其实通知的是队列，一般用于系统创建的队列(主队列)，如果你通知了我们自己手动创建的队列（串行队列/并发队列）或者系统创建的全局队列，都不会有问题的，但是无意义，因为这些队列中添加的任务，并不是因为group的notify触发的，而是按照自己该有的顺序去执行，也就是说notify对这些队列中添加的任务是没有任何影响的，因为notify真正通知的是跟随在notify后面block中的任务，文末有验证的demo和分析来证明这个结论
-
-
-
 
 
 ## 下面是验证结论的
