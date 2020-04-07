@@ -1,7 +1,44 @@
 ## NSOperation 这是OC的命名方式，在swift中叫做Operation
 ### Operation&&OperationQueue两者配合使用，也可以实现多线程编程，其实Operation是对GCD的进一步封装，完全的面相对象，如何实现多线程编程？其实主要就是分两步，第一步创建操作，第二步将操作放到操作队列中，那么我就先分析操作和操作队列是什么？
 
-#### 提醒：以下代码都是基于swift的
+#### 提醒：以下代码都是基于swift的,首先我们先看下Operation中常用的属性和方法
+        let op = Operation.init()
+        //执行操作
+        op.start()
+        op.main()
+        //只读 判断操作是否已经标记为取消
+        //op.isCancelled
+        //可取消操作，实质是标记 isCancelled 状态
+        op.cancel()
+        //只读 判断操作是否正在在运行
+        op.isExecuting
+        //只读 判断操作是否已经结束
+        op.isFinished
+        //添加依赖，使当前操作依赖于操作 op 的完成
+        op.addDependency(op: Operation)
+        //移除依赖，取消当前操作对操作 op 的依赖
+        op.removeDependency(op: Operation)
+        //只读 在当前操作开始执行之前完成执行的所有操作对象数组。
+        op.dependencies
+        //设置操作优先级
+        op.queuePriority
+        //设置服务优先级
+        op.qualityOfService
+        //设置操作名称
+        op.name
+        //阻塞当前线程，直到该操作结束。可用于线程执行顺序的同步。
+        op.waitUntilFinished()
+        //        @available(iOS 4.0, *)
+        //        open var completionBlock: (() -> Void)?
+        //        open var isConcurrent: Bool { get }
+        //        @available(iOS 7.0, *)
+        //        open var isAsynchronous: Bool { get }
+        //        open var isReady: Bool { get }
+
+
+
+
+
 
 ### 1.操作：就是代码执行，或者理解成任务也行，类似于GCD中block中的任务，Operation在OC中主要是通过它的子类(NSInvocationOperation、NSBlockOperation)来创建操作，或者也可以通过自定义子类来创建操作，在swift中则是通过它的子类BlockOperation来创建的，NSInvocationOperation这个OC中的子类在swift中已经被废弃了，所以我们接下来按照swift进行阐述
 ### 1.1 BlockOperation创建操作
@@ -238,7 +275,8 @@
         22222--<NSThread: 0x6000001d4140>{number = 4, name = (null)}
         11111--<NSThread: 0x600000125800>{number = 7, name = (null)}
         33333--<NSThread: 0x6000001b1ac0>{number = 8, name = (null)}
-        ##### 分析，只能暂停队列中的操作，而操作Operation没有提供暂停单一操作的方法。需要注意的是，暂停的不是队列中所有的操作，也不能暂停当前正在执行的操作，暂停的是队列中还没有被执行的操作；恢复队列中的任务，恢复的是上次队列中暂停的还没有被执行的操作，
+##### 分析，只能暂停队列中的操作，而操作Operation没有提供暂停单一操作的方法。需要注意的是，暂停的不是队列中所有的操作，也不能暂停当前正在执行的操作，暂停的是队列中还没有被执行的操作；恢复队列中的任务，恢复的是上次队列中暂停的还没有被执行的操作
+
 ### 2.5 设置最大的并发操作数 (并不是开启线程的数量，而是同一时间可以并发处理的操作(任务)数)
         NSLog("开始了")
         let queue = OperationQueue()
@@ -374,6 +412,8 @@
         22222--<NSThread: 0x6000029156c0>{number = 3, name = (null)}
 ##### 分析 操作的queuePriority主要分为5中 按照优先级由低到高的顺序依次是veryLow->low->normal->high->veryHigh，添加到队列中的操作，首先进入的是准备就绪状态，而进入准备就绪状态的操作(任务)的开始执行顺序(非结束执行顺序)是由操作之间相对的优先级决定的 
 
+##### 除了设置各个操作的优先级,也可以设置操作的服务优先级QualityOfService,为了让这个操作能更高更多更快的获取到系统资源，但是系统如何调度资源是我们控制不了的,设置服务有限级如下
+
 
     ##### 除了设置队列优先级，也可以设置服务优先级
         NSLog("开始了")
@@ -408,14 +448,89 @@
         11111--<NSThread: 0x60000127ac40>{number = 6, name = (null)}
         33333--<NSThread: 0x6000012490c0>{number = 5, name = (null)}
         22222--<NSThread: 0x600001291b40>{number = 7, name = (null)}
-##### 分析，发现即便设置了优先级，操作之间的执行顺序也不一定按照我们设置优先级的顺序执行，因为可能是我们设置操作的优先级，只是为了让这个操作能更高更多更快的获取到系统资源，但是系统如果调度资源是我们控制不了的
+### 2.7 OperationQueue队列中其他的方法解读
+#### 2.7.1 iOS13新添加的方法 addBarrierBlock,添加栅栏,
+        NSLog("开始了")
+        let queue = OperationQueue()
+        let op1 = BlockOperation.init {
+            NSLog("11111--\(Thread.current)")
+        }
+        let op2 = BlockOperation.init {
+            NSLog("22222--\(Thread.current)")
+        }
+        let op3 = BlockOperation.init {
+            NSLog("33333--\(Thread.current)")
+        }
+        queue.addOperations([op1,op2,op3], waitUntilFinished: false)
+        if #available(iOS 13.0, *) {
+            queue.addBarrierBlock {
+                Thread.sleep(forTimeInterval: 2)
+                NSLog("44444--\(Thread.current)")
+            }
+        } else {
+        }
+        NSLog("结束了")
+
+        输出结果:
+
+        2020-04-07 22:05:28.317716+0800 WGFcodeNotes[3593:41730] 开始了
+        2020-04-07 22:05:28.318498+0800 WGFcodeNotes[3593:41730] 结束了
+        2020-04-07 22:05:28.318642+0800 WGFcodeNotes[3593:41808] 33333--<NSThread: 0x600000f23480>{number = 3, name = (null)}
+        2020-04-07 22:05:28.318642+0800 WGFcodeNotes[3593:41807] 11111--<NSThread: 0x600000f01cc0>{number = 6, name = (null)}
+        2020-04-07 22:05:28.318683+0800 WGFcodeNotes[3593:41804] 22222--<NSThread: 0x600000f36ac0>{number = 5, name = (null)}
+        2020-04-07 22:05:30.323685+0800 WGFcodeNotes[3593:41804] 44444--<NSThread: 0x600000f36ac0>{number = 5, name = (null)}
+##### 分析 addBarrierBlock方法指的是当操作队列中的所有操作(任务)都执行完成后,才开始去执行addBarrierBlock方法中的代码
+#### 2.7.2 waitUntilAllOperationsAreFinished方法,实现操作同步,一般OperaionQueue都是异步的,这里的同步指的是队列外的任务要等队列中所有的任务完成后,才能执行队列外后续的操作,异步就是队列外的任务不需要等队列中的全部任务都完成才执行
+        NSLog("开始了")
+        let queue = OperationQueue()
+        let op1 = BlockOperation.init {
+            NSLog("11111--\(Thread.current)")
+        }
+        let op2 = BlockOperation.init {
+            NSLog("22222--\(Thread.current)")
+        }
+        let op3 = BlockOperation.init {
+            Thread.sleep(forTimeInterval: 2.0)
+            NSLog("33333--\(Thread.current)")
+        }
+        queue.addOperations([op1,op2,op3], waitUntilFinished: false)
+        queue.waitUntilAllOperationsAreFinished()
+        NSLog("结束了")
+
+        输出结果:
+
+        2020-04-07 22:22:03.391152+0800 WGFcodeNotes[4158:51385] 开始了
+        2020-04-07 22:22:03.392460+0800 WGFcodeNotes[4158:51476] 22222--<NSThread: 0x600000b45100>{number = 6, name = (null)}
+        2020-04-07 22:22:03.392475+0800 WGFcodeNotes[4158:51487] 11111--<NSThread: 0x600000b70080>{number = 3, name = (null)}
+        2020-04-07 22:22:05.395055+0800 WGFcodeNotes[4158:51477] 33333--<NSThread: 0x600000b70040>{number = 4, name = (null)}
+        2020-04-07 22:22:05.395430+0800 WGFcodeNotes[4158:51385] 结束了
+##### 分析 waitUntilAllOperationsAreFinished方法会阻塞当前的线程,知道队列中所有的操作(任务)都完成后,才开始执行后续的任务(这里指的就是打印"结束了"的信息)
+
+### 2.8 线程间通信
+
+        NSLog("开始了")
+        let queue = OperationQueue()
+        queue.addOperation {
+            //模拟耗时操作
+            for _ in 0...2 {
+                Thread.sleep(forTimeInterval: 2)
+                NSLog("11111--\(Thread.current)")
+            }
+            //执行完成后回到主线程进行刷新UI界面等操作
+            OperationQueue.main.addOperation {
+                NSLog("22222开始在主线程中做事情--\(Thread.current)")
+            }
+        }
+        NSLog("结束了")
         
-        
-        
-        
-        
-        
-        
+        输出结果:
+        2020-04-07 22:12:44.711590+0800 WGFcodeNotes[3802:46098] 开始了
+        2020-04-07 22:12:44.712124+0800 WGFcodeNotes[3802:46098] 结束了
+        2020-04-07 22:12:46.727603+0800 WGFcodeNotes[3802:46229] 11111--<NSThread: 0x6000002ceb40>{number = 4, name = (null)}
+        2020-04-07 22:12:48.730814+0800 WGFcodeNotes[3802:46229] 11111--<NSThread: 0x6000002ceb40>{number = 4, name = (null)}
+        2020-04-07 22:12:50.731442+0800 WGFcodeNotes[3802:46229] 11111--<NSThread: 0x6000002ceb40>{number = 4, name = (null)}
+        2020-04-07 22:12:50.732214+0800 WGFcodeNotes[3802:46098] 22222开始在主线程中做事情--<NSThread: 0x60000029e100>{number = 1, name = main}
+##### 分析 一般线程间通信指的就是在子线程中做完事情后,再回到主线程中执行其他任务
         
         
         

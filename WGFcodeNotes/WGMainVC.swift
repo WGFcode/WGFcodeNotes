@@ -44,22 +44,39 @@ public class WGMainVC : UIViewController {
 //        let thread1 = Thread.init(target: self, selector: #selector(method1), object: nil)
 //        thread1.start()
         NSLog("开始了")
-        let queue = OperationQueue()
-        let op1 = BlockOperation.init {
-            NSLog("11111--\(Thread.current)")
-        }
-        let op2 = BlockOperation.init {
-            NSLog("22222--\(Thread.current)")
-        }
-        let op3 = BlockOperation.init {
-            NSLog("33333--\(Thread.current)")
-        }
-        //设置操作的优先级来实现
-        op1.queuePriority = .veryHigh
-        op2.queuePriority = .high
-        op3.queuePriority = .low
-        queue.addOperations([op1,op2,op3], waitUntilFinished: false)
-        NSLog("结束了")
+        let op = Operation.init()
+        //执行操作
+        op.start()
+        op.main()
+        //只读 判断操作是否已经标记为取消
+        //op.isCancelled
+        //可取消操作，实质是标记 isCancelled 状态
+        op.cancel()
+        //只读 判断操作是否正在在运行
+        op.isExecuting
+        //只读 判断操作是否已经结束
+        op.isFinished
+        //添加依赖，使当前操作依赖于操作 op 的完成
+        op.addDependency(op: Operation)
+        //移除依赖，取消当前操作对操作 op 的依赖
+        op.removeDependency(op: Operation)
+        //只读 在当前操作开始执行之前完成执行的所有操作对象数组。
+        op.dependencies
+        //设置操作优先级
+        op.queuePriority
+        //设置服务优先级
+        op.qualityOfService
+        //设置操作名称
+        op.name
+        //阻塞当前线程，直到该操作结束。可用于线程执行顺序的同步。
+        op.waitUntilFinished()
+        //        @available(iOS 4.0, *)
+        //        open var completionBlock: (() -> Void)?
+        //        open var isConcurrent: Bool { get }
+        //        @available(iOS 7.0, *)
+        //        open var isAsynchronous: Bool { get }
+        //        open var isReady: Bool { get }
+
     }
 }
 
