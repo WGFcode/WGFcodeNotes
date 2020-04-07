@@ -18,9 +18,8 @@ public final class WGTestEntity : NSObject {
 
 public class WGMainVC : UIViewController {
     
-    private var appleTotalNum = 10
-    //1.创建信号量，初始化为1，系统规定当信号量为0的时候必须等待
-    private let semaphore = DispatchSemaphore(value: -2)
+//    private var queue = OperationQueue()
+    private var isSuccess2 = true
     public override func viewDidLoad() {
         super.viewDidLoad()
         self.view.backgroundColor = UIColor.green
@@ -38,30 +37,31 @@ public class WGMainVC : UIViewController {
             never：不会自动创建 autorelease pool，需要手动管理。
         */
 //        let serialQueue = DispatchQueue.init(label: "串行队列名称")
+        // 270000 + 60000
 //        let concurrencyQueue = DispatchQueue.init(label: "并发队列名称", attributes: .concurrent)
 //        let mainQueue = DispatchQueue.main
 //        let globalQueue = DispatchQueue.global()
 //        let thread1 = Thread.init(target: self, selector: #selector(method1), object: nil)
 //        thread1.start()
-
-        //创建组
-        let group = DispatchGroup()
-        group.enter()
-        DispatchQueue.global().async(group: group, execute: DispatchWorkItem.init(block: {
-            //并发队列中的异步任务中由嵌套了一个异步任务
-            DispatchQueue.global().async {
-                Thread.sleep(forTimeInterval: 5.0)
-                NSLog("模拟一下耗时操作:--\(Thread.current)")
-                group.leave()
-            }
+        NSLog("开始了")
+        let queue = OperationQueue()
+        let op1 = BlockOperation.init {
             NSLog("11111--\(Thread.current)")
-        }))
-        DispatchQueue.global().async(group: group, execute: DispatchWorkItem.init(block: {
+        }
+        let op2 = BlockOperation.init {
             NSLog("22222--\(Thread.current)")
-        }))
-        group.notify(queue: DispatchQueue.global(), work: DispatchWorkItem.init(block: {
-            NSLog("所有任务都完成了，我开始执行了--\(Thread.current)")
-        }))
-        NSLog("---完成了---")
+        }
+        let op3 = BlockOperation.init {
+            NSLog("33333--\(Thread.current)")
+        }
+        //设置操作的优先级来实现
+        op1.queuePriority = .veryHigh
+        op2.queuePriority = .high
+        op3.queuePriority = .low
+        queue.addOperations([op1,op2,op3], waitUntilFinished: false)
+        NSLog("结束了")
     }
 }
+
+
+
