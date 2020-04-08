@@ -1,4 +1,15 @@
 ## NSOperation 这是OC的命名方式，在swift中叫做Operation
+
+### 总结:
+*  1.Operation实现需要Operation+OperationQueue结合才能实现多线程操作,即创建操作(任务),然后将操作(任务)添加到操作队列中,操作队列会自动执行队列中的任务,不需要我们手动再开启操作(任务);
+* 2. 操作(任务)的创建在OC中主要通过(NSInvocationOperation/NSBlockOperation/自定义继承自NSOperation的子类)这三种方式创建,而在swift中通过(BlockOperation/自定义继承自Operation的子类)来创建;
+
+* 3. 单独创建操作而没有涉及到操作队列的情况下: 如果都是通过初始化创建的操作(BlockOperation.init(block: () -> Void)),那么不管创建多少个,这些操作的执行都是在当前线程中同步执行的,会阻塞当前的线程(操作外的任务会处于等待状态),操作之间的顺序是按照顺序一个一个执行的;如果通过初始化创建了第一个操作,然后调用操作的addExecutionBlock(block: () -> Void)方法添加多个操作(任务),那么第一个通过初始化创建的操作会在当前线程中执行,其他通过addExecutionBlock添加的操作系统会开启多条子线程进行执行,具体开启多少条线程,由系统决定,但这种方式下操作的执行仍然是同步的,即会阻塞当前的线程,而多个操作(任务)之间的执行顺序是无序的并发执行的;单独创建的操作都需要手动调用操作的start方法来开启操作
+
+* 4.  实际业务场景中,单独创建操作而没有操作队列的话,操作的执行都是同步的,即操作会阻塞当前的线程,所以想利用Operation实现多线程必须结合操作队列OperatioQueue来实现
+
+
+
 ### Operation&&OperationQueue两者配合使用，也可以实现多线程编程，其实Operation是对GCD的进一步封装，完全的面相对象，如何实现多线程编程？其实主要就是分两步，第一步创建操作，第二步将操作放到操作队列中，那么我就先分析操作和操作队列是什么？
 
 #### 提醒：以下代码都是基于swift的,首先我们先看下Operation中常用的属性和方法
@@ -34,11 +45,6 @@
         //        @available(iOS 7.0, *)
         //        open var isAsynchronous: Bool { get }
         //        open var isReady: Bool { get }
-
-
-
-
-
 
 ### 1.操作：就是代码执行，或者理解成任务也行，类似于GCD中block中的任务，Operation在OC中主要是通过它的子类(NSInvocationOperation、NSBlockOperation)来创建操作，或者也可以通过自定义子类来创建操作，在swift中则是通过它的子类BlockOperation来创建的，NSInvocationOperation这个OC中的子类在swift中已经被废弃了，所以我们接下来按照swift进行阐述
 ### 1.1 BlockOperation创建操作
