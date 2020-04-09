@@ -45,15 +45,33 @@ public class WGMainVC : UIViewController {
 //        thread1.start()
 
         let queue = OperationQueue.init()
-        queue.addOperation {
-            for _ in 0...1 {
+        let op1 = BlockOperation.init {
+            for _ in 0...2 {
                 NSLog("11111--\(Thread.current)")
             }
-            OperationQueue.main.addOperation {
-                NSLog("回到主线程中执行任务--\(Thread.current)")
+        }
+        let op2 = BlockOperation.init {
+            for _ in 0...2 {
+                NSLog("22222--\(Thread.current)")
             }
         }
-        NSLog("完成了")
+        queue.addOperations([op1,op2], waitUntilFinished: false)
+        
+        
+        NSLog("完成了queue")
+        let queue1 = OperationQueue.init()
+        let op11 = BlockOperation.init {
+            for _ in 0...2 {
+                NSLog("33333--\(Thread.current)")
+            }
+        }
+        op11.addExecutionBlock {
+            for _ in 0...2 {
+                NSLog("44444--\(Thread.current)")
+            }
+        }
+        queue1.addOperations([op11], waitUntilFinished: false)
+        NSLog("完成了queue1")
     }
     
 
