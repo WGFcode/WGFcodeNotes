@@ -13,6 +13,7 @@
 		30A7DC832434A43E008DDCF9 /* lock2.png in Resources */ = {isa = PBXBuildFile; fileRef = 30A7DC822434A43E008DDCF9 /* lock2.png */; };
 		30C1F2B82431F0C7003B30B3 /* face.md in Resources */ = {isa = PBXBuildFile; fileRef = 30C1F2B72431F0C7003B30B3 /* face.md */; };
 		30CBD68A24389E13000C49E6 /* WGTestModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 30CBD68924389E13000C49E6 /* WGTestModel.m */; };
+		30F8F49E243F142900968177 /* Summary.md in Resources */ = {isa = PBXBuildFile; fileRef = 30F8F49D243F142900968177 /* Summary.md */; };
 		30FD75F824357E3800431678 /* WGMainObjcVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 30FD75F724357E3800431678 /* WGMainObjcVC.m */; };
 		30FD75FA24358F1E00431678 /* lock3.png in Resources */ = {isa = PBXBuildFile; fileRef = 30FD75F924358F1E00431678 /* lock3.png */; };
 		30FD75FC243596BB00431678 /* lock4.png in Resources */ = {isa = PBXBuildFile; fileRef = 30FD75FB243596BB00431678 /* lock4.png */; };
@@ -62,6 +63,7 @@
 		30C7D40C2439C05000EA99C6 /* NSOperation.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = NSOperation.md; sourceTree = "<group>"; };
 		30CBD68824389E13000C49E6 /* WGTestModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WGTestModel.h; sourceTree = "<group>"; };
 		30CBD68924389E13000C49E6 /* WGTestModel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WGTestModel.m; sourceTree = "<group>"; };
+		30F8F49D243F142900968177 /* Summary.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Summary.md; sourceTree = "<group>"; };
 		30FD75F524357E3800431678 /* WGFcodeNotes-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "WGFcodeNotes-Bridging-Header.h"; sourceTree = "<group>"; };
 		30FD75F624357E3800431678 /* WGMainObjcVC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WGMainObjcVC.h; sourceTree = "<group>"; };
 		30FD75F724357E3800431678 /* WGMainObjcVC.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WGMainObjcVC.m; sourceTree = "<group>"; };
@@ -139,6 +141,7 @@
 				30FD76002435CD3100431678 /* NSThread.md */,
 				309F9D672435D98700FFB705 /* ThreadLock.md */,
 				30C7D40C2439C05000EA99C6 /* NSOperation.md */,
+				30F8F49D243F142900968177 /* Summary.md */,
 			);
 			path = "多线程";
 			sourceTree = "<group>";
@@ -343,6 +346,7 @@
 				548AC98B242F4CAD00EEE11C /* WG.sh in Resources */,
 				3066E0F02435DD48004C71F7 /* GCD.md in Resources */,
 				548AC95F242F4B3200EEE11C /* LaunchScreen.storyboard in Resources */,
+				30F8F49E243F142900968177 /* Summary.md in Resources */,
 				30FD75FE2435C88B00431678 /* lock5.png in Resources */,
 				30FD94D4243DDE8400EAFAA3 /* error1.png in Resources */,
 				548AC98D242F4CAD00EEE11C /* PackageIpaWithShell.md in Resources */,
