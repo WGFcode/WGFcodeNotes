@@ -57,7 +57,8 @@
         let queue = DispatchQueue.main
         全局队列
         let queue = DispatchQueue.global()
-        //创建异步任务
+        
+        创建异步任务
         方式一:将异步任务封装到Block中
         queue.async {
             code
@@ -71,7 +72,7 @@
         方式五: 和方式四一样，只是去掉了相对应的设置项或者是采用了默认的设置
         queue.async(execute: () -> Void)
         
-        //创建同步任务
+        创建同步任务
         方式一: 将同步任务封装在block中
         queue.sync {
             code
@@ -92,7 +93,7 @@
         func notify(queue: DispatchQueue, execute: DispatchWorkItem)        通知指定队列完成
         func notify(qos: DispatchQoS = .unspecified, flags: DispatchWorkItemFlags = [], queue: DispatchQueue, execute: @escaping @convention(block) () -> Void)
         init(qos: DispatchQoS = .unspecified, flags: DispatchWorkItemFlags = [], block: @escaping @convention(block) () -> Void)
-#### DispatchWorkItem其核心就是封装一个可以执行的闭包。可以通过perform()方法直接执行内部的闭包，执行顺序是按照代码顺序执行的；如果是添加到队列中，则封装的闭包由队列来调度，也就不需要执行perform方法，执行顺序是根据队列中的任务来决定的；也可以设置闭包任务的延时/等待/取消/通知等
+#### DispatchWorkItem核心就是封装一个可以执行的闭包。可以通过perform()方法直接执行内部的闭包，执行顺序是按照代码顺序执行的；如果是添加到队列中，则封装的闭包由队列来调度，也就不需要执行perform方法，执行顺序是根据队列中的任务来决定的；也可以设置闭包任务的延时/等待/取消/通知等
 
         NSLog("开始了")
         let workItem = DispatchWorkItem.init {
@@ -666,7 +667,7 @@
 ## 3. GCD 实现单例 
 ### 使用dispatch_once方法实现，dispatch_once能够保证在程序运行过程中，指定的代码只会被执行一次
         OC单利实现方式
-        //声明一个静态变量
+        声明一个静态变量
         static WGTestModel *_instance;
         +(instancetype)shareInstance {
             static dispatch_once_t onceToken;
@@ -675,8 +676,9 @@
             });
             return _instance;
         }
-        //swift中单例实现 final将WGTestEntity类终止被继承,其实static let的背后用的就是dispatch_once方法
-        //设置初始化方法为私有，避免外部对象通过访问init方法创建单例类的实例。
+        
+        swift中单例实现 final将WGTestEntity类终止被继承,其实static let的背后用的就是dispatch_once方法
+        设置初始化方法为私有，避免外部对象通过访问init方法创建单例类的实例。
         public final class WGTestEntity : NSObject {
             static let instance = WGTestEntity()
             private override init() {
@@ -685,37 +687,57 @@
         }
 
 ## 4. GCD 的asyncAfter方法
-### asyncAfter Apple文档描述：Submits a work item to a dispatch queue for asynchronous execution after a specified time；即改方法并不是在指定时间后执行处理，而是在指定时间后将任务追加到队列中异步执行;该方法是通过队列调用的，并且必须是异步调用
-        //常用方法：延迟指定的时间后，将异步任务添加到队列中
+### asyncAfter Apple文档描述：Submits a work item to a dispatch queue for asynchronous execution after a specified time；即该方法并不是在指定时间后执行处理，而是在指定时间后将任务追加到队列中异步执行;该方法是通过队列调用的，并且必须是异步调用
+        //常用方法：延迟指定的时间后，将异步任务添加到队列queue(串行队列/主队列/并发队列/全局队列)中
         queue.asyncAfter(deadline: DispatchTime, execute: () -> Void)
         queue.asyncAfter(deadline: DispatchTime, execute: DispatchWorkItem)
         queue.asyncAfter(deadline: DispatchTime, qos: DispatchQoS, flags: DispatchWorkItemFlags, execute: () -> Void)
         queue.asyncAfter(wallDeadline: DispatchWallTime, execute: () -> Void)
         queue.asyncAfter(wallDeadline: DispatchWallTime, execute: DispatchWorkItem)
         queue.asyncAfter(wallDeadline: DispatchWallTime, qos: DispatchQoS, flags: DispatchWorkItemFlags, execute: () -> Void)
+        
+        DispatchTime和DispatchWallTime的区别
+        DispatchTime: 定义的是相对的时间；会受到系统休眠等因素的影响，比如设备睡眠时，DispatchTime也跟着睡眠
+        DispatchWallTime: 定义的是绝对的时间；不会受到系统休眠等因素的影响
+        比如: 有任务A和任务B，任务A用DispatchTime定义了10分钟后执行，任务B用DispatchWallTime也定义了10分钟
+        当等待了5分钟后，APP处于休眠状态了，那么任务A也会进入休眠状态，当再起启动APP的时候，任务A仍然是需要等待10分钟后才执行的，
+        而任务B不会受到系统休眠的影响，当APP重新启动的时候(等待了5分钟，APP休眠+重新启动用了1分钟)，任务B只需要再等待4分钟就可以执行了
+        
 
-        NSLog("开始")
-        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 0.1) {
-            for i in 0...2 {
-                NSLog("----\(i)----")
+        NSLog("开始了")
+        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 2.0) {
+            for _ in 0...2 {
+                NSLog("11111--\(Thread.current)")
             }
         }
-        NSLog("结束")
-        输出结果:
+        NSLog("完成了")
+        输出结果: 22:24:42.135427+0800 开始了
+                 22:24:42.141666+0800 完成了
+                 22:24:44.146355+0800 11111--<NSThread: 0x600003e8cb40>{number = 1, name = main}
+                 22:24:44.146625+0800 11111--<NSThread: 0x600003e8cb40>{number = 1, name = main}
+                 22:24:44.146794+0800 11111--<NSThread: 0x600003e8cb40>{number = 1, name = main}
+#### 分析:asyncAfter方法不会阻塞当前线程，DispatchTime.now() + 2.0:指在当前时间的基础上再加2秒后，将异步任务添加到主线程中执行； 
 
-        2020-04-04 22:26:50.811534+0800 WGFcodeNotes[4409:248519] 开始
-        2020-04-04 22:26:50.812228+0800 WGFcodeNotes[4409:248519] 结束
-        2020-04-04 22:26:50.918052+0800 WGFcodeNotes[4409:248519] ----0----
-        2020-04-04 22:26:50.918392+0800 WGFcodeNotes[4409:248519] ----1----
-        2020-04-04 22:26:50.918647+0800 WGFcodeNotes[4409:248519] ----2----
-##### 分析，发现asyncAfter不会阻塞当前线程，在2秒时间过后，才开始执行里面的任务，同时发现了一个现象，如果NSLog("结束")后面还有其他任务（暂时用任务A代替）的话，asyncAfter会一直等到任务A结束后，再过2秒才开始执行asyncAfter内的任务，所以我们就能理解asyncAfter方法一般用在网络请求成功后，等到展示完提示后的信息后，才开始跳转，因为后续没有什么任务了
+### DispatchTime和DispatchWallTime的区别
 
-##### DispatchTime.now()+2指相对当前时间的2秒后，也可以使用DispatchTimeInterval.seconds(2)表示，或者DispatchTimeInterval的其他单位表示，毫秒(milliseconds),微秒(milliseconds),纳秒(nanoseconds),也可以使用DispatchWallTime 表示绝对时间（系统时间，设备休眠计时不暂停），精度是微秒。DispatchWallTime的用法和DispatchTime差不多。
+* DispatchTime：定义的是相对的时间；会受到系统休眠等因素的影响，比如设备睡眠时，DispatchTime也跟着睡眠;
+* DispatchWallTime：定义的是绝对的时间；不会受到系统休眠等因素的影响
+* 比如: 有任务A和任务B，任务A用DispatchTime定义了10分钟后执行，任务B用DispatchWallTime也定义了10分钟  当等待了5分钟后，APP处于休眠状态了，那么任务A也会进入休眠状态，当再起启动APP的时候，任务A仍然是  需要等待10分钟后才执行的，而任务B不会受到系统休眠的影响，当APP重新启动的时候。(等待了5分钟，APP休眠+重新启动用了1分钟)，任务B只需要再等待4分钟就可以执行了
+* DispatchTimeInterval 可以用来表示DispatchTime和DispatchWallTime偏移量的时间间隔;是一个枚举类型
+        
+        苹果文档:Represents a time interval that can be used as an offset from a `DispatchTime` or `DispatchWallTime`
+        case seconds(Int)            单位是秒
+        case milliseconds(Int)       单位是毫秒
+        case microseconds(Int)       单位是微秒
+        case nanoseconds(Int)        单位是纳秒
+        case never                   没有时间间隔 
+
 
 ## 5. GCD中 barrier标志
 #### OC中应该说是barrier栅栏函数,在swift中是barrier标识，主要用于多个异步任务之间，控制指定的任务先执行，指定的任务后执行，其实类似GCD中的notify，但是区别就是，notify指的是添加到group内的所有任务都执行完才去通知notify block中的方法去执行，而barrier可以针对那些没有放在group组内的任务，可以是多个并发队列+异步任务，比如下面场景，任务4依赖任务1任务2任务3，任务5依赖任务4，而任务1任务2任务3都是可以分别独立执行，而任务5也可以独立执行，那么就可以使用栅栏将这些任务“分割”开来达到实际业务的需求
-        //如果是系统创建的全局队列，barrier并没有起到效果，所以barrier不能用于全局队列
+        如果是系统创建的全局队列，barrier并没有起到效果，所以barrier不能用于全局队列
         //let concurrencyQueue = DispatchQueue.global()
+        NSLog("开始了")
         let concurrencyQueue = DispatchQueue.init(label: "并发队列", attributes: .concurrent)
         concurrencyQueue.async {
             Thread.sleep(forTimeInterval: 2)
@@ -735,21 +757,23 @@
         concurrencyQueue.async {
             NSLog("5555--\(Thread.current)")
         }
-        输出结果:
-
-        2020-04-05 09:39:02.621259+0800 WGFcodeNotes[1370:43152] 22222--<NSThread: 0x6000016f18c0>{number = 6, name = (null)}
-        2020-04-05 09:39:02.621259+0800 WGFcodeNotes[1370:43154] 33333--<NSThread: 0x6000016a80c0>{number = 4, name = (null)}
-        2020-04-05 09:39:04.626118+0800 WGFcodeNotes[1370:43153] 11111--<NSThread: 0x6000016a0480>{number = 5, name = (null)}
-        2020-04-05 09:39:07.631711+0800 WGFcodeNotes[1370:43153] 44444--<NSThread: 0x6000016a0480>{number = 5, name = (null)}
-        2020-04-05 09:39:07.632105+0800 WGFcodeNotes[1370:43153] 5555--<NSThread: 0x6000016a0480>{number = 5, name = (null)}
-##### 分析:任务1+任务2+任务3完成之前，barrier会阻塞当前线程，直到任务1+任务2+任务3全部完成后，才去执行任务4和任务5，同时注意到，任务4一定是比任务5优先执行的，同时也验证了将异步任务添加到系统创建的全局队列中，barrier是不会阻塞线程的，是达不到上面的执行顺序的，所以 barrier不能用于全局队列(全局并发队列)
-### 结论:barrier用于任务块之间的执行顺序上的分割，这些任务必须放在同一个队列中，但是barrier不能用于全局队列
+        NSLog("完成了")
+        
+        输出结果: 23:01:32.581077+0800 开始了
+                23:01:32.582589+0800 完成了
+                23:01:32.582658+0800 33333--<NSThread: 0x600000471380>{number = 5, name = (null)}
+                23:01:32.582662+0800 22222--<NSThread: 0x60000042a6c0>{number = 3, name = (null)}
+                23:01:34.585967+0800 11111--<NSThread: 0x6000004101c0>{number = 4, name = (null)}
+                23:01:37.588499+0800 44444--<NSThread: 0x6000004101c0>{number = 4, name = (null)}
+                23:01:37.588967+0800 5555--<NSThread: 0x6000004101c0>{number = 4, name = (null)}
+#### 分析: 添加的barrier栅栏标示不会阻塞当前的线程；阻塞的是队列中栅栏barrier后的任务(任务4和任务5)，直到任务1任务2任务3完成后，才开始执行被标识为barrier栅栏的任务4及其后的任务(任务5)，这里任务4的执行顺序一定是优先于任务5的；  结论:barrier用于任务块之间的执行顺序上的分割，这些任务必须放在同一个队列中，但是barrier不能用于全局队列
 
 
 
 ## 6. GCD 信号量
 ### GCD中信号量DispatchSemaphore，用于控制线程并发数，初始化一个值创建信号量对象，wait()方法使信号量-1，signal()方法使信号量+1，当信号量为0的时候会阻塞当前线程，等待信号量大于0，恢复线程，主要用于多线程之间的同步，锁也可以实现多线程同步，但不同的是，锁是锁住某一资源，而信号量是逻辑上的“锁住”
 
+        NSLog("开始了")
         let semp = DispatchSemaphore.init(value: 0)
         DispatchQueue.global().async {
             NSLog("11111--\(Thread.current)")
@@ -770,17 +794,17 @@
         DispatchQueue.global().async {
             NSLog("33333--\(Thread.current)")
         }
+        NSLog("完成了")
 
-        输出结果: 
-
-        2020-04-05 13:50:11.471740+0800 WGFcodeNotes[2602:149807] 11111--<NSThread: 0x600003a74200>{number = 4, name = (null)}
-        2020-04-05 13:50:11.472221+0800 WGFcodeNotes[2602:149807] 22222--<NSThread: 0x600003a74200>{number = 4, name = (null)}
-        2020-04-05 13:50:11.472344+0800 WGFcodeNotes[2602:149807] 22222--<NSThread: 0x600003a74200>{number = 4, name = (null)}
-        2020-04-05 13:50:11.472485+0800 WGFcodeNotes[2602:149807] 22222--<NSThread: 0x600003a74200>{number = 4, name = (null)}
-        2020-04-05 13:50:11.472711+0800 WGFcodeNotes[2602:149807] 33333--<NSThread: 0x600003a74200>{number = 4, name = (null)}
-##### 分析： 通过信号量的变化来控制多线程中的任务实现同步(即控制多个异步任务的执行顺序)，从中可以发现，信号量为0并不一定会阻塞线程，比如初始化信号量设置为0，并没有阻塞接下来的任务执行，通过信号量为0来决定是否阻塞当前线程是根据遇到wait方法的时候来判断的，如果执行到wait方法了，此时如果信号量为0，那么wait方法后的代码就会被阻塞，知道wait前的方法执行完成后并且调用了signal方法
-
-
+        打印结果: 开始了
+                11111--<NSThread: 0x600002926b80>{number = 3, name = (null)}
+                22222--<NSThread: 0x600002926b80>{number = 3, name = (null)}
+                22222--<NSThread: 0x600002926b80>{number = 3, name = (null)}
+                22222--<NSThread: 0x600002926b80>{number = 3, name = (null)}
+                完成了
+                33333--<NSThread: 0x600002926b80>{number = 3, name = (null)}
+#### 分析: 信号量中的wait方法会阻塞当前的线程(通过“完成了”的打印信息顺序)；wait方法主要是根据当前的信号量是否
+大于0来决定是否阻塞当前线程，如果信号量>0则不阻塞当前线程，wait方法后的任务可以继续执行；如果信号量=0，则阻塞当前线程，wait方法后的任务需要等待wait方法前的任务，直到wait方法前的任务中调用了信号量的signal方法，使信号量+1；在多线程开发中我们通常使用信号量来控制队列中多个异步任务之间的执行顺序，来实现异步任务的同步执行。
 
 ## 使用场景：有多个异步任务完成后，才开始执行group.notify中Block中的操作
         //创建组
