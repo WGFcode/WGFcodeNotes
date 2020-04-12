@@ -25,16 +25,16 @@
         class func sleep(forTimeInterval ti: TimeInterval)         让线程睡眠多长时间(单位是TimeInterval)
         class func detachNewThreadSelector(_ selector: Selector, toTarget target: Any, with argument: Any?)
         //方法
-        func cancel()  //取消执行
-        func start()  //开始执行
-        func main()  //获取主线程
-        init()  //初始化方法
+        func cancel()  取消执行
+        func start()   开始执行
+        func main()    获取主线程
+        init()         初始化方法
         convenience init(block: @escaping () -> Void) (iOS 10.0)
         convenience init(target: Any, selector: Selector, object argument: Any?)
         //convenience 便利构造函数特点
-        //1便利构造函数通常都是写在extension里面
-        //2便利函数init前面需要加载convenience
-        //3在便利构造函数中需要明确的调用self.init()
+        1便利构造函数通常都是写在extension里面
+        2便利函数init前面需要加载convenience
+        3在便利构造函数中需要明确的调用self.init()
 
 ### 1.Thread 创建方式
 #### 1.1 通过初始化方式创建，需要手动启动线程，调用start方法
@@ -43,17 +43,19 @@
         @objc func testMethod() {
             NSLog("11111--\(Thread.current)")
         }
-        输出结果：
-        11111--<NSThread: 0x600000eecb40>{number = 6, name = (null)}
+        
+        打印结果：11111--<NSThread: 0x600000eecb40>{number = 6, name = (null)}
         
         注意:初始化方法中参数object其实就是传递给任务的参数
+        
         let thread1 = Thread.init(target: self, selector: #selector(method1(dic:)), object: ["key1": "value"])
         thread1.start()
         @objc func method1(dic: [String: String]) {
             NSLog("11111--\(Thread.current)--\(dic)")
         }
-        输出结果：
-        11111--<NSThread: 0x600001c5d680>{number = 6, name = (null)}--["key1": "value"]
+        
+        打印结果： 11111--<NSThread: 0x600001c5d680>{number = 6, name = (null)}--["key1": "value"]
+        
 #### 1.2 通过类方法创建，不需要手动启动，系统会自动开启线程的执行
         方式一:通过绑定事件来创建线程，这种方式可以为事件传递参数
         Thread.detachNewThreadSelector(#selector(textMethod(title:)), toTarget: self, with: "传递给调用方法的参数")
@@ -66,7 +68,9 @@
         @objc func textMethod(title: String) {
             NSLog("传递的参数:\(title)--11111--\(Thread.current)")
         }
-        输出结果：
+        
+        打印结果：
+        
         方式一：传递的参数:传递给调用方法的参数--11111--<NSThread: 0x60000075c1c0>{number = 6, name = (null)}
         方式二：11111--<NSThread: 0x6000007ba840>{number = 7, name = (null)}
 #### 1.3 通过NSObject扩展的方法隐式创建并自动启动线程
@@ -74,9 +78,9 @@
         @objc func testMethod() {
             NSLog("11111--\(Thread.current)")
         }
-        输出结果:
-        11111--<NSThread: 0x6000015f3480>{number = 6, name = (null)}
-     
+        
+        打印结果: 11111--<NSThread: 0x6000015f3480>{number = 6, name = (null)}
+        
 ### 2. Thread 状态
    * 新建: 创建线程对象(仅针对初始化的创建方式，类方法和performSelector方法没有该状态)
    * 就绪: 向对象发送start消息，线程对象被加入到可调度线程池，供CPU调度
@@ -110,9 +114,9 @@
             NSLog("当前是否是主线程:\(Thread.isMainThread)-当前剩余的苹果数:\(appleTotalNum)")
         }
 
-        打印的结果是：当前是否是主线程:false-当前剩余的苹果数:17
-                   当前是否是主线程:false-当前剩余的苹果数:17
-                   当前是否是主线程:false-当前剩余的苹果数:17
+        打印结果：当前是否是主线程:false-当前剩余的苹果数:17
+                当前是否是主线程:false-当前剩余的苹果数:17
+                当前是否是主线程:false-当前剩余的苹果数:17
 #### 我们期望的结果是:19-18-17，多个线程访问同一资源导致数据不符合实际业务 逻辑，为了保证同一时间只有一个线程访问资源，我们可以通过加线程锁来解决，在swift中使用objc_sync_enter()和objc_sync_exit()解决，OC中使用@synchronized()处理，一旦 调用objc_sync_enter以后，整个应用就会被锁定，直到遇到objc_sync_exit，所以这个方法是成对出现的，避免造成死锁
          @objc func eatApple() {
             objc_sync_enter(self)
@@ -121,9 +125,9 @@
             objc_sync_exit(self)
         }
 
-        打印结果如下: 当前是否是主线程:false-当前剩余的苹果数:19
-                    当前是否是主线程:false-当前剩余的苹果数:18
-                    当前是否是主线程:false-当前剩余的苹果数:17
+        打印结果: 当前是否是主线程:false-当前剩余的苹果数:19
+                当前是否是主线程:false-当前剩余的苹果数:18
+                当前是否是主线程:false-当前剩余的苹果数:17
 
 ### 5. Thread threadPriority优先级设置
         NSLog("开始了")
@@ -146,16 +150,15 @@
             }
         }
 
-        输出结果:
-        开始了
-        完成了
-        22222--<NSThread: 0x60000064c540>{number = 7, name = (null)}--0.8064516129032258
-        11111--<NSThread: 0x60000064c800>{number = 6, name = (null)}--0.3064516129032258
-        22222--<NSThread: 0x60000064c540>{number = 7, name = (null)}--0.8064516129032258
-        11111--<NSThread: 0x60000064c800>{number = 6, name = (null)}--0.3064516129032258
-        22222--<NSThread: 0x60000064c540>{number = 7, name = (null)}--0.8064516129032258
-        11111--<NSThread: 0x60000064c800>{number = 6, name = (null)}--0.3064516129032258
-##### threadPriority(Double类型)默认的优先级是0.5，优先级取值范围是0-1.0,设置优先级只能去控制多个线程之间哪个线程先开始执行任务，而不能控制任务的真实顺序；优先级高的线程里面的任务最先执行.The priorities in this range are mapped to the operating system's priority values. A “typical” thread priority might be 0.5, but because the priority is determined by the kernel, there is no guarantee what this value actually will be.这是苹果给的说明，意思就是优先级的值是由内核决定的，它确切的值不能保证是多少
+        打印结果: 开始了
+                完成了
+                22222--<NSThread: 0x60000064c540>{number = 7, name = (null)}--0.8064516129032258
+                11111--<NSThread: 0x60000064c800>{number = 6, name = (null)}--0.3064516129032258
+                22222--<NSThread: 0x60000064c540>{number = 7, name = (null)}--0.8064516129032258
+                11111--<NSThread: 0x60000064c800>{number = 6, name = (null)}--0.3064516129032258
+                22222--<NSThread: 0x60000064c540>{number = 7, name = (null)}--0.8064516129032258
+                11111--<NSThread: 0x60000064c800>{number = 6, name = (null)}--0.3064516129032258
+#### threadPriority(Double类型)默认的优先级是0.5，优先级取值范围是0-1.0,设置优先级只能去控制多个线程之间哪个线程先开始执行任务，而不能控制任务的真实顺序；优先级高的线程里面的任务最先执行.The priorities in this range are mapped to the operating system's priority values. A “typical” thread priority might be 0.5, but because the priority is determined by the kernel, there is no guarantee what this value actually will be.这是苹果给的说明，意思就是优先级的值是由内核决定的，它确切的值不能保证是多少
         
 ### 6. 服务优先级 qualityOfService
 #### 苹果文档是这么解释的:Used to indicate the nature and importance of work to the system. Work with higher quality of service classes receive more resources than work with lower quality of service classes whenever there is resource contention.意思就是标识这个任务的重要性，每当存在资源竞争时，服务质量高的任务将获得更多的资源
@@ -183,11 +186,11 @@
                 NSLog("22222--\(Thread.current)")
             }
         }
-        输出结果:
-        11111--<NSThread: 0x6000011287c0>{number = 5, name = (null)}
-        11111--<NSThread: 0x6000011287c0>{number = 5, name = (null)}
-        22222--<NSThread: 0x600001128a40>{number = 6, name = (null)}
-        22222--<NSThread: 0x600001128a40>{number = 6, name = (null)}
+        
+        打印结果: 11111--<NSThread: 0x6000011287c0>{number = 5, name = (null)}
+                 11111--<NSThread: 0x6000011287c0>{number = 5, name = (null)}
+                 22222--<NSThread: 0x600001128a40>{number = 6, name = (null)}
+                 22222--<NSThread: 0x600001128a40>{number = 6, name = (null)}
 #### 服务优先级高的任务能优先获得更多的资源
 ### 7. 线程睡眠，使线程处于等待状态
         let thread1 = Thread.init(target: self, selector: #selector(method1), object: nil)
@@ -201,7 +204,8 @@
             }
         }
 
-        输出结果:
+        打印结果:
+        
         2020-04-10 17:46:06.244175+0800 WGFcodeNotes[13188:379557] 11111--<NSThread: 0x600002e5f380>{number = 5, name = (null)}
         2020-04-10 17:46:06.244476+0800 WGFcodeNotes[13188:379557] 11111--<NSThread: 0x600002e5f380>{number = 5, name = (null)}
         2020-04-10 17:46:11.248910+0800 WGFcodeNotes[13188:379557] 11111--<NSThread: 0x600002e5f380>{number = 5, name = (null)}
@@ -219,10 +223,10 @@
             }
             NSLog("方法1执行完成了")
         }
-        输出结果:
-        11111--<NSThread: 0x600002436900>{number = 5, name = (null)}
-        11111--<NSThread: 0x600002436900>{number = 5, name = (null)}
-##### 正常情况下，线程中任务执行完成后，线程就销毁了，但是如果在执行任务过程中调用exit()方法，任务就会被终止，线程也提前进入死亡状态
+        
+        打印结果: 11111--<NSThread: 0x600002436900>{number = 5, name = (null)}
+                11111--<NSThread: 0x600002436900>{number = 5, name = (null)}
+#### 正常情况下，线程中任务执行完成后，线程就销毁了，但是如果在执行任务过程中调用exit()方法，任务就会被终止，线程也提前进入死亡状态
 
 
 
