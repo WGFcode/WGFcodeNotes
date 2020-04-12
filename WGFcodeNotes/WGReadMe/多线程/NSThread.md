@@ -54,7 +54,7 @@
             NSLog("11111--\(Thread.current)--\(dic)")
         }
         
-        打印结果： 11111--<NSThread: 0x600001c5d680>{number = 6, name = (null)}--["key1": "value"]
+        打印结果：11111--<NSThread: 0x600001c5d680>{number = 6, name = (null)}--["key1": "value"]
         
 #### 1.2 通过类方法创建，不需要手动启动，系统会自动开启线程的执行
         方式一:通过绑定事件来创建线程，这种方式可以为事件传递参数

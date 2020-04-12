@@ -22,24 +22,24 @@ public class WGMainVC : UIViewController {
     public override func viewDidLoad() {
         super.viewDidLoad()
         self.view.backgroundColor = UIColor.green
-        let thread1 = Thread.init(target: self, selector: #selector(method1), object: nil)
-        let thread2 = Thread.init(target: self, selector: #selector(method2), object: nil)
-        thread1.qualityOfService = .userInteractive
-        thread2.qualityOfService = .background
-        thread1.start()
-        thread2.start()
+        
+        NSLog("开始了")
+        DispatchQueue.global().asyncAfter(deadline: DispatchTimeInterval.seconds(3)) {
+            NSLog("11111--\(Thread.current)")
+        }
+        NSLog("完成了")
+      
+        
+        
+        NSLog("👌开始了")
+        DispatchQueue.global().asyncAfter(wallDeadline: DispatchWallTime.init(timespec: <#T##timespec#>)) {
+            NSLog("👌11111--\(Thread.current)")
+        }
+        NSLog("👌完成了")
+        
     }
     
-    @objc func method1() {
-        for _ in 0...1 {
-            NSLog("11111--\(Thread.current)---")
-        }
-    }
-    @objc func method2() {
-        for _ in 0...1 {
-            NSLog("22222--\(Thread.current)---")
-        }
-    }
+
 }
 
 

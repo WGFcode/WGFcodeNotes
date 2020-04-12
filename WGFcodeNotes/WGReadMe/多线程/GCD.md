@@ -26,397 +26,509 @@
 * GCD组中使用notify和wait方法时，需要注意，如果组内的任务中嵌套了异步任务，例如group中有任务A(异步任务A1)，任务B，任务C，如果遇到这种情况【组内所有任务完成后，才notify任务D开始执行】和【利用wait方法来使任务A执行完成后才开始执行任务B】时，其实是不能满足我们的要求的，因为任务A中嵌套了异步任务A1，而异步任务是直接返回的，所以notify或者wait就认为任务A完成了，其实并没有完成，这种情况下 ，我们需要使用group中的enter和leave方法，来分别告诉group（或者理解成告诉notify或者wait）存在一个未完成的任务和未完成的任务已经离开了，来实现任务A真正的执行完成了
 
 
-## GCD中重要的概念: 任务、队列
-###  任务
-#####  就是一段执行的代码，即GCD中的Block内执行的代码
-##### 执行任务有两种形式:  同步执行(sync) 和 异步执行(async)
-##### 同步执行: 只能在当前线程中执行，不具备开启新线程的能力，任务结束之前会阻塞当前线程，必须等任务执行完成后才能进行往下走，即同一时间只有一个任务被执行
-##### 异步执行：具备开启新线程的能力(但是不一定开启新线程，需要根据任务所在的队列决定)，异步任务添加到队列后，不会阻塞当前线程，后续的操作不需要等待就可以继续执行，即同一时间可以有多个任务被执行
+## 1.GCD中重要的概念: 任务、队列
+
+###  任务：
+#### 任务就是一段执行的代码，即GCD中的Block内执行的代码；分为同步(sync)和异步(async)
+* 同步(sync): 任务只能在当前线程中执行，不具备开启新线程的能力，会阻塞当前线程，即必须等待任务完成后才能执行后续的操作，同一时间只有一个任务被执行；
+* 异步(async)：任务可以在多个线程中执行，具备开启新线程的能力，不会阻塞当前线程，即不需要等待任务完成就可以执行后续的操作，同一时间可以有多个任务被执行；
+##### 注意： 异步只是具备开启新线程的能力，但不是一定会开启新线程，需要根据任务所在的队列来判断，比如串行队列+多个异步任务中只开启了一条新线程；主队列+多个异步任务中并没有开启新的线程，所有异步任务都是在主线程中执行的；
 
 
 ### 队列
-##### 就是用来存放任务的地方，队列是一种特殊的线性表(先用先出)
-##### GCD中有两种队列: 串行队列 和 并发队列
-##### 串行队列：每次只有一个任务被执行，一个任务执行完毕后，再执行下一个任务
+#### 队列就是用来存放任务的地方，队列是一种特殊的线性表(先用先出)，GCD中主要分串行队列和并发队列，根据是不是系统创建的又扩展了全局队列和主队列
+* 串行队列：每次只有一个任务被执行，一个任务执行完毕后，再执行下一个任务
     let serialQueue = DispatchQueue.init(label: "串行队列名称")
-##### 并发队列：可以让多个任务并发（同时）执行
+* 并发队列：可以让多个任务并发（同时）执行
     let concurrencyQueue = DispatchQueue.init(label: "并发队列名称", attributes: .concurrent)
-##### 主队列: 其实就是串行队列的一种,区别就是主队列中的任务只能在主线程中执行
+* 主队列: 其实就是串行队列的一种,区别就是主队列中的任务只能在主线程中执行
     let mainQueue = DispatchQueue.main
-##### 全局队列: 其实就是并发队列的一种，区别就是并发队列需要我们自己创建，而全局队列由系统提供 
+* 全局队列: 其实就是并发队列的一种，区别就是并发队列需要我们自己创建，而全局队列由系统提供 
     let globalQueue = DispatchQueue.global()
+    
+    
+### 任务的创建方式
+#### 任务的创建是依托队列的，无论是串行队列，并发队列，主队列，还是全局队列，创建方式都有下列几种
+        串行队列
+        let queue = DispatchQueue.init(label: "串行队列名称")
+        并发队列
+        let queue = DispatchQueue.init(label: "并发队列名称", attributes: .concurrent)
+        主队列
+        let queue = DispatchQueue.main
+        全局队列
+        let queue = DispatchQueue.global()
+        //创建异步任务
+        方式一:将异步任务封装到Block中
+        queue.async {
+            code
+        }
+        方式二: 将异步任务封装在DispatchWorkItem对象中
+        queue.async(execute: DispatchWorkItem)
+        方式三: 将异步任务封装在DispatchWorkItem对象中，并将其放到指定的group组中
+        queue.async(group: DispatchGroup, execute: DispatchWorkItem)
+        方式四: 将任务封装在Block中，设置所在的group组，设置任务的服务质量或者说是优先级，对DispatchWorkItem对象的相关设置
+        queue.async(group: DispatchGroup?, qos: DispatchQoS, flags: DispatchWorkItemFlags, execute: () -> Void)
+        方式五: 和方式四一样，只是去掉了相对应的设置项或者是采用了默认的设置
+        queue.async(execute: () -> Void)
+        
+        //创建同步任务
+        方式一: 将同步任务封装在block中
+        queue.sync {
+            code
+        }
+        和方式一是一样的
+        queue.sync(execute: () -> Void)
+        方式二: 将任务封装在DispatchWorkItem对象中
+        queue.sync(execute: DispatchWorkItem)
+## DispatchWorkItem/DispatchQoS/DispatchWorkItemFlags解析
+### 1.DispatchWorkItem对象，在创建任务的时候可以将任务封装成DispatchWorkItem对象。苹果给出文档说明:The work you want to perform, encapsulated in a way that lets you attach a completion handle or execution dependencies. A DispatchWorkItem encapsulates work to be performed on a dispatch queue or within a dispatch group(想要执行的工作以某种方式封装，可以附加完成句柄或执行依赖项。 DispatchWorkItem封装要在调度队列上或在调度组内执行的工作)
 
-#####  队列+任务的组合方式如下
-## 1.串行队列+同步任务
+        func perform()                      开始执行
+        func wait()                         等待
+        func cancel()                       取消执行
+        var isCancelled: Bool { get }       是否取消执行了
+        func wait(timeout: DispatchTime) -> DispatchTimeoutResult           设置等待的时间
+        func wait(wallTimeout: DispatchWallTime) -> DispatchTimeoutResult   设置等待的时间
+        func notify(queue: DispatchQueue, execute: DispatchWorkItem)        通知指定队列完成
+        func notify(qos: DispatchQoS = .unspecified, flags: DispatchWorkItemFlags = [], queue: DispatchQueue, execute: @escaping @convention(block) () -> Void)
+        init(qos: DispatchQoS = .unspecified, flags: DispatchWorkItemFlags = [], block: @escaping @convention(block) () -> Void)
+#### DispatchWorkItem其核心就是封装一个可以执行的闭包。可以通过perform()方法直接执行内部的闭包，执行顺序是按照代码顺序执行的；如果是添加到队列中，则封装的闭包由队列来调度，也就不需要执行perform方法，执行顺序是根据队列中的任务来决定的；也可以设置闭包任务的延时/等待/取消/通知等
+
+        NSLog("开始了")
+        let workItem = DispatchWorkItem.init {
+            for _ in 0...2 {
+                NSLog("11111--\(Thread.current)")
+            }
+        }
+        workItem.perform()
+        NSLog("完成了")
+        
+        打印结果: 开始了
+                11111--<NSThread: 0x600003bed040>{number = 1, name = main}
+                11111--<NSThread: 0x600003bed040>{number = 1, name = main}
+                11111--<NSThread: 0x600003bed040>{number = 1, name = main}
+                完成了
+                
+        NSLog("开始了")
+        let workItem = DispatchWorkItem.init {
+            for _ in 0...2 {
+                NSLog("11111--\(Thread.current)")
+            }
+        }
+        DispatchQueue.global().async(execute: workItem)
+        NSLog("完成了")
+
+        打印结果: 开始了
+                完成了
+                11111--<NSThread: 0x6000012a5d00>{number = 6, name = (null)}
+                11111--<NSThread: 0x6000012a5d00>{number = 6, name = (null)}
+                11111--<NSThread: 0x6000012a5d00>{number = 6, name = (null)}
+### 2. DispatchQoS 服务质量等级
+#### 苹果文档说明:The quality of service, or the execution priority, to apply to tasks.(用于设置任务的服务质量或者执行优先级)。通过设置服务等级来指定任务的重要性，系统会对其进行优先级排序并相应地对其进行调度，优先级高的任务可以获得更多系统资源，更快的被执行。DispatchQoS是个结构体类型，有如下项
+        优先级从高到低
+        public static let userInteractive: DispatchQoS
+        public static let userInitiated: DispatchQoS
+        public static let `default`: DispatchQoS
+        public static let utility: DispatchQoS
+        public static let background: DispatchQoS
+        public static let unspecified: DispatchQoS
+
+### 3. DispatchWorkItemFlags
+#### 苹果文档说明:A set of behaviors for a work item, such as its quality-of-service class and whether to create a barrier or spawn a new detached thread.(工作项的一组行为，例如其服务质量类以及是否创建屏障或生成新的分离线程。)详细的应该查看[_block _flags _t](https://developer.apple.com/documentation/dispatch/dispatch_block_flags_t),项目中最常用到的就是设置barrier栅栏，等到栅栏前的任务都完成后才执行栅栏后的任务
+
+        static let barrier: DispatchWorkItemFlags               使工作项在提交到并发队列时充当障碍块。
+        static let detached: DispatchWorkItemFlags              取消工作项的属性与当前执行上下文的关联。
+        static let assignCurrentContext: DispatchWorkItemFlags  设置工作项的属性以匹配当前执行上下文的属性。
+        static let noQoS: DispatchWorkItemFlags                 执行工作项，而不分配服务质量等级。
+        static let inheritQoS: DispatchWorkItemFlags            首选与当前执行上下文关联的服务质量类。
+        static let enforceQoS: DispatchWorkItemFlags            首选与该块关联的服务质量类。
+
+         NSLog("开始了")
+         let queue = DispatchQueue.init(label: "并发队列", attributes: .concurrent)
+         queue.async {
+             for _ in 0...1 {
+                 NSLog("11111--\(Thread.current)")
+             }
+         }
+        queue.async(flags: .barrier) {
+             for _ in 0...1 {
+                 NSLog("22222--\(Thread.current)")
+             }
+         }
+         queue.async {
+             for _ in 0...1 {
+                 NSLog("44444--\(Thread.current)")
+             }
+         }
+         NSLog("完成了")
+         
+         打印结果: 开始了
+                 完成了
+                 11111--<NSThread: 0x6000010ea640>{number = 3, name = (null)}
+                 11111--<NSThread: 0x6000010ea640>{number = 3, name = (null)}
+                 22222--<NSThread: 0x6000010ea640>{number = 3, name = (null)}
+                 22222--<NSThread: 0x6000010ea640>{number = 3, name = (null)}
+                 44444--<NSThread: 0x6000010ea640>{number = 3, name = (null)}
+                 44444--<NSThread: 0x6000010ea640>{number = 3, name = (null)}
+
+#### 设置队列中任务的栅栏barrier属性，可以使队列中设置栅栏任务(任务2)前的任务(任务1)先执行，等任务1执行完成后才执行队列中栅栏任务后的任务(任务4)，这个过程并不会阻塞当前线程。
+
+
+##  队列+任务组合
+### 1.1 串行队列+同步任务
         //1串行队列+单个同步任务
-        NSLog("在当前线程(主线程)中处理完任务了:\(Thread.current)")
+        NSLog("开始了，当前线程--\(Thread.current)")
         let serialQueue = DispatchQueue.init(label: "串行队列名称")
         serialQueue.sync {
-            NSLog("开始执行同步任务，当前的线程是:\(Thread.current)")
+            for _ in 0...2 {
+                NSLog("11111--\(Thread.current)")
+            }
         }
-        NSLog("开始执行串行队列外的其它任务")
-
-        输出结果:
-
-        在当前线程(主线程)中处理完任务了:<NSThread: 0x60000009ed80>{number = 1, name = main}
-        开始执行同步任务，当前的线程是:<NSThread: 0x600002906d80>{number = 1, name = main}
-        开始执行串行队列外的其它任务
-##### 分析：同步任务会阻塞当前线程(主线程),直到同步任务执行完成后，才执行后续的代码
-##### 思考:如果不在主线程中执行上面的代码，会怎么样？会不会也阻塞当前线程(非主线程)
+        NSLog("结束了")
+        打印结果: 开始了，当前线程--<NSThread: 0x60000060ed80>{number = 1, name = main}
+                11111--<NSThread: 0x60000060ed80>{number = 1, name = main}
+                11111--<NSThread: 0x60000060ed80>{number = 1, name = main}
+                11111--<NSThread: 0x60000060ed80>{number = 1, name = main}
+                结束了
+        
+#### 分析：将同步任务添加到串行队列中，同步任务会阻塞当前的线程(主线程)，直到串行队列中的同步任务完成后才执行后续的任务(打印了"结束了"信息)；思考->如果当前线程不是主线程，会不会阻塞当前线程？
         let thread1 = Thread.init(target: self, selector: #selector(method1), object: nil)
         thread1.start()
         @objc func method1() {
-            //1串行队列 + 单个同步任务
-            NSLog("在当前线程中处理完任务了:\(Thread.current)")
+            NSLog("开始了，当前线程--\(Thread.current)")
             let serialQueue = DispatchQueue.init(label: "串行队列名称")
             serialQueue.sync {
-                NSLog("开始执行同步任务，当前的线程是:\(Thread.current)")
+                for _ in 0...2 {
+                    NSLog("11111--\(Thread.current)")
+                }
             }
-            NSLog("开始执行串行队列外的其它任务")
+            NSLog("结束了")
         }
-        
-        输出结果：
-        
-        在当前线程中处理完任务了:<NSThread: 0x600003d7d040>{number = 6, name = (null)}
-        开始执行同步任务，当前的线程是:<NSThread: 0x600003d7d040>{number = 6, name = (null)}
-        开始执行串行队列外的其它任务
-##### 分析发现，同步任务确实阻塞了当前线程(不管当前线程是主线程还是非主线程)，必须等sync block中的任务执行完成后才能执行它后面的任务
-##### 如果在串行队列中添加多个同步任务，同步任务之间的执行顺序会是什么样的？
-        //1串行队列+多个同步任务
-        NSLog("在当前线程(主线程)中处理完任务了:\(Thread.current)")
+        打印结果: 开始了，当前线程--<NSThread: 0x600001b26ac0>{number = 6, name = (null)}
+                11111--<NSThread: 0x600001b26ac0>{number = 6, name = (null)}
+                11111--<NSThread: 0x600001b26ac0>{number = 6, name = (null)}
+                11111--<NSThread: 0x600001b26ac0>{number = 6, name = (null)}
+                结束了
+
+#### 分析:如果当前线程不是主线程，同步任务仍然会阻塞当前的线程，直到队列中的同步任务完成后才执行后续的操作；思考->如果串行队列中放多个同步任务，那么这些同步任务之间的执行顺序是什么样的?
+        NSLog("开始了")
         let serialQueue = DispatchQueue.init(label: "串行队列名称")
         serialQueue.sync {
-            NSLog("11111开始执行同步任务，当前的线程是:\(Thread.current)")
-        }
-        serialQueue.sync {
-            NSLog("22222开始执行同步任务，当前的线程是:\(Thread.current)")
-        }
-        serialQueue.sync {
-            NSLog("33333开始执行同步任务，当前的线程是:\(Thread.current)")
-        }
-        NSLog("开始执行串行队列外的其它任务")
-        
-        输出结果：
-        
-        在当前线程(主线程)中处理完任务了:<NSThread: 0x60000123ad80>{number = 1, name = main}
-        11111开始执行同步任务，当前的线程是:<NSThread: 0x60000123ad80>{number = 1, name = main}
-        22222开始执行同步任务，当前的线程是:<NSThread: 0x60000123ad80>{number = 1, name = main}
-        33333开始执行同步任务，当前的线程是:<NSThread: 0x60000123ad80>{number = 1, name = main}
-        开始执行串行队列外的其它任务
-##### 分析：串行队列中添加多个同步任务，同步任务之间是按照顺序执行的
-##### 结论；同步任务+串行队列   不会开启新的线程，会阻塞当前线程(指的是串行队列里面的所有任务阻塞串行队列外的后续任务，直到队列中的所有任务全部执行完成后才开始执行队列外的后续任务)
-
-
-## 2.串行队列+异步任务
-        //2串行队列+单个异步任务
-        NSLog("在当前线程中处理完任务了:\(Thread.current)")
-        let serialQueue = DispatchQueue.init(label: "串行队列名称")
-        serialQueue.async {
-            NSLog("开始执行异步任务，当前的线程是:\(Thread.current)")
-        }
-        NSLog("开始执行串行队列外的其它任务")
-        
-        输出结果：
-        
-        在当前线程中处理完任务了:<NSThread: 0x600000f22140>{number = 1, name = main}
-        开始执行串行队列外的其它任务
-        开始执行异步任务，当前的线程是:<NSThread: 0x600000f42040>{number = 3, name = (null)}
-##### 分析：发现异步任务开启了新的线程，但是并没有阻塞当前线程(主线程)，即async任务后的操作(打印“完成了”信息)不会去等待async block中的任务完成之后再执行，如果当前线程不是主线程，那么异步任务是否也不会阻塞当前线程(非主线程)，答案是肯定的，验证代码如下
-        let thread1 = Thread.init(target: self, selector: #selector(method1), object: nil)
-        thread1.start()
-        @objc func method1() {
-            //2.串行队列+单个异步任务
-            NSLog("在当前线程中处理完任务了:\(Thread.current)")
-            let serialQueue = DispatchQueue.init(label: "串行队列名称")
-            serialQueue.async {
-                NSLog("开始执行异步任务，当前的线程是:\(Thread.current)")
+            for _ in 0...1 {
+                NSLog("11111--\(Thread.current)")
             }
-            NSLog("开始执行串行队列外的其它任务")
         }
+        serialQueue.sync {
+            for _ in 0...1 {
+                NSLog("22222--\(Thread.current)")
+            }
+        }
+        serialQueue.sync {
+            for _ in 0...1 {
+                NSLog("33333--\(Thread.current)")
+            }
+        }
+        NSLog("结束了")
         
-        输出结果：
-        
-        在当前线程中处理完任务了:<NSThread: 0x600000e0df40>{number = 6, name = (null)}
-        开始执行串行队列外的其它任务
-        开始执行异步任务，当前的线程是:<NSThread: 0x600000e68bc0>{number = 4, name = (null)}
+        打印结果：开始了
+                11111--<NSThread: 0x6000027f56c0>{number = 1, name = main}
+                11111--<NSThread: 0x6000027f56c0>{number = 1, name = main}
+                22222--<NSThread: 0x6000027f56c0>{number = 1, name = main}
+                22222--<NSThread: 0x6000027f56c0>{number = 1, name = main}
+                33333--<NSThread: 0x6000027f56c0>{number = 1, name = main}
+                33333--<NSThread: 0x6000027f56c0>{number = 1, name = main}
+                结束了
 
-##### 如果在串行队列中放多个异步任务，那么多个异步任务的在串行队列中执行顺序是什么?
-        //2.串行队列+多个异步任务
-        NSLog("在当前线程中处理完任务了:\(Thread.current)")
+#### 分析：串行队列中添加多个同步任务，首先就是同步任务会阻塞当前线程，直到队列中所有任务都完成后才执行后续的操作；其次队列中任务之间执行顺序是串行的，即按照顺序一个一个的执行，同一时间只有一个任务被执行
+#### 结论；同步任务+串行队列   不会开启新的线程，会阻塞当前线程(可以是主线程也可以是非主线程),队列中任务之间的执行顺序是串行的，会按照顺序一个一个的执行，同一时间只能有一个任务被执行。
+
+
+### 1.2 串行队列+异步任务
+        NSLog("开始了")
         let serialQueue = DispatchQueue.init(label: "串行队列名称")
         serialQueue.async {
             for _ in 0...2 {
-                NSLog("11111开始执行同步任务，当前的线程是:\(Thread.current)")
+                NSLog("11111--\(Thread.current)")
             }
         }
         serialQueue.async {
             for _ in 0...2 {
-                NSLog("22222开始执行同步任务，当前的线程是:\(Thread.current)")
+                NSLog("22222--\(Thread.current)")
             }
         }
         serialQueue.async {
             for _ in 0...2 {
-                NSLog("33333开始执行同步任务，当前的线程是:\(Thread.current)")
+                NSLog("33333--\(Thread.current)")
             }
         }
-        NSLog("开始执行串行队列外的其它任务")
+        NSLog("结束了")
         
-        输出结果：
-        
-        在当前线程中处理完任务了:<NSThread: 0x6000013d2d80>{number = 1, name = main}
-        开始执行串行队列外的其它任务
-        11111开始执行同步任务，当前的线程是:<NSThread: 0x600001389700>{number = 5, name = (null)}
-        11111开始执行同步任务，当前的线程是:<NSThread: 0x600001389700>{number = 5, name = (null)}
-        11111开始执行同步任务，当前的线程是:<NSThread: 0x600001389700>{number = 5, name = (null)}
-        22222开始执行同步任务，当前的线程是:<NSThread: 0x600001389700>{number = 5, name = (null)}
-        22222开始执行同步任务，当前的线程是:<NSThread: 0x600001389700>{number = 5, name = (null)}
-        22222开始执行同步任务，当前的线程是:<NSThread: 0x600001389700>{number = 5, name = (null)}
-        33333开始执行同步任务，当前的线程是:<NSThread: 0x600001389700>{number = 5, name = (null)}
-        33333开始执行同步任务，当前的线程是:<NSThread: 0x600001389700>{number = 5, name = (null)}
-        33333开始执行同步任务，当前的线程是:<NSThread: 0x600001389700>{number = 5, name = (null)}
-##### 可以发现在串行队列中放多个异步任务时，异步任务只开启了一条线程，并且这些异步任务之间是按照顺序执行的
-##### 结论: 串行队列+异步任务   只会开启一条新的线程，不会阻塞当前的线程(串行队列外的代码执行不会被阻塞 )；异步任务之间是按照顺序执行的（因为串行队列中的所有任务都是一个一个的执行，无论它是同步还是异步）
+        打印结果：开始了
+                结束了
+                11111--<NSThread: 0x600000e02000>{number = 5, name = (null)}
+                11111--<NSThread: 0x600000e02000>{number = 5, name = (null)}
+                11111--<NSThread: 0x600000e02000>{number = 5, name = (null)}
+                22222--<NSThread: 0x600000e02000>{number = 5, name = (null)}
+                22222--<NSThread: 0x600000e02000>{number = 5, name = (null)}
+                22222--<NSThread: 0x600000e02000>{number = 5, name = (null)}
+                33333--<NSThread: 0x600000e02000>{number = 5, name = (null)}
+                33333--<NSThread: 0x600000e02000>{number = 5, name = (null)}
+                33333--<NSThread: 0x600000e02000>{number = 5, name = (null)}
+#### 分析: 串行队列中添加异步任务，不会阻塞当前的线程，虽然添加了多个任务，但只开启了一条新的子线程，多个异步任务之间的执行顺序也是按照串行顺序执行的，即一个任务完成后才能执行下一个任务，同一时间只有一个任务被执行。
+#### 结论: 串行队列+异步任务   只会开启一条新的线程，不会阻塞当前的线程；异步任务之间的执行顺序是串行的，任务按照顺序在新开的线程中一个一个的执行，同一时间只有一个任务被执行。
 
-##### 至此有一些心得体会了吧：同步任务会阻塞当前线程，异步不会阻塞当前线程，阻塞不阻塞针对的是队列中的所有任务是否对队列外的后续任务有阻塞，而队列中的任务之间的执行顺序要看所在的队列是串行的还是并发的
+##### 心得体会: 同步任务会阻塞当前线程，异步任务不会阻塞当前线程，阻塞不阻塞针对的是队列中的所有任务是否对队列外的后续任务有阻塞；而队列中的任务之间的执行顺序要看所在的队列是串行的还是并发的
 
-## 3.并发队列+同步任务
-        //3.并发队列+单个同步任务
-        NSLog("在当前线程(主线程)中处理完任务了:\(Thread.current)")
+### 1.3 并发队列+同步任务
+        //3.并发队列+多个同步任务
+        NSLog("开始了")
         let concurrencyQueue = DispatchQueue.init(label: "并发队列名称", attributes: .concurrent)
         concurrencyQueue.sync {
-            NSLog("11111开始执行同步任务，当前的线程是:\(Thread.current)")
-        }
-        NSLog("并发队列外的任务开始执行")
-        
-        输出结果:
-        
-        在当前线程(主线程)中处理完任务了:<NSThread: 0x600003ce6140>{number = 1, name = main}
-        11111开始执行同步任务，当前的线程是:<NSThread: 0x600003ce6140>{number = 1, name = main}
-        并发队列外的任务开始执行
-##### 分析：同步任务不会开启新的线程，会阻塞当前线程(队列外的后续任务会等待队列中的任务执行完成后才开始执行)
-        //3.并发队列+对个同步任务
-        NSLog("在当前线程(主线程)中处理完任务了:\(Thread.current)")
-        let concurrencyQueue = DispatchQueue.init(label: "并发队列名称", attributes: .concurrent)
-        concurrencyQueue.sync {
-            NSLog("11111开始执行同步任务，当前的线程是:\(Thread.current)")
+            for _ in 0...1 {
+                NSLog("11111--\(Thread.current)")
+            }
         }
         concurrencyQueue.sync {
-            NSLog("22222开始执行同步任务，当前的线程是:\(Thread.current)")
+            for _ in 0...1 {
+                NSLog("22222--\(Thread.current)")
+            }
         }
         concurrencyQueue.sync {
-            NSLog("33333开始执行同步任务，当前的线程是:\(Thread.current)")
+            for _ in 0...1 {
+                NSLog("33333--\(Thread.current)")
+            }
         }
-        NSLog("并发队列外的任务开始执行")
+        NSLog("结束了")
         
-        输出结果:
-        
-        在当前线程(主线程)中处理完任务了:<NSThread: 0x600000216140>{number = 1, name = main}
-        11111开始执行同步任务，当前的线程是:<NSThread: 0x600000216140>{number = 1, name = main}
-        22222开始执行同步任务，当前的线程是:<NSThread: 0x600000216140>{number = 1, name = main}
-        33333开始执行同步任务，当前的线程是:<NSThread: 0x600000216140>{number = 1, name = main}
-        并发队列外的任务开始执行
-##### 分析，多个同步任务之间也是按照顺序执行的，虽然是在并发队列中，但是并没有开启新的线程，所以也就无法达到并行的效
-##### 结论：并发队列+同步任务，不会开启新的线程，所以队列中的同步任务 之间按照顺序执行；会阻塞当前线程(队列中的所有任务会阻塞队列外的后续任务的执行，直到队列中的所有任务执行完成后才执行)，
+        打印结果: 开始了
+                11111--<NSThread: 0x600003aaad80>{number = 1, name = main}
+                11111--<NSThread: 0x600003aaad80>{number = 1, name = main}
+                22222--<NSThread: 0x600003aaad80>{number = 1, name = main}
+                22222--<NSThread: 0x600003aaad80>{number = 1, name = main}
+                33333--<NSThread: 0x600003aaad80>{number = 1, name = main}
+                33333--<NSThread: 0x600003aaad80>{number = 1, name = main}
+                结束了
 
-##### 心得：其实 并发队列+同步任务 和 串行队列+同步任务 的效果是一样的，阻塞当前线程，任务之间按照顺序依次执行
+#### 分析：因为是同步任务，所以不会开启新的线程，而且会阻塞当前的线程；虽然是在并发队列中，但是由于没有开启新的线程，只能在当前线程中执行，并不具备并发执行的条件，所以任务之间的执行顺序只能是串行的，即一个任务完成后才能执行下一个任务，同一时间只能有一个任务被执行
 
+#### 结论：并发队列+同步任务 不会开启新的线程，会阻塞当前线程，队列中所有的任务只能在当前线程中执行；队列中的任务之间的执行顺序是串行的，即同一时间只能有一个任务被执行 
 
-## 4.并发队列+异步任务
-        //4.并发队列+单个异步任务
-        NSLog("在当前线程(主线程)中处理完任务了:\(Thread.current)")
+##### 心得体会：其实 并发队列+同步任务 和 串行队列+同步任务 的效果是一样的，都是阻塞当前线程，都没有开启新的线程，任务之间执行顺序都是串行的，即一个任务完成后才能执行下一个任务
+
+### 1.4并发队列+异步任务
+        //4.并发队列+异步任务
+        NSLog("开始了")
         let concurrencyQueue = DispatchQueue.init(label: "并发队列名称", attributes: .concurrent)
         concurrencyQueue.async {
-            NSLog("11111开始执行异步任务，当前的线程是:\(Thread.current)")
-        }
-        NSLog("并发队列外的任务开始执行")
-        
-        输出结果:
-        
-        在当前线程(主线程)中处理完任务了:<NSThread: 0x600003d8e6c0>{number = 1, name = main}
-        并发队列外的任务开始执行
-        11111开始执行异步任务，当前的线程是:<NSThread: 0x600003df3000>{number = 5, name = (null)}
-##### 分析：开启了新的线程；没有阻塞当前的线程（并发队列外的后续代码执行并没有被并发队列中的任务阻塞）
-        //4.并发队列+多个异步任务
-        NSLog("在当前线程(主线程)中处理完任务了:\(Thread.current)")
-        let concurrencyQueue = DispatchQueue.init(label: "并发队列名称", attributes: .concurrent)
-        concurrencyQueue.async {
-            NSLog("11111开始执行异步任务，当前的线程是:\(Thread.current)")
-            for _ in 0...1{
-                NSLog("11111开始执行异步任务，当前的线程是:\(Thread.current)")
+            for _ in 0...1 {
+                NSLog("11111--\(Thread.current)")
             }
         }
         concurrencyQueue.async {
-            NSLog("22222开始执行异步任务，当前的线程是:\(Thread.current)")
+            for _ in 0...1 {
+                NSLog("22222--\(Thread.current)")
+            }
         }
         concurrencyQueue.async {
-            NSLog("33333开始执行异步任务，当前的线程是:\(Thread.current)")
+            for _ in 0...1 {
+                NSLog("33333--\(Thread.current)")
+            }
         }
-        NSLog("并发队列外的任务开始执行")
+        NSLog("结束了")
         
-        输出结果:
-        
-        在当前线程(主线程)中处理完任务了:<NSThread: 0x600000c26cc0>{number = 1, name = main}
-        并发队列外的任务开始执行
-        11111开始执行异步任务，当前的线程是:<NSThread: 0x600000c58f80>{number = 5, name = (null)}
-        22222开始执行异步任务，当前的线程是:<NSThread: 0x600000c1d340>{number = 4, name = (null)}
-        33333开始执行异步任务，当前的线程是:<NSThread: 0x600000c7bdc0>{number = 6, name = (null)}
-        11111开始执行异步任务，当前的线程是:<NSThread: 0x600000c58f80>{number = 5, name = (null)}
-        11111开始执行异步任务，当前的线程是:<NSThread: 0x600000c58f80>{number = 5, name = (null)}
-##### 分析：多个异步任务之间是并发执行的，即谁先开始执行和谁先完成执行的顺序是不确定的，同一时间可以执行多任务
-##### 总结：并发队列+异步任务 会开启新的线程，不会阻塞当前线程（并发队列外的后续任务不会被并发队列中的任务阻塞，不用等待就可以执行），队列中的任务之间执行顺序是并行的，谁先执行谁先执行完是不确定的
+        打印结果: 开始了
+                结束了
+                22222--<NSThread: 0x600003c540c0>{number = 6, name = (null)}
+                33333--<NSThread: 0x600003c81d00>{number = 3, name = (null)}
+                11111--<NSThread: 0x600003ca5380>{number = 4, name = (null)}
+                22222--<NSThread: 0x600003c540c0>{number = 6, name = (null)}
+                33333--<NSThread: 0x600003c81d00>{number = 3, name = (null)}
+                11111--<NSThread: 0x600003ca5380>{number = 4, name = (null)}
+                
+#### 分析：因为添加的是异步任务，所以没有阻塞当前的线程，并且开启了新的线程；由于是并发队列，并且开启了新的线程，所以队列中的任务是并发执行的，即同一时间有多个任务在多个子线程中并发执行，但是这些任务之间谁先执行谁先完成都是不确定的
+
+#### 总结：并发队列+异步任务 会开启新的线程，不会阻塞当前线程；队列中的任务之间执行顺序是并行的，谁先执行谁先执行完成是不确定的，同一时间有多个任务被执行。这是项目中用到最多的组合来实现多线程编程
     
-## 5.主队列+同步任务
+### 1.5 主队列+同步任务
         public override func viewDidLoad() {
             super.viewDidLoad()
-            self.testMethod()
+            self.test()
         }
-        func testMethod() {
-            //5.主队列 + 同步任务
-            NSLog("当前的线程是:\(Thread.current)")
+        private func test() {
+            //5.主队列+同步任务
+            NSLog("开始了")
             let mainQueue = DispatchQueue.main
             mainQueue.sync {
-                NSLog("11111开始执行同步任务，当前的线程是:\(Thread.current)")
+                for _ in 0...1 {
+                    NSLog("11111--\(Thread.current)")
+                }
             }
             mainQueue.sync {
-                NSLog("22222开始执行同步任务，当前的线程是:\(Thread.current)")
+                for _ in 0...1 {
+                    NSLog("22222--\(Thread.current)")
+                }
             }
-            NSLog("主队列外的任务开始执行")
+            NSLog("结束了")
         }
         
-        输入结果: 
-        
-        当前的线程是:<NSThread: 0x600003f08440>{number = 1, name = main}
-        会发生crash
-##### 分析：主队列其实是一种串行队列，同步任务会阻塞当前线程;首先testMethod()方法就是在主线程中执行的，在方法中遇到了第一个同步任务，第一个同步任务会阻塞testMethod方法的继续执行，但testMethod方法又会等待第一个同步任务，相互等待，就造成了死锁
-##### 总结：主队列+同步任务 造成同步任务的相互等待，会造成死锁
+        打印结果: 开始了
+        (lldb) 会发生crash
+#### 分析：主队列其实是一种串行队列，同步任务会阻塞当前线程;首先test()方法就是在主线程中执行的，在方法中遇到了第一个同步任务，第一个同步任务会阻塞test方法的继续执行，但testMethod方法又会等待第一个同步任务，相互等待，就造成了死锁
+#### 总结：主队列+同步任务 主队列即串行队列，所有任务必须在主线程中完成；造成同步任务的相互等待，会造成死锁
 
-## 6.主队列+异步任务
+### 1.6 主队列+异步任务
         //6.主队列 + 异步任务
-        NSLog("当前的线程是:\(Thread.current)")
+        NSLog("开始了")
         let mainQueue = DispatchQueue.main
         mainQueue.async {
-            NSLog("11111开始执行异步任务，当前的线程是:\(Thread.current)")
+            for _ in 0...1 {
+                NSLog("11111--\(Thread.current)")
+            }
         }
         mainQueue.async {
-            NSLog("22222开始执行异步任务，当前的线程是:\(Thread.current)")
+            for _ in 0...1 {
+                NSLog("22222--\(Thread.current)")
+            }
         }
         mainQueue.async {
-            NSLog("33333开始执行异步任务，当前的线程是:\(Thread.current)")
+            for _ in 0...1 {
+                NSLog("33333--\(Thread.current)")
+            }
         }
-        NSLog("主队列外的任务开始执行")
+        NSLog("结束了")
         
-        输出结果:
-        
-        当前的线程是:<NSThread: 0x6000011ea140>{number = 1, name = main}
-        主队列外的任务开始执行
-        11111开始执行异步任务，当前的线程是:<NSThread: 0x6000011ea140>{number = 1, name = main}
-        22222开始执行异步任务，当前的线程是:<NSThread: 0x6000011ea140>{number = 1, name = main}
-        33333开始执行异步任务，当前的线程是:<NSThread: 0x6000011ea140>{number = 1, name = main}
-##### 分析：并没有开启线程，任务都是在主线程中运行的，虽然是异步任务，但是都放在了主队列(串行队列)中，所以任务之间的执行顺序是按照顺序依次执行的
-##### 总结：主队列+异步任务 没有开启新的线程，不会阻塞当前线程，任务之间是按照顺序执行的
+        打印结果:开始了
+                结束了
+                11111--<NSThread: 0x600003822d80>{number = 1, name = main}
+                11111--<NSThread: 0x600003822d80>{number = 1, name = main}
+                22222--<NSThread: 0x600003822d80>{number = 1, name = main}
+                22222--<NSThread: 0x600003822d80>{number = 1, name = main}
+                33333--<NSThread: 0x600003822d80>{number = 1, name = main}
+                33333--<NSThread: 0x600003822d80>{number = 1, name = main}
+#### 分析：主队列中所有的任务都是在主线程中执行的，所以即便是异步任务具备开启线程的能力，在主队列中也不会开启新的线程；因为添加的是异步任务,所以不会阻塞当前的线程；主队列中的任务之间的执行顺序是串行的，即一个任务完成后才会执行下一个任务，同一时间只能有一个任务被执行
 
+#### 总结：主队列+异步任务 所有任务都在主线程中执行，不会开启新的线程，不会阻塞当前线程，任务之间是按照顺序串行之行的
 
-##### 至此心得体会:同步不具备开启线程能力，异步具备开启线程的能力，但是不是所有的异步操作都能够开启新的线程，比如主队列中的异步任务就是在主线程中执行任务的，并没有开启线程
+##### 心得体会:同步不具备开启线程能力，异步具备开启线程的能力，但是不是所有的异步操作都能够开启新的线程，比如主队列中的异步任务就是在主线程中执行任务的，并没有开启线程
 
-## 7.全局队列+同步任务
+### 1.7 全局队列+同步任务
         //7.全局队列(并发队列) + 同步任务
-        NSLog("当前的线程是:\(Thread.current)")
+        NSLog("开始了")
         let globalQueue = DispatchQueue.global()
         globalQueue.sync {
-            NSLog("11111开始执行同步任务，当前的线程是:\(Thread.current)")
+            for _ in 0...1 {
+                NSLog("11111--\(Thread.current)")
+            }
         }
         globalQueue.sync {
-            NSLog("22222开始执行同步任务，当前的线程是:\(Thread.current)")
+            for _ in 0...1 {
+                NSLog("22222--\(Thread.current)")
+            }
         }
         globalQueue.sync {
-            NSLog("33333开始执行同步任务，当前的线程是:\(Thread.current)")
+            for _ in 0...1 {
+                NSLog("33333--\(Thread.current)")
+            }
         }
-        NSLog("全局队列外的任务开始执行")
+        NSLog("结束了")
         
-        输出结果:
-        
-        当前的线程是:<NSThread: 0x6000033b4000>{number = 1, name = main}
-        11111开始执行同步任务，当前的线程是:<NSThread: 0x6000033b4000>{number = 1, name = main}
-        22222开始执行同步任务，当前的线程是:<NSThread: 0x6000033b4000>{number = 1, name = main}
-        33333开始执行同步任务，当前的线程是:<NSThread: 0x6000033b4000>{number = 1, name = main}
-        全局队列外的任务开始执行
-##### 分析：没有开启新线程，阻塞了当前的线程，任务之间是按照顺序执行的
-##### 总结: 全局队列+同步任务 没有开启新线程，同步任务阻塞了当前线程（全局队列所有任务外的后续任务会被全局队列中的所有任务阻塞，直到队列中的所有任务都执行完成后才执行），同步任务之间是按照顺序执行的，因为没有开启新的线程，所以即便是在全局队列中也只能按照顺序执行
-## 8.全局队列+异步任务
-        //5.全局队列(并发队列) + 异步任务
-        NSLog("当前的线程是:\(Thread.current)")
+        打印结果:开始了
+                11111--<NSThread: 0x600001ba2d80>{number = 1, name = main}
+                11111--<NSThread: 0x600001ba2d80>{number = 1, name = main}
+                22222--<NSThread: 0x600001ba2d80>{number = 1, name = main}
+                22222--<NSThread: 0x600001ba2d80>{number = 1, name = main}
+                33333--<NSThread: 0x600001ba2d80>{number = 1, name = main}
+                33333--<NSThread: 0x600001ba2d80>{number = 1, name = main}
+                结束了
+#### 分析：因为是同步任务，所以阻塞了当前的线程并且没有开启新线程，任务之间是按照顺序执行的
+#### 总结: 全局队列+同步任务 没有开启新线程，同步任务阻塞了当前线程，同步任务之间是按照顺序执行的，因为没有开启新的线程，所以即便是在全局队列中也只能按照顺序执行，即同一时间只能有一个任务被执行
+### 1.8 全局队列+异步任务
+        //8.全局队列(并发队列) + 异步任务
+        NSLog("开始了")
         let globalQueue = DispatchQueue.global()
         globalQueue.async {
-            NSLog("11111开始执行异步任务，当前的线程是:\(Thread.current)")
-            NSLog("11111开始执行异步任务，当前的线程是:\(Thread.current)")
+            for _ in 0...1 {
+                NSLog("11111--\(Thread.current)")
+            }
         }
         globalQueue.async {
-            NSLog("22222开始执行异步任务，当前的线程是:\(Thread.current)")
+            for _ in 0...1 {
+                NSLog("22222--\(Thread.current)")
+            }
         }
         globalQueue.async {
-            NSLog("33333开始执行异步任务，当前的线程是:\(Thread.current)")
+            for _ in 0...1 {
+                NSLog("33333--\(Thread.current)")
+            }
         }
-        NSLog("全局队列外的任务开始执行")
+        NSLog("结束了")
         
-        输出结果:
-        
-        当前的线程是:<NSThread: 0x600002526d00>{number = 1, name = main}
-        全局队列外的任务开始执行
-        11111开始执行异步任务，当前的线程是:<NSThread: 0x60000257ebc0>{number = 5, name = (null)}
-        22222开始执行异步任务，当前的线程是:<NSThread: 0x600002571900>{number = 3, name = (null)}
-        33333开始执行异步任务，当前的线程是:<NSThread: 0x6000025ac180>{number = 6, name = (null)}
-        11111开始执行异步任务，当前的线程是:<NSThread: 0x60000257ebc0>{number = 5, name = (null)}
-##### 分析：开启了新的线程，异步任务没有阻塞当前线程，任务之间谁先执行谁先执行完成是不确定的，即并发执行
-##### 总结: 全局队列+异步任务 开启新线程，不会阻塞当前线程，任务之间是并发执行的
+        打印结果: 开始了
+                结束了
+                22222--<NSThread: 0x600001cc2c00>{number = 6, name = (null)}
+                11111--<NSThread: 0x600001cec740>{number = 4, name = (null)}
+                33333--<NSThread: 0x600001cc2ac0>{number = 5, name = (null)}
+                11111--<NSThread: 0x600001cec740>{number = 4, name = (null)}
+                22222--<NSThread: 0x600001cc2c00>{number = 6, name = (null)}
+                33333--<NSThread: 0x600001cc2ac0>{number = 5, name = (null)}
+
+#### 分析：因为是异步任务，所以不会阻塞当前的线程；开启了新的线程；队列重任务之间的执行顺序是并发的(谁先执行谁先执行完成是不确定的),即同一时间可以有多个任务被执行
+##### 总结: 全局队列+异步任务 开启新线程；不会阻塞当前线程；队列中任务之间是并发执行的；这个也是项目中实现多线程最常用的组合
+
     
 ## 汇总
-        1. GCD多线程的实现就是分两步：首先创建队列  然后添加任务到队列
-        2. 同步不具备开启线程的能力；异步具备开启线程的能力，但并不是所有的异步任务都能开启线程，比如主线程+异步任务就是异步任务都是在主线程中执行的，虽然添加的是异步任务，但并没有开启新的线程
-        3.主队列和串行队列区别：主队列是系统创建的串行队列，串行队列是需要程序员自己创建的队列
-        4.全局队列和并发队列:全局队列是系统创建的并发队列，并发队列是需要程序员自己创建的队列
-        5.同步任务会阻塞当前线程(中断当前 任务，立即执行新任务)，异步任务不会阻塞当前线程(不会中断当前任务，而是等待执行新任务)，阻塞的含义其实是:（队列+任务）这一堆代码是否会阻塞它后续的操作(后续的任务)
-        6.任务(指的是放在队列中的任务)执行顺序,是根据队列的类型来判断的；串行队列中，任务一定是按照顺序执行的(除了主线程的同步任务会发生死锁crash外)，并发队列中，在(并发队列+异步任务/全局队列+异步任务)条件下任务是并发执行的，在(并发队列+同步任务/全局队列+同步任务)
-        7.          串行队列           并发队列            主队列             全局队列
+    1. GCD多线程的实现就是分两步：首先创建队列  然后添加任务到队列
+    2. 同步不具备开启线程的能力；异步具备开启线程的能力，但并不是所有的异步任务都能开启线程，比如主线程+异步任务就是异步任务都是在主线程中执行的，虽然添加的是异步任务，但并没有开启新的线程
+    3.主队列和串行队列区别：主队列是系统创建的串行队列，串行队列是需要程序员自己创建的队列
+    4.全局队列和并发队列:全局队列是系统创建的并发队列，并发队列是需要程序员自己创建的队列
+    5.同步任务会阻塞当前线程(中断当前 任务，立即执行新任务)，异步任务不会阻塞当前线程(不会中断当前任务，而是等待执行新任务)，阻塞的含义其实是:（队列+任务）这一堆代码是否会阻塞它后续的操作(后续的任务)
+    6.任务(指的是放在队列中的任务)执行顺序,是根据队列的类型来判断的；串行队列中，任务一定是按照顺序执行的(除了主线程的同步任务会发生死锁crash外)，并发队列中，在(并发队列+异步任务/全局队列+异步任务)条件下任务是并发执行的，在(并发队列+同步任务/全局队列+同步任务)
+    7.          串行队列           并发队列            主队列             全局队列
 
-                  会阻塞当前线程      会阻塞当前线程       会阻塞当前线程      会阻塞当前线程
-        同步任务    不开启线程          不开启线程        在当前主线程中执行     不开启线程
-                  任务顺序执行        任务顺序执行           死锁            任务顺序执行
-                  
-                  不会阻塞当前线程    不会阻塞当前线程      不会阻塞当前线程     不会阻塞当前线程
-        异步任务    开启一条线程         开启多条线程       在当前主线程中执行    开启多条线程 
-                  顺序执行任务         并发执行任务        顺序执行任务        并发执行任务
+              会阻塞当前线程      会阻塞当前线程       会阻塞当前线程      会阻塞当前线程
+    同步任务    不开启线程          不开启线程        在当前主线程中执行     不开启线程
+              任务顺序执行        任务顺序执行           死锁            任务顺序执行
+              
+              不会阻塞当前线程    不会阻塞当前线程      不会阻塞当前线程     不会阻塞当前线程
+    异步任务    开启一条线程         开启多条线程       在当前主线程中执行    开启多条线程 
+              顺序执行任务         并发执行任务        顺序执行任务        并发执行任务
+    8.项目中实现多线程编程用到最多的组合就是:[并发队列+异步任务],[全局队列+异步任务]
+    
+## 2. GCD组
+### GCD组(DispatchGroup) 是什么？Apple文档这么说的A group of blocks submitted to queues for asynchronous invocation. 白话就是将【存放在队列中的多个Block(多个任务)】放在一个组里面，用于异步调用。常用的方法分析如下
 
-## 9.GCD组
-### GCD组(DispatchGroup) 是什么？Apple文档这么说的A group of blocks submitted to queues for asynchronous invocation. 白话就是将【存放在队列中的多个Block】(多个任务)放在一个组里面，用于异步调用。
-
-#### 常用的方法分析
-### 9.1 通知方法 notify 当group中所有的任务都执行完成时，通知去执行接下来的操作
-        //创建组
+### 2.1 通知方法notify  
+#### 当group中所有的任务都执行完成时，通知去执行接下来的操作
+        NSLog("开始了")
+        创建组
         let group = DispatchGroup()
-        //将全局队列(并发队列)+异步任务添加到group中
+        将全局队列(并发队列)+异步任务添加到group中
         DispatchQueue.global().async(group: group, execute: DispatchWorkItem.init(block: {
             NSLog("11111--\(Thread.current)")
         }))
         DispatchQueue.global().async(group: group, execute: DispatchWorkItem.init(block: {
-            Thread.sleep(forTimeInterval: 2)
             NSLog("22222--\(Thread.current)")
         }))
-        //group发送通知，告知后续的操作，我完成了，该你们执行了
         group.notify(queue: DispatchQueue.global(), work: DispatchWorkItem.init(block: {
-            NSLog("添加到group内的所有任务都完成了，我开始执行了--\(Thread.current)")
+            NSLog("组的任务都已经完成了--\(Thread.current)")
         }))
-        NSLog("---完成了---")
-        输出结果: 
+        DispatchQueue.global().async(group: group, execute: DispatchWorkItem.init(block: {
+            NSLog("33333--\(Thread.current)")
+        }))
+        NSLog("完成了")
+        
+        打印结果: 开始了
+                完成了
+                33333--<NSThread: 0x600002ff8540>{number = 7, name = (null)}
+                11111--<NSThread: 0x600002fd4e80>{number = 6, name = (null)}
+                22222--<NSThread: 0x600002fdc080>{number = 3, name = (null)}
+                组的任务都已经完成了--<NSThread: 0x600002fdc080>{number = 3, name = (null)}
 
-        ---完成了---
-        11111--<NSThread: 0x60000185ca40>{number = 5, name = (null)}
-        22222--<NSThread: 0x6000018357c0>{number = 4, name = (null)}
-        添加到group内的所有任务都完成了，我开始执行了--<NSThread: 0x6000018357c0>{number = 4, name = (null)}
-##### 分析：上来就打印了"---完成了---"说明group并不会阻塞当前的线程；组内添加的(并发队列+异步任务)任务是并发执行的，当组内任务全部完成后，才通知notify中Block中的方法执行
+#### 分析：从打印结果说明->GCD组Group中的notify方法不会阻塞当前的线程；无论组内任务的添加顺序是在notify方法前还是notify后，只要是在同一个组group中，notify内的代码执行都会等待组内的任务完成后才去执行；group组内添加的是全局队列+异步任务，所以组内的任务是并发执行的，即谁先执行谁先执行完成都是不确定的，同一时间有多个任务被执行。
 
-### 9.2 等待方法wait 会阻塞当前线程，group中指定的任务完成后才开始执行后面的任务
+### 2.2 等待方法wait 
+#### 会阻塞当前线程，group中指定的任务完成后才开始执行后面的任务
         NSLog("开始了")
-        //创建组
         let group = DispatchGroup()
         //将全局队列(并发队列)+异步任务添加到group中
         DispatchQueue.global().async(group: group, execute: DispatchWorkItem.init(block: {
@@ -428,32 +540,29 @@
         DispatchQueue.global().async(group: group, execute: DispatchWorkItem.init(block: {
             NSLog("22222--\(Thread.current)")
         }))
-        //group发送通知，告知后续的操作，我完成了，该你们执行了
         group.notify(queue: DispatchQueue.global(), work: DispatchWorkItem.init(block: {
-            NSLog("添加到group内的所有任务都完成了，我开始执行了--\(Thread.current)")
+            NSLog("组的任务都已经完成了--\(Thread.current)")
         }))
-        NSLog("---完成了---")
+        NSLog("完成了")
         
-        输出结果:
+        打印结果: 18:08:16.547034+0800 开始了
+                18:08:21.547895+0800 11111--<NSThread: 0x6000028c8e40>{number = 7, name = (null)}
+                18:08:21.548411+0800 完成了
+                18:08:21.548498+0800 22222--<NSThread: 0x600002892240>{number = 8, name = (null)}
+                18:08:21.549064+0800 组的任务都已经完成了--<NSThread: 0x600002892240>{number = 8, name = (null)}
         
-        开始了
-        11111--<NSThread: 0x6000025c4500>{number = 4, name = (null)}
-        ---完成了---
-        22222--<NSThread: 0x6000025c4500>{number = 4, name = (null)}
-        添加到group内的所有任务都完成了，我开始执行了--<NSThread: 0x6000025c4500>{number = 4, name = (null)}
-##### 分析：wait阻塞了当前的线程，所以"---完成了---"的打印是在11111打印完成后才执行的，
+#### 分析：从打印结果说明->GCD组Group的wait方法会阻塞当前的线程，当wait()方法前的任务执行完成后，才能执行wait方法后的任务
 
-### 9.3 enter方法和leave方法，成对出现的，用于标记队列中的未执行完毕和已执行完毕的任务数，enter使任务数+1，leave使任务数-1，当任务数为0的时候，才会使wait方法解除阻塞或者触发notify方法，通过例子来引出这两个方法
+### 🤔思考：上面对notify和wait两个方法的使用说明中，我们使用的是全局队列+异步任务的组合，如果在异步任务中嵌套了异步任务，我们知道异步任务是直接返回的，那么我们的notify和wait方法就会认为这些任务执行完成了，但实际上嵌套的异步任务可能并没有执行完成，如何保证嵌套的异步任务真的完成了，然后才去触发notify和wait方法？接下来我们使用enter和leave来解决这个问题
 
+### 2.3 enter方法和leave方法
+#### 这两个方法都是成对出现的，enter方法用于标记队列中未执行完的任务数，enter使任务数+1；leave方法用于标记队列中未完成的任务中已经执行完的任务数，enter使任务数-1；当任务数为0的时候，才会触发notify和wait方法(其实就是告诉他们任务执行完成了)，我们通过demo来说明
         NSLog("开始了")
-        //创建组
         let group = DispatchGroup()
-        //将全局队列(并发队列)+异步任务添加到group中
         DispatchQueue.global().async(group: group, execute: DispatchWorkItem.init(block: {
-            //并发队列中的异步任务中由嵌套了一个异步任务
             DispatchQueue.global().async {
                 Thread.sleep(forTimeInterval: 5.0)
-                NSLog("模拟一下耗时操作:--\(Thread.current)")
+                NSLog("嵌套的异步任务执行完成了--\(Thread.current)")
             }
             NSLog("11111--\(Thread.current)")
         }))
@@ -461,29 +570,26 @@
             NSLog("22222--\(Thread.current)")
         }))
         group.notify(queue: DispatchQueue.global(), work: DispatchWorkItem.init(block: {
-            NSLog("所有任务都完成了，我开始执行了--\(Thread.current)")
+            NSLog("组的任务都已经完成了--\(Thread.current)")
         }))
-        NSLog("---完成了---")
+        NSLog("完成了")
 
-        输出结果:
-
-        2020-04-04 17:31:57.865336+0800 WGFcodeNotes[2353:94252] 开始了
-        2020-04-04 17:31:57.865677+0800 WGFcodeNotes[2353:94252] ---完成了---
-        2020-04-04 17:31:57.865779+0800 WGFcodeNotes[2353:94318] 22222--<NSThread: 0x6000031d0340>{number = 5, name = (null)}
-        2020-04-04 17:31:57.865780+0800 WGFcodeNotes[2353:94307] 11111--<NSThread: 0x6000031c5cc0>{number = 4, name = (null)}
-        2020-04-04 17:31:57.865965+0800 WGFcodeNotes[2353:94307] 所有任务都完成了，我开始执行了--<NSThread: 0x6000031c5cc0>{number = 4, name = (null)}
-        2020-04-04 17:32:02.869768+0800 WGFcodeNotes[2353:94304] 模拟一下耗时操作:--<NSThread: 0x600003128980>{number = 6, name = (null)}
-##### 分析：发现group并没有等待所有的异步任务都执行完成后才执行notify中的方法，为什么？因为 异步任务1中又开启了个线程去执行嵌套的异步任务，而异步线程(异步任务)是直接返回的,所以group就认为是执行完成了。如果解决这个问题？enter和leave方法要登场了
+        打印结果: 18:35:14.844661+0800 开始了
+                18:35:14.844966+0800  完成了
+                18:35:14.845055+0800  11111--<NSThread: 0x60000102f1c0>{number = 5, name = (null)}
+                18:35:14.845069+0800  22222--<NSThread: 0x60000107d840>{number = 4, name = (null)}
+                18:35:14.845236+0800  组的任务都已经完成了--<NSThread: 0x60000107d840>{number = 4, name = (null)}
+                18:35:19.848907+0800  嵌套的异步任务执行完成了--<NSThread: 0x60000101fd80>{number = 6, name = (null)}
+                
+#### 分析: notify方法认为组内的任务(包括任务中嵌套的异步任务)都已经完成了，所以才去执行notify方法内的任务，而实际上嵌套的异步任务并没有真正的完成；为了保证任务真正的完成了，接下来我们使用enter和leave方法来保证任务的真正完成
         NSLog("开始了")
-        //创建组
         let group = DispatchGroup()
-        group.enter()
+        group.enter()           //告诉notify方法这里有个未完成的任务
         DispatchQueue.global().async(group: group, execute: DispatchWorkItem.init(block: {
-            //并发队列中的异步任务中由嵌套了一个异步任务
             DispatchQueue.global().async {
                 Thread.sleep(forTimeInterval: 5.0)
-                NSLog("模拟一下耗时操作:--\(Thread.current)")
-                group.leave()
+                NSLog("嵌套的异步任务执行完成了--\(Thread.current)")
+                group.leave()   //告诉notify方法这里的未完成的任务已经完成了
             }
             NSLog("11111--\(Thread.current)")
         }))
@@ -491,76 +597,74 @@
             NSLog("22222--\(Thread.current)")
         }))
         group.notify(queue: DispatchQueue.global(), work: DispatchWorkItem.init(block: {
-            NSLog("所有任务都完成了，我开始执行了--\(Thread.current)")
+            NSLog("组的任务都已经完成了--\(Thread.current)")
         }))
-        NSLog("---完成了---")
-
-        输出结果:
+        NSLog("完成了")
         
-        2020-04-04 17:46:42.086209+0800 WGFcodeNotes[2583:104409] 开始了
-        2020-04-04 17:46:42.086542+0800 WGFcodeNotes[2583:104409] ---完成了---
-        2020-04-04 17:46:42.087041+0800 WGFcodeNotes[2583:104458] 22222--<NSThread: 0x6000004243c0>{number = 4, name = (null)}
-        2020-04-04 17:46:42.087184+0800 WGFcodeNotes[2583:104462] 11111--<NSThread: 0x60000042cc00>{number = 5, name = (null)}
-        2020-04-04 17:46:47.089302+0800 WGFcodeNotes[2583:104459] 模拟一下耗时操作:--<NSThread: 0x60000044e840>{number = 6, name = (null)}
-        2020-04-04 17:46:47.089733+0800 WGFcodeNotes[2583:104459] 所有任务都完成了，我开始执行了--<NSThread: 0x60000044e840>{number = 6, name = (null)}
-##### 分析：现在达到了group等待所有任务都完成了才开始去执行notify后的方法，在任务开始前调用group.enter()方法，其实就是告诉group，这里有一个未完成的任务，未完成的任务数会+1，等到任务完成后调用group.leave()方法，就是告诉group，这个任务已经完成了，未完成的任务数会-1，当任务数为0的时候，才会去执行notify方法,那么如何影响wait方法？接着来看
+        打印结果: 开始了
+                18:45:04.108444+0800 完成了
+                18:45:04.108539+0800 11111--<NSThread: 0x600003b9ad80>{number = 3, name = (null)}
+                18:45:04.108541+0800 22222--<NSThread: 0x600003ba1c80>{number = 5, name = (null)}
+                18:45:09.108973+0800 嵌套的异步任务执行完成了--<NSThread: 0x600003ba16c0>{number = 4, name = (null)}
+                18:45:09.109376+0800 组的任务都已经完成了--<NSThread: 0x600003ba16c0>{number = 4, name = (null)}
+#### 分析：通过在嵌套任务的任务外添加enter方法和在嵌套的异步任务完成的时候添加leave方法来保证嵌套了异步任务的任务真正的完成了，才去触发notify方法(告诉notify方法组内所有的任务都已经完成了)
 
+### 接下来来验证enter+leave方法对对wait方法的作用
         NSLog("开始了")
         let group = DispatchGroup()
         DispatchQueue.global().async(group: group, execute: DispatchWorkItem.init(block: {
-            //并发队列中的异步任务中由嵌套了一个异步任务
             DispatchQueue.global().async {
                 Thread.sleep(forTimeInterval: 5.0)
-                NSLog("模拟一下耗时操作:--\(Thread.current)")
+                NSLog("嵌套的异步任务执行完成了--\(Thread.current)")
             }
             NSLog("11111--\(Thread.current)")
         }))
-        group.wait()
+        group.wait()  //阻塞当前线程，直到任务1完成后才去执行后续的任务(任务2)
         DispatchQueue.global().async(group: group, execute: DispatchWorkItem.init(block: {
-            NSLog("22222--\(Thread.current)")
+            for _ in 0...1{
+                NSLog("22222--\(Thread.current)")
+            }
         }))
-        NSLog("---完成了---")
-
-        输出结果：
-
-        2020-04-04 17:55:25.912878+0800 WGFcodeNotes[2687:109524] 开始了
-        2020-04-04 17:55:25.913724+0800 WGFcodeNotes[2687:109579] 11111--<NSThread: 0x600003500180>{number = 4, name = (null)}
-        2020-04-04 17:55:25.914085+0800 WGFcodeNotes[2687:109524] ---完成了---
-        2020-04-04 17:55:25.914298+0800 WGFcodeNotes[2687:109579] 22222--<NSThread: 0x600003500180>{number = 4, name = (null)}
-        2020-04-04 17:55:30.914158+0800 WGFcodeNotes[2687:109578] 模拟一下耗时操作:--<NSThread: 0x60000351aa00>{number = 3, name = (null)}
-##### 分析: 上面已经说过了，wait会阻塞当前的线程，那么为什么没有等到嵌套任务的任务执行完再执行后面的操作那？原因和上面一样，嵌套的异步任务直接返回了，所以wait认为方法执行完成了，所以就不再阻塞了，这时候用enter和leave就可以解决
-
+        NSLog("完成了")
+        
+        打印结果: 18:55:34.128208+0800 开始了
+                18:55:34.128896+0800 11111--<NSThread: 0x6000000daf40>{number = 5, name = (null)}
+                18:55:34.129387+0800 完成了
+                18:55:34.131582+0800 22222--<NSThread: 0x6000000daf40>{number = 5, name = (null)}
+                18:55:34.132303+0800 22222--<NSThread: 0x6000000daf40>{number = 5, name = (null)}
+                18:55:39.134459+0800 嵌套的异步任务执行完成了--<NSThread: 0x6000000fad80>{number = 6, name = (null)}
+#### 分析：wait会阻塞当前线程这个我们已经知道了；wait作用是等待wait方法前的任务(任务1)完成后才去执行后续的任何或操作，但是由于任务1中嵌套了异步任务，异步任务是直接返回的，所以wait方法任务任务1已经完成了，但事实上任务1并没有真正的执行完成，为了解决这个问题，我们使用enter+leave方法来保证任务的完成
         NSLog("开始了")
         let group = DispatchGroup()
-        //告诉group,这里有个未完成的任务，group中未执行完成的任务数+1，直到遇到leave方法，才算告诉group该方法执行完成了
-        group.enter()
+        group.enter()           //告诉wait方法这里有个未完成的任务
         DispatchQueue.global().async(group: group, execute: DispatchWorkItem.init(block: {
-            //并发队列中的异步任务中由嵌套了一个异步任务
             DispatchQueue.global().async {
                 Thread.sleep(forTimeInterval: 5.0)
-                NSLog("模拟一下耗时操作:--\(Thread.current)")
-                group.leave() //告诉group该方法执行完成了，group中未执行完成的任务数-1
+                NSLog("嵌套的异步任务执行完成了--\(Thread.current)")
+                group.leave()   //告诉wait方法这里的未完成的任务已经完成了
             }
             NSLog("11111--\(Thread.current)")
         }))
-        group.wait()
+        group.wait()  //阻塞当前线程，直到任务1完成后才去执行后续的任务(任务2)
         DispatchQueue.global().async(group: group, execute: DispatchWorkItem.init(block: {
-            NSLog("22222--\(Thread.current)")
+            for _ in 0...1{
+                NSLog("22222--\(Thread.current)")
+            }
         }))
-        NSLog("---完成了---")
+        NSLog("完成了")
+        
+        打印结果: 19:02:43.951194+0800 开始了
+                 19:02:43.951938+0800  11111--<NSThread: 0x60000276a9c0>{number = 5, name = (null)}
+                 19:02:48.953570+0800  嵌套的异步任务执行完成了--<NSThread: 0x600002778400>{number = 7, name = (null)}
+                 19:02:48.954122+0800  完成了
+                 19:02:48.954913+0800  22222--<NSThread: 0x60000276edc0>{number = 8, name = (null)}
+                 19:02:48.955123+0800  22222--<NSThread: 0x60000276edc0>{number = 8, name = (null)}
 
-        输出结果: 
-
-        2020-04-04 18:01:36.980687+0800 WGFcodeNotes[2746:113701] 开始了
-        2020-04-04 18:01:36.981235+0800 WGFcodeNotes[2746:113757] 11111--<NSThread: 0x600002f0eb40>{number = 3, name = (null)}
-        2020-04-04 18:01:41.986551+0800 WGFcodeNotes[2746:113753] 模拟一下耗时操作:--<NSThread: 0x600002f56200>{number = 6, name = (null)}
-        2020-04-04 18:01:41.987052+0800 WGFcodeNotes[2746:113701] ---完成了---
-        2020-04-04 18:01:41.987295+0800 WGFcodeNotes[2746:113752] 22222--<NSThread: 0x600002f70540>{number = 7, name = (null)}
-##### 分析： enter方法告诉group(这里其实就是告诉wait方法)这里有个未完成的任务，任务数+1，leval方法就是告诉group(这里其实就是告诉wait方法)这里有个未完成的任务已经完成了，任务数-1,等任务数为0的时候，告诉wait方法可以执行后续的任务了
+#### 分析：通过GCD组Group的enter+leave方法来保证异步任务(嵌套异步任务的任务)真正的完成了，才去通知到wait方法该任务已经完成了
 
 
-## 10. GCD 实现单例 
-##### 使用dispatch_once方法实现，dispatch_once能够保证在程序运行过程中，指定的代码只会被执行一次
+## 3. GCD 实现单例 
+### 使用dispatch_once方法实现，dispatch_once能够保证在程序运行过程中，指定的代码只会被执行一次
         OC单利实现方式
         //声明一个静态变量
         static WGTestModel *_instance;
@@ -580,8 +684,16 @@
             }
         }
 
-## 11. GCD 的asyncAfter方法
-### asyncAfter Apple文档描述：Submits a work item to a dispatch queue for asynchronous execution after a specified time；即改方法并不是在指定时间后执行处理，而是在指定时间后将任务追加到队列中异步执行
+## 4. GCD 的asyncAfter方法
+### asyncAfter Apple文档描述：Submits a work item to a dispatch queue for asynchronous execution after a specified time；即改方法并不是在指定时间后执行处理，而是在指定时间后将任务追加到队列中异步执行;该方法是通过队列调用的，并且必须是异步调用
+        //常用方法：延迟指定的时间后，将异步任务添加到队列中
+        queue.asyncAfter(deadline: DispatchTime, execute: () -> Void)
+        queue.asyncAfter(deadline: DispatchTime, execute: DispatchWorkItem)
+        queue.asyncAfter(deadline: DispatchTime, qos: DispatchQoS, flags: DispatchWorkItemFlags, execute: () -> Void)
+        queue.asyncAfter(wallDeadline: DispatchWallTime, execute: () -> Void)
+        queue.asyncAfter(wallDeadline: DispatchWallTime, execute: DispatchWorkItem)
+        queue.asyncAfter(wallDeadline: DispatchWallTime, qos: DispatchQoS, flags: DispatchWorkItemFlags, execute: () -> Void)
+
         NSLog("开始")
         DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 0.1) {
             for i in 0...2 {
@@ -600,7 +712,7 @@
 
 ##### DispatchTime.now()+2指相对当前时间的2秒后，也可以使用DispatchTimeInterval.seconds(2)表示，或者DispatchTimeInterval的其他单位表示，毫秒(milliseconds),微秒(milliseconds),纳秒(nanoseconds),也可以使用DispatchWallTime 表示绝对时间（系统时间，设备休眠计时不暂停），精度是微秒。DispatchWallTime的用法和DispatchTime差不多。
 
-## 12. GCD中 barrier标志
+## 5. GCD中 barrier标志
 #### OC中应该说是barrier栅栏函数,在swift中是barrier标识，主要用于多个异步任务之间，控制指定的任务先执行，指定的任务后执行，其实类似GCD中的notify，但是区别就是，notify指的是添加到group内的所有任务都执行完才去通知notify block中的方法去执行，而barrier可以针对那些没有放在group组内的任务，可以是多个并发队列+异步任务，比如下面场景，任务4依赖任务1任务2任务3，任务5依赖任务4，而任务1任务2任务3都是可以分别独立执行，而任务5也可以独立执行，那么就可以使用栅栏将这些任务“分割”开来达到实际业务的需求
         //如果是系统创建的全局队列，barrier并没有起到效果，所以barrier不能用于全局队列
         //let concurrencyQueue = DispatchQueue.global()
@@ -635,7 +747,7 @@
 
 
 
-## 13. GCD 信号量
+## 6. GCD 信号量
 ### GCD中信号量DispatchSemaphore，用于控制线程并发数，初始化一个值创建信号量对象，wait()方法使信号量-1，signal()方法使信号量+1，当信号量为0的时候会阻塞当前线程，等待信号量大于0，恢复线程，主要用于多线程之间的同步，锁也可以实现多线程同步，但不同的是，锁是锁住某一资源，而信号量是逻辑上的“锁住”
 
         let semp = DispatchSemaphore.init(value: 0)
