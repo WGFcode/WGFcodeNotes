@@ -23,61 +23,18 @@ public class WGMainVC : UIViewController {
         super.viewDidLoad()
         self.view.backgroundColor = UIColor.green
         
-//        NSLog("开始了")
-//        DispatchQueue.global().async {
-//            for _ in 0...1 {
-//                NSLog("11111--\(Thread.current)")
-//            }
-//        }
-//        DispatchQueue.global().async {
-//            for _ in 0...1 {
-//                NSLog("22222--\(Thread.current)")
-//            }
-//        }
-//        DispatchQueue.global().async {
-//            for _ in 0...1 {
-//                NSLog("33333--\(Thread.current)")
-//            }
-//        }
-//        NSLog("结束了")
+
         
         
+       
+        let queue = OperationQueue.init()
         
         
-        NSLog("开始了")
-        let group = DispatchGroup.init()
-        let concurrentQueue = DispatchQueue.init(label: "并发队列名称", attributes: .concurrent)
-        group.enter()
-        concurrentQueue.async(group: group, execute: DispatchWorkItem.init(block: {
-            concurrentQueue.async {
-                for _ in 0...1 {
-                    NSLog("11111--\(Thread.current)")
-                }
-                group.leave()
-            }
-        }))
-        group.wait()
-        group.enter()
-        concurrentQueue.async(group: group, execute: DispatchWorkItem.init(block: {
-            concurrentQueue.async {
-                for _ in 0...1 {
-                    NSLog("22222--\(Thread.current)")
-                }
-                group.leave()
-            }
-        }))
-        group.wait()
-        group.enter()
-        concurrentQueue.async(group: group, execute: DispatchWorkItem.init(block: {
-            concurrentQueue.async {
-                for _ in 0...1 {
-                    NSLog("33333--\(Thread.current)")
-                }
-                group.leave()
-            }
-        }))
-        group.wait()
-        NSLog("结束了")
+
+        
+
+        
+        
     }
 }
 

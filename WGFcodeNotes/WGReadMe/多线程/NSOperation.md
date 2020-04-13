@@ -1,53 +1,60 @@
 ## NSOperation 这是OC的命名方式，在swift中叫做Operation
 
 ### 总结:
-*  1.Operation实现需要Operation+OperationQueue结合才能实现多线程操作,即创建操作(任务),然后将操作(任务)添加到操作队列中,操作队列会自动执行队列中的任务,不需要我们手动再开启操作(任务);
-* 2. 操作(任务)的创建在OC中主要通过(NSInvocationOperation/NSBlockOperation/自定义继承自NSOperation的子类)这三种方式创建,而在swift中通过(BlockOperation/自定义继承自Operation的子类)来创建;
+* Operation实现需要Operation+OperationQueue结合才能实现多线程操作,即创建操作(任务),然后将操作(任务)添加到操作队列中,操作队列会自动执行队列中的任务,不需要我们手动再开启操作(任务);
+* 操作(任务)的创建在OC中主要通过(NSInvocationOperation/NSBlockOperation/自定义继承自NSOperation的子类)这三种方式创建,而在swift中通过(BlockOperation/自定义继承自Operation的子类)来创建;
 
-* 3. 单独创建操作而没有涉及到操作队列的情况下: 如果都是通过初始化创建的操作(BlockOperation.init(block: () -> Void)),那么不管创建多少个,这些操作的执行都是在当前线程中同步执行的,会阻塞当前的线程(操作外的任务会处于等待状态),操作之间的顺序是按照顺序一个一个执行的;如果通过初始化创建了第一个操作,然后调用操作的addExecutionBlock(block: () -> Void)方法添加多个操作(任务),那么第一个通过初始化创建的操作会在当前线程中执行,其他通过addExecutionBlock添加的操作系统会开启多条子线程进行执行,具体开启多少条线程,由系统决定,但这种方式下操作的执行仍然是同步的,即会阻塞当前的线程,而多个操作(任务)之间的执行顺序是无序的并发执行的;单独创建的操作都需要手动调用操作的start方法来开启操作
+* 单独创建操作而没有涉及到操作队列的情况下: 如果都是通过初始化创建的操作(BlockOperation.init(block: () -> Void)),那么不管创建多少个,这些操作的执行都是在当前线程中同步执行的,会阻塞当前的线程(操作外的任务会处于等待状态),操作之间的顺序是按照顺序一个一个执行的;如果通过初始化创建了第一个操作,然后调用操作的addExecutionBlock(block: () -> Void)方法添加多个操作(任务),那么第一个通过初始化创建的操作会在当前线程中执行,其他通过addExecutionBlock添加的操作系统会开启多条子线程进行执行,具体开启多少条线程,由系统决定,但这种方式下操作的执行仍然是同步的,即会阻塞当前的线程,而多个操作(任务)之间的执行顺序是无序的并发执行的;单独创建的操作都需要手动调用操作的start方法来开启操作
 
-* 4.  实际业务场景中,单独创建操作而没有操作队列的话,操作的执行都是同步的,即操作会阻塞当前的线程,所以想利用Operation实现多线程必须结合操作队列OperatioQueue来实现
-* 5. 在swift中一般通过BlockOperation创建操作,遇到复杂的业务可以自定义继承自Operation的子类来创建操作,然后将操作添加到OperationQueue队列中实现多线程,操作是异步的,即不会阻塞当前线程,并且队列中的任务是并发的,就是队列中的任务之间执行顺序是无序的
-* 6. 操作队列中的操作(任务)是并发执行的,那么如果想控制队列中的操作的执行顺序怎么办? 一般情况下我们都是通过设置操作之间的依赖来控制操作的执行顺序,但是有个特殊情况,就是如果操作中嵌套了异步任务,那么就不能通过添加操作之间的依赖来控制操作的执行顺序,因为操作中嵌套了异步任务,而异步任务是直接返回的,所以添加的依赖会以为嵌套异步任务的操作已经完成了,这时候我们可以使用依赖+信号量(通过添加信号量来判断嵌套的异步任务是否真正的执行完成)的方式来控制队列中操作的真正执行顺序
-* 7. 使用BlockOperation初始化创建多个操作,然后将操作添加到队列中;和使用BlockOperation初始化一个操作,然后调用addExecutionBlock方法添加多个操作,然后将这一个操作添加到队列中的区别是什么?首先无论哪种方式,执行效果是一样的,唯一的区别就是第一种方式可以添加操作之间的依赖关系/设置操作间优先级,而第一种方式因为就一个操作变量,所以不能设置
+* 实际业务场景中,单独创建操作而没有操作队列的话,操作的执行都是同步的,即操作会阻塞当前的线程,所以想利用Operation实现多线程必须结合操作队列OperatioQueue来实现
 
-### Operation&&OperationQueue两者配合使用，也可以实现多线程编程，其实Operation是对GCD的进一步封装，完全的面相对象，如何实现多线程编程？其实主要就是分两步，第一步创建操作，第二步将操作放到操作队列中，那么我就先分析操作和操作队列是什么？
+* 在swift中一般通过BlockOperation创建操作,遇到复杂的业务可以自定义继承自Operation的子类来创建操作,然后将操作添加到OperationQueue队列中实现多线程,操作是异步的,即不会阻塞当前线程,并且队列中的任务是并发的,就是队列中的任务之间执行顺序是无序的
 
-#### 提醒：以下代码都是基于swift的,首先我们先看下Operation中常用的属性和方法
-        let op = Operation.init()
-        //执行操作
-        op.start()
-        op.main()
-        //只读 判断操作是否已经标记为取消
-        //op.isCancelled
-        //可取消操作，实质是标记 isCancelled 状态
-        op.cancel()
-        //只读 判断操作是否正在在运行
-        op.isExecuting
-        //只读 判断操作是否已经结束
-        op.isFinished
-        //添加依赖，使当前操作依赖于操作 op 的完成
-        op.addDependency(op: Operation)
-        //移除依赖，取消当前操作对操作 op 的依赖
-        op.removeDependency(op: Operation)
-        //只读 在当前操作开始执行之前完成执行的所有操作对象数组。
-        op.dependencies
-        //设置操作优先级
-        op.queuePriority
-        //设置服务优先级
-        op.qualityOfService
-        //设置操作名称
-        op.name
-        //阻塞当前线程，直到该操作结束。可用于线程执行顺序的同步。
-        op.waitUntilFinished()
-        //        @available(iOS 4.0, *)
-        //        open var completionBlock: (() -> Void)?
-        //        open var isConcurrent: Bool { get }
-        //        @available(iOS 7.0, *)
-        //        open var isAsynchronous: Bool { get }
-        //        open var isReady: Bool { get }
+* 操作队列中的操作(任务)是并发执行的,那么如果想控制队列中的操作的执行顺序怎么办? 一般情况下我们都是通过设置操作之间的依赖来控制操作的执行顺序,但是有个特殊情况,就是如果操作中嵌套了异步任务,那么就不能通过添加操作之间的依赖来控制操作的执行顺序,因为操作中嵌套了异步任务,而异步任务是直接返回的,所以添加的依赖会以为嵌套异步任务的操作已经完成了,这时候我们可以使用依赖+信号量(通过添加信号量来判断嵌套的异步任务是否真正的执行完成)的方式来控制队列中操作的真正执行顺序
 
-### 1.操作：就是代码执行，或者理解成任务也行，类似于GCD中block中的任务，Operation在OC中主要是通过它的子类(NSInvocationOperation、NSBlockOperation)来创建操作，或者也可以通过自定义子类来创建操作，在swift中则是通过它的子类BlockOperation来创建的，NSInvocationOperation这个OC中的子类在swift中已经被废弃了，所以我们接下来按照swift进行阐述
+* 使用BlockOperation初始化创建多个操作,然后将操作添加到队列中;和使用BlockOperation初始化一个操作,然后调用addExecutionBlock方法添加多个操作,然后将这一个操作添加到队列中的区别是什么?首先无论哪种方式,执行效果是一样的,唯一的区别就是第一种方式可以添加操作之间的依赖关系/设置操作间优先级,而第一种方式因为就一个操作变量,所以不能设置
+
+### Operation(操作)+OperationQueue(操作队列)：创建操作，将操作添加到操作队列中来实现多线程编程。Operation是对GCD的进一步封装，完全的面相对象，首先我们先看下操作和操作队列常用的属性和方法（提醒：所有验证都是基于swift的）
+        //操作
+        var name: String?                           设置操作名称
+        var isCancelled: Bool { get }               判断操作是否已经标记为取消
+        var queuePriority: Operation.QueuePriority  设置操作优先级
+        var qualityOfService: QualityOfService      设置服务优先级
+        var isExecuting: Bool { get }               判断操作是否正在在运行
+        var isFinished: Bool { get }                判断操作是否已经结束
+        var isConcurrent: Bool { get }
+        var isAsynchronous: Bool { get }
+        var isReady: Bool { get }
+        var completionBlock: (() -> Void)?
+        var dependencies: [Operation] { get }       在当前操作开始执行之前完成执行的所有操作对象数组。
+        func main()
+        func start()                                执行操作
+        func cancel()                               可取消操作，实质是标记 isCancelled 状态
+        func addDependency(_ op: Operation)         添加依赖，使当前操作依赖于操作 op 的完成
+        func removeDependency(_ op: Operation)      移除依赖，取消当前操作对操作 op 的依赖
+        func waitUntilFinished()                    阻塞当前线程，直到该操作结束。可用于线程执行顺序的同步
+        
+        //操作队列
+        var maxConcurrentOperationCount: Int        设置操作队列最大的并发数，注意并不是线程数
+        var isSuspended: Bool                       是否暂停
+        var name: String?                           名称
+        var qualityOfService: QualityOfService      服务质量
+        func cancelAllOperations()                  取消操作队列中所有的操作
+        func waitUntilAllOperationsAreFinished()    等待所有的操作都完成
+        func addOperation(_ op: Operation)          添加操作到队列中
+        添加操作数组到队列中，waitUntilFinished：是否阻塞当前线程
+        func addOperations(_ ops: [Operation], waitUntilFinished wait: Bool)
+        func addOperation(_ block: @escaping () -> Void)  将封装到Block的操作添加到队列中
+        unowned(unsafe) var underlyingQueue: DispatchQueue?
+        class var current: OperationQueue? { get }
+        class var main: OperationQueue { get }
+        @available(iOS 13.0, *)
+        var progress: Progress { get }              操作队列执行的进度
+        //This acts similarly to the `dispatch_barrier_async` function.
+        func addBarrierBlock(_ barrier: @escaping () -> Void) 添加栅栏
+
+## 1.Operation(操作) 
+### Operation就是代码执行或者说是任务，类似GCD中block的任务，Operation在OC中主要是通过它的子类(NSInvocationOperation/NSBlockOperation/创建自定义继承自NSOperation的子类)来创建操作；在swift中则是通过(BlockOperation/创建自定义继承自Operation的子类)来创建的，NSInvocationOperation这个OC中的子类在swift中已经被废弃了
 ### 1.1 BlockOperation创建操作
         NSLog("开始了")
         let blockOperation = BlockOperation.init {
