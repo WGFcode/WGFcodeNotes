@@ -26,8 +26,7 @@ public class WGMainVC : UIViewController {
 
         
         
-       
-        let queue = OperationQueue.init()
+       let op1 = BlockOperation
         
         
 
