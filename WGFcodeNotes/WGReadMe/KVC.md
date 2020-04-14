@@ -71,21 +71,57 @@
         )
 #### 分析，在swift中可以对String/Bool/Int/Array/Dictionary类型的属性进行访问和赋值，但无法对元组类型的属性进行赋值操作;KVC无法对私有的属性进行访问或赋值，会发生crash；
 
-### 2.KVC 通过KeyPath(键路径)设值和获取值
-#### 在通过Key设值和获取值的demo中，我们可以发现，每次设值和获取值都需要手动写Key,很容易在写 代码的时候出现错误，在swift3.0中我们可以使用#keyPath来避免因为拼写错误而导致的错误，继续重用上面的类
+### 2 KVC处理异常
+#### 上面我们都是正常的访问和赋值，如果访问的Key不存/设置的值为nil/获取一个不存在的Key对应的值时，程序会发生crash,为了避免crash，我们采用下面方法来处理异常
+
+        @objcMembers
+        public class WGAnimalModel : NSObject {
+            private var name = ""  //KVC无法访问私有属性
+            //var tuple = ("","")  无法对元组赋值
+            var age = 0
+            var isSex = false
+            var dic = [String: Any]()
+            var arr = [String]()
+            
+            //如果将Key对应的值设置为nil，会导致程序crash,重写这个方法可避免crash
+            public override func setNilValueForKey(_ key: String) {
+                NSLog("\(key)的值被设置成了nil")
+            }
+            //如果对不存在的Key赋值，会导致程序crash,重写该方法可避免crash
+            public override func setValue(_ value: Any?, forUndefinedKey key: String) {
+                NSLog("\(key)不存在")
+            }
+            //如果去获取一个不存在的Key对应的值，会导致程序crash,重写该方法可避免crash
+            public override func value(forUndefinedKey key: String) -> Any? {
+                NSLog("\(key)不存在，所以无法获取值")
+                return nil
+            }
+        }
+
+        let entity = WGAnimalModel.init()
+        entity.setValue(nil, forKey: "age")
+        entity.setValue(18, forKey: "ages")
+        entity.value(forKey: "ages")
+        
+        打印结果: age的值被设置成了nil
+                ages不存在
+                ages不存在，所以无法获取值
+
+### 3.KVC 通过KeyPath(键路径)设值和获取值
+#### 在通过Key设值和获取值的demo中，我们可以发现，每次设值和获取值都需要手动写Key,很容易在写 代码的时候出现错误，在swift4.0我们可以使用#keyPath来避免因为拼写错误而导致的错误，继续重用上面的类
         let entity = WGAnimalModel.init()
         entity.setValue(18, forKeyPath: #keyPath(WGAnimalModel.age))
         let age = entity.value(forKeyPath: #keyPath(WGAnimalModel.age))!
         NSLog("age:\(age)")
         
         打印结果: age:18
-#### 分析:这种写法可以有效避免因拼写错误而引发问题，但这种方式下通过value(forKeyPath: #keyPath)来获取值的时候，返回的都是Any?类型，我们还需要去转成对应的类型很不方便，在swift4.0中苹果有了很大改动，可以直接使用\作为开头来创建KeyPath
+#### 分析:这种写法可以有效避免因拼写错误而引发问题，但这种方式下通过value(forKeyPath: #keyPath)来获取值的时候，返回的都是Any?类型，我们还需要去转成对应的类型很不方便，在swift4.0之后苹果有了很大改动，可以直接使用\作为开头来创建KeyPath
 
-#### swift4.0 使用\作为开头来创建KeyPath的优点
+#### swift4.0之后 使用\作为开头来创建KeyPath的优点
 * 定义类型的时候不需要添加@objc或者@objcMembers标识
 * 不需要调用明确的KVC方法就可以实现设值和获取值
 * 类型安全和类型推断(entity.setValue(18, forKeyPath: #keyPath(WGAnimalModel.age))返回的是Any？，而entity[keyPath: \WGAnimalModel.age]返回的是Int类型)
-* 类型可以定义为 class、struct
+* 类型可以定义为 class、struct;结构体也可以支持KVC了
 
         public class WGAnimalModel {
             private var name = ""  //KVC无法访问私有属性
@@ -121,40 +157,46 @@
         NSLog("age:\(age)")
         
         打印结果: age:18
-#### ⚠️重点，在swift中也可以使用KVC而不需要其他的额外设置,swift中使用KVC不会去明确的调用KVC中的方法，而是通过使用\开头来创建keyPath，然后通过keyPath来对属性进行访问或者赋值，而原来的实现方法也仍然可用，只是这种方式更加的快捷和方便，并且这种方式也不需要去处理KVC异常，因为不会出现异常
+    #### ⚠️重点，在swift中也可以使用KVC而不需要其他的额外设置,swift4.0之后使用KVC不会去明确的调用KVC中的方法，而是通过使用\开头来创建keyPath，然后通过keyPath来对属性进行访问或者赋值，而原来的实现方法也仍然可用，只是这种方式更加的快捷和方便，并且这种方式也不需要去处理KVC异常，因为不会出现异常,同时结构体也开始支持KVC了
 
-### 3 KVC处理异常
-#### 上面我们都是正常的访问和赋值，如果访问的Key不存/设置的值为nil/获取一个不存在的Key对应的值时，程序会发生crash,为了避免crash，我们采用下面方法来处理异常
-
-        @objcMembers
-        public class WGAnimalModel : NSObject {
-            private var name = ""  //KVC无法访问私有属性
-            //var tuple = ("","")  无法对元组赋值
-            var age = 0
-            var isSex = false
-            var dic = [String: Any]()
-            var arr = [String]()
-            
-            //如果将Key对应的值设置为nil，会导致程序crash,重写这个方法可避免crash
-            public override func setNilValueForKey(_ key: String) {
-                NSLog("\(key)的值被设置成了nil")
-            }
-            //如果对不存在的Key赋值，会导致程序crash,重写该方法可避免crash
-            public override func setValue(_ value: Any?, forUndefinedKey key: String) {
-                NSLog("\(key)不存在")
-            }
-            //如果去获取一个不存在的Key对应的值，会导致程序crash,重写该方法可避免crash
-            public override func value(forUndefinedKey key: String) -> Any? {
-                NSLog("\(key)不存在，所以无法获取值")
-                return nil
-            }
+#### KeyPath键路径在swift中继承关系如下,并通过demo可以更好的理解各个父类及子类的含义
+    文档: A key path that supports reading from and writing to the resulting value with reference semantics
+    public class ReferenceWritableKeyPath<Root, Value> : WritableKeyPath<Root, Value>(支持语义)
+    
+    文档: A key path that supports reading from and writing to the resulting value(支持读写)
+    public class WritableKeyPath<Root, Value> : KeyPath<Root, Value>
+    
+    文档: A key path from a specific root type to a specific resulting value type(仅可读)
+    public class KeyPath<Root, Value> : PartialKeyPath<Root>
+    
+    文档: A partially type-erased key path, from a concrete root type to any resulting value type.
+    public class PartialKeyPath<Root> : AnyKeyPath
+    
+    public class AnyKeyPath : Hashable, _AppendKeyPath
+    public protocol _AppendKeyPath
+    
+    public class WGAnimalModel {
+        var age = 0
+        var isSex = false
+        var dic = [String: Any]()
+        var arr = [String]()
+        var name: String?=nil
+        //只读计算属性
+        var cardId: String {
+            return "sdfdsf"
         }
-
-        let entity = WGAnimalModel.init()
-        entity.setValue(nil, forKey: "age")
-        entity.setValue(18, forKey: "ages")
-        entity.value(forKey: "ages")
-        
-        打印结果: age的值被设置成了nil
-                ages不存在
-                ages不存在，所以无法获取值
+        var info: WGInfoModel?
+    }
+    public class WGInfoModel {
+        var weight = 0
+        var height = 0
+    }
+    
+    let agePath: WritableKeyPath<WGAnimalModel,Int> = \WGAnimalModel.age
+    let sexPath: WritableKeyPath<WGAnimalModel,Bool> = \WGAnimalModel.isSex
+    let arrPath: WritableKeyPath<WGAnimalModel,[String]> = \WGAnimalModel.arr
+    let dicPath: WritableKeyPath<WGAnimalModel,[String: Any]> = \WGAnimalModel.dic
+    let namePath: WritableKeyPath<WGAnimalModel,String?> = \WGAnimalModel.name
+    let cardIdPath: KeyPath<WGAnimalModel,String> = \WGAnimalModel.cardId
+    let infoPath: ReferenceWritableKeyPath<WGAnimalModel, WGInfoModel?> = \WGAnimalModel.info
+    let infoWeight: KeyPath<WGAnimalModel, Int?> = \WGAnimalModel.info?.weight

@@ -9,19 +9,23 @@
 import Foundation
 import UIKit
 
-
-public struct WGAnimalModel {
-    private var name = ""  //KVC无法访问私有属性
+public class WGAnimalModel {
     var age = 0
     var isSex = false
     var dic = [String: Any]()
     var arr = [String]()
+    var name: String?=nil
+    //只读计算属性
+    var cardId: String {
+        return "sdfdsf"
+    }
+    var info: WGInfoModel?
 }
 
-//public class WGPerson : WGAnimalModel {
-//    //可以继承父类所有的属性，但是私有的属性无法继承
-//    var className = ""
-//}
+public class WGInfoModel {
+    var weight = 0
+    var height = 0
+}
 
 
 public class WGMainVC : UIViewController {
@@ -32,7 +36,7 @@ public class WGMainVC : UIViewController {
         super.viewDidLoad()
         self.view.backgroundColor = UIColor.green
         
-        var entity = WGAnimalModel.init()
+        let entity = WGAnimalModel.init()
         //通过KVC赋值
         entity[keyPath: \WGAnimalModel.age] = 18
         //通过KVC获取值
@@ -41,7 +45,20 @@ public class WGMainVC : UIViewController {
         
         let entity1 = WGAnimalModel.init()
         NSLog("新的结构体中的age:\(entity1.age)")
-        KeyPath
+        
+        
+        let agePath: WritableKeyPath<WGAnimalModel,Int> = \WGAnimalModel.age
+        let sexPath: WritableKeyPath<WGAnimalModel,Bool> = \WGAnimalModel.isSex
+        let arrPath: WritableKeyPath<WGAnimalModel,[String]> = \WGAnimalModel.arr
+        let dicPath: WritableKeyPath<WGAnimalModel,[String: Any]> = \WGAnimalModel.dic
+        let namePath: WritableKeyPath<WGAnimalModel,String?> = \WGAnimalModel.name
+        let cardIdPath: KeyPath<WGAnimalModel,String> = \WGAnimalModel.cardId
+        let infoPath: ReferenceWritableKeyPath<WGAnimalModel, WGInfoModel?> = \WGAnimalModel.info
+        let infoWeight: KeyPath<WGAnimalModel, Int?> = \WGAnimalModel.info?.weight
+        
+        
+        
+
     }
 
 }
