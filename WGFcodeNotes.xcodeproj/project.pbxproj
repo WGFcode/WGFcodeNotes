@@ -7,8 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		300845CB24456B2800055737 /* KVC.md in Resources */ = {isa = PBXBuildFile; fileRef = 300845CA24456B1700055737 /* KVC.md */; };
+		300845CC24456B3A00055737 /* NSOperation.md in Resources */ = {isa = PBXBuildFile; fileRef = 30C7D40C2439C05000EA99C6 /* NSOperation.md */; };
 		30179F9A24401E8000EED9BD /* Note.md in Resources */ = {isa = PBXBuildFile; fileRef = 30179F9924401E8000EED9BD /* Note.md */; };
 		3066E0F02435DD48004C71F7 /* GCD.md in Resources */ = {isa = PBXBuildFile; fileRef = 3066E0EF2435DD48004C71F7 /* GCD.md */; };
+		307A0E7924456BAA006E5429 /* 通知.md in Resources */ = {isa = PBXBuildFile; fileRef = 307A0E7824456BAA006E5429 /* 通知.md */; };
+		307A0E7B24456BD3006E5429 /* RunLoop.md in Resources */ = {isa = PBXBuildFile; fileRef = 307A0E7A24456BD3006E5429 /* RunLoop.md */; };
+		307A0E7D24456BE4006E5429 /* RunTime.md in Resources */ = {isa = PBXBuildFile; fileRef = 307A0E7C24456BE4006E5429 /* RunTime.md */; };
 		309F9D682435D98700FFB705 /* ThreadLock.md in Resources */ = {isa = PBXBuildFile; fileRef = 309F9D672435D98700FFB705 /* ThreadLock.md */; };
 		30A7DC8124348703008DDCF9 /* lock1.png in Resources */ = {isa = PBXBuildFile; fileRef = 30A7DC8024348703008DDCF9 /* lock1.png */; };
 		30A7DC832434A43E008DDCF9 /* lock2.png in Resources */ = {isa = PBXBuildFile; fileRef = 30A7DC822434A43E008DDCF9 /* lock2.png */; };
@@ -56,8 +61,14 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		300845CA24456B1700055737 /* KVC.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = KVC.md; sourceTree = "<group>"; };
+		300845CD24456B4C00055737 /* KVO.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = KVO.md; sourceTree = "<group>"; };
 		30179F9924401E8000EED9BD /* Note.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Note.md; sourceTree = "<group>"; };
 		3066E0EF2435DD48004C71F7 /* GCD.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = GCD.md; sourceTree = "<group>"; };
+		307A0E7824456BAA006E5429 /* 通知.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = "通知.md"; sourceTree = "<group>"; };
+		307A0E7A24456BD3006E5429 /* RunLoop.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = RunLoop.md; sourceTree = "<group>"; };
+		307A0E7C24456BE4006E5429 /* RunTime.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = RunTime.md; sourceTree = "<group>"; };
+		307A0E7E24456BF8006E5429 /* Block.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Block.md; sourceTree = "<group>"; };
 		309F9D672435D98700FFB705 /* ThreadLock.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = ThreadLock.md; sourceTree = "<group>"; };
 		30A7DC8024348703008DDCF9 /* lock1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = lock1.png; sourceTree = "<group>"; };
 		30A7DC822434A43E008DDCF9 /* lock2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = lock2.png; sourceTree = "<group>"; };
@@ -221,6 +232,12 @@
 		548AC984242F4C9200EEE11C /* WGReadMe */ = {
 			isa = PBXGroup;
 			children = (
+				307A0E7E24456BF8006E5429 /* Block.md */,
+				300845CA24456B1700055737 /* KVC.md */,
+				300845CD24456B4C00055737 /* KVO.md */,
+				307A0E7824456BAA006E5429 /* 通知.md */,
+				307A0E7C24456BE4006E5429 /* RunTime.md */,
+				307A0E7A24456BD3006E5429 /* RunLoop.md */,
 				30FD75FF2435CD1200431678 /* 多线程 */,
 				548AC989242F4CAD00EEE11C /* Carthage.md */,
 				548AC98A242F4CAD00EEE11C /* Framework.md */,
@@ -341,14 +358,17 @@
 				30A7DC832434A43E008DDCF9 /* lock2.png in Resources */,
 				548AC98C242F4CAD00EEE11C /* git.md in Resources */,
 				548AC98F242F4CAD00EEE11C /* Carthage.md in Resources */,
+				307A0E7924456BAA006E5429 /* 通知.md in Resources */,
 				30FD76012435CD3100431678 /* NSThread.md in Resources */,
 				30C1F2B82431F0C7003B30B3 /* face.md in Resources */,
+				307A0E7B24456BD3006E5429 /* RunLoop.md in Resources */,
 				30FD75FA24358F1E00431678 /* lock3.png in Resources */,
 				548AC98E242F4CAD00EEE11C /* KeyWords.md in Resources */,
 				30FD75FC243596BB00431678 /* lock4.png in Resources */,
 				548AC98B242F4CAD00EEE11C /* WG.sh in Resources */,
 				3066E0F02435DD48004C71F7 /* GCD.md in Resources */,
 				548AC95F242F4B3200EEE11C /* LaunchScreen.storyboard in Resources */,
+				300845CB24456B2800055737 /* KVC.md in Resources */,
 				30F8F49E243F142900968177 /* Summary.md in Resources */,
 				30FD75FE2435C88B00431678 /* lock5.png in Resources */,
 				30FD94D4243DDE8400EAFAA3 /* error1.png in Resources */,
@@ -356,7 +376,9 @@
 				548AC990242F4CAD00EEE11C /* Framework.md in Resources */,
 				548AC95C242F4B3200EEE11C /* Assets.xcassets in Resources */,
 				309F9D682435D98700FFB705 /* ThreadLock.md in Resources */,
+				300845CC24456B3A00055737 /* NSOperation.md in Resources */,
 				30179F9A24401E8000EED9BD /* Note.md in Resources */,
+				307A0E7D24456BE4006E5429 /* RunTime.md in Resources */,
 				30A7DC8124348703008DDCF9 /* lock1.png in Resources */,
 				548AC95A242F4B3100EEE11C /* Main.storyboard in Resources */,
 			);

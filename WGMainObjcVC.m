@@ -19,13 +19,6 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
-    _pageNum = 10;
-    NSThread *thread1 = [[NSThread alloc]initWithTarget:self selector:@selector(method1) object:nil];
-    [thread1 start];
-    NSThread *thread2 = [[NSThread alloc]initWithTarget:self selector:@selector(method1) object:nil];
-    [thread2 start];
-    NSThread *thread3 = [[NSThread alloc]initWithTarget:self selector:@selector(method1) object:nil];
-    [thread3 start];
 }
 
 -(void)method1 {
