@@ -518,26 +518,97 @@
                 22:12:50.731442+0800 11111--<NSThread: 0x6000002ceb40>{number = 4, name = (null)}
                 22:12:50.732214+0800 22222开始在主线程中做事情--<NSThread: 0x60000029e100>{number = 1, name = main}
 #### 分析 一般线程间通信指的就是在子线程中做完事情后,再回到主线程中执行其他任务
+
+## 3. 项目中使用总结
+#### 项目中使用多线程编程的方式就是创建操作，然后将操作添加到操作队列中，如下
+        方式一：
+        NSLog("开始了")
+        let queue = OperationQueue.init()
+        let op1 = BlockOperation.init {
+            for _ in 0...1 {
+                NSLog("11111--\(Thread.current)")
+            }
+        }
+        op1.addExecutionBlock {
+            for _ in 0...1 {
+                NSLog("22222--\(Thread.current)")
+            }
+        }
+        op1.addExecutionBlock {
+            for _ in 0...1 {
+                NSLog("33333--\(Thread.current)")
+            }
+        }
+        queue.addOperation(op1)
+        NSLog("结束了")
+
+        打印结果: 开始了
+                结束了
+                33333--<NSThread: 0x600003af43c0>{number = 4, name = (null)}
+                22222--<NSThread: 0x600003af03c0>{number = 5, name = (null)}
+                11111--<NSThread: 0x600003ae0240>{number = 6, name = (null)}
+                33333--<NSThread: 0x600003af43c0>{number = 4, name = (null)}
+                11111--<NSThread: 0x600003ae0240>{number = 6, name = (null)}
+                22222--<NSThread: 0x600003af03c0>{number = 5, name = (null)}
+
+        方式二:
+        NSLog("开始了")
+        let queue = OperationQueue.init()
+        let op1 = BlockOperation.init {
+            for _ in 0...1 {
+                NSLog("11111--\(Thread.current)")
+            }
+        }
+        let op2 = BlockOperation.init {
+            for _ in 0...1 {
+                NSLog("22222--\(Thread.current)")
+            }
+        }
+        let op3 = BlockOperation.init {
+            for _ in 0...1 {
+                NSLog("33333--\(Thread.current)")
+            }
+        }
+        queue.addOperations([op1,op2,op3], waitUntilFinished: false)
+        NSLog("结束了")
         
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
+        打印结果: 开始了
+                结束了
+                33333--<NSThread: 0x600001d96640>{number = 5, name = (null)}
+                22222--<NSThread: 0x600001dee000>{number = 6, name = (null)}
+                11111--<NSThread: 0x600001d94440>{number = 3, name = (null)}
+                33333--<NSThread: 0x600001d96640>{number = 5, name = (null)}
+                22222--<NSThread: 0x600001dee000>{number = 6, name = (null)}
+                11111--<NSThread: 0x600001d94440>{number = 3, name = (null)}
+#### 分析：两种方式相同点:都可以实现多线程编程,即同一时间可以有多个线程执行多个任务，并且是异步的不会阻塞当前线程；添加到操作队列中的操作，都会被分配在子线程中执行；不同点就是方式一的创建方法无法添加操作间的依赖；有时候我们需要去控制操作队列中操作之间的执行顺序，那么我们可以添加依赖来实现
+        NSLog("开始了")
+        let queue = OperationQueue.init()
+        let op1 = BlockOperation.init {
+            for _ in 0...1 {
+                NSLog("11111--\(Thread.current)")
+            }
+        }
+        let op2 = BlockOperation.init {
+            for _ in 0...1 {
+                NSLog("22222--\(Thread.current)")
+            }
+        }
+        let op3 = BlockOperation.init {
+            for _ in 0...1 {
+                NSLog("33333--\(Thread.current)")
+            }
+        }
+        op2.addDependency(op1)
+        op3.addDependency(op2)
+        queue.addOperations([op1,op2,op3], waitUntilFinished: false)
+        NSLog("结束了")
+
+        打印结果:开始了
+                结束了
+                11111--<NSThread: 0x600003363f40>{number = 5, name = (null)}
+                11111--<NSThread: 0x600003363f40>{number = 5, name = (null)}
+                22222--<NSThread: 0x600003363f40>{number = 5, name = (null)}
+                22222--<NSThread: 0x600003363f40>{number = 5, name = (null)}
+                33333--<NSThread: 0x600003363f40>{number = 5, name = (null)}
+                33333--<NSThread: 0x600003363f40>{number = 5, name = (null)}
+#### 分析：发现添加操作间依赖后，队列中的操作之间按照我们需要的顺序来执行了，并且也可以发现，这种情况下OperationQueue会自动根据操作的依赖来决定开启多少个线程，这里只开启了一个线程，极大的节省了开辟线程所耗费的资源；那么如果操作中添加了异步任务，我们如何判断一个操作真正的完成那?,其实OperationQueue并没有提供相关的方法来解决这个问题，所以我们可以使用信号量来解决或者加锁来处理
