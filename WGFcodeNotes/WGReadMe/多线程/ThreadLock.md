@@ -10,7 +10,8 @@
 
 
 
-### 1.NSLock：创建NSLock对象，然后调用实例方法lock()和unlock()方法实现加锁和解锁，NSLock也提供了try()方法，来判断是否加锁成功。接下来通过案例来说明
+### 1.NSLock
+#### 创建NSLock对象，然后调用实例方法lock()和unlock()方法实现加锁和解锁，NSLock也提供了try()方法，来判断是否加锁成功。接下来通过案例来说明
         //初始化苹果数量为20个
         private var appleTotalNum = 20
 
@@ -45,7 +46,7 @@
                 11111--<NSThread: 0x60000359e080>{number = 8, name = (null)}--剩余的苹果数:18
                 11111--<NSThread: 0x60000359e2c0>{number = 9, name = (null)}--剩余的苹果数:17
 #### 分析：打印的结果和我们的预期一样。当一个线程开始进来执行任务的时候，调用NSLock的lock方法锁住这个资源(任务)，其他线程不能访问，直到这个线程的任务完成，然后调用unlock方法来解锁，告诉其他线程可以继续去访问了，从而达到同一时间只能有一个线程来执行该任务，避免了多线程间的资源抢夺
-### 需要注意的就是lock加锁和unlock解锁是成对出现的。如果没有加锁(lock),直接解锁(unlock),程序执行和没有加锁解锁效果是一样的；如果多次加锁(获取锁)，会导致死锁
+#### 需要注意的就是lock加锁和unlock解锁是成对出现的。如果没有加锁(lock),直接解锁(unlock),程序执行和没有加锁解锁效果是一样的；如果多次加锁(获取锁)，会导致死锁
         //只解锁而没有加锁
         @objc func eatApple() {
             appleTotalNum -= 1
@@ -124,10 +125,11 @@
         打印结果: 当前的pageNum为:9
                  当前的pageNum为:8
                  当前的pageNum为:7
-#### 实际上 @synchronized (objc)同步锁会被编辑器转化为在swift中使用的objc_sync_enter(objc)和objc_sync_exit(objc)两个方法，这两个方法在Runtime的源码可以查看到
-![](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGScreenshots/lock3.png)
+#### 实际上 @synchronized (objc)同步锁会被编辑器转化为在swift中使用的objc_sync_enter(objc)和objc_sync_exit(objc)两个方法，这两个方法在Runtime的源码可以查看到  
+![图片](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGScreenshots/lock3.png)
+
 #### 总结：@synchronized(objc)工作时，Runtime会为objc分配一个递归锁，并保存在哈希表中，通过Objc内存地址的哈希值在哈希表中查找到SyncData，并将其加锁；如果在synchronized内部objc被释放或者值为nil，会调用objc_sync_nil()方法；如果@synchronized(nil)传进入了nil，那么synchronized内部的代码就不是线程安全的;如果objc_sync_enter(objc1)和objc_sync_exit(objc2)两个参数不一致时，objc1对象被锁定但并未被解锁，会导致其他线程无法访问，这种情况下如果再开辟线程去访问会发生crash
-![](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGScreenshots/lock4.png)
+![图片](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGScreenshots/lock4.png)
 
 
 ### 4. NSRecursiveLock(递归锁)
@@ -168,7 +170,8 @@
 #### 可以发现当condition条件一致的时候，lock(whenCondition:)和unlock(withCondition:)这两个方法会相互通知
 
 
-### 6. NSDistributedLock(分布锁):是MAC开发中的跨进程的分布式锁，底层是用文件系统实现的互斥锁。
+### 6. NSDistributedLock(分布锁)
+#### 是MAC开发中的跨进程的分布式锁，底层是用文件系统实现的互斥锁。
 
 
 ### 7. GCD中的信号量
