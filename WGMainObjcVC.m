@@ -7,35 +7,31 @@
 //
 
 #import "WGMainObjcVC.h"
+#import "WGTestModel.h"
+
 
 @interface WGMainObjcVC ()
-{
-    int _pageNum;
-}
+
 @end
 
 @implementation WGMainObjcVC
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    // Do any additional setup after loading the view.
+    WGTeacher *tea = [[WGTeacher alloc]init];
+    WGStudent *stu = [[WGStudent alloc]init];
+    stu.teacher = tea;
+    //赋值
+    [stu setValue:@"小明" forKey:@"name"];
+    [stu setValue:@"王老师" forKeyPath:@"teacher.name"];
+    //获取值
+    NSString *teaName = [stu valueForKeyPath:@"teacher.name"];
+    NSString *stuName = [stu valueForKey:@"name"];
+    NSLog(@"学生姓名:%@---老师姓名:%@",stuName,teaName);
+    
+    
+    
 }
 
--(void)method1 {
-    @synchronized (self) {
-        _pageNum -= 1;
-        NSLog(@"当前的pageNum为:%d",_pageNum);
-    }
-}
-
-/*
-#pragma mark - Navigation
-
-// In a storyboard-based application, you will often want to do a little preparation before navigation
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
-    // Get the new view controller using [segue destinationViewController].
-    // Pass the selected object to the new view controller.
-}
-*/
 
 @end

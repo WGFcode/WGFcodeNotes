@@ -10,10 +10,14 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface WGTestModel : NSObject
+@interface WGTeacher : NSObject
+@property(nonatomic, strong) NSString *name;
+@property(nonatomic, assign) BOOL isSex;
+@end
 
-+(instancetype)shareInstance;
-
+@interface WGStudent : NSObject
+@property(nonatomic, strong) NSString *name;
+@property(nonatomic, strong) WGTeacher *teacher;
 @end
 
 NS_ASSUME_NONNULL_END

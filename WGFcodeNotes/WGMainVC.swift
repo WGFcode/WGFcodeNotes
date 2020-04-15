@@ -25,6 +25,9 @@ public class WGAnimalModel {
 public class WGInfoModel {
     var weight = 0
     var height = 0
+    var name: String {
+        return "张三"
+    }
 }
 
 
@@ -55,6 +58,7 @@ public class WGMainVC : UIViewController {
         let cardIdPath: KeyPath<WGAnimalModel,String> = \WGAnimalModel.cardId
         let infoPath: ReferenceWritableKeyPath<WGAnimalModel, WGInfoModel?> = \WGAnimalModel.info
         let infoWeight: KeyPath<WGAnimalModel, Int?> = \WGAnimalModel.info?.weight
+        let infoName = \WGAnimalModel.info?.name
         
         
         

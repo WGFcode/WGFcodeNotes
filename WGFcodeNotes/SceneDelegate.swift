@@ -22,7 +22,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         }
         self.window = UIWindow(windowScene: newScnen)
         self.window?.frame = newScnen.coordinateSpace.bounds
-        self.window?.rootViewController = WGMainVC()
+        //self.window?.rootViewController = WGMainVC()
+        self.window?.rootViewController = WGMainObjcVC()
         self.window?.makeKeyAndVisible()
     }
     
