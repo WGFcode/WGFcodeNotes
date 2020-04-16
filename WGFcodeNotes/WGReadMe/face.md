@@ -1,5 +1,5 @@
 
-#### 1.方法调用三种方式
+#### 1.方法调用四种种方式
 1. [testObject testMethod];
 2. [self perform(<#T##aSelector: Selector!##Selector!#>, with: <#T##Any!#>)]
 3.  1) 通过方法调用者创建方法签名,
@@ -43,3 +43,4 @@
             -(void)eat {
                 NSLog(@"被调用了");
             }
+4. 创建个数组，并将对象放到数组中，然后调用KVC中的valueForKey:方法，将方法作为Key传递进去，这样就可以给对象发送消息了，即实现了方法调用

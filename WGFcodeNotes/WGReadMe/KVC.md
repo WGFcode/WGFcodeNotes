@@ -2,6 +2,23 @@
 ### (Key-value coding)键值编码，在iOS中不需要调用明确的setter/getter方法而直接通过字符串Key就可以直接访问对象的属性或者给对象的属性赋值，在运行时动态的访问和赋值，而不需要在编译期确定；所有继承自NSObjct的类型都可以使用KVC;一些纯swift类和结构体不能使用KVC，因为没有继承自NSObjct；
 ### OC中有个显式的NSKeyValueCoding类别名，KVC所有的方法都在这个类别中(@interface NSObject(NSKeyValueCoding))；swift中KVC所有的方法都是在NSObjct的扩展中(extension NSObject),下面是KVC中常用的方法
 
+### KVC使用场景
+* 基于运行时动态的取值和设值
+* 访问和修改私有变量(验证了在swift中是无法访问私有变量的，OC中是可以的)
+* 字典和数据层Model之间的转换
+* 修改系统控件的内部属性(UIDatePicker中字体颜色设置)或系统类调用(NSUserDefaults) 
+
+        [datePicker setValue:[UIColor blackColor] forKey:@"textColor"];
+        [[NSUserDefaults standardUserDefaults] setValue:currentVersion forKey:LastVersionKey];
+* 实现高阶消息传递
+
+### KVC总结
+* KVC是基于动态运行时的，属于OC的特性，所有继承自NSObject的对象都可以实现KVC
+* KVC可以让对象通过字符串key或者通过keypath动态的设值、取值、处理异常等基本操作
+* KVC在调用setValue:forKey:时，如果value是值类型或者结构体类型，需要先将value转为NSNumber(值类型)或者NSValue(结构体类型)对象类型进行设值，如果需要使用的时候，再将NSNumber或者NSValue对象类型转为需要的值类型或者结构体类型
+* 在swift3.0版本中想使用KVC，除了该类必须继承自NSObject外，该类还必须添加@objcMembers标识或者在需要使用KVC的变量前面添加@objc的修饰符，目的就是为了暴露接口给OC的运行时，利用运行时特性能动态的设值、取值等；在swift4.0之后，苹果剔除了这些限制条件，可以直接使用KVC，但是不再明确调用KVC的方法了，而是通过\开头创建的keypath来实现KVC，并且值类型的结构体也开始支持KVC了，KVC在swift中不能访问private的变量
+* swift中使用KVC比在OC中更加的高效和安全，swift中使用Keypath的方式进行KVC操作时候不需要担心因为拼写Key错误而导致的异常问题，而拼写错误在OC中出现频率比较高
+
 ## Swift
     func value(forKey key: String) -> Any?                   通过字符串Key获取值
     func setValue(_ value: Any?, forKey key: String)         通过字符串Key设置值
@@ -265,7 +282,7 @@
 4. 检查accessInstanceVariablesDirectly方法，如果返回YES，会按照_key -> _isKey -> key -> iskey的顺序搜索成员；如果没有找到，调用valueForUndefinedKey方法，抛出异常
 
 ### 2.KVC中KeyPath
-#### 如果一个类的属性是自定义类型或者其它复杂的数据类型，通过KVC获取该属性会比较繁琐，所以KVC提供了KeyPath键路径来简化获取属性的过程;注意如果不小心使用了key而非keyPath，
+#### 如果一个类的属性是自定义类型或者其它复杂的数据类型，通过KVC获取该属性会比较繁琐，所以KVC提供了KeyPath键路径来简化获取属性的过程;注意如果不小心使用了key而非keyPath，那么KVC就会找Key(teacher.name)没有找到就会抛出异常，所以一定要小心使用。
         @interface WGTeacher : NSObject
         @property(nonatomic, strong) NSString *name;
         @property(nonatomic, assign) BOOL isSex;
@@ -289,6 +306,264 @@
 
         打印结果: 学生姓名:小明---老师姓名:王老师
 
+### 4.处理异常
+#### KVC在使用的过程中，下列情况会导致异常，同时KVC也提供了想对应的处理异常机制
+* 设置值的时候，Key不存在；重写setValue: forUndefinedKey:方法来捕获异常，防止程序crash
+* 设置值的时候，将value设置为nil；重写setNilValueForKey:方法来捕获异常，防止程序crash
+* 获取值的时候，Key不存在；重写valueForUndefinedKey:方法来捕获异常，防止程序crash
+
+        @interface WGTeacher : NSObject
+        @property(nonatomic, strong) NSString *name;
+        @property(nonatomic, assign) BOOL isSex;
+        @end
+
+        @implementation WGTeacher
+        -(void)setNilValueForKey:(NSString *)key {
+            NSLog(@"将%@对应的value设置为了nil",key);
+        }
+        -(void)setValue:(id)value forUndefinedKey:(NSString *)key {
+            NSLog(@"为不存在的Key:%@设置了值", key);
+        }
+        -(id)valueForUndefinedKey:(NSString *)key {
+            NSLog(@"获取一个不存在Key:%@对应的Value", key);
+            return nil;
+        }
+        @end
+
+### 5.KVC处理数值或结构体类型属性
+#### 我们知道valueForKey: 方法返回的都是id对象,如果属性对应的类型是值或结构体，那么valueForKey: 方法会自动将这些类型转为NSNumber/NSValue,我们使用的时候需要手动将NSNumber/NSValue转为我们需要的类型
+        @interface WGTeacher : NSObject
+        @property(nonatomic, strong) NSString *name;
+        @property(nonatomic, assign) BOOL isSex;
+        @property(nonatomic, assign) int age;
+        @end
+
+        WGTeacher *tea = [[WGTeacher alloc]init];
+        id age = [tea valueForKey:@"age"];
+        id sex = [tea valueForKey:@"isSex"];
+![图片](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGScreenshots/kvc1.png)
+
+#### 当使用setValue: forKey:方法时，如果直接给值或者结构体类型赋值(例如:[tea setValue:18 forKey:@"age"];)编辑器会报错并有提示信息Implicit conversion of 'int' to 'id _Nullable' is disallowed with ARC，即提示在ARC环境下不能隐式地将“int”转换为“id _Nullable”，所以我们需要将值类型转为NSNumber对象，将结构体类型转为NSValue对象，来进行值的设置
+
+        WGTeacher *tea = [[WGTeacher alloc]init];
+        //Implicit conversion of 'int' to 'id _Nullable' is disallowed with ARC
+        //[tea setValue:18 forKey:@"age"];
+        [tea setValue:[NSNumber numberWithInt:18] forKey:@"age"];
+        [tea setValue:[NSNumber numberWithBool:YES] forKey:@"isSex"];
+        NSLog(@"age:%@----isSex:%@",[tea valueForKey:@"age"],[tea valueForKey:@"isSex"]);
+        NSLog(@"点语法---age:%d,isSex:%d",tea.age, tea.isSex);
+
+        打印结果: age:18----isSex:1
+                点语法---age:18,isSex:1
+
+### 6. KVC 键值验证
+#### KVC为我们提供了验证Value有效性的方法，但是需要我们自己手动调用验证方法（CoreData会自动调用）；比如我们给老师设置年龄，但有个限制条件(设置的年龄不能超过150岁)
+
+        @interface WGTeacher : NSObject
+        @property(nonatomic, strong) NSString *name;
+        @property(nonatomic, assign) BOOL isSex;
+        @property(nonatomic, assign) int age;
+        @end
+
+        @implementation WGTeacher
+        -(BOOL)validateValue:(inout id  _Nullable __autoreleasing *)ioValue forKey:(NSString *)inKey error:(out NSError *__autoreleasing  _Nullable *)outError {
+            NSNumber *age = *ioValue;
+            if ([age intValue] > 150) { //年龄超过150岁的就说明设置的value是无效的
+                return NO;
+            }
+            return YES;
+        }
+        @end
 
 
-        ### 4.处理异常
+        WGTeacher *tea = [[WGTeacher alloc]init];
+        NSNumber *age = @151;
+        NSError *error;
+        BOOL isEffectValue = [tea validateValue:&age forKey:@"age" error:&error];
+        if (isEffectValue) { //如果设置的Value不超过150
+            [tea setValue:age forKey:@"age"];
+        }else {
+            NSLog(@"设置的值不满足条件");
+        }
+        NSLog(@"老师的年龄是:%@",[tea valueForKey:@"age"]);
+        
+        打印结果: 设置的值不满足条件
+                 老师的年龄是:0
+### 7.KVC处理集合运算符和对象运算符
+#### KVC在处理集合的时候，提供了@avg，@count ，@max ，@min ，@sum五种集合运算符；在处理对象的时候，提供了@distinctUnionOfObjects，@unionOfObjects两种对象运算符，返回的都是一个NSArray数组，使用demo如下
+
+        @interface WGTeacher : NSObject
+        @property(nonatomic, strong) NSString *name;
+        @property(nonatomic, assign) int age;
+        @end
+
+        WGTeacher *tea1 = [[WGTeacher alloc]init];
+        tea1.name = @"张老师";
+        tea1.age = 32;
+        WGTeacher *tea2 = [[WGTeacher alloc]init];
+        tea2.name = @"王老师";
+        tea2.age = 22;
+        WGTeacher *tea3 = [[WGTeacher alloc]init];
+        tea3.name = @"李老师";
+        tea3.age = 43;
+        WGTeacher *tea4 = [[WGTeacher alloc]init];
+        tea4.name = @"武老师";
+        tea4.age = 22;
+        NSArray *teacherArr = @[tea1, tea2, tea3, tea4];
+        
+        //集合运算符
+        NSNumber *sumAge = [teacherArr valueForKeyPath:@"@sum.age"];
+        NSNumber *countAge = [teacherArr valueForKeyPath:@"@count.age"];
+        NSNumber *maxAge = [teacherArr valueForKeyPath:@"@max.age"];
+        NSNumber *minAge = [teacherArr valueForKeyPath:@"@min.age"];
+        NSNumber *avgAge = [teacherArr valueForKeyPath:@"@avg.age"];
+        NSLog(@"\n年龄和:%d\n总个数:%d\n最大年龄是:%d\n最小年龄:%d\n平均年龄:%f",[sumAge intValue],[countAge intValue],[maxAge intValue],[minAge intValue],[avgAge floatValue]);
+        
+        //对象运算符
+        //返回对应属性的值(返回的元素都是唯一的，是去重以后的结果)
+        NSArray *ageArr1 = [teacherArr valueForKeyPath:@"@distinctUnionOfObjects.age"];
+        for (NSNumber *age in ageArr1) {
+            NSLog(@"ageArr1--年龄:%d",[age intValue]);
+        }
+        //返回对应属性的值(返回元素的全集)
+        NSArray *ageArr2 = [teacherArr valueForKeyPath:@"@unionOfObjects.age"];
+        for (NSNumber *age in ageArr2) {
+            NSLog(@"ageArr2--年龄:%d",[age intValue]);
+        }
+
+        打印结果: 年龄和:119
+                        总个数:4
+                        最大年龄是:43
+                        最小年龄:22
+                        平均年龄:29.750000
+                        ageArr1--年龄:43
+                        ageArr1--年龄:22
+                        ageArr1--年龄:32
+                        ageArr2--年龄:32
+                        ageArr2--年龄:22
+                        ageArr2--年龄:43
+                        ageArr2--年龄:22
+### 8.KVC 处理字典
+#### 处理字典上，KVC提供了两个方法:dictionaryWithValuesForKeys,是指输入一组key，返回这组key对应的值Value，然后再把Key/Value组成一个字典；setValuesForKeysWithDictionary:传进去一个字典，用来修改对象中属性的值，其实可以理解成第一方法是为了获取值，第二个方法是用来设置值的
+
+        @interface WGTeacher : NSObject
+        @property(nonatomic, strong) NSString *name;
+        @property(nonatomic, assign) int age;
+        @end
+
+        WGTeacher *tea = [[WGTeacher alloc]init];
+        tea.name = @"张老师";
+        tea.age = 32;
+        //传进去一组Key数组，返回key对应的value,并组装成字典返回
+        NSDictionary *dic1 = [tea dictionaryWithValuesForKeys:@[@"name",@"age"]];
+        NSString *name = [dic1 objectForKey:@"name"];
+        NSNumber *age = [dic1 objectForKey:@"age"];
+        NSLog(@"name:%@,age:%d",name,[age intValue]);
+
+        //传进去一个字典，用来修改对象中对应Key的value（修改对象中属性的值）
+        NSDictionary *dic2 = @{@"name": @"张三", @"age": @18};
+        [tea setValuesForKeysWithDictionary:dic2];
+        NSLog(@"name:%@----age:%d",tea.name, tea.age);
+        
+        打印结果: name:张老师,age:32
+                name:张三----age:18
+
+### 9.KVC 实现高阶消息传递
+#### 集合类型(NSArray/NSSet/NSOrderedSet)的在使用KVC的valueForKey:时，会将这个Key传递给集合中的每一个元素，返回的结果也是这个集合类型的，例如数组NSArray调用valueForKey:返回的结果也是个NSArray，结果数组中存放的就是传进去的Key对集合中每个元素“影响”的结果
+
+####  valueForKey:方法，传递进去的key可以是属性或者方法，这里的属性指的是能够影响原集合元素的属性，其实也类似于方法的功能，只是被定义成了属性而已，比如NSString中的属性capitalizedString(实现首字母大写)/uppercaseString(实现字符串转大写)/lowercaseString(实现字符串转小写),如果Key是具有“功能”的属性
+
+        NSArray *nameArr = @[@"zhangsan",@"lisi",@"wangwu",@"liy"];
+        //将capitalizedString属性传递给nameArr中的没一个元素，让每个元素都能响应capitalizedString的功能
+        NSArray *resultNameArr = [nameArr valueForKey:@"capitalizedString"];
+        NSLog(@"将字符串首字符大写:\nresultNameArr---:%@",resultNameArr);
+
+        //将uppercaseString属性传递给nameArr中的没一个元素，让每个元素都能响应uppercaseString的功能
+        NSArray *resultNameArr1 = [nameArr valueForKey:@"uppercaseString"];
+        NSLog(@"将字符串全部大写:\nresultNameArr1---:%@",resultNameArr1);
+
+        打印结果: 将字符串首字符大写:
+                resultNameArr---:(
+                    Zhangsan,
+                    Lisi,
+                    Wangwu,
+                    Liy
+                )
+                将字符串全部大写:
+                resultNameArr1---:(
+                    ZHANGSAN,
+                    LISI,
+                    WANGWU,
+                    LIY
+                )
+
+#### 如果Key是方法,那么集合调用valueForKey:时，集合中的每个元素都会调用这个方法,这里验证过了，这里的方法不能携带参数，否则会调用valueForUndefinedKey:方法，会导致程序crash
+
+        @interface WGTeacher : NSObject
+
+        @property(nonatomic, strong) NSString *name;
+        @property(nonatomic, assign) int age;
+        - (void)eat;
+        - (int)answerQuestionNum;
+
+        @end
+
+        @implementation WGTeacher
+        - (void)eat {
+            NSLog(@"%@:开始吃饭吧",_name);
+        }
+
+        -(int)answerQuestionNum {
+            if ([_name hasPrefix:@"张"]) {
+                return 30;
+            }else if ([_name hasPrefix:@"赵"]) {
+                return 20;
+            }else {
+                return 10;
+            }
+        }
+
+        //私有方法
+        -(void)run {
+            NSLog(@"%@:开始起来跑步了",_name);
+        }
+        @end
+
+        WGTeacher *tea1 = [[WGTeacher alloc]init];
+        tea1.name = @"张老师";
+        WGTeacher *tea2 = [[WGTeacher alloc]init];
+        tea2.name = @"赵老师";
+        WGTeacher *tea3 = [[WGTeacher alloc]init];
+        tea3.name = @"王老师";
+        NSArray *teacherArr = @[tea1,tea2,tea3];
+        //公开方法 无返回值 无参数 eatResultArr数组中存放的NSNull类型的空置，因为无返回值
+        NSArray *eatResultArr = [teacherArr valueForKey:@"eat"];
+        //公开方法 有返回值 无参数  answerQuestionNumArr数组中存放的是多个元素响应answerQuestionNum方法的返回值
+        NSArray *answerQuestionNumArr = [teacherArr valueForKey:@"answerQuestionNum"];
+        //私有方法 无返回值 无参数
+        NSArray *runResultArr = [teacherArr valueForKey:@"run"];
+        NSLog(@"\neatResultArr:%@\nanswerQuestionNumArr:%@\nrunResultArr:%@",eatResultArr,answerQuestionNumArr, runResultArr);
+
+        打印结果: 张老师:开始吃饭吧
+                赵老师:开始吃饭吧
+                王老师:开始吃饭吧
+                张老师:开始起来跑步了
+                赵老师:开始起来跑步了
+                王老师:开始起来跑步了
+                eatResultArr:(
+                    "<null>",
+                    "<null>",
+                    "<null>"
+                )
+                answerQuestionNumArr:(
+                    30,
+                    20,
+                    10
+                )
+                runResultArr:(
+                    "<null>",
+                    "<null>",
+                    "<null>"
+                )
+                
+                

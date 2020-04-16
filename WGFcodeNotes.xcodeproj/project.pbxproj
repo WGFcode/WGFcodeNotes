@@ -15,6 +15,7 @@
 		307A0E7B24456BD3006E5429 /* RunLoop.md in Resources */ = {isa = PBXBuildFile; fileRef = 307A0E7A24456BD3006E5429 /* RunLoop.md */; };
 		307A0E7D24456BE4006E5429 /* RunTime.md in Resources */ = {isa = PBXBuildFile; fileRef = 307A0E7C24456BE4006E5429 /* RunTime.md */; };
 		309F9D682435D98700FFB705 /* ThreadLock.md in Resources */ = {isa = PBXBuildFile; fileRef = 309F9D672435D98700FFB705 /* ThreadLock.md */; };
+		30A73F332447F14A00C86BB8 /* kvc1.png in Resources */ = {isa = PBXBuildFile; fileRef = 30A73F322447F14A00C86BB8 /* kvc1.png */; };
 		30A7DC8124348703008DDCF9 /* lock1.png in Resources */ = {isa = PBXBuildFile; fileRef = 30A7DC8024348703008DDCF9 /* lock1.png */; };
 		30A7DC832434A43E008DDCF9 /* lock2.png in Resources */ = {isa = PBXBuildFile; fileRef = 30A7DC822434A43E008DDCF9 /* lock2.png */; };
 		30C1F2B82431F0C7003B30B3 /* face.md in Resources */ = {isa = PBXBuildFile; fileRef = 30C1F2B72431F0C7003B30B3 /* face.md */; };
@@ -70,6 +71,7 @@
 		307A0E7C24456BE4006E5429 /* RunTime.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = RunTime.md; sourceTree = "<group>"; };
 		307A0E7E24456BF8006E5429 /* Block.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Block.md; sourceTree = "<group>"; };
 		309F9D672435D98700FFB705 /* ThreadLock.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = ThreadLock.md; sourceTree = "<group>"; };
+		30A73F322447F14A00C86BB8 /* kvc1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = kvc1.png; sourceTree = "<group>"; };
 		30A7DC8024348703008DDCF9 /* lock1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = lock1.png; sourceTree = "<group>"; };
 		30A7DC822434A43E008DDCF9 /* lock2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = lock2.png; sourceTree = "<group>"; };
 		30C1F2B72431F0C7003B30B3 /* face.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = face.md; sourceTree = "<group>"; };
@@ -137,6 +139,7 @@
 		30A7DC7D24348382008DDCF9 /* WGScreenshots */ = {
 			isa = PBXGroup;
 			children = (
+				30A73F322447F14A00C86BB8 /* kvc1.png */,
 				30FD94D3243DDE8400EAFAA3 /* error1.png */,
 				30A7DC8024348703008DDCF9 /* lock1.png */,
 				30A7DC822434A43E008DDCF9 /* lock2.png */,
@@ -357,6 +360,7 @@
 			files = (
 				30A7DC832434A43E008DDCF9 /* lock2.png in Resources */,
 				548AC98C242F4CAD00EEE11C /* git.md in Resources */,
+				30A73F332447F14A00C86BB8 /* kvc1.png in Resources */,
 				548AC98F242F4CAD00EEE11C /* Carthage.md in Resources */,
 				307A0E7924456BAA006E5429 /* 通知.md in Resources */,
 				30FD76012435CD3100431678 /* NSThread.md in Resources */,

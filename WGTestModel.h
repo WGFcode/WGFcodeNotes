@@ -11,13 +11,14 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface WGTeacher : NSObject
+
 @property(nonatomic, strong) NSString *name;
-@property(nonatomic, assign) BOOL isSex;
+@property(nonatomic, assign) int age;
+- (void)eat;
+- (int)answerQuestionNum;
+-(void)footName:(NSString *)name;
+
 @end
 
-@interface WGStudent : NSObject
-@property(nonatomic, strong) NSString *name;
-@property(nonatomic, strong) WGTeacher *teacher;
-@end
 
 NS_ASSUME_NONNULL_END
