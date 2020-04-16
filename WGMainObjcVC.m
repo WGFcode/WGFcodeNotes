@@ -11,9 +11,9 @@
 
 
 @interface WGMainObjcVC ()
-{
-    //NSString *name;
-}
+
+@property(nonatomic, strong) NSString *name;
+
 @end
 
 @implementation WGMainObjcVC
@@ -21,7 +21,7 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.view.backgroundColor = [UIColor redColor];
-    [self addObserver:self forKeyPath:@"name" options:NSKeyValueObservingOptionNew context:nil];
+    [self addObserver:self forKeyPath:NSStringFromSelector(@selector(name)) options:NSKeyValueObservingOptionNew context:nil];
 }
 
 - (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
@@ -29,9 +29,7 @@
 }
 
 -(void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey,id> *)change context:(void *)context {
-    NSLog(@"%@",context);
-    NSString *name = change[keyPath];
-    NSLog(@"%@",name);
+    NSString *name = [change objectForKey:NSKeyValueChangeNewKey];
 }
 
 @end
