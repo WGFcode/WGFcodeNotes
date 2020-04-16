@@ -175,7 +175,7 @@
         NSLog("age:\(age)")
         
         打印结果: age:18
-    #### ⚠️重点，在swift中也可以使用KVC而不需要其他的额外设置,swift4.0之后使用KVC不会去明确的调用KVC中的方法，而是通过使用\开头来创建keyPath，然后通过keyPath来对属性进行访问或者赋值，而原来的实现方法也仍然可用，只是这种方式更加的快捷和方便，并且这种方式也不需要去处理KVC异常，因为不会出现异常,同时结构体也开始支持KVC了
+#### ⚠️重点，在swift中也可以使用KVC而不需要其他的额外设置,swift4.0之后使用KVC不会去明确的调用KVC中的方法，而是通过使用\开头来创建keyPath，然后通过keyPath来对属性进行访问或者赋值，而原来的实现方法也仍然可用，只是这种方式更加的快捷和方便，并且这种方式也不需要去处理KVC异常，因为不会出现异常,同时结构体也开始支持KVC了
 
 #### KeyPath键路径在swift中继承关系如下,并通过demo可以更好的理解各个父类及子类的含义
     文档: A key path that supports reading from and writing to the resulting value with reference semantics

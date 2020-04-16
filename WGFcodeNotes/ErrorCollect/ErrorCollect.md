@@ -1,6 +1,5 @@
 ## 错误集锦
-### 1.加载webView时候，Xcode会打印如下日志
-![](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGScreenshots/error1.png)
+### 1.提交APP审核的时候，遇到❌您的 App 正在使用广告标识符 (IDFA)。您必须先提供关于 IDFA 的使用信息或将其从 App 中移除，然后再上传您的二进制文件。，APP中并没有用到广告，但提示这个错误了，排除问题方法如下
+* 检查项目是否使用了AdSupport.framework
 
-#### 解决方案：Xcode -> Product -> Edit Scheme -> Run -> Arguments -> Environment Variables 添加name: OS_ACTIVITY_MODE Value:disable，可以去掉该日志
 
