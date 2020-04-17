@@ -12,7 +12,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface WGMainObjcVC : UIViewController
 
-@property(nonatomic, strong) NSString *name;
+//@property(nonatomic, strong) NSString *name;
 
 @end
 
