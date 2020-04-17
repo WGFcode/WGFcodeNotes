@@ -10,15 +10,11 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface WGTeacher : NSObject
-
-@property(nonatomic, strong) NSString *name;
-@property(nonatomic, assign) int age;
-- (void)eat;
-- (int)answerQuestionNum;
--(void)footName:(NSString *)name;
-
-@end
+//@interface WGCustomModel : NSObject
+//
+//@property(nonatomic, strong) NSMutableArray *mutableArr;
+//
+//@end
 
 
 NS_ASSUME_NONNULL_END
