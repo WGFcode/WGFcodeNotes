@@ -10,19 +10,13 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-//将监听的数组放在一个模型中
-@interface WGCustomModel : NSObject
-
-@property(nonatomic, strong) NSMutableArray *mutableArr;
-
+@interface WGAnimal : NSObject
+@property(nonatomic, assign) int age;
 @end
 
 
 @interface WGMainObjcVC : UIViewController
-
-//控制器持有这个存放数组的模型属性
-//@property(nonatomic, strong) WGCustomModel *model;
-
+@property(nonatomic, strong) NSString *name;
 @end
 
 NS_ASSUME_NONNULL_END
