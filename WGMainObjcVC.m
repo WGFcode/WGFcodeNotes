@@ -37,30 +37,68 @@
 
 @end
 
+@interface WGMainObjcVC()
+@property(nonatomic, strong) NSMutableArray *mutableArr;
+
+@end
+
 
 @implementation WGMainObjcVC
+
 
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.view.backgroundColor = [UIColor redColor];
-    NSString *contextNSString = @"abcdefg";
-    NSArray *contentNSArray = @[@"100",@"200"];
-    NSDictionary *contextNSDictionary = @{@"teacher": @"zhanglaoshi", @"student": @"xiaoming"};
-    [self addObserver:self forKeyPath:@"name" options:NSKeyValueObservingOptionOld | NSKeyValueObservingOptionNew context:(__bridge void * _Nullable)(contentNSArray)];
+    self.mutableArr = [[NSMutableArray alloc]init];
     
-//    [self addObserver:self forKeyPath:@"name" options:NSKeyValueObservingOptionOld | NSKeyValueObservingOptionNew context:(__bridge void * _Nullable)(contextNSString)];
-//    [self addObserver:self forKeyPath:@"name" options:NSKeyValueObservingOptionOld | NSKeyValueObservingOptionNew context:(__bridge void * _Nullable)(contextNSString)];
-//    [self addObserver:self forKeyPath:@"name" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context: @"abcdefg"];
-    self.name = @"zhangsan";
+    [self addObserver:self forKeyPath:NSStringFromSelector(@selector(mutableArr)) options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:nil];
+    
+    UIButton *addBtn = [[UIButton alloc]initWithFrame:CGRectMake(100, 120, 100, 30)];
+    addBtn.backgroundColor = [UIColor yellowColor];
+    [self.view addSubview:addBtn];
+    [addBtn addTarget:self action:@selector(clickAddBtn) forControlEvents:UIControlEventTouchUpInside];
+    UIButton *deleteBtn = [[UIButton alloc]initWithFrame:CGRectMake(100, 160, 100, 30)];
+    deleteBtn.backgroundColor = [UIColor yellowColor];
+    [self.view addSubview:deleteBtn];
+    [deleteBtn addTarget:self action:@selector(clickDeleteBtn) forControlEvents:UIControlEventTouchUpInside];
+    UIButton *replaceBtn = [[UIButton alloc]initWithFrame:CGRectMake(100, 200, 100, 30)];
+    replaceBtn.backgroundColor = [UIColor yellowColor];
+    [self.view addSubview:replaceBtn];
+    [replaceBtn addTarget:self action:@selector(clickReplaceBtn) forControlEvents:UIControlEventTouchUpInside];
+}
+
+-(void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+    ////在数组属性发生变化的方法添加willChangeValueForKey 和 didChangeValueForKey方法
+    //[self willChangeValueForKey:@"mutableArr"];
+    [self.mutableArr addObject:@"100"];
+    //[self didChangeValueForKey:@"mutableArr"];
+}
+-(void)clickAddBtn {
+    //[self willChangeValueForKey:@"mutableArr"];
+    [self.mutableArr addObject:@"200"];
+    //[self didChangeValueForKey:@"mutableArr"];
+}
+-(void)clickDeleteBtn {
+    [self willChangeValueForKey:@"mutableArr"];
+    [self.mutableArr removeLastObject];
+    [self didChangeValueForKey:@"mutableArr"];
+}
+-(void)clickReplaceBtn {
+    [self willChangeValueForKey:@"mutableArr"];
+    [self.mutableArr replaceObjectAtIndex:0 withObject:@"888"];
+    [self didChangeValueForKey:@"mutableArr"];
 }
 
 -(void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey,id> *)change context:(void *)context {
-    NSLog(@"context is:%@",context);
+    NSString *newParents = [change objectForKey:NSKeyValueChangeNewKey];
+    NSString *oldParents  = [change objectForKey:NSKeyValueChangeOldKey];
+    NSLog(@"\nnewParents:%@\noldParents:%@",newParents,oldParents);
 }
+
 
 -(void)viewWillDisappear:(BOOL)animated {
     [super viewWillDisappear:animated];
-    [self removeObserver:self forKeyPath:@"name"];
+    [self removeObserver:self forKeyPath:@"mutableArr"];
 }
 
 @end

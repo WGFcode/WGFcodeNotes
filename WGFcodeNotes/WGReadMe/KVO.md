@@ -6,7 +6,13 @@
 * 如果在添加观察者方法中，拼写错了属性，则KVO是不会触发的
 * KVO只能监听属性，不能监听成员变量，因为KVO的底层实现原理是通过监听属性的setter方法
 * 如果观察者已经被移除了，那么当属性发生变化的时候，就不在触发监听方法了；
-* 如果观察者已经被移除了，当再次调用移除观察者的方法removeObserver的时候，程序会crash(errorInfo: because it is not registered as an observer.)，所以使用过程中一定要注意了
+* 如果观察者已经被移除了，当再次调用移除观察者的方法removeObserver的时候，程序会crash(errorInfo: because it is not registered as an observer.)，所以使用过程中一定要注意
+* KVO是同步的
+* KVO是基于runtime机制实现的，运用了一个isa-swizzling技术。isa-swizzling就是类型混合指针机制, 将2个对象的isa指针互相调换, 就是俗称的黑魔法
+* KVO的通过重写setter方法来触发通知机制的，如果你直接赋值给实例变量而不是使用属性赋值的话，是不会触发KVO的(self.XXX换成_XXX是无效的，因为self.XXX赋值时调用了setter方法)。但是使用KVC来给实例变量赋值，会触发KVO,因为对一个实例变量调用KVC的时候，KVC内部会主动调用对象的willChangeValueForKey:和didChangeValueForKey: 这两个方法,所以会触发KVO操作
+* 对于集合属性(NSArray/NSSet不包括NSDictionary)的KVO，只有在对集合赋值的时候才会触发KVO，改变集合中元素的个数是不会触发KVO的；如果想集合元素个数改变时(增删改)，也能触发KVO，那么有两种方式:
+1. 就是自定义一个类，将集合作为自定义类的属性，然后在需要监听的类中引用这个自定义类，为这个引用的属性添加观察方法，利用KVC(mutableArrayValueForKeyPath)获取到自定义类中的集合对象，然后进行增删改操作就可以触发KVO的监听方法了
+2. 在使用集合对象的类中，什么都不需要做，只需要在集合对象发生变化的时候，在变化前后添加willChangeValueForKey和didChangeValueForKey方法，就可以手动触发KVO；如果集合在多个地方被频繁的改变，每个改变的地方都要写上面两个方法，会使代码很臃肿，所以推荐第一种方法
 
 ## OC 
 #### KVO主要接口方法在NSKeyValueObserving和NSKeyValueObserverRegistration两个NSObject的类别中；NSKeyValueObserving提供监听到观察者属性变化的接口；NSKeyValueObserverRegistration提供添加和移除观察者的接口
@@ -51,7 +57,7 @@
 * NSString *const NSKeyValueChangeNotificationIsPriorKey; change字典中就会带有这个key，值为NSNumber类型的YES.
 
 ### 1.监听其自定义属性(字符串)
-    WGMainObjcVC.m文件中
+    //.m文件中
     @interface WGMainObjcVC ()
     @property(nonatomic, strong) NSString *name;
     @end
@@ -65,6 +71,7 @@
         //两种写法都可以，但推荐第二种写法,这样可以有效避免拼写错误
         //[self addObserver:self forKeyPath:@"name" options:NSKeyValueObservingOptionNew context:nil];
         [self addObserver:self forKeyPath:NSStringFromSelector(@selector(name)) options:NSKeyValueObservingOptionNew context:nil];
+        NSLog(@"结束了");
     }
 
     - (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
@@ -76,7 +83,7 @@
         NSLog(@"\nkeyPath:%@\nobject:%@\nchange:%@\ncontext:%@\nnewName:%@\n",keyPath,object,change,context,newName);
     }
     
-    //适当的时机移除观察者
+    //适当的时机移除观察者(一般在对象销毁的时候)
     -(void)viewWillDisappear:(BOOL)animated {
         [super viewWillDisappear:animated];
         [self removeObserver:self forKeyPath:NSStringFromSelector(@selector(name))];
@@ -92,7 +99,8 @@
             }
             context:(null)
             newName:zhangsan
-#### 分析: KVO的实现步骤就是添加观察者，实现监听属性变化的方法，然后在适当的时机移除观察者；在监听属性变化的方法中，change字典中必然会有kind这个键，其含义就是监听属性变化的类型(设置/插入/删除/替换)，一般情况下是NSKeyValueChangeSetting类型，其值为1。change字典中其他值的内容取决于添加观察方法时候option的选项，下面是对应设置option下change字典中包含的其他值
+            结束了
+#### 分析: KVO的实现步骤就是添加观察者，实现监听属性变化的方法，然后在适当的时机移除观察者；通过打印信息(“结束了 ”)我们可以知道KVO是同步的;在监听属性变化的方法中，change字典中必然会有kind这个键，其含义就是监听属性变化的类型(设置/插入/删除/替换)，一般情况下是NSKeyValueChangeSetting类型，其值为1。change字典中其他值的内容取决于添加观察方法时候option的选项，下面是对应设置option下change字典中包含的其他值
 
     options:NSKeyValueObservingOptionNew
     NSString *newName = [change objectForKey:NSKeyValueChangeNewKey];
@@ -128,11 +136,10 @@
     change:{
         kind = 1;
     }
-#### 分析: 从中可以发现，如果单独设置option的选项，那么只有NSKeyValueObservingOptionNew和NSKeyValueObservingOptionOld能够从监听方法的change中分别获取到属性改变后的新值和改变前的旧值，而NSKeyValueObservingOptionInitial和NSKeyValueObservingOptionPrior选项只是获取不到属性变化前后的值的，只是提供给我们KVO触发的时机，前者添加注册后立即触发；后者属性变化前会调用一次变化后会再调用一次。option选项可以根据具体的业务场景需求通过 | 进行多选项的组合。
+#### 分析: 从中可以发现，如果单独设置option的选项，那么只有NSKeyValueObservingOptionNew和NSKeyValueObservingOptionOld能够从监听方法的change中分别获取到属性改变后的新值和改变前的旧值，而NSKeyValueObservingOptionInitial和NSKeyValueObservingOptionPrior选项是获取不到属性变化前后值的，只是提供给我们KVO触发的时机，前者添加注册后立即触发；后者属性变化前会调用一次变化后会再调用一次。option选项可以根据具体的业务场景需求通过 | 进行多选项的组合。
 
 ### 1.1 如何区别不同的通知
 ####  在添加观察者和监听方法中都有**content**字典，当有多个观察者的时候，用来进行分类处理
-
         @interface WGMainObjcVC : UIViewController
         @property(nonatomic, strong) NSString *name;
         @end
@@ -176,6 +183,68 @@
                     teacher = zhanglaoshi;
                 }
 #### 分析: 这个方法就是为了证明context参数可以传递字符串、数组、字典等等类型，如果我们需要在添加注册方法的时候传递给监听方法一些参数，就可以用这个参数传递一些参数值进去；同时也可以在监听方法中判断content内容来进行分类处理
+
+
+### 1.2 键依赖
+#### 如果一个属性的改变是依赖于其他属性的改变而变化的，那么就需要添加键依赖来实现其他属性变化的时候也能监听到监听属性的改变,如果不添加依赖键，监听的属性变化的时候，是不会触发监听方法的；
+        //.h文件
+        @interface WGMainObjcVC : UIViewController
+        @property(nonatomic, strong) NSString *parents;
+        @end
+
+        //.m文件
+        @interface WGMainObjcVC()
+        @property(nonatomic, strong) NSString *fatherName;
+        @property(nonatomic, strong) NSString *motherName;
+        @end
+
+        @implementation WGMainObjcVC
+        //父母=父亲+母亲
+        -(NSString *)parents {
+            return [NSString stringWithFormat:@"父亲:%@-母亲:%@",self.fatherName, self.motherName];
+        }
+
+        - (void)viewDidLoad {
+            [super viewDidLoad];
+            self.view.backgroundColor = [UIColor redColor];
+            self.motherName = @"小龙女";
+            self.fatherName = @"令狐冲";
+            [self addObserver:self forKeyPath:NSStringFromSelector(@selector(parents)) options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:nil];
+            self.fatherName = @"岳不群";
+        }
+
+        -(void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+            self.fatherName = @"杨过";
+        }
+
+        -(void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey,id> *)change context:(void *)context {
+            NSString *newParents = [change objectForKey:NSKeyValueChangeNewKey];
+            NSString *oldParents  = [change objectForKey:NSKeyValueChangeOldKey];
+            NSLog(@"\nnewParents:%@\noldParents:%@",newParents,oldParents);
+        }
+
+        //下面两种都可以设置依赖键，都是系统提供的类方法，任选其一
+        //设置依赖键 方式一
+        +(NSSet<NSString *> *)keyPathsForValuesAffectingValueForKey:(NSString *)key {
+            NSSet *set = [super keyPathsForValuesAffectingValueForKey:key];
+            if ([key isEqualToString:@"parents"]) {
+                set = [set setByAddingObjectsFromArray:@[@"fatherName",@"motherName"]];
+            }
+            return set;
+        }
+        //设置依赖键 方式二
+        +(NSSet<NSString *> *)keyPathsForValuesAffectingParents {
+            return [NSSet setWithArray:@[@"fatherName",@"motherName"]];
+        }
+
+        -(void)viewWillDisappear:(BOOL)animated {
+            [super viewWillDisappear:animated];
+            [self removeObserver:self forKeyPath:@"parents"];
+        }
+
+        @end
+#### 分析:父母parents是有父亲father和母亲mother组成的，我们对parents添加监听，当然直接对parents进行赋值操作也会触发监听方法；那么如果father或者mother发生变化的时候，parent也得改变，进而通知监听方法，这就需要添加监听属性parent的依赖键来实现
+
 
 ### 2.KVO 监听集合属性（数组）方法一
 #### 一般监听的都是控制器中的数组，如果数组是不可变的，并且数组的改变都是通过类似赋值的操作(self.arr = @[@"1",@"2"]类似这种)，那么KVO是可以监听到的，这种方式其实和一般属性赋值没有什么差别；如果真正的想监听数组的变化，即数组进行了增删改查操作，那么如何监听？其实KVO是不能直接监听控制器中的数组元素变化的，如果想监听，必须把数组定义在模型中(自定义一个类)，然后控制器持有这个模型对象，通过这个模型对象来实现监听
