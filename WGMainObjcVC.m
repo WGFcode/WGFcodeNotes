@@ -8,52 +8,64 @@
 
 #import "WGMainObjcVC.h"
 
-@implementation WGAnimal
-
--(instancetype)init {
-    if (self == [super init]) {
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(change:) name:@"WGAnimalName" object:nil];
-    }
-    return self;
-}
-
--(void)dealloc {
-    NSLog(@"对象销毁了");
-}
-
--(void)change:(NSNotification *)noti {
-    NSLog(@"通知名称:%@,通知对象:%@,通知携带参数:%@",noti.name,noti.object,noti.userInfo);
-}
-
-@end
-
-
-
-@interface WGMainObjcVC()
-{
-    WGAnimal *_animal;
-}
-@end
-
 
 @implementation WGMainObjcVC
+
+
 
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.view.backgroundColor = [UIColor redColor];
-    //queue参数: 就是将usingBlock提交到queue队列里面执行，一般是设置为主队列用于更新UI，主队列任务都是在主线程中更新的
-    [[NSNotificationCenter defaultCenter] addObserverForName:@"customStr" object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification * _Nonnull note) {
-        NSLog(@"通知名称:%@,通知对象:%@,通知携带参数:%@",note.name,note.object,note.userInfo);
-    }];
-}
-
--(void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
     
-    [[NSNotificationCenter defaultCenter] postNotificationName:@"customStr" object:nil];
+    //1.有参数有返回值
+//    NSString* (^WGCustomBlock)(NSString *) = ^(NSString *name){
+//        NSLog(@"名称是:%@",name);
+//        return [NSString stringWithFormat:@"%@",name];
+//    };
+//    NSString *name = WGCustomBlock(@"张三");
+//    NSLog(@"%@",name);
+    //2.有多个参数有返回值
+    NSString* (^WGCustomBlock)(NSString *, int) = ^(NSString *name, int age) {
+        NSLog(@"name:%@-age:%d",name,age);
+        return [NSString stringWithFormat:@"%@-%d",name,age];
+    };
+    NSString *info = WGCustomBlock(@"张三",18);
+    NSLog(@"%@",info);
+    
+    //3.有参数无返回值
+//    void (^WGCustomBlock)(NSString *) = ^(NSString *name) {
+//        NSLog(@"我的名字叫:%@",name);
+//    };
+//    WGCustomBlock(@"张三");
+    //4. 无参数有返回值
+//    NSString *(^WGCustomBlock)(void) = ^(void) {
+//        NSLog(@"我是张三");
+//        return @"张三";
+//    };
+//    NSString *name = WGCustomBlock();
+//    NSLog(@"%@",name);
+    
+//    NSString *(^WGCustomBlock)(void) = ^{
+//        NSLog(@"我是张三");
+//        return @"张三";
+//    };
+//    NSString *name = WGCustomBlock();
+//    NSLog(@"%@",name);
+    //5 无参数无返回值
+//    void(^WGCustomBlock)(void) = ^(void) {
+//        NSLog(@"我是张三");
+//    };
+//    void(^WGCustomBlock)(void) = ^{
+//        NSLog(@"我是张三");
+//    };
+
+    
+    
+    
+    
+    
+    
 }
 
--(void)change:(NSNotification *)noti {
-    NSLog(@"通知名称:%@,通知对象:%@,通知携带参数:%@",noti.name,noti.object,noti.userInfo);
-}
 
 @end
