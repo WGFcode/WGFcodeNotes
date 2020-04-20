@@ -11,11 +11,13 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface WGAnimal : NSObject
-@property(nonatomic, assign) int age;
+
 @end
 
 
+
 @interface WGMainObjcVC : UIViewController
+
 @end
 
 NS_ASSUME_NONNULL_END
