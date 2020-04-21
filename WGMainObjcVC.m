@@ -9,19 +9,29 @@
 #import "WGMainObjcVC.h"
 
 
+
+@interface WGMainObjcVC()
+{
+    NSString *_name;
+    int _age;
+}
+@end
+
 @implementation WGMainObjcVC
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    self.view.backgroundColor = [UIColor redColor];
-    [self getName:^(NSString * _Nonnull name) {
-        NSLog(@"我的名字是:%@",name);
-    }];
+    _age = 18;
+    _name = @"张三";
+    void(^WGCustomBlock)(void) = ^{
+        NSLog(@"我的名字是:%@,我的年龄是:%d",self->_name,self->_age);
+    };
+    _age = 30;
+    _name = @"李四";
+    WGCustomBlock();
 }
 
--(void)getName:(WGCustomBlock)block {
-    block(@"张三");
-}
+
 
 
 @end

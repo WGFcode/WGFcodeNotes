@@ -6,13 +6,15 @@
 //  Copyright © 2020 WG. All rights reserved.
 //
 
-//#import "WGCustomModel.h"
+#import "WGTestModel.h"
 
 
-//@implementation WGCustomModel
-//
-//
-//
-//@end
+@implementation WGTestModel
+
+-(void)eat {
+    
+}
+
+@end
 
 

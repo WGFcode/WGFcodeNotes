@@ -10,11 +10,11 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-//@interface WGCustomModel : NSObject
-//
-//@property(nonatomic, strong) NSMutableArray *mutableArr;
-//
-//@end
+@interface WGTestModel : NSObject
+
+@property(nonatomic, strong) NSMutableArray *mutableArr;
+
+@end
 
 
 NS_ASSUME_NONNULL_END
