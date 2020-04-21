@@ -20,11 +20,15 @@ typedef NSString * _Nonnull (^WGBlock)(NSString *name, int age);
  _Nonnull: 表示对象不应该为空
  如果不明确是否可选,那么编译器会一直警告
  */
-//typedef void (^WGCustomBlock)(NSString *name);
+typedef void (^WGCustomBlock)(NSString *name);
+
+@interface WGAnimal : NSObject
+@property(nonatomic, copy) WGCustomBlock block1;
+@property(nonatomic, assign) int age;
+@end
+
 
 @interface WGMainObjcVC : UIViewController
-
-//@property(nonatomic, copy) WGBlock block1;
 
 @end
 

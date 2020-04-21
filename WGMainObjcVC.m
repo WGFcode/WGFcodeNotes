@@ -9,26 +9,22 @@
 #import "WGMainObjcVC.h"
 
 
+@implementation WGAnimal
 
-@interface WGMainObjcVC()
-{
-    NSString *_name;
-    int _age;
-}
 @end
+
+
 
 @implementation WGMainObjcVC
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    _age = 18;
-    _name = @"张三";
-    void(^WGCustomBlock)(void) = ^{
-        NSLog(@"我的名字是:%@,我的年龄是:%d",self->_name,self->_age);
+    
+    __unsafe_unretained WGAnimal *animal = [[WGAnimal alloc]init];
+    animal.block1 = ^(NSString * _Nonnull name) {
+        NSLog(@"动物的年龄是:%d",animal.age);
     };
-    _age = 30;
-    _name = @"李四";
-    WGCustomBlock();
+    
 }
 
 
