@@ -310,8 +310,8 @@
 
 ### 3. Block循环引用
 #### 在ARC环境下解决循环引用有三种方式
-* __weak: 不会产生强引用，指向的对象销毁时，会自动让指针置为nil
-* __unsafe_unretained: 不会产生强引用，不安全，指向的对象销毁时，指针存储的地址值不变
+* __weak: 弱引用，不持有对象，对象释放时会将对象置nil。
+* __unsafe_unretained: 弱引用，不持有对象，对象释放时不会将对象置nil。
 * __block: 必须把引用对象置位nil，并且要调用该block
         //.h文件
         typedef void (^WGCustomBlock)(NSString *name);
@@ -347,10 +347,39 @@
         animal.block1 = ^(NSString * _Nonnull name) {
             NSLog(@"动物的年龄是:%d",animalWeak.age);
         };
-        //方式二:使用__unsafe_unretained来解决循环引用
-
-
+        
+        //方式二:使用__unsafe_unretained来解决循环引用,在这里会引起crash
+        __unsafe_unretained WGAnimal *animal = [[WGAnimal alloc]init];
+        animal.block1 = ^(NSString * _Nonnull name) {
+            NSLog(@"动物的年龄是:%d",animal.age);
+        };
+        
+        //方式三 使用__block来解决循环引用
+        __block WGAnimal *animal = [[WGAnimal alloc]init];
+        animal.block1 = ^(NSString * _Nonnull name) {
+            NSLog(@"动物的年龄是:%d，名字是:%@",animal.age,name);
+            //必须置为nil
+            animal = nil;
+        };
+        animal.block1(@"狗");
 
 #### MRC环境下解决循环引用有二种方式
 * __unsafe_unretained
 * __block
+
+#### 3.1 不会造成循环引用的情况
+* 大部分GCD方法，因为self并没有对GCD中的Block进行持有，没有形成循环引用；目前还没碰到使用GCD导致循环引用的场景；除非self对GCD中的block持有才有可能造成循环引用
+* block并不是属性值，而是临时变量,self对block并没有持有
+
+        - (void)viewDidLoad {
+            [super viewDidLoad];
+            
+            void (^WGCustomBlock)(NSString *) = ^(NSString *name){
+                NSLog(@"我的名字是:%@,所在的类是:%@",name,[self class]);
+            };
+            WGCustomBlock(@"张三");
+        }
+        打印结果: 我的名字是:张三,所在的类是:WGMainObjcVC
+
+### 4.总结
+![图片](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGScreenshots/block.jpeg)

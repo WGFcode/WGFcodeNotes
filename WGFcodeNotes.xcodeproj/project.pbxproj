@@ -20,6 +20,7 @@
 		30BB26BB244BF62B00255288 /* NSNotification.md in Resources */ = {isa = PBXBuildFile; fileRef = 30BB26BA244BF62B00255288 /* NSNotification.md */; };
 		30C1F2B82431F0C7003B30B3 /* face.md in Resources */ = {isa = PBXBuildFile; fileRef = 30C1F2B72431F0C7003B30B3 /* face.md */; };
 		30CBD68A24389E13000C49E6 /* WGTestModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 30CBD68924389E13000C49E6 /* WGTestModel.m */; };
+		30DD858B244F00C100897144 /* block.jpeg in Resources */ = {isa = PBXBuildFile; fileRef = 30DD858A244F00C100897144 /* block.jpeg */; };
 		30F8F49E243F142900968177 /* Summary.md in Resources */ = {isa = PBXBuildFile; fileRef = 30F8F49D243F142900968177 /* Summary.md */; };
 		30FD75F824357E3800431678 /* WGMainObjcVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 30FD75F724357E3800431678 /* WGMainObjcVC.m */; };
 		30FD75FA24358F1E00431678 /* lock3.png in Resources */ = {isa = PBXBuildFile; fileRef = 30FD75F924358F1E00431678 /* lock3.png */; };
@@ -78,6 +79,7 @@
 		30C7D40C2439C05000EA99C6 /* NSOperation.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = NSOperation.md; sourceTree = "<group>"; };
 		30CBD68824389E13000C49E6 /* WGTestModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WGTestModel.h; sourceTree = "<group>"; };
 		30CBD68924389E13000C49E6 /* WGTestModel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WGTestModel.m; sourceTree = "<group>"; };
+		30DD858A244F00C100897144 /* block.jpeg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = block.jpeg; sourceTree = "<group>"; };
 		30F8F49D243F142900968177 /* Summary.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Summary.md; sourceTree = "<group>"; };
 		30FD75F524357E3800431678 /* WGFcodeNotes-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "WGFcodeNotes-Bridging-Header.h"; sourceTree = "<group>"; };
 		30FD75F624357E3800431678 /* WGMainObjcVC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WGMainObjcVC.h; sourceTree = "<group>"; };
@@ -139,6 +141,7 @@
 		30A7DC7D24348382008DDCF9 /* WGScreenshots */ = {
 			isa = PBXGroup;
 			children = (
+				30DD858A244F00C100897144 /* block.jpeg */,
 				30A73F322447F14A00C86BB8 /* kvc1.png */,
 				30FD94D3243DDE8400EAFAA3 /* error1.png */,
 				30A7DC8024348703008DDCF9 /* lock1.png */,
@@ -363,6 +366,7 @@
 				30A73F332447F14A00C86BB8 /* kvc1.png in Resources */,
 				548AC98F242F4CAD00EEE11C /* Carthage.md in Resources */,
 				30BB26BB244BF62B00255288 /* NSNotification.md in Resources */,
+				30DD858B244F00C100897144 /* block.jpeg in Resources */,
 				30FD76012435CD3100431678 /* NSThread.md in Resources */,
 				30C1F2B82431F0C7003B30B3 /* face.md in Resources */,
 				307A0E7B24456BD3006E5429 /* RunLoop.md in Resources */,

@@ -20,11 +20,10 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    __unsafe_unretained WGAnimal *animal = [[WGAnimal alloc]init];
-    animal.block1 = ^(NSString * _Nonnull name) {
-        NSLog(@"动物的年龄是:%d",animal.age);
+    void (^WGCustomBlock)(NSString *) = ^(NSString *name){
+        NSLog(@"我的名字是:%@,所在的类是:%@",name,[self class]);
     };
-    
+    WGCustomBlock(@"张三");
 }
 
 
