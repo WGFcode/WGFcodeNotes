@@ -28,6 +28,7 @@
 		30FD75FE2435C88B00431678 /* lock5.png in Resources */ = {isa = PBXBuildFile; fileRef = 30FD75FD2435C88B00431678 /* lock5.png */; };
 		30FD76012435CD3100431678 /* NSThread.md in Resources */ = {isa = PBXBuildFile; fileRef = 30FD76002435CD3100431678 /* NSThread.md */; };
 		30FD94D4243DDE8400EAFAA3 /* error1.png in Resources */ = {isa = PBXBuildFile; fileRef = 30FD94D3243DDE8400EAFAA3 /* error1.png */; };
+		5422AC59244F3E8E000CB747 /* block2.png in Resources */ = {isa = PBXBuildFile; fileRef = 5422AC58244F3E8E000CB747 /* block2.png */; };
 		548AC953242F4B3100EEE11C /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 548AC952242F4B3100EEE11C /* AppDelegate.swift */; };
 		548AC955242F4B3100EEE11C /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 548AC954242F4B3100EEE11C /* SceneDelegate.swift */; };
 		548AC957242F4B3100EEE11C /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 548AC956242F4B3100EEE11C /* ViewController.swift */; };
@@ -90,6 +91,7 @@
 		30FD76002435CD3100431678 /* NSThread.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = NSThread.md; sourceTree = "<group>"; };
 		30FD94D2243DDDDE00EAFAA3 /* ErrorCollect.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = ErrorCollect.md; sourceTree = "<group>"; };
 		30FD94D3243DDE8400EAFAA3 /* error1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = error1.png; sourceTree = "<group>"; };
+		5422AC58244F3E8E000CB747 /* block2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = block2.png; sourceTree = "<group>"; };
 		548AC94F242F4B3100EEE11C /* WGFcodeNotes.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WGFcodeNotes.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		548AC952242F4B3100EEE11C /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		548AC954242F4B3100EEE11C /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -141,6 +143,7 @@
 		30A7DC7D24348382008DDCF9 /* WGScreenshots */ = {
 			isa = PBXGroup;
 			children = (
+				5422AC58244F3E8E000CB747 /* block2.png */,
 				30DD858A244F00C100897144 /* block.jpeg */,
 				30A73F322447F14A00C86BB8 /* kvc1.png */,
 				30FD94D3243DDE8400EAFAA3 /* error1.png */,
@@ -368,6 +371,7 @@
 				30BB26BB244BF62B00255288 /* NSNotification.md in Resources */,
 				30DD858B244F00C100897144 /* block.jpeg in Resources */,
 				30FD76012435CD3100431678 /* NSThread.md in Resources */,
+				5422AC59244F3E8E000CB747 /* block2.png in Resources */,
 				30C1F2B82431F0C7003B30B3 /* face.md in Resources */,
 				307A0E7B24456BD3006E5429 /* RunLoop.md in Resources */,
 				30FD75FA24358F1E00431678 /* lock3.png in Resources */,

@@ -71,7 +71,7 @@
         //1.Block作为属性
         //typedef简化Block生命
         typedef return_type (^blockName)(var_type varName);
-        /*在swift中有可选类型和非可选类型(?和!),在OC中没有这个区分,所以在混编的时候,swift编译器并不知道它是可选还是非可选,为了解决这个问题,引入了两个关键字
+      /*在swift中有可选类型和非可选类型(?和!),在OC中没有这个区分,所以在混编的时候,swift编译器并不知道它是可选还是非可选,为了解决这个问题,引入了两个关键字
          _Nullable: 表示对象可以是NULL或nil
          _Nonnull: 表示对象不应该为空
          如果不明确是否可选,那么编译器会一直警告
@@ -247,10 +247,27 @@
                 :(null)
 
 #### 分析:从打印结果可以看出:Block实质也是个对象类型最终继承自NSObject；Block主要分为以下三种类型
-* __NSGlobalBlock__ 全局Block: 存在数据区；没有访问auto变量的Block都是全局Block
-* __NSStackBlock__  栈Block: 存在栈区；访问了auto变量的Block都是栈区Block
+* __NSGlobalBlock__ 全局Block: 存在数据区；
+* __NSStackBlock__  栈Block: 存在栈区,超出作用域就会被销毁；
 * __NSMallocBlock__ 堆Block: 存在堆区；【__NSStackBlock__ copy】就是堆区Block
 * 系统自动分配栈区内存，自动销毁，先入后出；动态分配堆区内存，需要程序员自己申请，程序员自己管理
+
+#### 如何判断一个Block所处的存储位置?
+* 没有访问外界变量的Block都是全局Block,存储在数据区;
+* 在MRC下访问外界变量的Block默认存储在栈中;
+* 在ARC下访问外界变量的Block默认存储在堆中(实际在栈中,ARC情况下自动拷贝到堆区),
+
+#### 在ARC下,为什么访问外界变量的Block自动从栈区拷贝到堆区?
+* 栈上的Block,如果其所属的变量作用域结束,该Block就会被销毁/废弃,当然Block中的__block变量也会跟着销毁;为了解决栈区在其变量作用域结束后被销毁的问题,我们需要把Block复制到堆区来延长它的生命周期;将Block从栈区复制(copy)到堆区比较耗费CPU资源,所以在栈区也能够使用就尽量不要复制了
+
+
+#### Block copy操作
+#### 不同类型的Block执行copy操作后的效果如下
+                             副本源的存储域      复制效果
+        __NSGlobalBlock__       数据区          什么也不做
+        __NSStackBlock__         栈           从栈复制到堆上
+        __NSMallocBlock__        堆           引用计数增加
+* Block在堆中copy会造成引用计数增加,这和对象是一样的;虽然在栈上的Block也是以对象的身份存在的,但是栈区没有引用计数,栈区内存是由编译器自动分配释放,所以不需要引用计数
 
 
 ### 1.4.1 Block引用问题
@@ -308,6 +325,13 @@
 * 当__block变量被copy到堆时,会调用__block变量内部的copy函数;copy函数内部会调用_Block_object_assign函数;_Block_object_assign函数会根据所指向对象的修饰符(__strong、__weak、__unsafe_unretained)做出相应的操作，形成强引用或者弱引用
 * 如果__block变量从堆上移除,会调用__block变量内部的dispose函数;dispose函数内部会调用_Block_object_dispose函数;_Block_object_dispose函数会自动释放指向的对象
 
+### 2.2 __block变量与__forwarding
+#### 我们知道在copy操作之后,__block变量也会被拷贝到堆中,那么访问该变量访问的是栈上的还是堆上的?
+![图片](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGScreenshots/block.jpeg)
+* 通过__forwarding无论在Block内还是Block外访问__block修饰的变量,也不管该变量在堆上还是栈上,都能顺利的访问同一个__block修饰的变量
+
+
+
 ### 3. Block循环引用
 #### 在ARC环境下解决循环引用有三种方式
 * __weak: 弱引用，不持有对象，对象释放时会将对象置nil。
@@ -354,7 +378,7 @@
             NSLog(@"动物的年龄是:%d",animal.age);
         };
         
-        //方式三 使用__block来解决循环引用
+        //方式三 使用__block来解决循环引用,这种方式必须调用Block,否则对象就不会置为nil,内存泄漏会一直存在
         __block WGAnimal *animal = [[WGAnimal alloc]init];
         animal.block1 = ^(NSString * _Nonnull name) {
             NSLog(@"动物的年龄是:%d，名字是:%@",animal.age,name);
