@@ -8,16 +8,25 @@
 
 #import "WGMainObjcVC.h"
 
-@implementation WGMainObjcVC
+@implementation WGAnimal
 
+@end
+
+
+@implementation WGMainObjcVC
 - (void)viewDidLoad {
     [super viewDidLoad];
-    
-    //__weak typeof(self) weakSelf = self;
-    _block = ^(NSString *name) {
-        NSLog(@"我的名字是:%@,我所在的类是:%@",name,self);
+    self.view.backgroundColor = [UIColor redColor];
+    WGAnimal *a = [[WGAnimal alloc]init];
+    a.name = @"小狗";
+    __weak typeof(a) weakSelfA = a;
+    a.block = ^(int age) {
+        __strong typeof(a) strongSelfA = weakSelfA;
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            NSLog(@"我的名字是:%@,我的年龄是:%d,weakSelfA:%@",strongSelfA.name,age,weakSelfA);
+        });
+        NSLog(@"我的名字是:%@,我的年龄是:%d,weakSelfA:%@",weakSelfA.name,age,weakSelfA);
     };
-    _block(@"张三");
+    a.block(18);
 }
-
 @end

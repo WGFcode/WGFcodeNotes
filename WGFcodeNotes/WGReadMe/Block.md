@@ -746,6 +746,33 @@
         }
 #### 分析发现，Block内访问成员变量的时候，并不会在结构体中创建新的成员变量来保存这些传递进来的变量，而是将当前对象self做为参数传递到Block结构体中，所以Block对成员变量的捕获，实际上捕获的是self；所以Block内可以获取到最新的成员变量的值也是靠捕获self来获取的
 
+### 5.8 Block捕获可变数组
+        @implementation WGMainObjcVC
+        - (void)viewDidLoad {
+            [super viewDidLoad];
+            NSMutableArray *arr = [NSMutableArray array];
+            NSString *name = @"小黑";
+            [arr addObject:@"zhang san"];
+            void(^WGCustomBlock)(void) = ^{
+                [arr addObject:@"wang wu"];
+                NSLog(@"当前数组元素是:%@,名字是:%@",arr,name);
+            };
+            name = @"小白";
+            [arr addObject:@"li si"];
+            WGCustomBlock();
+        }
+        @end
+
+        打印结果: 当前数组元素是:(
+                "zhang san",
+                "li si",
+                "wang wu"
+                ),名字是:小黑
+    //底层代码：将arr,name作为参数传递到这个结构体函数中赋值给结构体中新增加的对应的成员变量
+    void(*WGCustomBlock)(void) = &__WGMainObjcVC__viewDidLoad_block_impl_0(__WGMainObjcVC__viewDidLoad_block_func_0, &__WGMainObjcVC__viewDidLoad_block_desc_0_DATA, arr, name, 570425344));
+####  arr和name都是局部变量，那么Block对auto局部变量的捕获应该是值捕获，所以name的值直接被Block捕获到并赋值给Block结构体中新增加的成员变量，即便外部name的值改变也不会影响Block内name的值；但是对于可变数组的捕获中，我们调用addObject方法的时候并没有修改arr的值，只是使用了arr的指针，arr=nil才是改变了数组的值；所以Block可以捕获到可变数组的变化
+
+
 ### 6 Block捕获对象类型
         //.h文件
         @interface WGAnimal : NSObject
@@ -782,4 +809,63 @@
         打印结果:111111a1:<WGAnimal: 0x6000024496a0>---a2:<WGAnimal: 0x6000024496b0>
                 222222a1:<WGAnimal: 0x6000024496b0>---a2:<WGAnimal: 0x6000024496b0>
                 对象a1：<WGAnimal: 0x6000024496a0>,名称是:张三
-#### 分析: a1和a2对象都是局部变量，所以在WGCustomBlock中，捕获到的是对象a1的值，即便在Block外a1对象的地址被更换为对象a2的值，也不会改变WGCustomBlock中对象a1的值；因为捕获到的是a1的值，所以对象a1的属性name的值也是值捕获；
+##### 分析: a1和a2对象都是局部变量，所以在WGCustomBlock中，捕获到的是对象a1的值，即便在Block外a1对象的地址被更换为对象a2的值，也不会改变WGCustomBlock中对象a1的值；因为捕获到的是a1的值，所以对象a1的属性name的值也是值捕获；
+
+
+### 7. __weak 和 __strong的区别
+* __weak可以对修饰的对象弱引用,不会造成对象引用计数+1，主要用来解决Block循环引用的问题，并且在对象销毁的时候会自动将对象置为nil；
+* __unsafe_unretained和__weak和这个关键字很相似，都能表示对修饰对象的弱引用，唯一的区别就是__unsafe_unretained在对象销毁的时候，并不会对对象置nil,这将会导致野指针的产生,所以一般我们使用__weak
+* __strong，Block中除了使用__weak对对象弱引用外，偶尔还需要在Block内部对弱引用对象进行一次强引用，因为仅用__weak所修饰的对象,如果被释放,那么这个对象在Block执行的过程中就会变成nil,一般使用__strong进行强引用主要是在多线程编程中，因为在单线程中，执行Block的时候对象还没有被置nil,而在多线程中，可能会发生
+        //.h文件
+        typedef void(^WGCustomBlock)(int age);
+        @interface WGAnimal : NSObject
+        @property(nonatomic, copy) WGCustomBlock block;
+        @property(nonatomic, strong) NSString *name;
+        @end
+
+        @interface WGMainObjcVC : UIViewController
+        @end
+
+        //.m文件
+        @implementation WGAnimal
+        @end
+
+        @implementation WGMainObjcVC
+        - (void)viewDidLoad {
+            [super viewDidLoad];
+            self.view.backgroundColor = [UIColor redColor];
+            WGAnimal *a = [[WGAnimal alloc]init];
+            a.name = @"小狗";
+            __weak typeof(a) weakSelfA = a;
+            a.block = ^(int age) {
+                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                    NSLog(@"我的名字是:%@,我的年龄是:%d,weakSelfA:%@",weakSelfA.name,age,weakSelfA);
+                });
+                NSLog(@"我的名字是:%@,我的年龄是:%d,weakSelfA:%@",weakSelfA.name,age,weakSelfA);
+            };
+            a.block(18);
+        }
+        @end
+
+        打印结果: 我的名字是:小狗,我的年龄是:18,weakSelfA:<WGAnimal: 0x600002ce74e0>
+                我的名字是:(null),我的年龄是:18,weakSelfA:(null)
+#### 分析，在block执行结束后,weakSelfA(对象a)就被销毁了，在dispatch_after方法中捕获到的weakSelfA(对象a)在销毁后被置为nil了，那么我们怎么才能在weakSelfA之后block内还能继续使用weakSelfA对象那？可以使用__strong来修饰weakSelfA(对象a)来保证在dispatch_after方法中的block使用weakSelfA(对象a)不会被释放，当dispatch_after中的Block执行完成后，这个strongSelf就会被自动释放，不会存在循环引用问题
+
+        - (void)viewDidLoad {
+            [super viewDidLoad];
+            self.view.backgroundColor = [UIColor redColor];
+            WGAnimal *a = [[WGAnimal alloc]init];
+            a.name = @"小狗";
+            __weak typeof(a) weakSelfA = a;
+            a.block = ^(int age) {
+                __strong typeof(a) strongSelfA = weakSelfA;
+                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                    NSLog(@"我的名字是:%@,我的年龄是:%d,weakSelfA:%@",strongSelfA.name,age,weakSelfA);
+                });
+                NSLog(@"我的名字是:%@,我的年龄是:%d,weakSelfA:%@",weakSelfA.name,age,weakSelfA);
+            };
+            a.block(18);
+        }
+        
+        打印结果: 我的名字是:小狗,我的年龄是:18,weakSelfA:<WGAnimal: 0x600002ca8500>
+                我的名字是:小狗,我的年龄是:18,weakSelfA:<WGAnimal: 0x600002ca8500>
