@@ -8,25 +8,16 @@
 
 #import "WGMainObjcVC.h"
 
-
-@implementation WGAnimal
-
-@end
-
-
-
 @implementation WGMainObjcVC
 
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    void (^WGCustomBlock)(NSString *) = ^(NSString *name){
-        NSLog(@"我的名字是:%@,所在的类是:%@",name,[self class]);
+    //__weak typeof(self) weakSelf = self;
+    _block = ^(NSString *name) {
+        NSLog(@"我的名字是:%@,我所在的类是:%@",name,self);
     };
-    WGCustomBlock(@"张三");
+    _block(@"张三");
 }
-
-
-
 
 @end

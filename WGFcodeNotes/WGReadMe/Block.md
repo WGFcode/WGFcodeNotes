@@ -327,7 +327,7 @@
 
 ### 2.2 __block变量与__forwarding
 #### 我们知道在copy操作之后,__block变量也会被拷贝到堆中,那么访问该变量访问的是栈上的还是堆上的?
-![图片](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGScreenshots/block.jpeg)
+![图片](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGScreenshots/block2.jpeg)
 * 通过__forwarding无论在Block内还是Block外访问__block修饰的变量,也不管该变量在堆上还是栈上,都能顺利的访问同一个__block修饰的变量
 
 
@@ -407,3 +407,379 @@
 
 ### 4.总结
 ![图片](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGScreenshots/block.jpeg)
+
+
+
+### 5.Block源码分析
+### 5.1 使用clang编译器将Objective-C代码编译成C语言代码, 并生成在一个.cpp的 C++文件中，通过这个文件我们可以查看Block的底层代码实现
+* 项目中创建一个.m文件，然后在.m文件中使用Block
+* 在终端cd到包含.m文件的目录，然后执行clang -rewrite-objc XXX.m，在.m文件的同级目录中会生成XXX.cpp文件
+* 如果出现main.m:9:9: fatal error: 'UIKit/UIKit.h' file not found错误，可使用命令:clang -x objective-c -rewrite-objc -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk XXX.m,如果在目录中生成了XXX.cpp文件即证明编辑成功了
+* 上面的命令太长了，可以使用alias来为上面的命令起个别名来替换这个命令
+1. 在终端输入 vim ~/.bash_profile
+2. 在vim界面输入i进入编辑状态并且键入alias wgrewriteoc='clang -x objective-c -rewrite-objc -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk'
+3. 点击esc退出编辑，然后输入:wq保存并退出Vim界面
+4. 输入命令source ~/.bash_profile保证刚才的编辑生效
+5. cd到包含XXX.m的文件夹，然后输入命令 wgrewriteoc XXX.m即可在XXX.m的同级目录生成.cpp文件
+
+### 5.2 .cpp文件分析
+### 5.2.1 我们将下面WGMainObjcVC.m文件转为WGMainObjcVC.cpp文件
+        @implementation WGMainObjcVC
+        - (void)viewDidLoad {
+            [super viewDidLoad];
+            //1无参数无返回值的Block
+            void (^WGCustomBlock1)(void) = ^{
+                NSLog(@"我叫张三");
+            };
+            WGCustomBlock1();
+        }
+        @end
+        
+#### 转为.cpp文件后的WGCustomBlock1底层代码如下
+        //定义Block
+        void (*WGCustomBlock1)(void) = ((void (*)())&__WGMainObjcVC__viewDidLoad_block_impl_0((void *)__WGMainObjcVC__viewDidLoad_block_func_0, &__WGMainObjcVC__viewDidLoad_block_desc_0_DATA));
+        //调用Block
+        ((void (*)(__block_impl *))((__block_impl *)WGCustomBlock1)->FuncPtr)((__block_impl *)WGCustomBlock1);
+        
+        把强制类型去掉简化后的代码
+        //定义Block
+        void (*WGCustomBlock1)(void) = &__WGMainObjcVC__viewDidLoad_block_impl_0(__WGMainObjcVC__viewDidLoad_block_func_0, &__WGMainObjcVC__viewDidLoad_block_desc_0_DATA);
+        //调用Block
+        WGCustomBlock1->FuncPtr(WGCustomBlock1);
+        
+### 5.2.2 分析Block定义
+        void (*WGCustomBlock1)(void) = &__WGMainObjcVC__viewDidLoad_block_impl_0(__WGMainObjcVC__viewDidLoad_block_func_0, &__WGMainObjcVC__viewDidLoad_block_desc_0_DATA);
+        
+#### 我们可以猜测定义过程是：调用__WGMainObjcVC__viewDidLoad_block_impl_0函数，里面传递了两个参数__WGMainObjcVC__viewDidLoad_block_func_0和__WGMainObjcVC__viewDidLoad_block_desc_0_DATA，然后得到这个函数的返回值，将函数返回值的地址赋值给WGCustomBlock1这个指针
+
+#### 接下来我们来看下上面的方法__WGMainObjcVC__viewDidLoad_block_impl_0的详细信息，会发现实际上Block就是个结构体对象
+
+        这是一个C++的结构体，包含了一个和结构体名称一样的函数，函数名和结构体名称一样，这是C++结构体的特性
+        struct __WGMainObjcVC__viewDidLoad_block_impl_0 {
+          struct __block_impl impl;
+          struct __WGMainObjcVC__viewDidLoad_block_desc_0* Desc;
+          //C++结构体中包含的函数称为构造函数，相当于OC的init方法，init方法返回的是对象本身，那么C++的构造函数返回的也是这个结构体本身
+          __WGMainObjcVC__viewDidLoad_block_impl_0(void *fp, struct __WGMainObjcVC__viewDidLoad_block_desc_0 *desc, int flags=0) {
+            impl.isa = &_NSConcreteStackBlock;
+            impl.Flags = flags;
+            impl.FuncPtr = fp;
+            Desc = desc;
+          }
+        };
+        
+        struct __block_impl {
+          void *isa;
+          int Flags;
+          int Reserved;
+          void *FuncPtr;
+        };
+        
+        static struct __WGMainObjcVC__viewDidLoad_block_desc_0 {
+          size_t reserved;
+          size_t Block_size;
+        } __WGMainObjcVC__viewDidLoad_block_desc_0_DATA = { 0, sizeof(struct __WGMainObjcVC__viewDidLoad_block_impl_0)};
+
+#### 在这里我们就可以判定__WGMainObjcVC__viewDidLoad_block_impl_0(__WGMainObjcVC__viewDidLoad_block_func_0, &__WGMainObjcVC__viewDidLoad_block_desc_0_DATA)这个结构体函数返回的就是__WGMainObjcVC__viewDidLoad_block_impl_0这个结构体对象，然后将结构体对象的指针赋值给了WGCustomBlock1指针，即WGCustomBlock1这个Block指向的就是初始化后的__WGMainObjcVC__viewDidLoad_block_impl_0结构体对象。
+
+#### 接下来分析下上面方法的参数
+    //第一个参数  __WGMainObjcVC__viewDidLoad_block_func_0
+    static void __WGMainObjcVC__viewDidLoad_block_func_0(struct __WGMainObjcVC__viewDidLoad_block_impl_0 *__cself) {
+        NSLog((NSString *)&__NSConstantStringImpl__var_folders_2g_rblj4zp502n0kd06tng4srph0000gn_T_WGMainObjcVC_246f66_mi_0);
+    }
+* 这个函数其实就是把WGCustomBlock1中要执行的代码封装到这个函数内部了，因为这个函数里面就一行代码，并且有NSLog函数对应我们的NSLog(@"我叫张三");将这个函数指针传递给构造函数__WGMainObjcVC__viewDidLoad_block_impl_0的第一个参数，然后用这个函数指针来初始化__WGMainObjcVC__viewDidLoad_block_impl_0这个结构体中的第一个结构体impl中的成员变量FuncPtr，也就是说FuncPtr这个指针指向的就是__WGMainObjcVC__viewDidLoad_block_func_0这个函数
+
+        //第二个参数 __WGMainObjcVC__viewDidLoad_block_desc_0_DATA
+        static struct __WGMainObjcVC__viewDidLoad_block_desc_0 {
+            size_t reserved;
+            size_t Block_size;
+        } __WGMainObjcVC__viewDidLoad_block_desc_0_DATA = { 0, sizeof(struct __WGMainObjcVC__viewDidLoad_block_impl_0)};
+* 在这个结构体中，0赋值给了reserved，sizeof(struct __WGMainObjcVC__viewDidLoad_block_impl_0)赋值给了Block_size；可以看出这个结构体存放是的__WGMainObjcVC__viewDidLoad_block_impl_0这个结构体的信息
+#### Block定义过程总结如下:
+        void (*WGCustomBlock1)(void) = &__WGMainObjcVC__viewDidLoad_block_impl_0(__WGMainObjcVC__viewDidLoad_block_func_0, &__WGMainObjcVC__viewDidLoad_block_desc_0_DATA);
+* 创建一个函数__WGMainObjcVC__viewDidLoad_block_func_0，作用就是将我们block中要执行的代码封装到这个函数内部，方便调用，将这个函数传递给构造函数__WGMainObjcVC__viewDidLoad_block_impl_0，用来初始化结构体__WGMainObjcVC__viewDidLoad_block_impl_0的第一个成员变量impl的成员变量FuncPtr，这个结构体就拥有了block中那个代码块的地址
+* 创建一个__WGMainObjcVC__viewDidLoad_block_desc_0结构体，主要用来保存__WGMainObjcVC__viewDidLoad_block_impl_0这个结构体的专用的存储空间大小的信息
+*  __WGMainObjcVC__viewDidLoad_block_impl_0这个构造函数执行完成后返回的是__WGMainObjcVC__viewDidLoad_block_impl_0这个结构体，将这个结构体的指针地址赋值给Block指针
+
+### 5.2.3 分析Block调用
+       原生版:调用Block
+       ((void (*)(__block_impl *))((__block_impl *)WGCustomBlock1)->FuncPtr)((__block_impl *)WGCustomBlock1);
+       简化版:调用Block
+       WGCustomBlock1->FuncPtr(WGCustomBlock1);
+* 我们已经知道了WGCustomBlock1这个Block的指针指向的是__WGMainObjcVC__viewDidLoad_block_impl_0这个结构体,那么调用的顺序是不是就是 WGCustomBlock1->impl->FuncPtr？ 答案是不是的，原因是简化版前WGCustomBlock1前面是(__block_impl *)这种类型，而WGCustomBlock1这个指针指向的是__WGMainObjcVC__viewDidLoad_block_impl_0这个结构体的首地址，而这个结构体的第一个成员是struct __block_impl impl;所以impl的首地址和__WGMainObjcVC__viewDidLoad_block_impl_0这个结构体的首地址是一样的，因此指向__WGMainObjcVC__viewDidLoad_block_impl_0的首地址的指针也可以被转化为指向impl的首地址指针，FuncPtr这个指针在构造函数中是被初始化为指向__WGMainObjcVC__viewDidLoad_block_func_0这个函数的地址。因此通过block->FuncPtr调用也就获取了__WGMainObjcVC__viewDidLoad_block_func_0这个函数的地址，然后对__WGMainObjcVC__viewDidLoad_block_func_0进行调用，也就是执行block中的代码了。这中间block又被当做参数传进了__WGMainObjcVC__viewDidLoad_block_func_0这个函数
+
+### 5.3 Block捕获auto自定变量(局部变量)源码分析
+        - (void)viewDidLoad {
+            [super viewDidLoad];
+            int age = 18;
+            NSString *name = @"张三";
+            void (^WGCustomBlock)(void) = ^{
+                NSLog(@"我的名字是:%@,年龄是:%d",name,age);
+            };
+            age = 30;
+            name = @"李四";
+            WGCustomBlock();
+        }
+        @end
+        
+        打印结果: 我的名字是:张三,年龄是:18
+#### 我们在调用WGCustomBlock前，已经改变了name和age的值，为什么没有打印“我的名字是:李四,年龄是:30”这样的信息?,接下来看下cpp文件的内容
+        简化后的代码
+        int age = 18;
+        NSString *name = (NSString *)&__NSConstantStringImpl__var_folders_2g_rblj4zp502n0kd06tng4srph0000gn_T_WGMainObjcVC_e3cc9b_mi_0;
+        //将age,name的值传递给__WGMainObjcVC__viewDidLoad_block_impl_0这个函数
+        void (*WGCustomBlock)(void) = &__WGMainObjcVC__viewDidLoad_block_impl_0(__WGMainObjcVC__viewDidLoad_block_func_0, &__WGMainObjcVC__viewDidLoad_block_desc_0_DATA, name, age, 570425344));
+        age = 30;
+        name = (NSString *)&__NSConstantStringImpl__var_folders_2g_rblj4zp502n0kd06tng4srph0000gn_T_WGMainObjcVC_e3cc9b_mi_2;
+        WGCustomBlock->FuncPtr)WGCustomBlock;
+        
+        struct __WGMainObjcVC__viewDidLoad_block_impl_0 {
+          struct __block_impl impl;
+          struct __WGMainObjcVC__viewDidLoad_block_desc_0* Desc;
+          //这是新加入的成员变量name和age
+          NSString *name;
+          int age;
+          //将传递进来的name和age的值赋给对应的成员变量name,age
+          __WGMainObjcVC__viewDidLoad_block_impl_0(void *fp, struct __WGMainObjcVC__viewDidLoad_block_desc_0 *desc, NSString *_name, int _age, int flags=0) : name(_name), age(_age) {
+            impl.isa = &_NSConcreteStackBlock;
+            impl.Flags = flags;
+            impl.FuncPtr = fp;
+            Desc = desc;
+          }
+        };
+        
+        //通过传入__WGMainObjcVC__viewDidLoad_block_impl_0这个结构体来获取其成员变量的值
+        static void __WGMainObjcVC__viewDidLoad_block_func_0(struct __WGMainObjcVC__viewDidLoad_block_impl_0 *__cself) {
+        NSString *name = __cself->name;   
+        int age = __cself->age; 
+        NSLog((NSString *)&__NSConstantStringImpl__var_folders_2g_rblj4zp502n0kd06tng4srph0000gn_T_WGMainObjcVC_e3cc9b_mi_1,name,age);
+        }
+#### 发现__WGMainObjcVC__viewDidLoad_block_impl_0构造函数中多了两个参数，将name,age作为参数传递给这个构造函数,为了给这个结构体内新生成的成员变量name，age赋值，由于这个过程是值传递，所以在外部改变name,age的值后，结构体中的成员变量值并不会被修改了；所以Block对auto局部变量的捕获是将局部变量的值赋值给Block结构体中新创建的成员变量，外部再修改局部变量的值也无法更改Block结构体内的成员变量的值
+
+### 5.4 Block捕获static静态变量源码分析
+        @implementation WGMainObjcVC
+        - (void)viewDidLoad {
+            [super viewDidLoad];
+            static int age = 18;
+            static NSString *name = @"张三";
+            void (^WGCustomBlock)(void) = ^{
+                NSLog(@"我的名字是:%@,年龄是:%d",name,age);
+            };
+            age = 30;
+            name = @"李四";
+            WGCustomBlock();
+        }
+        @end
+
+        打印结果: 我的名字是:李四,年龄是:30
+#### 对于static修饰的变量，我们发现外部修改了age和name值之后，WGCustomBlock内的值也跟着改变了，为什么？
+        简化后的代码
+        static int age = 18;
+        static NSString *name = (NSString *)&__NSConstantStringImpl__var_folders_2g_rblj4zp502n0kd06tng4srph0000gn_T_WGMainObjcVC_b8acf2_mi_0;
+        //将age，name的指针地址传递__WGMainObjcVC__viewDidLoad_block_impl_0这个函数
+        void (*WGCustomBlock)(void) = &__WGMainObjcVC__viewDidLoad_block_impl_0(__WGMainObjcVC__viewDidLoad_block_func_0, &__WGMainObjcVC__viewDidLoad_block_desc_0_DATA, &name, &age, 570425344));
+        age = 30;
+        name = (NSString *)&__NSConstantStringImpl__var_folders_2g_rblj4zp502n0kd06tng4srph0000gn_T_WGMainObjcVC_b8acf2_mi_2;
+        WGCustomBlock->FuncPtr)WGCustomBlock;
+
+
+        struct __WGMainObjcVC__viewDidLoad_block_impl_0 {
+          struct __block_impl impl;
+          struct __WGMainObjcVC__viewDidLoad_block_desc_0* Desc;
+          //多了两个指针类型的成员变量
+          NSString **name;
+          int *age;
+          //将传递进来的name和age的指针地址给对应的指针类型的成员变量name,age
+          __WGMainObjcVC__viewDidLoad_block_impl_0(void *fp, struct __WGMainObjcVC__viewDidLoad_block_desc_0 *desc, NSString **_name, int *_age, int flags=0) : name(_name), age(_age) {
+            impl.isa = &_NSConcreteStackBlock;
+            impl.Flags = flags;
+            impl.FuncPtr = fp;
+            Desc = desc;
+          }
+        };
+        
+        //通过传入__WGMainObjcVC__viewDidLoad_block_impl_0这个结构体来获取其成员变量的指针地址
+        static void __WGMainObjcVC__viewDidLoad_block_func_0(struct __WGMainObjcVC__viewDidLoad_block_impl_0 *__cself) {
+        NSString **name = __cself->name;
+        int *age = __cself->age; 
+        NSLog((NSString *)&__NSConstantStringImpl__var_folders_2g_rblj4zp502n0kd06tng4srph0000gn_T_WGMainObjcVC_b8acf2_mi_1,(*name),(*age));
+        }
+####  Block捕获static修饰的变量时，会在block结构体内创建一个指针类型的变量来接收这个局部变量的地址，因为是指针传递，所以Block能通过这个static修饰的变量的地址指针来获取到最新的值，即外部改变变量值的时候，在Block内都可以接收到这个最新的值
+
+### 5.5 Block捕获全局变量源码分析
+        int age = 18;
+        static NSString *name = @"张三";
+
+        @implementation WGMainObjcVC
+        - (void)viewDidLoad {
+            [super viewDidLoad];
+            void (^WGCustomBlock)(void) = ^{
+                NSLog(@"我的名字是:%@,年龄是:%d",name,age);
+            };
+            age = 30;
+            name = @"李四";
+            WGCustomBlock();
+        }
+        @end
+        
+        打印结果: 我的名字是:李四,年龄是:30
+#### Block内可以获取到全局变量最新的值
+        简化后的代码
+        //并没将全局变量作为参数传递到这个构造函数中
+        void (*WGCustomBlock)(void) = &__WGMainObjcVC__viewDidLoad_block_impl_0(__WGMainObjcVC__viewDidLoad_block_func_0, &__WGMainObjcVC__viewDidLoad_block_desc_0_DATA));
+        age = 30;
+        name = (NSString *)&__NSConstantStringImpl__var_folders_2g_rblj4zp502n0kd06tng4srph0000gn_T_WGMainObjcVC_2a8f5a_mi_2;
+        WGCustomBlock->FuncPtr)WGCustomBlock;
+        
+        //这个结构体中也没有新增成员变量
+        struct __WGMainObjcVC__viewDidLoad_block_impl_0 {
+          struct __block_impl impl;
+          struct __WGMainObjcVC__viewDidLoad_block_desc_0* Desc;
+          __WGMainObjcVC__viewDidLoad_block_impl_0(void *fp, struct __WGMainObjcVC__viewDidLoad_block_desc_0 *desc, int flags=0) {
+            impl.isa = &_NSConcreteStackBlock;
+            impl.Flags = flags;
+            impl.FuncPtr = fp;
+            Desc = desc;
+          }
+        };
+        //这里直接调用全局变量，
+        static void __WGMainObjcVC__viewDidLoad_block_func_0(struct __WGMainObjcVC__viewDidLoad_block_impl_0 *__cself) {
+         NSLog((NSString *)&__NSConstantStringImpl__var_folders_2g_rblj4zp502n0kd06tng4srph0000gn_T_WGMainObjcVC_2a8f5a_mi_1,name,age);
+        }
+        
+#### 从源码看可以看出，全局变量name，age并没有作为参数传递给__WGMainObjcVC__viewDidLoad_block_impl_0这个构造函数，所以得出结论:Block对全局变量是不会捕获的
+
+
+### 5.6 Block捕获self源码分析
+        @implementation WGMainObjcVC
+        - (void)viewDidLoad {
+            [super viewDidLoad];
+            
+            void (^WGCustomBlock)(void) = ^{
+                NSLog(@"所在的对象是:%@",self);
+            };
+            WGCustomBlock();
+        }
+        @end
+
+        打印结果: 所在的对象是:<WGMainObjcVC: 0x7fd380e058b0>
+#### Block对self是否会捕获？
+        简化后代码
+        //self作为参数传递到这个构造函数中了，所以self就是个局部变量了
+        void (*WGCustomBlock)(void) = &__WGMainObjcVC__viewDidLoad_block_impl_0(__WGMainObjcVC__viewDidLoad_block_func_0, &__WGMainObjcVC__viewDidLoad_block_desc_0_DATA, self, 570425344));
+        WGCustomBlock->FuncPtr)WGCustomBlock;
+        
+        struct __WGMainObjcVC__viewDidLoad_block_impl_0 {
+          struct __block_impl impl;
+          struct __WGMainObjcVC__viewDidLoad_block_desc_0* Desc;
+          //新增加了个成员变量
+          WGMainObjcVC *self;
+          __WGMainObjcVC__viewDidLoad_block_impl_0(void *fp, struct __WGMainObjcVC__viewDidLoad_block_desc_0 *desc, WGMainObjcVC *_self, int flags=0) : self(_self) {
+            impl.isa = &_NSConcreteStackBlock;
+            impl.Flags = flags;
+            impl.FuncPtr = fp;
+            Desc = desc;
+          }
+        };
+        
+        //通过__WGMainObjcVC__viewDidLoad_block_impl_0结构体获取到成员变量的值
+        static void __WGMainObjcVC__viewDidLoad_block_func_0(struct __WGMainObjcVC__viewDidLoad_block_impl_0 *__cself) {
+        WGMainObjcVC *self = __cself->self;
+        NSLog((NSString *)&__NSConstantStringImpl__var_folders_2g_rblj4zp502n0kd06tng4srph0000gn_T_WGMainObjcVC_7ddc39_mi_0,self);
+        }
+#### 可以看到Block捕获到self了.因为在Block中调用self的时候，self作为参数传递到了Block结构体中(这个self就是个局部变量)，并且赋值给了结构体中新增加的成员变量，
+
+### 5.7 Block捕获成员变量源码分析
+        @interface WGMainObjcVC()
+        {
+            NSString *_name;
+            int _age;
+        }
+        @end
+
+        @implementation WGMainObjcVC
+        - (void)viewDidLoad {
+            [super viewDidLoad];
+            _name = @"张三";
+            _age = 18;
+            void (^WGCustomBlock)(void) = ^{
+                NSLog(@"我的名字是:%@,我的年龄是:%d",self->_name,self->_age);
+            };
+            _name = @"李四";
+            _age = 30;
+            WGCustomBlock();
+        }
+
+        @end
+
+        打印结果:  我的名字是:李四,我的年龄是:30
+#### Block是否会捕获到成员变量?
+        //简化后代码
+        (*(NSString **)((char *)self + OBJC_IVAR_$_WGMainObjcVC$_name)) = (NSString *)&__NSConstantStringImpl__var_folders_2g_rblj4zp502n0kd06tng4srph0000gn_T_WGMainObjcVC_31d681_mi_0;
+        (*(int *)((char *)self + OBJC_IVAR_$_WGMainObjcVC$_age)) = 18;
+        
+        //成员变量并没有作为参数传递给这个构造函数，而是将self作为你参数传递进去了
+        void (*WGCustomBlock)(void) = &__WGMainObjcVC__viewDidLoad_block_impl_0(__WGMainObjcVC__viewDidLoad_block_func_0, &__WGMainObjcVC__viewDidLoad_block_desc_0_DATA, self, 570425344));
+        
+        (*(NSString **)((char *)self + OBJC_IVAR_$_WGMainObjcVC$_name)) = (NSString *)&__NSConstantStringImpl__var_folders_2g_rblj4zp502n0kd06tng4srph0000gn_T_WGMainObjcVC_31d681_mi_2;
+        (*(int *)((char *)self + OBJC_IVAR_$_WGMainObjcVC$_age)) = 30;
+        
+        WGCustomBlock->FuncPtr)WGCustomBlock;
+
+        
+        struct __WGMainObjcVC__viewDidLoad_block_impl_0 {
+          struct __block_impl impl;
+          struct __WGMainObjcVC__viewDidLoad_block_desc_0* Desc;
+          //新增加了个成员变量用来保存外部传进来的参数self
+          WGMainObjcVC *self; 
+          __WGMainObjcVC__viewDidLoad_block_impl_0(void *fp, struct __WGMainObjcVC__viewDidLoad_block_desc_0 *desc, WGMainObjcVC *_self, int flags=0) : self(_self) {
+            impl.isa = &_NSConcreteStackBlock;
+            impl.Flags = flags;
+            impl.FuncPtr = fp;
+            Desc = desc;
+          }
+        };
+        
+        //通过__WGMainObjcVC__viewDidLoad_block_impl_0结构体获取到成员变量self
+        static void __WGMainObjcVC__viewDidLoad_block_func_0(struct __WGMainObjcVC__viewDidLoad_block_impl_0 *__cself) {
+        WGMainObjcVC *self = __cself->self;
+        NSLog((NSString *)&__NSConstantStringImpl__var_folders_2g_rblj4zp502n0kd06tng4srph0000gn_T_WGMainObjcVC_31d681_mi_1,(*(NSString **)((char *)self + OBJC_IVAR_$_WGMainObjcVC$_name)),(*(int *)((char *)self + OBJC_IVAR_$_WGMainObjcVC$_age)));
+        }
+#### 分析发现，Block内访问成员变量的时候，并不会在结构体中创建新的成员变量来保存这些传递进来的变量，而是将当前对象self做为参数传递到Block结构体中，所以Block对成员变量的捕获，实际上捕获的是self；所以Block内可以获取到最新的成员变量的值也是靠捕获self来获取的
+
+### 6 Block捕获对象类型
+        //.h文件
+        @interface WGAnimal : NSObject
+        @property(nonatomic, strong) NSString *name;
+        @end
+
+        @interface WGMainObjcVC : UIViewController
+        @end
+
+        //.m文件
+        @implementation WGAnimal
+        @end
+
+        @implementation WGMainObjcVC
+
+        - (void)viewDidLoad {
+            [super viewDidLoad];
+            WGAnimal *a1 = [[WGAnimal alloc]init];
+            a1.name = @"张三";
+            WGAnimal *a2 = [[WGAnimal alloc]init];
+
+            NSLog(@"111111a1:%@---a2:%@",a1,a2);
+            void (^WGCustomBlock)(void) = ^{
+                NSLog(@"对象a1：%@,名称是:%@",a1,a1.name);
+            };
+            
+            a1 = a2;
+            a1.name = @"李四";
+            NSLog(@"222222a1:%@---a2:%@",a1,a2);
+            WGCustomBlock();
+        }
+        @end
+        
+        打印结果:111111a1:<WGAnimal: 0x6000024496a0>---a2:<WGAnimal: 0x6000024496b0>
+                222222a1:<WGAnimal: 0x6000024496b0>---a2:<WGAnimal: 0x6000024496b0>
+                对象a1：<WGAnimal: 0x6000024496a0>,名称是:张三
+#### 分析: a1和a2对象都是局部变量，所以在WGCustomBlock中，捕获到的是对象a1的值，即便在Block外a1对象的地址被更换为对象a2的值，也不会改变WGCustomBlock中对象a1的值；因为捕获到的是a1的值，所以对象a1的属性name的值也是值捕获；
