@@ -815,7 +815,7 @@
 ### 7. __weak 和 __strong的区别
 * __weak可以对修饰的对象弱引用,不会造成对象引用计数+1，主要用来解决Block循环引用的问题，并且在对象销毁的时候会自动将对象置为nil；
 * __unsafe_unretained和__weak和这个关键字很相似，都能表示对修饰对象的弱引用，唯一的区别就是__unsafe_unretained在对象销毁的时候，并不会对对象置nil,这将会导致野指针的产生,所以一般我们使用__weak
-* __strong，Block中除了使用__weak对对象弱引用外，偶尔还需要在Block内部对弱引用对象进行一次强引用，因为仅用__weak所修饰的对象,如果被释放,那么这个对象在Block执行的过程中就会变成nil,一般使用__strong进行强引用主要是在多线程编程中，因为在单线程中，执行Block的时候对象还没有被置nil,而在多线程中，可能会发生
+* __strong，Block中除了使用__weak对对象弱引用外，偶尔还需要在Block内部对弱引用对象进行一次强引用，因为仅用__weak所修饰的对象,如果被释放,那么这个对象在Block执行的过程中就会变成nil,一般使用__strong进行强引用主要是在多线程编程中，因为在单线程中，执行Block的时候对象还没有被置nil,而在多线程中，可能会发生；使用__strong可以暂时不让修饰的对象消失，当执行完成后，系统会自动释放，也不会造成循环引用
         //.h文件
         typedef void(^WGCustomBlock)(int age);
         @interface WGAnimal : NSObject
