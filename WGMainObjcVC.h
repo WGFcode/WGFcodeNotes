@@ -11,18 +11,10 @@
 NS_ASSUME_NONNULL_BEGIN
 
 
-typedef void(^WGCustomBlock)(int age);
-
-
-@interface WGAnimal : NSObject
-@property(nonatomic, copy) WGCustomBlock block;
-@property(nonatomic, strong) NSString *name;
-
-@end
-
 
 @interface WGMainObjcVC : UIViewController
 
 @end
+
 
 NS_ASSUME_NONNULL_END
