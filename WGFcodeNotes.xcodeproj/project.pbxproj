@@ -10,6 +10,8 @@
 		300845CB24456B2800055737 /* KVC.md in Resources */ = {isa = PBXBuildFile; fileRef = 300845CA24456B1700055737 /* KVC.md */; };
 		300845CC24456B3A00055737 /* NSOperation.md in Resources */ = {isa = PBXBuildFile; fileRef = 30C7D40C2439C05000EA99C6 /* NSOperation.md */; };
 		30179F9A24401E8000EED9BD /* Note.md in Resources */ = {isa = PBXBuildFile; fileRef = 30179F9924401E8000EED9BD /* Note.md */; };
+		301CF1BC2452BE310024EC69 /* WGFirstVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 301CF1BB2452BE310024EC69 /* WGFirstVC.m */; };
+		301CF1BF2452F1750024EC69 /* runLoop1.png in Resources */ = {isa = PBXBuildFile; fileRef = 301CF1BE2452F1750024EC69 /* runLoop1.png */; };
 		3066E0F02435DD48004C71F7 /* GCD.md in Resources */ = {isa = PBXBuildFile; fileRef = 3066E0EF2435DD48004C71F7 /* GCD.md */; };
 		307A0E7B24456BD3006E5429 /* RunLoop.md in Resources */ = {isa = PBXBuildFile; fileRef = 307A0E7A24456BD3006E5429 /* RunLoop.md */; };
 		307A0E7D24456BE4006E5429 /* RunTime.md in Resources */ = {isa = PBXBuildFile; fileRef = 307A0E7C24456BE4006E5429 /* RunTime.md */; };
@@ -67,6 +69,9 @@
 		300845CA24456B1700055737 /* KVC.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = KVC.md; sourceTree = "<group>"; };
 		300845CD24456B4C00055737 /* KVO.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = KVO.md; sourceTree = "<group>"; };
 		30179F9924401E8000EED9BD /* Note.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Note.md; sourceTree = "<group>"; };
+		301CF1BA2452BE310024EC69 /* WGFirstVC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WGFirstVC.h; sourceTree = "<group>"; };
+		301CF1BB2452BE310024EC69 /* WGFirstVC.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WGFirstVC.m; sourceTree = "<group>"; };
+		301CF1BE2452F1750024EC69 /* runLoop1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = runLoop1.png; sourceTree = "<group>"; };
 		3066E0EF2435DD48004C71F7 /* GCD.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = GCD.md; sourceTree = "<group>"; };
 		307A0E7A24456BD3006E5429 /* RunLoop.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = RunLoop.md; sourceTree = "<group>"; };
 		307A0E7C24456BE4006E5429 /* RunTime.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = RunTime.md; sourceTree = "<group>"; };
@@ -143,6 +148,7 @@
 		30A7DC7D24348382008DDCF9 /* WGScreenshots */ = {
 			isa = PBXGroup;
 			children = (
+				301CF1BE2452F1750024EC69 /* runLoop1.png */,
 				5422AC58244F3E8E000CB747 /* block2.png */,
 				30DD858A244F00C100897144 /* block.jpeg */,
 				30A73F322447F14A00C86BB8 /* kvc1.png */,
@@ -179,6 +185,8 @@
 		548AC946242F4B3100EEE11C = {
 			isa = PBXGroup;
 			children = (
+				301CF1BA2452BE310024EC69 /* WGFirstVC.h */,
+				301CF1BB2452BE310024EC69 /* WGFirstVC.m */,
 				30179F9924401E8000EED9BD /* Note.md */,
 				30CBD68824389E13000C49E6 /* WGTestModel.h */,
 				30CBD68924389E13000C49E6 /* WGTestModel.m */,
@@ -383,6 +391,7 @@
 				300845CB24456B2800055737 /* KVC.md in Resources */,
 				30F8F49E243F142900968177 /* Summary.md in Resources */,
 				30FD75FE2435C88B00431678 /* lock5.png in Resources */,
+				301CF1BF2452F1750024EC69 /* runLoop1.png in Resources */,
 				30FD94D4243DDE8400EAFAA3 /* error1.png in Resources */,
 				548AC98D242F4CAD00EEE11C /* PackageIpaWithShell.md in Resources */,
 				548AC990242F4CAD00EEE11C /* Framework.md in Resources */,
@@ -420,6 +429,7 @@
 				548AC957242F4B3100EEE11C /* ViewController.swift in Sources */,
 				548AC983242F4C7100EEE11C /* WGMainVC.swift in Sources */,
 				30FD75F824357E3800431678 /* WGMainObjcVC.m in Sources */,
+				301CF1BC2452BE310024EC69 /* WGFirstVC.m in Sources */,
 				30CBD68A24389E13000C49E6 /* WGTestModel.m in Sources */,
 				548AC953242F4B3100EEE11C /* AppDelegate.swift in Sources */,
 				548AC955242F4B3100EEE11C /* SceneDelegate.swift in Sources */,

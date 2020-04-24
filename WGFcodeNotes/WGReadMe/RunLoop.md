@@ -90,6 +90,44 @@
                 主线程的Runloop对象:0x6000006702a0
 #### 分析，在当前线程即主线程中，currentRunLoop和mainRunLoop获取到的都是主线程下的RunLoop对象；开启子线程后，系统会创建一个和这个子线程相对应的RunLoop对象，当然这里需注意的就是我们必须主动去获取，即调用currentRunLoop方法时系统才开始创建，如果不去主动获取，只创建子线程是不会创建对应的RunLoop对象的，而在这个子线程中我们仍然可以通过mainRunLoop来获取主线程下对应的RunLoop对象
 
+### 2.2 验证：线程中任务执行完成后，线程销毁
+        //.h文件
+        @interface WGThread : NSThread
+        @end
+
+        @interface WGMainObjcVC : UIViewController
+        @end
+
+        //.m文件
+        @implementation WGThread
+        -(void)dealloc {
+            NSLog(@"线程消失了");
+            NSRunLoop *loop = [NSRunLoop currentRunLoop];
+            NSRunLoop *mainLoop = [NSRunLoop mainRunLoop];
+            NSLog(@"当前的RunLoop对象:%p,主线程的RunLoop:%p",[NSRunLoop currentRunLoop],[NSRunLoop mainRunLoop]);
+        }
+        @end
+
+        @implementation WGMainObjcVC
+        - (void)viewDidLoad {
+            [super viewDidLoad];
+            self.view.backgroundColor = [UIColor whiteColor];
+            WGThread *thread = [[WGThread alloc]initWithTarget:self selector:@selector(change) object:nil];
+            [thread start];
+        }
+        -(void)change {
+            NSLog(@"---------10---------");
+            NSLog(@"当前的RunLoop对象:%p,主线程的RunLoop:%p",[NSRunLoop currentRunLoop],[NSRunLoop mainRunLoop]);
+        }
+        @end
+
+        打印结果：---------10---------
+                当前的RunLoop对象:0x6000012c9fe0,主线程的RunLoop:0x6000012d4960
+                线程消失了
+                当前的RunLoop对象:0x8c8c8c8c8c8c8c8c,主线程的RunLoop:0x6000012d4960
+#### 分析: 从打印结果可以看出，当线程中的任务执行完成后，线程就会销毁，同时线程对应的RunLoop对象也会随之销毁(虽然打印的地址是0x8c8c8c8c8c8c8c8c，但如果打印它的对象信息会发现里面什么内容都没有)
+
+
 ### 3. RunLoop的运行模式分类
 #### RunLoop的运行有自己的运行模式(model),苹果为我们公开提供了两种运行模式
 * NSDefaultRunLoopMode（kCFRunLoopDefaultMode）
@@ -135,14 +173,334 @@
 ##### 注意 NSDefaultRunLoopMode是NSRunLoop中的叫法，对应的是CFRunLoopRef中的kCFRunLoopDefaultMode，NSRunLoopCommonModes是NSRunLoop中的叫法，对应的是CFRunLoopRef中的kCFRunLoopCommonModes
 ### 3.1 运行模式RunLoopMode源码
 #### 通过CFRunLoopRef的源码我们发现每个运行模式model都包含下列内容
+        typedef struct __CFRunLoopMode *CFRunLoopModeRef;
         struct __CFRunLoopMode {
-        CFStringRef _name;              运行在那个model下，例如 @"kCFRunLoopDefaultMode"
-        CFMutableSetRef _sources0;      触摸事件，PerformSelectors，非基于Port的
-        CFMutableSetRef _sources1;      基于Port的线程间通信，基于Port的
-        CFMutableArrayRef _observers;   添加监听的方法:
-        CFMutableArrayRef _timers;      定时执行的定时器
-        ...
+            pthread_mutex_t _lock;          互斥锁,来使多个线程保持同步
+            CFStringRef _name;              运行在那个model下，例如 @"kCFRunLoopDefaultMode"
+            CFMutableSetRef _sources0;      触摸事件，PerformSelectors，非基于Port的
+            CFMutableSetRef _sources1;      基于Port的线程间通信，基于Port的
+            CFMutableArrayRef _observers;   添加监听的方法:
+            CFMutableArrayRef _timers;      定时执行的定时器
+            CFMutableDictionaryRef _portToV1SourceMap;
+            __CFPortSet _portSet;
+            ...
         }
-#### 分析：一个Runloop对象包含若干个mode，每个mode又包含若干个sources0/sources1/observers/timers；Runloop启动时只能选择其中的一个model作为currentMode;如果mode中没有任何sources0/sources1/observers/timers，Runloop会立马退出
+        
+        CFRunLoopObserverRef这是一个观察者，主要用途就是监听RunLoop的状态变化
+        /* Run Loop Observer Activities */
+        typedef CF_OPTIONS(CFOptionFlags, CFRunLoopActivity) {
+            kCFRunLoopEntry = (1UL << 0),                即将进入RunLoop
+            kCFRunLoopBeforeTimers = (1UL << 1),         即将处理Timers
+            kCFRunLoopBeforeSources = (1UL << 2),        即将处理Sources
+            kCFRunLoopBeforeWaiting = (1UL << 5),        即将进入休眠
+            kCFRunLoopAfterWaiting = (1UL << 6),         刚从休眠中唤醒
+            kCFRunLoopExit = (1UL << 7),                 即将推出RunLoop
+            kCFRunLoopAllActivities = 0x0FFFFFFFU
+        };
+#### 分析：一个Runloop对象包含若干个mode，每个mode又包含若干个sources0/sources1/observers/timers；当启动一个Runloop时会先指定一个model作为currentMode，然后检查这个指定的mode是否存在以及mode中是否含有Source和Timer，如果mode不存在或者Mode中无Source和Timer，认为该Mode是个空的Mode,RunLoop就直接退出
     
     
+### 4.RunLoop在项目中应用场景
+* 控制线程的声明周期（线程保活）
+* 解决NSTimer在滚动的时候停止的问题
+* 监控应用卡顿
+* 性能优化
+
+#### 4.1 线程保活
+#### 为什么要线程保活? 我们知道线程中任务一旦执行完成，线程随之就会销毁，如果我们需要在子线程中频繁的执行任务，那么就要频繁的创建子线程和销毁子线程，这样很消耗性能，所以我们要使用线程保活，让这个线程一旦创建了就不会销毁。最典型的就是网络请求库AFNetworking，每个网络请求都是异步执行的，那么就需要创建多个子线程来执行这些异步任务，为了提高性能，AFNetworking使用线程保活，让每一个网络请求都在同一个子线程中执行，这个子线程不会被销毁
+        //.h文件
+        @interface WGThread : NSThread
+        @end
+
+        @interface WGMainObjcVC : UIViewController
+        @end
+
+        //.m文件
+        @implementation WGThread
+        -(void)dealloc {
+            NSLog(@"线程销毁了");
+        }
+        @end
+
+        @implementation WGMainObjcVC
+        - (void)viewDidLoad {
+            [super viewDidLoad];
+            self.view.backgroundColor = [UIColor whiteColor];
+            WGThread *thread = [[WGThread alloc]initWithTarget:self selector:@selector(change) object:nil];
+            [thread start];
+        }
+        -(void)change {
+            NSLog(@"线程中任务执行完成");
+        }
+        @end
+
+        打印结果: 线程中任务执行完成
+                线程销毁了  
+####  分析: 线程中任务执行完成后，线程就会被销毁，并且线程对应的RunLoop也会随之销毁
+        @interface WGMainObjcVC()
+        @property(nonatomic, strong) WGThread *thread;
+        @end
+
+        @implementation WGMainObjcVC
+        - (void)viewDidLoad {
+            [super viewDidLoad];
+            self.view.backgroundColor = [UIColor whiteColor];
+            self.thread = [[WGThread alloc]initWithTarget:self selector:@selector(change) object:nil];
+            [self.thread start];
+        }
+
+        -(void)change {
+            NSLog(@"开始执行线程中的任务");
+            //没有添加任何事件处理，直接run的话，RunLoop因为没有事件处理会立马退出 
+            [[NSRunLoop currentRunLoop] run];
+            NSLog(@"线程中任务执行完成");
+        }
+
+        //点击屏幕，继续向线程(self.thread)中添加任务
+        -(void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+            [self performSelector:@selector(newChange) onThread:self.thread withObject:nil waitUntilDone:NO];
+        }
+        -(void)newChange {
+            for (int i = 0; i < 3; i ++) {
+                NSLog(@"----%d----",i);
+            }
+        }
+        @end
+        
+        打印结果: 开始执行线程中的任务
+                线程中任务执行完成
+        点击屏幕的时候，并没有任何信息的打印
+#### 分析: 我们通过方法[[NSRunLoop currentRunLoop] run]来启动RunLoop循环，但是因为没有添加任何事件处理，所以RunLoop会立马退出，所以会打印“线程中任务执行完成”的信息；当我们点击屏幕向线程中添加任何的时候，并没有打印任何信息，再次说明了RunLoop退出了，所以不会处理任何消息
+        - (void)viewDidLoad {
+            [super viewDidLoad];
+            self.view.backgroundColor = [UIColor whiteColor];
+            self.thread = [[WGThread alloc]initWithTarget:self selector:@selector(change) object:nil];
+            [self.thread start];
+        }
+        -(void)change {
+            NSLog(@"开始执行线程中的任务");
+            //为RunLoop添加个Port(虽然什么都不处理),这样RunLoop就不会退出了
+            [[NSRunLoop currentRunLoop] addPort:[[NSPort alloc]init] forMode:NSDefaultRunLoopMode];
+            //添加Port后，执行这句代码，由于没有事件处理，RunLoop会立即进入睡眠状态，等待有事件需要处理的时候会被再次唤醒
+            //由于RunLoop处于休眠状态了，所以它下面的信息"线程中任务执行完成"就不会被打印了
+            [[NSRunLoop currentRunLoop] run];
+            NSLog(@"线程中任务执行完成");
+        }
+        //点击屏幕，继续向线程(self.thread)中添加任务
+        -(void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+            [self performSelector:@selector(newChange) onThread:self.thread withObject:nil waitUntilDone:NO];
+        }
+        -(void)newChange {
+            for (int i = 0; i < 3; i ++) {
+                NSLog(@"----%d----",i);
+            }
+        }
+        
+        打印结果:开始执行线程中的任务
+                ----0----
+                ----1----
+                ----2----
+#### 分析:必须向RunLoop中添加事件源，才能保证RunLoop不会退出，这样当有新的任务时，RunLoop就会被唤醒来执行相应的事件，但是上面有两个问题: self和thread会造成循环引用；thread一直不会死
+
+#### 4.1.1 解决循环引用的问题
+        - (void)viewDidLoad {
+            [super viewDidLoad];
+            self.view.backgroundColor = [UIColor whiteColor];
+            
+            //创建线程方式一
+            //self.thread = [[WGThread alloc]initWithTarget:self selector:@selector(change) object:nil];
+            //[self.thread start];
+            
+            //创建线程方式二: 这种方式就不会造成self和thread的循环引用了，但是这种创建方式必须在iOS10以上才适合
+            if (@available(iOS 10.0, *)) {
+                self.thread = [[WGThread alloc] initWithBlock:^{
+                    NSLog(@"开始执行线程中的任务");
+                    [[NSRunLoop currentRunLoop] addPort:[[NSPort alloc]init] forMode:NSDefaultRunLoopMode];
+                    [[NSRunLoop currentRunLoop] run];
+                    NSLog(@"线程中任务执行完成");
+                }];
+            } else {
+                // Fallback on earlier versions
+            }
+            [self.thread start];
+        }
+
+#### 4.1.2 如何解决线程不会死的问题
+#### 即使是页面销毁了(WGMainObjcVC)，thread仍然是存在的，因为RunLoop在 [[NSRunLoop currentRunLoop] run]这一行一直阻塞，一直不会打印"线程中任务执行完成”的信息，这时候任务一直在进行，任务还没有完成，线程就不会死，即便在界面销毁的时候手动将thread=nil,thread也不会死；如果想让线程死掉，就得想办法让RunLoop停掉，当把RunLoop停掉后，代码就会从[[NSRunLoop currentRunLoop] run]往下走，当线程执行完任务后，就会销毁，如何停止RunLoop？
+    [[NSRunLoop currentRunLoop] run];
+#### 官方文档对**run** 方法的描述:(Puts the receiver into a permanent loop, during which time it processes data from all attached input sources)将接收器放入一个永久循环的loop中，在此期间，它处理来自所有附加输入源的数据。从这里可以看出通过**run**方法是无法停止RunLoop的。(it runs the receiver in the NSDefaultRunLoopMode by repeatedly invoking runMode:beforeDate:)这句话的意思就是它通过反复调用runMode:beforeDate:在NSDefaultRunLoopMode中运行接收器来实现的无限循环，那么我们可以模仿**run**方法的实现，来写一个white循环，内部也调用runMode:beforeDate:方法
+        //.h文件
+        @interface WGThread : NSThread
+        @end
+
+        @interface WGMainObjcVC : UIViewController
+        @end
+
+        //.m文件
+        @implementation WGThread
+        -(void)dealloc {
+            NSLog(@"WGThread线程销毁了");
+        }
+        @end
+
+        @interface WGMainObjcVC()
+        @property(nonatomic, strong) WGThread *thread;
+        @property(nonatomic, assign, getter=isStop)BOOL isStop; 添加一个Runloop退出的条件
+        @end
+
+        @implementation WGMainObjcVC
+        - (void)viewDidLoad {
+            [super viewDidLoad];
+            self.view.backgroundColor = [UIColor redColor];
+            self.isStop = NO;
+            __weak typeof(self) weakSelf = self;
+            if (@available(iOS 10.0, *)) {
+                self.thread = [[WGThread alloc] initWithBlock:^{
+                    NSLog(@"开始执行线程中的任务");
+                    [[NSRunLoop currentRunLoop] addPort:[[NSPort alloc]init] forMode:NSDefaultRunLoopMode];
+                    //self强引用thread,thread强引用Block，Block内又引用self,weakSelf来避免循环引用
+                    while (!weakSelf.isStop) {
+                        //[NSDate distantFuture]表示未来某一不可达到的事件点，说白了等同与正无穷大的事件
+                        //beforeDat:过期时间，传入distantFuture遥远的未来，就是永远不会过期
+                        [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]];
+                    }
+                    NSLog(@"线程中任务执行完成");
+                }];
+            } else { // Fallback on earlier versions }
+            [self.thread start];
+            UIButton *stopBtn = [[UIButton alloc]initWithFrame:CGRectMake(100, 100, 100, 40)];
+            stopBtn.backgroundColor = [UIColor yellowColor];
+            [self.view addSubview:stopBtn];
+            [stopBtn addTarget:self action:@selector(clickStopBtn) forControlEvents:UIControlEventTouchUpInside];
+        }
+
+        -(void)clickStopBtn {
+            /*
+             🤔思考:为什么要放到self.thread执行停止Runloop的任务？
+             因为一个线程对应一个Runloop对象，而我们要停止的是self.thread这个线程对应的Runloop对象
+             如果直接在这个方法中写停止Runloop，停止的是主线程中对应的Runloop对象
+             */
+            NSLog(@"点击了停止Runloop的按钮");
+            [self performSelector:@selector(stopRunLoop) onThread:self.thread withObject:nil waitUntilDone:NO];
+        }
+
+        -(void)stopRunLoop {
+            self.isStop = YES;
+            //系统提供的停止RunLoop的方法
+            CFRunLoopStop(CFRunLoopGetCurrent());
+        }
+
+        //向self.thread线程中添加任务
+        -(void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+            [self performSelector:@selector(newChange) onThread:self.thread withObject:nil waitUntilDone:NO];
+        }
+
+        -(void)newChange {
+            NSLog(@"开始执行添加到thread线程中的任务");
+            for (int i = 0; i < 3; i ++) {
+                NSLog(@"----%d----",i);
+            }
+        }
+
+        -(void)dealloc {
+            NSLog(@"WGMainObjcVC销毁了");
+        }
+        @end
+        
+        打印结果: 开始执行线程中的任务                  (刚进入页面)
+                开始执行添加到thread线程中的任务        (点击屏幕)
+                ----0----
+                ----1----
+                ----2----
+                点击了停止Runloop的按钮               (点击stopBtn按钮）
+                线程中任务执行完成
+                没有任何打印信息(说明Runloop已经被停止)  (点击屏幕)
+                WGMainObjcVC销毁了                  (点击页面返回按钮)
+                线程销毁了
+#### 分析: 可以发现RunLoop确实停止了，并且销毁也销毁了；不过有个不方便的地方，就是每次退出页面前，必须先点击stopBtn按钮停止RunLoop，然后再返回页面，能不能退出页面的时候就调用stopRunLoop方法,下面是改进的方法
+![图片](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGScreenshots/runloop1.png)
+
+        //.m文件
+        @implementation WGThread
+        -(void)dealloc {
+            NSLog(@"线程销毁了");
+        }
+        @end
+        
+        @interface WGMainObjcVC()
+        @property(nonatomic, strong) WGThread *thread;
+        @property(nonatomic, assign, getter=isStop)BOOL isStop; 添加一个Runloop退出的条件
+        @end
+
+        @implementation WGMainObjcVC
+        - (void)viewDidLoad {
+            [super viewDidLoad];
+            self.view.backgroundColor = [UIColor redColor];
+            self.isStop = NO;
+            __weak typeof(self) weakSelf = self;
+            if (@available(iOS 10.0, *)) {
+                self.thread = [[WGThread alloc] initWithBlock:^{
+                    NSLog(@"开始执行线程中的任务");
+                    [[NSRunLoop currentRunLoop] addPort:[[NSPort alloc]init] forMode:NSDefaultRunLoopMode];
+                    //self强引用thread,thread强引用Block，Block内又引用self,weakSelf来避免循环引用
+                    while (!weakSelf.isStop) {
+                        //[NSDate distantFuture]表示未来某一不可达到的事件点，说白了等同与正无穷大的事件
+                        //beforeDat:过期时间，传入distantFuture遥远的未来，就是永远不会过期
+                        [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]];
+                    }
+                    NSLog(@"线程中任务执行完成");
+                }];
+            } else { /*Fallback on earlier versions*/ }
+            [self.thread start];
+        }
+        -(void)dealloc {
+            [self performSelector:@selector(stopRunLoop) onThread:self.thread withObject:nil waitUntilDone:NO];
+            NSLog(@"WGMainObjcVC销毁了");
+        }
+        -(void)stopRunLoop {
+            NSLog(@"开始执行RunRunLoop停止的方法");
+            self.isStop = YES;
+            //系统提供的停止RunLoop的方法
+            CFRunLoopStop(CFRunLoopGetCurrent());
+            NSLog(@"执行RunRunLoop停止的方法已经结束了");
+        }
+        @end
+        
+        打印结果: 开始执行线程中的任务              (进入页面)
+                WGMainObjcVC销毁了              (返回页面)
+                开始执行RunRunLoop停止的方法
+                执行RunRunLoop停止的方法已经结束了
+      程序crash -[WGMainObjcVC release]: message sent to deallocated instance 0x7fb2f6f06bb0
+        
+#### 分析:这种方式在页面消失的时候会导致程序crash,因为我们在dealloc方法中，为子线程添加方法去停止Runloop的时候，performSelector方法中的参数waitUntilDone被设置为了NO，意思是不需要等待子线程中任务(stopRunLoop)完成就可以继续执行,所以WGMainObjcVC页面先销毁了，但是在子线程任务中(stopRunLoop)调用停止Runloop方法后，会再次调用Runloop的white循环方法去判断，而此时while (!weakSelf.isStop) {...}中weakSelf已经销毁了，所以导致了carsh.那么我们把waitUntilDone参数设置为YES，等待子线程任务完成后，再执行dealloc方法剩下的任务来销毁页面
+        -(void)dealloc {
+            [self performSelector:@selector(stopRunLoop) onThread:self.thread withObject:nil waitUntilDone:YES];
+            NSLog(@"WGMainObjcVC销毁了");
+        }
+        -(void)stopRunLoop {
+            NSLog(@"开始执行RunRunLoop停止的方法");
+            self.isStop = YES;
+            //系统提供的停止RunLoop的方法
+            CFRunLoopStop(CFRunLoopGetCurrent());
+            NSLog(@"执行RunRunLoop停止的方法已经结束了");
+        }
+        打印结果: 开始执行线程中的任务                (进入页面)
+                开始执行RunRunLoop停止的方法。      (退出页面)
+                执行RunRunLoop停止的方法已经结束了
+                WGMainObjcVC销毁了
+#### 分析：此刻确实是子线程任务先执行了(也就是停止了RunLoop),然后dealloc方法才执行完成(WGMainObjcVC销毁了)。但是我们发现线程thread并没有打印"线程销毁了"的消息，所以thread还没有被销毁？为什么？
+* 因为当调用CFRunLoopStop(CFRunLoopGetCurrent());方法来停掉RunLoop，确实停掉了，但是停掉之后，会再次来到while循环判断条件while (!weakSelf.isStop) {...}此时weakSelf已经销毁了，所以while (!weakSelf.isStop) 等价于while(YES),所以会再次进入循环体启动RunLoop，RunLoop又跑起来了，线程又有事情干了，所以线程不会销毁。解决方法就是在循环条件中加上判断weakSelf是否为nil的条件，如果为nil就不要再进入循环体去启动RunLoop了,如下，
+
+        while (weakSelf && !weakSelf.isStop) {
+            //[NSDate distantFuture]表示未来某一不可达到的事件点，说白了等同与正无穷大的事件
+            //beforeDat:过期时间，传入distantFuture遥远的未来，就是永远不会过期
+            [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]];
+        }
+        
+        打印结果: 开始执行线程中的任务                (进入页面)
+                开始执行RunRunLoop停止的方法        (返回页面)
+                执行RunRunLoop停止的方法已经结束了
+                线程中任务执行完成
+                WGMainObjcVC销毁了
+                线程销毁了
+#### 分析: 这样我们就可以保证页面销毁，暂停了RunLoop，并且线程也销毁了。那么如果我们在页面里面去暂停RunLoop而不是通过页面销毁。会不会也能保证暂停RunLoop，并且线程也销毁了
