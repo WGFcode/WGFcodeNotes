@@ -14,6 +14,18 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+typedef void (^WGHandle)(void);
+//线程保活类
+@interface WGKeepThreadAlive : NSObject
+
+-(instancetype)init;
+//在当前子线程下处理一个事件
+-(void)handleEvent:(WGHandle)handle;
+//停止当前线程对应的RunLoop循环并销毁线程
+-(void)stopRunLoop;
+
+@end
+
 
 @interface WGMainObjcVC : UIViewController
 
