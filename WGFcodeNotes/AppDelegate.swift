@@ -18,6 +18,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         if #available(iOS 13.0, *) {
             
         }else {
+           
             self.window = UIWindow.init(frame: UIScreen.main.bounds)
             //self.window?.rootViewController = WGMainVC()
             self.window?.rootViewController = UINavigationController.init(rootViewController: WGFirstVC())

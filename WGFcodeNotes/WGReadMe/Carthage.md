@@ -32,3 +32,11 @@
 ## 5.遇到错误总结
 ###1.更新过程中遇到Could not find any available simulators for iOS,解决方案:升级carthage版本
 
+## 6.常用操作
+### 查看Carthage版本`carthage version`
+### 升级Carthage版本`brew upgrade carthage`
+### 创建空的Cartfile文件`touch Cartfile`
+### 使用Xcode命令打开Cartfile文件`open -a Xcode Cartfile`
+### 更新Cartfile文件中所有的第三方库`carthage update --platform iOS`
+### 查看Carthage版本`carthage version`
+

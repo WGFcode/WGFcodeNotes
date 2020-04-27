@@ -300,7 +300,9 @@
                 ----0----
                 ----1----
                 ----2----
-#### 分析:必须向RunLoop中添加事件源，才能保证RunLoop不会退出，这样当有新的任务时，RunLoop就会被唤醒来执行相应的事件，但是上面有两个问题: self和thread会造成循环引用；thread一直不会死
+#### 分析:必须向RunLoop中添加事件源，才能保证RunLoop不会退出，这样当有新的任务时，RunLoop就会被唤醒来执行相应的事件，但是上面有两个问题: 
+* self和thread会造成循环引用；
+* thread一直不会死
 
 #### 4.1.1 解决循环引用的问题
         - (void)viewDidLoad {
@@ -748,7 +750,7 @@
         }
         
         //进入页面->点击屏幕->退出页面
-        打印结果: 当前线程是:<WGThread: 0x600001a80a00>{number = 6, name = (null)}---我的名字叫张三 (进入页面)
+        打印结果: 当前线程是:<WGThread: 0x600001a80a00>{number = 6, name = (null)}---我的名字叫张三
                 线程销毁了
                 对象销毁了
     
@@ -761,4 +763,174 @@
 #### 强指针确实可以保住线程的命，置其不会被销毁，但是线程中的任务执行完成后，这个线程的生命周期就结束了，即便强指针保住了该线程的名，但是该线程已经是个“无用者”了，当有新的任务添加到这个“无用者”线程时，程序会crash。而选择RunLoop不仅能保住线程的命，也能让线程保持激活的状态，有任务就唤醒执行，没有任务就休眠
 
 ### 4.2 解决NSTimer在滚动的时候停止的问题
+        //.m文件
+        @interface WGMainObjcVC() <UIScrollViewDelegate>
+        @property(nonatomic, strong) UIScrollView *scrollView;
+        @property(nonatomic, strong) NSTimer *timer;
+        @end
 
+        @implementation WGMainObjcVC
+        - (void)viewDidLoad {
+            [super viewDidLoad];
+            self.view.backgroundColor = [UIColor whiteColor];
+            self.scrollView = [[UIScrollView alloc]initWithFrame:CGRectMake(0, 80, UIScreen.mainScreen.bounds.size.width, 300)];
+            self.scrollView.contentSize = CGSizeMake(UIScreen.mainScreen.bounds.size.width, UIScreen.mainScreen.bounds.size.height * 2);
+            self.scrollView.delegate = self;
+            self.scrollView.backgroundColor = [UIColor redColor];
+            [self.view addSubview:self.scrollView];
+            
+            //定时器启动方式一：需要手动将定时器添加到RunLoop中的NSDefaultRunLoopMode运行模式下
+            self.timer = [NSTimer timerWithTimeInterval:2.0 target:self selector:@selector(timeChange) userInfo:nil repeats:YES];
+            [[NSRunLoop currentRunLoop] addTimer:self.timer forMode:NSDefaultRunLoopMode];
+            [self.timer fire];
+            /*定时器启动方式二：默认将定时器添加到RunLoop中的NSDefaultRunLoopMode运行模式下了
+            self.timer = [NSTimer scheduledTimerWithTimeInterval:2.0 target:self selector:@selector(timeChange) userInfo:nil repeats:YES];
+            [self.timer fire];
+            */
+        }
+        -(void)timeChange {
+            NSLog(@"定时器执行任务---当前的Runloop运行的模式是:%@",[NSRunLoop currentRunLoop].currentMode);
+        }
+        -(void)scrollViewDidScroll:(UIScrollView *)scrollView {
+            NSLog(@"开始滚动---当前的Runloop运行的模式是:%@",[NSRunLoop currentRunLoop].currentMode);
+        }
+        @end
+
+        打印结果: 10:03:14.051210+0800 定时器执行任务---当前的Runloop运行的模式是:kCFRunLoopDefaultMode
+                        10:03:16.052367+0800  定时器执行任务---当前的Runloop运行的模式是:kCFRunLoopDefaultMode
+                        10:03:18.052332+0800  定时器执行任务---当前的Runloop运行的模式是:kCFRunLoopDefaultMode
+                        10:03:18.219758+0800  开始滚动---当前的Runloop运行的模式是:UITrackingRunLoopMode
+                        10:03:19.475690+0800  开始滚动---当前的Runloop运行的模式是:UITrackingRunLoopMode
+                        10:03:20.860416+0800  开始滚动---当前的Runloop运行的模式是:UITrackingRunLoopMode
+                        10:03:21.054855+0800  开始滚动---当前的Runloop运行的模式是:UITrackingRunLoopMode
+                        10:03:22.723441+0800  开始滚动---当前的Runloop运行的模式是:UITrackingRunLoopMode
+#### 分析，当进入页面的时候，定时器开始循环执行任务，此时的RunLoop对应的运行模式是kCFRunLoopDefaultMode，但是当用户去滑动滚动视图的时候，定时器任务停止了，因为此时RunLoop对应的运行模式是UITrackingRunLoopMode,所以我们需要将定时器的任务放到RunLoop的kCFRunLoopCommonModes运行模式下，kCFRunLoopCommonModes不是真正的运行模式，而是占位模式，使用此值作为模式添加到运行循环中的对象将受到所有运行循环模式的监视，
+
+        - (void)viewDidLoad {
+            [super viewDidLoad];
+            self.view.backgroundColor = [UIColor whiteColor];
+            self.scrollView = [[UIScrollView alloc]initWithFrame:CGRectMake(0, 80, UIScreen.mainScreen.bounds.size.width, 300)];
+            self.scrollView.contentSize = CGSizeMake(UIScreen.mainScreen.bounds.size.width, UIScreen.mainScreen.bounds.size.height * 2);
+            self.scrollView.delegate = self;
+            self.scrollView.backgroundColor = [UIColor redColor];
+            [self.view addSubview:self.scrollView];
+            
+            //定时器启动方式一：需要手动将定时器添加到RunLoop中的NSDefaultRunLoopMode运行模式下
+            self.timer = [NSTimer timerWithTimeInterval:2.0 target:self selector:@selector(timeChange) userInfo:nil repeats:YES];
+            //[[NSRunLoop currentRunLoop] addTimer:self.timer forMode:NSDefaultRunLoopMode];
+            //将定时器添加到RunLoop运行循环中的NSRunLoopCommonModes运行模式下
+            [[NSRunLoop currentRunLoop] addTimer:self.timer forMode:NSRunLoopCommonModes];
+            [self.timer fire];
+    
+            /*定时器启动方式二：默认将定时器添加到RunLoop中的NSDefaultRunLoopMode运行模式下了
+            self.timer = [NSTimer scheduledTimerWithTimeInterval:2.0 target:self selector:@selector(timeChange) userInfo:nil repeats:YES];
+            [[NSRunLoop currentRunLoop] addTimer:self.timer forMode:NSRunLoopCommonModes];
+            [self.timer fire];
+            */
+        }
+
+        -(void)timeChange {
+            NSLog(@"定时器执行任务---当前的Runloop运行的模式是:%@",[NSRunLoop currentRunLoop].currentMode);
+        }
+
+        -(void)scrollViewDidScroll:(UIScrollView *)scrollView {
+            NSLog(@"开始滚动---当前的Runloop运行的模式是:%@",[NSRunLoop currentRunLoop].currentMode);
+        }
+        
+        打印结果: 10:36:42.809265+0800  定时器执行任务---当前的Runloop运行的模式是:kCFRunLoopDefaultMode
+                10:36:44.809261+0800  定时器执行任务---当前的Runloop运行的模式是:kCFRunLoopDefaultMode
+                10:36:46.523926+0800  开始滚动---当前的Runloop运行的模式是:UITrackingRunLoopMode
+                10:36:46.580310+0800  开始滚动---当前的Runloop运行的模式是:UITrackingRunLoopMode
+                10:36:46.637176+0800  开始滚动---当前的Runloop运行的模式是:UITrackingRunLoopMode
+                10:36:46.717130+0800  开始滚动---当前的Runloop运行的模式是:UITrackingRunLoopMode
+                10:36:46.808626+0800  定时器执行任务---当前的Runloop运行的模式是:UITrackingRunLoopMode
+                10:36:46.830735+0800  开始滚动---当前的Runloop运行的模式是:UITrackingRunLoopMode
+                10:36:47.285391+0800  开始滚动---当前的Runloop运行的模式是:UITrackingRunLoopMode
+#### 分析: 可以发现，在滚动的过程中，定时器任务仍然可以执行；同时发现在滚动视图的的时候，定时器任务的运行模式是UITrackingRunLoopMode模式，当不滚动视图的时候，定时器任务的运行模式是kCFRunLoopDefaultMode，这里再次证明了我们设置的NSRunLoopCommonModes并不是真正的运行模式，而是一个占位模式，用于监听RunLoop所有模式下的事件；为什么我们不能直接添加UITrackingRunLoopMode到定时器任务中？因为系统没有提供给我们获取这个模式的接口，只提供了两种运行模式NSDefaultRunLoopMode和NSRunLoopCommonModes
+
+### 4.3 监控应用卡顿
+
+#### 引起页面卡顿的原因分析：
+* 复杂 UI 、图文混排的绘制量过大
+* 在主线程上做网络同步请求或者大量的 IO 操作
+* 运算量过大，CPU 持续高占用
+* 死锁和主子线程抢锁
+
+#### FPS(Frames Per Second)指画面每秒传输的帧数，每秒传输的帧数越多，所显示的动作或画面就会越流畅，通俗理解成画面“刷新率”(单位是Hz)。FPS值越低就越卡顿，iOS中正常的屏幕刷新率是60Hz,即每秒60次，一般保持在50～60Hz就可以保证有流畅的体验了。**CADisplayLink**可以用来检测FPS的，但是这个只能用来检测app的FPS值，并不能准确定位到哪个方法/页面出现了卡顿，所以我们要利用RunLoop的原理来进行检测
+
+#### RunLoop检测卡顿主要是监控RunLoop的状态来判断是否会出现卡顿；我们需要监测的状态有两个：RunLoop在进入睡眠之前和唤醒后的两个loop状态定义的值，分别是kCFRunLoopBeforeSources 和 kCFRunLoopAfterWaiting
+        CFRunLoopObserverRef这是一个观察者，主要用途就是监听RunLoop的状态变化
+        /* Run Loop Observer Activities */
+        typedef CF_OPTIONS(CFOptionFlags, CFRunLoopActivity) {
+            kCFRunLoopEntry = (1UL << 0),                进入RunLoop
+            kCFRunLoopBeforeTimers = (1UL << 1),         (即将处理Timers)触发 Timer 回调
+            kCFRunLoopBeforeSources = (1UL << 2),        (即将处理Sources)触发 Source0 回调
+            kCFRunLoopBeforeWaiting = (1UL << 5),        (即将进入休眠)等待 mach_port 消息
+            kCFRunLoopAfterWaiting = (1UL << 6),         (刚从休眠中唤醒)接收 mach_port 消息
+            kCFRunLoopExit = (1UL << 7),                 退出RunLoop
+            kCFRunLoopAllActivities = 0x0FFFFFFFU        loop 所有状态改变
+        };
+#### 检测卡顿步骤 (https://www.cnblogs.com/qiyiyifan/p/11089735.html)
+* 创建一个RunLoop的观察者(CFRunLoopObserverContext)
+* 把观察者加入主线程的kCFRunLoopCommonModes模式中，以监测主线程
+*  创建一个持续的子线程来维护观察者进而用来监控主线程的RunLoop状态；
+* 根据主线程RunLoop的状态来判断是否卡顿。一旦发现进入睡眠前的 kCFRunLoopBeforeSources 状态，或者唤醒后的状态 kCFRunLoopAfterWaiting，在设置的时间阈值内一直没有变化，即可判定为卡顿；
+* dump 出堆栈的信息，从而进一步分析出具体是哪个方法的执行时间过长；
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+### 4.4 性能优化

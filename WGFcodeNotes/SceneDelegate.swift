@@ -20,6 +20,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let newScnen = scene as? UIWindowScene else {
             return
         }
+        WGMonitorManage.shareInstance().startMonitor(withTimerInterval: 0.001, withCatonTime: 0.001)
         self.window = UIWindow(windowScene: newScnen)
         self.window?.frame = newScnen.coordinateSpace.bounds
         //self.window?.rootViewController = WGMainVC()

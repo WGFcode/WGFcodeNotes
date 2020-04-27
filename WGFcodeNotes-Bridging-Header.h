@@ -6,5 +6,6 @@
 #import "WGMainObjcVC.h"
 #import "WGTestModel.h"
 #import "WGFirstVC.h"
+#import "WGMonitorManage.h"
 
 
