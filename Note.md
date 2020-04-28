@@ -22,3 +22,5 @@
 
 
 ### [RunTime](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGReadMe/RunTime.md)
+
+### [响应链及事件传递](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGReadMe/Response.md)

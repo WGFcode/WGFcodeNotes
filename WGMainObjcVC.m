@@ -7,9 +7,19 @@
 //
 
 #import "WGMainObjcVC.h"
+@implementation WGVIew
 
-@interface WGMainObjcVC() <UIScrollViewDelegate>
-
+-(instancetype)init {
+    self = [super init];
+    if (self) {
+        self.backgroundColor = [UIColor redColor];
+    }
+    return self;
+}
+//-(void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+//    [super touchesBegan:touches withEvent:event];
+//    //NSLog(@"111111");
+//}
 @end
 
 
@@ -17,16 +27,17 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.view.backgroundColor = [UIColor whiteColor];
+    WGVIew *v = [[WGVIew alloc]init];
+    v.frame = CGRectMake(0, 0, UIScreen.mainScreen.bounds.size.width, UIScreen.mainScreen.bounds.size.height);
+    [self.view addSubview:v];
     
-    for (int i = 0; i< 100000000; i++) {
-        NSLog(@"11111");
-    }
-    NSLog(@")))))))))");
 }
 
-- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
-    
-}
+
+//- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+////    NSLog(@"%@-----%@",touches, event);
+//    NSLog(@"22222");
+//}
 
 
 

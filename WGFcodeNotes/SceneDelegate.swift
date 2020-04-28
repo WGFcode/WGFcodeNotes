@@ -8,6 +8,11 @@
 
 import UIKit
 
+
+class WGWindow : UIWindow {
+
+}
+
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
@@ -20,12 +25,11 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let newScnen = scene as? UIWindowScene else {
             return
         }
-        WGMonitorManage.shareInstance().startMonitor(withTimerInterval: 0.001, withCatonTime: 0.001)
         self.window = UIWindow(windowScene: newScnen)
         self.window?.frame = newScnen.coordinateSpace.bounds
-        //self.window?.rootViewController = WGMainVC()
-        self.window?.rootViewController = UINavigationController.init(rootViewController: WGFirstVC())
-        //self.window?.rootViewController = UINavigationController(rootViewController: WGMainObjcVC())
+//        self.window?.rootViewController = WGMainVC()
+//        self.window?.rootViewController = UINavigationController.init(rootViewController: WGFirstVC())
+        self.window?.rootViewController = UINavigationController(rootViewController: WGMainObjcVC())
         self.window?.makeKeyAndVisible()
     }
     
@@ -61,7 +65,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // Use this method to save data, release shared resources, and store enough scene-specific state information
         // to restore the scene back to its current state.
     }
-
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        NSLog("SceneDelegate1111111")
+    }
 
 }
 

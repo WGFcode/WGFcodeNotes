@@ -848,7 +848,7 @@
                 10:36:47.285391+0800  开始滚动---当前的Runloop运行的模式是:UITrackingRunLoopMode
 #### 分析: 可以发现，在滚动的过程中，定时器任务仍然可以执行；同时发现在滚动视图的的时候，定时器任务的运行模式是UITrackingRunLoopMode模式，当不滚动视图的时候，定时器任务的运行模式是kCFRunLoopDefaultMode，这里再次证明了我们设置的NSRunLoopCommonModes并不是真正的运行模式，而是一个占位模式，用于监听RunLoop所有模式下的事件；为什么我们不能直接添加UITrackingRunLoopMode到定时器任务中？因为系统没有提供给我们获取这个模式的接口，只提供了两种运行模式NSDefaultRunLoopMode和NSRunLoopCommonModes
 
-### 4.3 监控应用卡顿
+### 4.3 监控应用卡顿 TODO
 
 #### 引起页面卡顿的原因分析：
 * 复杂 UI 、图文混排的绘制量过大
@@ -878,59 +878,5 @@
 * dump 出堆栈的信息，从而进一步分析出具体是哪个方法的执行时间过长；
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 ### 4.4 性能优化
+#### 4.4.1 RunLoop如何保证不影响UI卡顿？例如UITableView/UICollectionView的ItemCell都包含了UIImageView用来显示网络图片：第一就是异步获取网络图片，第二将图片渲染到UIImageView上；第一步我们都知道图片数据是通过子线程异步获取到的，但是第二步我们一般都是在主线程中直接设置图片，这样滚动页面的时候Runloop对应的运行模式是UITrackingRunLoopMode，如果直接通过self.imageView.image = XXX,那么这种设置图片方式的仍然在UITrackingRunLoopMode中，如果图片比较大，解压缩和渲染肯定会很耗时，进而导致页面卡顿。我们可以使用方法[imageView performSelectorOnMainThread:@selector(setImg:) withObject:image waitUntilDone:NO modes:@[NSDefaultRunLoopMode]]来将图片设置的方法放在NSDefaultRunLoopMode的运行模式下，为了流畅性，把图片加载延迟。

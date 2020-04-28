@@ -20,9 +20,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }else {
            
             self.window = UIWindow.init(frame: UIScreen.main.bounds)
-            //self.window?.rootViewController = WGMainVC()
-            self.window?.rootViewController = UINavigationController.init(rootViewController: WGFirstVC())
-            //self.window?.rootViewController = UINavigationController(rootViewController: WGMainObjcVC())
+//            self.window?.rootViewController = WGMainVC()
+//            self.window?.rootViewController = UINavigationController.init(rootViewController: WGFirstVC())
+            self.window?.rootViewController = UINavigationController(rootViewController: WGMainObjcVC())
             self.window?.makeKeyAndVisible()
         }
         return true
@@ -41,7 +41,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // If any sessions were discarded while the application was not running, this will be called shortly after application:didFinishLaunchingWithOptions.
         // Use this method to release any resources that were specific to the discarded scenes, as they will not return.
     }
-
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        super.touchesBegan(touches, with: event)
+        NSLog("AppDelegate1111111")
+    }
 
 }
 
