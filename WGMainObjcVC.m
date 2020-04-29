@@ -7,38 +7,38 @@
 //
 
 #import "WGMainObjcVC.h"
-@implementation WGVIew
 
--(instancetype)init {
-    self = [super init];
-    if (self) {
+@implementation WGView
+-(instancetype)initWithFrame:(CGRect)frame {
+    if (self = [super initWithFrame:frame]) {
         self.backgroundColor = [UIColor redColor];
     }
     return self;
 }
-//-(void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
-//    [super touchesBegan:touches withEvent:event];
-//    //NSLog(@"111111");
-//}
+- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+    NSLog(@"WGView点击了");
+}
 @end
 
+@interface WGMainObjcVC()<UIGestureRecognizerDelegate>
+
+@end
 
 @implementation WGMainObjcVC
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.view.backgroundColor = [UIColor whiteColor];
-    WGVIew *v = [[WGVIew alloc]init];
-    v.frame = CGRectMake(0, 0, UIScreen.mainScreen.bounds.size.width, UIScreen.mainScreen.bounds.size.height);
-    [self.view addSubview:v];
+    WGView *view = [[WGView alloc]initWithFrame:CGRectMake(0, 100, 300, 200)];
+    [self.view addSubview:view];
     
+    UILongPressGestureRecognizer *tap = [[UILongPressGestureRecognizer alloc]init];
+
+
+    
+    /*
+
+*/
 }
-
-
-//- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
-////    NSLog(@"%@-----%@",touches, event);
-//    NSLog(@"22222");
-//}
-
 
 
 
