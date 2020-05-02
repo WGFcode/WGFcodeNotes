@@ -271,3 +271,60 @@
             UIGestureRecognizerStateFailed,     识别失败，方法将不会被调用，恢复到默认状态
             UIGestureRecognizerStateRecognized = UIGestureRecognizerStateEnded
         };
+
+### 4.4 手势和触摸事件
+#### 手势识别和触摸事件是两个独立的事，在上面我们已经知道了触摸事件是通过hit-testView来在响应链中查找最佳响应者并对响应事件进行处理和转发，而手势相比触碰事件的好处是可以直接使用已经定义好的手势，开发者不用自己计算手指移动轨迹。缺点就是没办法自定义手势，只能用系统已经实现的手势。
+### 4.4.1 UIView上同时添加触摸事件的响应和点击事件
+        - (void)viewDidLoad {
+            [super viewDidLoad];
+            self.view.backgroundColor = [UIColor whiteColor];
+            UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(clickTap)];
+            [self.view addGestureRecognizer:tap];
+        }
+
+        -(void)clickTap {
+            for (int i = 0; i < 10; i++) {
+                NSLog(@"点击可tap");
+            }
+        }
+
+        -(void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+            for (int i = 0; i < 10; i++) {
+                NSLog(@"点击了屏幕");
+            }
+        }
+#### 分析：触摸事件和单击的手势事件都响应了，并且是触摸事件先响应的，然后手势事件才响应的；如果我们想让触摸事件不响应，那么可以设置手势的delaysTouchesBegan属性为YES，这样当手势识别到UITouch后，就不会再给hit-testView方式UITouch事件了，除非手势识别失败了才会给响应链发送消息
+
+### 4.4.2 UIButton上添加target action，然后再添加手势，手势会响应而addtarget action是不会响应事件的
+
+        - (void)viewDidLoad {
+            [super viewDidLoad];
+            self.view.backgroundColor = [UIColor whiteColor];
+            UIButton *btn = [[UIButton alloc]initWithFrame:CGRectMake(100, 100, 100, 30)];
+            btn.backgroundColor = [UIColor redColor];
+            [btn addTarget:self action:@selector(clickBtn) forControlEvents:UIControlEventTouchUpInside];
+            [self.view addSubview:btn];
+            
+            UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(clickTap)];
+            [btn addGestureRecognizer:tap];
+        }
+
+        -(void)clickBtn {
+            NSLog(@"点击按钮---addTarget");
+        }
+
+        -(void)clickTap {
+            NSLog(@"点击按钮---UITapGestureRecognizer");
+        }
+
+        打印结果: 点击按钮---UITapGestureRecognizer
+
+### 4.5 手势冲突
+####  一般遇到手势冲突，我们可以通过以下方法来尝试解决，具体哪种方式需要根据业务场景来思考使用方法，下面只是提供一些解决的方法或者思路
+* 触摸事件方面，我们可以重写-(UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event 或者-(BOOL)pointInside:(CGPoint)point withEvent:(UIEvent *)event方法，在这些方法内考虑是否可以解决问题
+* 手势识别方法，重点关注一下几个属性或者方法: 
+1. cancelsTouchesInView
+2. delaysTouchesBegan
+3. delaysTouchesEnded
+4. 添加手势依赖：[A requireGestureRecognizerToFail B] 当手势B失败的时候才会执行手势A，例如单击和双击事件
+5. 手势的代理方法UIGestureRecognizerDelegate

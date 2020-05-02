@@ -10,16 +10,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface WGView : UIView
-
-@end
-
-@interface WGView1 : UIView
-
-@end
-
-
-
 @interface WGMainObjcVC : UIViewController
  
 @end
