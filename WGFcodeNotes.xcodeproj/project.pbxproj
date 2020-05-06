@@ -22,7 +22,7 @@
 		30A7DC832434A43E008DDCF9 /* lock2.png in Resources */ = {isa = PBXBuildFile; fileRef = 30A7DC822434A43E008DDCF9 /* lock2.png */; };
 		30BB26BB244BF62B00255288 /* NSNotification.md in Resources */ = {isa = PBXBuildFile; fileRef = 30BB26BA244BF62B00255288 /* NSNotification.md */; };
 		30C1F2B82431F0C7003B30B3 /* face.md in Resources */ = {isa = PBXBuildFile; fileRef = 30C1F2B72431F0C7003B30B3 /* face.md */; };
-		30CBD68A24389E13000C49E6 /* WGTestModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 30CBD68924389E13000C49E6 /* WGTestModel.m */; };
+		30D3DF72245E74790012F803 /* WGTestModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 30D3DF71245E74790012F803 /* WGTestModel.m */; };
 		30DD858B244F00C100897144 /* block.jpeg in Resources */ = {isa = PBXBuildFile; fileRef = 30DD858A244F00C100897144 /* block.jpeg */; };
 		30ECA52024580E9000E3D312 /* Response.md in Resources */ = {isa = PBXBuildFile; fileRef = 30ECA51F24580E9000E3D312 /* Response.md */; };
 		30F8F49E243F142900968177 /* Summary.md in Resources */ = {isa = PBXBuildFile; fileRef = 30F8F49D243F142900968177 /* Summary.md */; };
@@ -87,8 +87,8 @@
 		30BB26BA244BF62B00255288 /* NSNotification.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = NSNotification.md; sourceTree = "<group>"; };
 		30C1F2B72431F0C7003B30B3 /* face.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = face.md; sourceTree = "<group>"; };
 		30C7D40C2439C05000EA99C6 /* NSOperation.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = NSOperation.md; sourceTree = "<group>"; };
-		30CBD68824389E13000C49E6 /* WGTestModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WGTestModel.h; sourceTree = "<group>"; };
-		30CBD68924389E13000C49E6 /* WGTestModel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WGTestModel.m; sourceTree = "<group>"; };
+		30D3DF70245E74790012F803 /* WGTestModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WGTestModel.h; sourceTree = "<group>"; };
+		30D3DF71245E74790012F803 /* WGTestModel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WGTestModel.m; sourceTree = "<group>"; };
 		30DD858A244F00C100897144 /* block.jpeg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = block.jpeg; sourceTree = "<group>"; };
 		30ECA51F24580E9000E3D312 /* Response.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Response.md; sourceTree = "<group>"; };
 		30F8F49D243F142900968177 /* Summary.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Summary.md; sourceTree = "<group>"; };
@@ -199,11 +199,11 @@
 		548AC946242F4B3100EEE11C = {
 			isa = PBXGroup;
 			children = (
+				30D3DF70245E74790012F803 /* WGTestModel.h */,
+				30D3DF71245E74790012F803 /* WGTestModel.m */,
 				301CF1BA2452BE310024EC69 /* WGFirstVC.h */,
 				301CF1BB2452BE310024EC69 /* WGFirstVC.m */,
 				30179F9924401E8000EED9BD /* Note.md */,
-				30CBD68824389E13000C49E6 /* WGTestModel.h */,
-				30CBD68924389E13000C49E6 /* WGTestModel.m */,
 				30FD75F624357E3800431678 /* WGMainObjcVC.h */,
 				30FD75F724357E3800431678 /* WGMainObjcVC.m */,
 				548AC951242F4B3100EEE11C /* WGFcodeNotes */,
@@ -448,9 +448,9 @@
 				30FD75F824357E3800431678 /* WGMainObjcVC.m in Sources */,
 				3015810D245577A600EC6001 /* WGMonitorManage.m in Sources */,
 				301CF1BC2452BE310024EC69 /* WGFirstVC.m in Sources */,
-				30CBD68A24389E13000C49E6 /* WGTestModel.m in Sources */,
 				548AC953242F4B3100EEE11C /* AppDelegate.swift in Sources */,
 				548AC955242F4B3100EEE11C /* SceneDelegate.swift in Sources */,
+				30D3DF72245E74790012F803 /* WGTestModel.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
