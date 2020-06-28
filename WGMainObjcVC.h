@@ -11,7 +11,10 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface WGMainObjcVC : UIViewController
- 
+
+@property(nonatomic, strong) NSArray *arrStrong;
+@property(nonatomic, copy) NSArray *arrCopy;
+
 @end
 
 

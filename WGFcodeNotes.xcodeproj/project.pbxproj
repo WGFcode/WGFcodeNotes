@@ -10,6 +10,8 @@
 		300845CB24456B2800055737 /* KVC.md in Resources */ = {isa = PBXBuildFile; fileRef = 300845CA24456B1700055737 /* KVC.md */; };
 		300845CC24456B3A00055737 /* NSOperation.md in Resources */ = {isa = PBXBuildFile; fileRef = 30C7D40C2439C05000EA99C6 /* NSOperation.md */; };
 		3015810D245577A600EC6001 /* WGMonitorManage.m in Sources */ = {isa = PBXBuildFile; fileRef = 3015810C245577A600EC6001 /* WGMonitorManage.m */; };
+		30160A2624A748870074FB82 /* BinaryTree.md in Resources */ = {isa = PBXBuildFile; fileRef = 30160A2524A748870074FB82 /* BinaryTree.md */; };
+		30160A2924A75A970074FB82 /* BinaryTree.m in Sources */ = {isa = PBXBuildFile; fileRef = 30160A2824A75A970074FB82 /* BinaryTree.m */; };
 		30179F9A24401E8000EED9BD /* Note.md in Resources */ = {isa = PBXBuildFile; fileRef = 30179F9924401E8000EED9BD /* Note.md */; };
 		301CF1BC2452BE310024EC69 /* WGFirstVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 301CF1BB2452BE310024EC69 /* WGFirstVC.m */; };
 		301CF1BF2452F1750024EC69 /* runLoop1.png in Resources */ = {isa = PBXBuildFile; fileRef = 301CF1BE2452F1750024EC69 /* runLoop1.png */; };
@@ -72,6 +74,9 @@
 		300845CD24456B4C00055737 /* KVO.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = KVO.md; sourceTree = "<group>"; };
 		3015810B245577A600EC6001 /* WGMonitorManage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WGMonitorManage.h; sourceTree = "<group>"; };
 		3015810C245577A600EC6001 /* WGMonitorManage.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WGMonitorManage.m; sourceTree = "<group>"; };
+		30160A2524A748870074FB82 /* BinaryTree.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = BinaryTree.md; sourceTree = "<group>"; };
+		30160A2724A75A970074FB82 /* BinaryTree.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BinaryTree.h; sourceTree = "<group>"; };
+		30160A2824A75A970074FB82 /* BinaryTree.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BinaryTree.m; sourceTree = "<group>"; };
 		30179F9924401E8000EED9BD /* Note.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Note.md; sourceTree = "<group>"; };
 		301CF1BA2452BE310024EC69 /* WGFirstVC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WGFirstVC.h; sourceTree = "<group>"; };
 		301CF1BB2452BE310024EC69 /* WGFirstVC.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WGFirstVC.m; sourceTree = "<group>"; };
@@ -199,6 +204,8 @@
 		548AC946242F4B3100EEE11C = {
 			isa = PBXGroup;
 			children = (
+				30160A2724A75A970074FB82 /* BinaryTree.h */,
+				30160A2824A75A970074FB82 /* BinaryTree.m */,
 				30D3DF70245E74790012F803 /* WGTestModel.h */,
 				30D3DF71245E74790012F803 /* WGTestModel.m */,
 				301CF1BA2452BE310024EC69 /* WGFirstVC.h */,
@@ -279,6 +286,7 @@
 				548AC985242F4CAD00EEE11C /* WG.sh */,
 				30C1F2B72431F0C7003B30B3 /* face.md */,
 				30ECA51F24580E9000E3D312 /* Response.md */,
+				30160A2524A748870074FB82 /* BinaryTree.md */,
 			);
 			path = WGReadMe;
 			sourceTree = "<group>";
@@ -389,6 +397,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				30A7DC832434A43E008DDCF9 /* lock2.png in Resources */,
+				30160A2624A748870074FB82 /* BinaryTree.md in Resources */,
 				548AC98C242F4CAD00EEE11C /* git.md in Resources */,
 				30A73F332447F14A00C86BB8 /* kvc1.png in Resources */,
 				548AC98F242F4CAD00EEE11C /* Carthage.md in Resources */,
@@ -444,6 +453,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				548AC957242F4B3100EEE11C /* ViewController.swift in Sources */,
+				30160A2924A75A970074FB82 /* BinaryTree.m in Sources */,
 				548AC983242F4C7100EEE11C /* WGMainVC.swift in Sources */,
 				30FD75F824357E3800431678 /* WGMainObjcVC.m in Sources */,
 				3015810D245577A600EC6001 /* WGMonitorManage.m in Sources */,

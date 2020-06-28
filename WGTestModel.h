@@ -15,10 +15,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, strong) NSString *name;
 @property(nonatomic, assign) int age;
 
-+(void)run;
--(void)eat;
--(void)sleepWithTime:(NSTimeInterval)time;
-
 @end
+
 
 NS_ASSUME_NONNULL_END

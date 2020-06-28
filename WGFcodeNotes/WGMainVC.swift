@@ -39,8 +39,10 @@ public class WGMainVC : UIViewController {
         super.viewDidLoad()
         self.view.backgroundColor = UIColor.green
         
-
+        
     }
+    
+    
 
 }
 
