@@ -32,14 +32,10 @@ public class WGInfoModel {
 
 
 public class WGMainVC : UIViewController {
-    private var lockObjc = NSLock()
-    private var lock = NSRecursiveLock()
-    private var appleTotalNum = 20
+ 
     public override func viewDidLoad() {
         super.viewDidLoad()
-        self.view.backgroundColor = UIColor.green
-        
-        
+        self.view.backgroundColor = UIColor.red
     }
     
     

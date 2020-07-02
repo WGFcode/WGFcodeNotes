@@ -128,3 +128,19 @@
     3.git add .
     4.git commit -m "例如：创建新的项目"
     5.git push -u origin master
+    
+    
+## 工作中命令总结
+### 1. 当我们本地修改了代码,但是此时同事有新的代码提交到远程仓库了,需要我们及时将同事提交到远程仓库的代码拉取到我们本地的工作区,同时我们本地代码也没有进行add操作到暂存区时,此时我们git pull,会发现执行成功了,但是同事提交到远程仓库的代码我们并没有拉去成功,接下来该如何办?
+    1. git stash   //先将我们本地修改的代码暂存起来,执行成功后,命令行中会返回类似下面的语句,说明保存成功了
+    //执行git stash后:Saved working directory and index state WIP on master: 44c18d1 runtim
+    2. git pull    //将远程仓库最新的代码拉去到本地,此时远程仓库的代码已经拉去到本地了
+    3. git stash list  //查看我们临时保存的本地代码的列表
+    //执行成功后: stash@{0}: WIP on master: 44c18d1 runtime
+    //如果我们发现有多个类似 stash@{0} stash@{1} stash@{2} stash@{X}时,说明我们临时保存了多次本地代码,可以通过
+    //git stash show stash@{0} 来查看某次暂存的内容是什么
+    4.git stash apply stash@{0}   //将我们pull之前暂存的本地代码修改内容恢复到当前工作区
+    5.此时我们本地代码也已经恢复到我们pull之前的状态了,可以通过git status命令来查看是否是之前的状态
+    6.但是如果遇到冲突的话,重新去打开工程的话,就打不开了,会提示说让去解决冲突
+    7.来到项目WGFcodeNotes.xcodeproj,右键盘查看包内容,然后找到project.pbxproj并打开,然后全局搜索<<<<<<<或=======或>>>>>>>这就是冲突发生的标示,然后去解决冲突就OK了
+    
