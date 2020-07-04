@@ -1,11 +1,13 @@
 #  目录
-###[Git](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGReadMe/%E5%A4%9A%E7%BA%BF%E7%A8%8B/git.md)
+### [Git](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGReadMe/git.md)
 
-###[Carthage](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGReadMe/%E5%A4%9A%E7%BA%BF%E7%A8%8B/Carthage.md)
+### [Carthage](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGReadMe/Carthage.md)
 
-### [静态库Framework制作](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGReadMe/%E5%A4%9A%E7%BA%BF%E7%A8%8B/Framework.md)
+### [静态库Framework制作](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGReadMe/Framework.md)
 
-###[面试题总结](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGReadMe/%E5%A4%9A%E7%BA%BF%E7%A8%8B/face.md)
+### [面试题总结](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGReadMe/face.md)
+
+### [二叉树](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGReadMe/BinaryTree.md)
 
 ###
 [Thread](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGReadMe/%E5%A4%9A%E7%BA%BF%E7%A8%8B/NSThread.md)
@@ -32,5 +34,5 @@
 
 ### [响应链及事件传递](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGReadMe/Response.md)
 
-### [二叉树](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGReadMe/%E5%A4%9A%E7%BA%BF%E7%A8%8B/BinaryTree.md)
+
 
