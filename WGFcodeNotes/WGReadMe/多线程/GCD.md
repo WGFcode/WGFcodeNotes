@@ -1201,3 +1201,9 @@
                 开始去执行并发队列中的任务吧----<NSThread: 0x600001e2a680>{number = 5, name = (null)}
 ##### 分析: 发现group通知了DispatchQueue.global()并发队列，但是并没有通知到(并发队列中的任务并不是group通知触发的)
 
+
+## 思考
+### DispatchGroup() :初始化dispatch_group_t
+###  enter() : add操作的原子性,count+1
+###  leave
+### notify: 1.更新链表数据结果 2.将任务添加到链表尾部,然后遍历链表执行任务
