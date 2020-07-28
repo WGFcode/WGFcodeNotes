@@ -144,3 +144,34 @@
     6.但是如果遇到冲突的话,重新去打开工程的话,就打不开了,会提示说让去解决冲突
     7.来到项目WGFcodeNotes.xcodeproj,右键盘查看包内容,然后找到project.pbxproj并打开,然后全局搜索<<<<<<<或=======或>>>>>>>这就是冲突发生的标示,然后去解决冲突就OK了
     
+
+### 2. 本地只有一个master分支，然后想撤销对上一次push到远程仓库的提交，即回退到指定的commitId
+        localhost:NXYMerchantsProject baicai$ git log
+        commit 98d79a2b006375c6d0e3af140355dc8bbcd96905 (HEAD -> master, origin/master, origin/HEAD, checkWeekPwd)
+        Author: baiaicaiai <wugong@buybal.com>
+        Date:   Tue Jul 28 17:37:18 2020 +0800
+            NXYS 2.3.2
+        commit eb2cb5e27f0285e031828e79bb2249f4fb88a56e
+        Author: baiaicaiai <wugong@buybal.com>
+        Date:   Mon Jul 27 15:15:54 2020 +0800
+            YKYG 2.2.3
+        commit 6a76e3b3f2bc9def0dd2988095cdd9f9dc375acb
+        Author: baiaicaiai <wugong@buybal.com>
+        Date:   Fri Jul 24 16:46:06 2020 +0800
+            2.3.1 1.1Version
+#### 假如想回退到commitID: eb2cb5e27f0285e031828e79bb2249f4fb88a56e(YKYG 2.2.3),但是又可能这个最新的提交可能还会有用处，那么就先创建并切换一个新的分支（这样我们就将之前master分支代码copy到新的分支上了，以后要是需要的话可以从这个分支上取或者看就行了），然后提交到远程仓库，然后再切换到master分支，将master分支上的代码回滚到指定的commitID上，然后再提交到远程仓库就行了，提交过程会有错误提示，需要特别注意，这个地方需要强制更新到远程仓库，具体代码如下：
+      git checkout -b checkWeekPwd  //创建并切换到新的分支上
+      git push  //提交到远程仓库
+      git checkout master   //切换到主分支上
+      git reset --hard eb2cb5e27f0285e031828e79bb2249f4fb88a56e //将代码回滚到该commitID的版本
+      git push  //提交远程仓库会报错
+       ! [rejected]        master -> master (non-fast-forward)
+      error: failed to push some refs to 'http://192.168.1.242/iOS/nxy/NXYMerchantsProject.git'
+      hint: Updates were rejected because the tip of your current branch is behind
+      hint: its remote counterpart. Integrate the remote changes (e.g.
+      hint: 'git pull ...') before pushing again.
+      hint: See the 'Note about fast-forwards' in 'git push --help' for details.
+      
+      然后使用 进行强制更新到远程仓库就行了
+      git push origin master --force
+      
