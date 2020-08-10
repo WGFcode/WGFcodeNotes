@@ -8,20 +8,41 @@
 
 #import "WGMainObjcVC.h"
 #import "BinaryTree.h"
+#import <UIKit/UIKit.h>
+
 
 @implementation WGMainObjcVC
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    self.view.backgroundColor = [UIColor whiteColor];
-
-
-    NSArray *arr = @[@12, @53, @2, @234, @12, @34, @123, @34, @66];
-    BinaryTree *tree = [BinaryTree create:arr];
-    NSLog(@"-----%@-----",tree);
-
-
+    
+    id array = [[NSMutableArray alloc]init];
+    void (^WGCustomBlock)(id obj) = ^(id obj) {
+        [array addObject:obj];
+        NSLog(@"array count is:%ld",[array count]);
+    };
+    WGCustomBlock([[NSObject alloc]init]);
+    WGCustomBlock([[NSObject alloc]init]);
+    WGCustomBlock([[NSObject alloc]init]);
+    
+//    id array = [[NSMutableArray alloc]init];
+//    WGCustomBlock = ^(id obj) {
+//        [array addObject:obj];
+//        NSLog(@"array count is:%ld",[array count]);
+//    };
+    
+    
+//    id array = [[NSMutableArray alloc]init];
+//    void (^WGCustomBlock)(id) = [^(id obj) {
+//        [array addObject:obj];
+//        NSLog(@"array count is:%ld",[array count]);
+//    } copy];
+//    WGCustomBlock([[NSObject alloc]init]);
+//    WGCustomBlock([[NSObject alloc]init]);
+//    WGCustomBlock([[NSObject alloc]init]);
+    
 }
+
 
 @end
 

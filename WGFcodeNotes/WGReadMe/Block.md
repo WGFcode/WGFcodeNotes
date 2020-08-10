@@ -1,5 +1,5 @@
 ##  Block
-#### Block是封装函数实现及上下文环境的匿名函数,
+#### 什么时Block: 带有自动变量(局部变量)的匿名函数;是封装函数实现及上下文环境的匿名函数,
 
 ### 1.Block基本语法
 ### 1.1 Block声明及定义
@@ -131,40 +131,233 @@
             };
         }
         打印结果: 我的名字是:王小二
+        
+### 1.3 Block本质探索
+#### 结论: Block本质是一个对象,底层也是一个结构体, 我们可以通过**clang -rewrite-objc 源代码文件名**将源代码变换为C++的源代码,说是C++其实就是使用了struct结果,其本质是C语言源代码
+        源代码
+        @implementation WGMainObjcVC
+        - (void)viewDidLoad {
+            [super viewDidLoad];
+            self.view.backgroundColor = [UIColor whiteColor];
+            void (^BlockTest)(void) = ^{
+                NSLog(@"123456789");
+            };
+            BlockTest();
+        }
+        @end
+        
+        使用如下命令行将源码转为C语言代码
+        clang -x objective-c -rewrite-objc -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk WGMainObjcVC.m
+#### Block语法: ^{ NSLog(@"123456789"); }; 转化为了下面的代码,参数__cself为指向Block值的变量,类似OC中的self,这个参数是__WGMainObjcVC__viewDidLoad_block_impl_0结构体的指针
+        static void __WGMainObjcVC__viewDidLoad_block_func_0(struct __WGMainObjcVC__viewDidLoad_block_impl_0 *__cself) {
+            NSLog(@"123456789");
+        }
+#### 我们来看下__WGMainObjcVC__viewDidLoad_block_impl_0的结构体,XXX代表__WGMainObjcVC__viewDidLoad
+
+        struct XXX_block_impl_0 {
+          struct __block_impl impl;
+          struct XXX_block_desc_0* Desc;
+          //构造函数
+          XXX_block_impl_0(void *fp, struct XXX_block_desc_0 *desc, int flags=0) {
+                impl.isa = &_NSConcreteStackBlock;  //_NSConcreteStackBlock用来初始化__block_impl结构体的isa成员
+                impl.Flags = flags;
+                impl.FuncPtr = fp;
+                Desc = desc;
+                //等效于 
+                impl.isa = &_NSConcreteStackBlock;  
+                impl.Flags = 0;
+                impl.FuncPtr = __WGMainObjcVC__viewDidLoad_block_func_0; //函数指针指向成员变量FuncPtr
+                Desc = &__WGMainObjcVC__viewDidLoad_block_desc_0_DATA;
+            }
+        };
+        
+        struct __block_impl {
+            void *isa;
+            int Flags;
+            int Reserved;
+            void *FuncPtr;
+        };
+        
+        static struct XXX_block_desc_0 {
+          size_t reserved;
+          size_t Block_size;  //BLock的大小
+        } XXX_block_desc_0_DATA = { 0, sizeof(struct XXX_block_impl_0)}; 
+        //对XXX_block_impl_0结构体的大小进行初始化
+        
+#### 我们先来看下构造函数的调用
+        static void _I_WGMainObjcVC_viewDidLoad(WGMainObjcVC * self, SEL _cmd) {
+            //构造函数的调用
+            void (*BlockTest)(void) = ((void (*)())&XXX_block_impl_0((void *)XXX_block_func_0, &XXX_block_desc_0_DATA));
+            //Block的执行
+            ((void (*)(__block_impl *))((__block_impl *)BlockTest)->FuncPtr)((__block_impl *)BlockTest);
+        }
+        简化后
+        //将栈上生成的结构体(XXX_block_impl_0)实例的指针赋值为变量类型为XXX_block_impl_0结构体指针类型的变量BlockTest
+        BlockTest = &XXX_block_impl_0(XXX_block_func_0, &XXX_block_desc_0_DATA);
+        //下面这个就是使用函数指针调用函数. Block中匿名函数的指针赋值给了成员变量FuncPtr,参数__cself执行Block值
+        (*BlockTest->FuncPtr)(BlockTest)
+#### 我们知道对象的本质是结构体,那么我们回到Block的结构体中去看一下,这个结构体相当于对象对应的objc-object结构体,所以Block实质也是Objective-C的对象
+        struct XXX_block_impl_0 {
+            void *isa;  
+            int Flags;
+            int Reserved;
+            void *FuncPtr;
+            struct XXX_block_desc_0* Desc;
+        };
+
+
 ### 1.3 Block捕获值
-#### 1.3.1捕获局部变量
+#### 1.3.1截获自动变量值
         - (void)viewDidLoad {
             [super viewDidLoad];
             int age = 18;
-            NSString *name = @"张三";
+            NSString *name = @"ZhangSan";
             void(^WGCustomBlock)(void) = ^{
-                NSLog(@"我的名字是:%@,我的年龄是:%d",name,age);
+                NSLog(@"My name is:%@,My age is:%d",name,age);
             };
             age = 30;
-            name = @"李四";
+            name = @"LiSi";
             WGCustomBlock();
         }
+        打印结果: My name is:ZhangSan,My age is:18
+        
+        C代码转换后 XXX代表: __WGMainObjcVC__viewDidLoad
+        static void _I_WGMainObjcVC_viewDidLoad(WGMainObjcVC * self, SEL _cmd) {
+            ((void (*)(__rw_objc_super *, SEL))(void *)objc_msgSendSuper)((__rw_objc_super){(id)self, (id)class_getSuperclass(objc_getClass("WGMainObjcVC"))}, sel_registerName("viewDidLoad"));
 
-        打印结果: 我的名字是:张三,我的年龄是:18
+            int age = 18;
+            NSString *name = (NSString *)&__NSConstantStringImpl__var_folders_wc_tkbgc_ts0pv3lyd2n4wsdc6h0000gn_T_WGMainObjcVC_83871e_mi_0;
+            //XXX_block_impl_0结构体的构造函数中通过传递的参数对追加到结构体的成员变量进行赋值操作
+            void(*WGCustomBlock)(void) = ((void (*)())&XXX_block_impl_0((void *)XXX_block_func_0, &XXX_block_desc_0_DATA, name, age, 570425344));
+            age = 30;
+            name = (NSString *)&__NSConstantStringImpl__var_folders_wc_tkbgc_ts0pv3lyd2n4wsdc6h0000gn_T_WGMainObjcVC_83871e_mi_2;
+            ((void (*)(__block_impl *))((__block_impl *)WGCustomBlock)->FuncPtr)((__block_impl *)WGCustomBlock);
+        }
+        //这是Block匿名函数的实现,
+        static void XXX_block_func_0(struct XXX_block_impl_0 *__cself) {
+            //使用捕获的自动变量时,直接从Block结构体中获取结构体中的成员变量即可
+            NSString *name = __cself->name; 
+            int age = __cself->age; 
+              NSLog((NSString *)&__NSConstantStringImpl__var_folders_wc_tkbgc_ts0pv3lyd2n4wsdc6h0000gn_T_WGMainObjcVC_83871e_mi_1,name,age);
+          }
+        //Block语法表达式中捕获到的自动变量被作为成员变量追加到了XXX_block_impl_0结构体中,这个结构体中声明的变量和捕获到的自动变量类型相同,注意Block中没有使用的自动变量不会被捕获,也不会被追加到结构体中
+        struct XXX_block_impl_0 {
+            struct __block_impl impl;
+            struct XXX_block_desc_0* Desc;
+            NSString *name;
+            int age;
+            XXX_block_impl_0(void *fp, struct XXX_block_desc_0 *desc, NSString *_name, int _age, int flags=0) : name(_name), age(_age) {
+                impl.isa = &_NSConcreteStackBlock;
+                impl.Flags = flags;
+                impl.FuncPtr = fp;
+                Desc = desc;
+            }
+        };
+        
 #### 分析:创建Block的时候，block已经将局部变量(无论是基本数据类型还是对象类型)的值捕获到，block内部会专门新增一个成员来存储auto变量的值，block运行时会访问这个新增的成员；block外改变age和name的值，也不会影响到block内捕获的auto变量值；为什么Block对auto变量的捕获是值捕获？因为auto类型的局部变量出了作用域就会被销毁，它所占用的内存地址也会被销毁，如果Block不保存这个局部变量值，当运行Block的时候，这个局部变量可能已经不存在了；
+#### 所谓的**捕获自动变量值**,其实是在执行Block语法时,Block语法表达式中所使用的自动变量值被保存到Block的结构体实例中,并且自动变量的值在Block内是不能被修改的
 
-#### 1.3.2 捕获静态局部变量
+
+
+#### 1.3.2 __block说明符
+#### 如果想修改Block内自动变量的值怎么办? 可以使用__block, __block主要用来解决Block中不能保存值的问题,即变量如果用 __block修饰,那么在Block表达式中就可以修改改自动变量的值
+ 如果我们直接在Block内修改自动变量的值,会报编译错误的, 但是在自定变量前加__block就可以解决可
+ 
         - (void)viewDidLoad {
             [super viewDidLoad];
-            static int age = 18;
-            static NSString *name = @"张三";
+            __block int age = 18;
+            //编译提示错误:Variable is not assignable (missing __block type specifier)
+            //int age = 18;
             void(^WGCustomBlock)(void) = ^{
-                NSLog(@"我的名字是:%@,我的年龄是:%d",name,age);
+                age = 20;
             };
-            age = 30;
-            name = @"李四";
             WGCustomBlock();
         }
         
-        打印结果: 我的名字是:李四,我的年龄是:30
-#### 分析: Block捕获局部静态变量捕获的是静态变量的地址；static静态局部变量虽然出了作用域也不能访问，但是它的内存是一直存在的，不会被销毁，所以Block只要在运行的时候能够访问到它就可以了，所以针对这种变量Block采用的是指针传递
+        C语言源码
+        //__block修饰的变量底层是一个结构体,捕获到的自动变量变成了这个结构体的成员变量
+        struct __Block_byref_age_0 {
+            void *__isa;
+            //指向自身结构体的指针,即__Block_byref_age_0结构体的指针
+            __Block_byref_age_0 *__forwarding;
+            int __flags;
+            int __size;
+            int age;  
+        };
+        
+        struct XXX_block_impl_0 {
+            struct __block_impl impl;
+            struct XXX_block_desc_0* Desc;
+            //Block的底层结构体中持有__block变量的结构体指针
+            __Block_byref_age_0 *age;  
+          
+            XXX_block_impl_0(void *fp, struct XXX_block_desc_0 *desc, __Block_byref_age_0 *_age, int flags=0) : age(_age->__forwarding) {
+                impl.isa = &_NSConcreteStackBlock;
+                impl.Flags = flags;
+                impl.FuncPtr = fp;
+                Desc = desc;
+            }
+        };
+        
+        Block表达式^{ age = 20; };被转化成了下面的代码 
+        static void XXX_block_func_0(struct XXX_block_impl_0 *__cself) {
+            //将XXX_block_impl_0结构体的成员变量age赋值给了__Block_byref_age_0结构体
+            __Block_byref_age_0 *age = __cself->age; 
+            //通过结构体自身的__forwarding成员变量来访问成员变量age,然后进行赋值操作
+            (age->__forwarding->age) = 20;
+            
+        }
+        #### 思考:为什么__Block_byref_age_0结构体不在XXX_block_impl_0结构体中? 这样做主要为为了在多个Block中使用__block变量
 
-#### 1.3.3 捕获成员变量
+
+#### 1.3.3 捕获静态变量(静态局部变量/静态全局变量/全局变量)
+        int globalAge = 10;              //全局变量
+        static int staticGlobalAge = 20; //全局静态静态
+        @implementation WGMainObjcVC
+
+        - (void)viewDidLoad {
+            [super viewDidLoad];
+            static int staicAge = 30;
+            void(^WGCustomBlock)(void) = ^{
+                NSLog(@"globalAge is:%d--staticGlobalName is:%d--staticName is:%d",globalAge,staticGlobalAge,staicAge);
+            };
+            globalAge = 100;
+            staticGlobalAge = 200;
+            staicAge = 300;
+            WGCustomBlock();
+        }
+        打印结果: globalAge is:100--staticGlobalName is:200--staticName is:300
+        
+        C语言代码
+        //全局变量和全局静态变量没有任何的变化,即它们的值是可以随时被修改的,也可以说Block并不会捕获,直接使用即可
+        int globalAge = 10;
+        static int staticGlobalAge = 20;
+        // @implementation WGMainObjcVC
+
+
+        struct XXX_block_impl_0 {
+            struct __block_impl impl;
+            struct XXX_block_desc_0* Desc;
+            //对于静态局部变量,Block是捕获到的是变量的指针,即将静态变量的指针做成成员变量追加到Block的结构体中来保存
+            //这是超出作用域使用变量的最简单方法,而对于自动变量为什么我们没有这么做(也保存自动变量的指针而不是值)?
+            int *staicAge;
+            XXX_block_impl_0(void *fp, struct XXX_block_desc_0 *desc, int *_staicAge, int flags=0) : staicAge(_staicAge) {
+                impl.isa = &_NSConcreteStackBlock;
+                impl.Flags = flags;
+                impl.FuncPtr = fp;
+                Desc = desc;
+            }
+        };
+        
+        static void XXX_block_func_0(struct XXX_block_impl_0 *__cself) {
+            //通过XXX_block_impl_0结构体来访问它的成员变量
+            int *staicAge = __cself->staicAge; 
+            NSLog((NSString *)&__NSConstantStringImpl__var_folders_wc_tkbgc_ts0pv3lyd2n4wsdc6h0000gn_T_WGMainObjcVC_000b10_mi_0,globalAge,staticGlobalAge,(*staicAge));
+        }
+
+#### 分析: Block捕获局部静态变量捕获的是静态变量的地址；static静态局部变量虽然出了作用域也不能访问，但是它的内存是一直存在的，不会被销毁，所以Block只要在运行的时候能够访问到它就可以了，所以针对这种变量Block采用的是指针传递;Block不需要对全局变量(全局变量或全局静态变量)进行捕获，都是直接使用其值；因为全局变量既不会被销毁又可以随处访问，所以block根本不用去捕获它就可以随时随地访问到它的值。
+
+#### 1.3.4 捕获成员变量
         @interface WGMainObjcVC()
         {
             NSString *_name;
@@ -188,28 +381,6 @@
         打印结果: 我的名字是:李四,我的年龄是:30
 #### 分析：Block访问成员变量是会捕获成员变量的 ，成员变量实质是调用了self->成员变量，其实成员变量捕获是捕获到了self，所以理解成可以被Block捕获；捕获的成员变量都是指针传递的；通过类中的方法底层实现可以看到，每个方法的前两个参数都是self和方法名，那么self也就是一个参数，肯定是一个局部变量，所以在Block实现中使用 self是会被捕获的；
 
-#### 1.3.4 捕获全局的静态变量
-        static int age = 18;
-        NSString *name = @"张三";
-
-        @implementation WGMainObjcVC
-
-        - (void)viewDidLoad {
-            [super viewDidLoad];
-            self.view.backgroundColor = [UIColor redColor];
-            age = 21;
-            name = @"李四";
-            void(^WGCustomBlock)(void) = ^{
-                NSLog(@"我的名字是:%@,我的年龄是:%d",name,age);
-            };
-            age = 30;
-            name = @"王五";
-            WGCustomBlock();
-        }
-        
-        打印结果: 我的名字是:王五,我的年龄是:30
-#### 分析: Block不需要对全局变量(全局变量或全局静态变量)进行捕获，都是直接使用其值；因为全局变量既不会被销毁又可以随处访问，所以block根本不用去捕获它就可以随时随地访问到它的值。
-
 #### 总结: Block对自动变量捕获的是自动变量的值，而对static的局部静态变量捕获的是静态变量的指针地址；为什么Block对static局部静态变量捕获的是指针？因为static变量一直保存在内存中，所以指针访问即可
 
 #### 1.3.5 Block对外部变量的捕获机制
@@ -220,8 +391,9 @@
         全局变量            不需要捕获      直接访问    全局变量存储在静态区中 程序启动时就会分配存储空间 直到程序结束才会释放
         成员变量            需要捕获        指针传递    存储在堆中(当前对象对应的堆存储空间中)
 #### 分析:为什么局部变量需要捕获？因为考虑作用域的问题，需要跨函数访问局部变量，所以需要捕获；
-### 1.4 Block类型
-#### Block类型取决于isa指针，可以通过断点打印isa所指向的类型
+
+### 1.4 Block存储域
+#### Block实质也是个对象类型最终继承自NSObject,Block类型取决于isa指针，可以通过断点打印isa所指向的类型
         - (void)viewDidLoad {
             [super viewDidLoad];
             
@@ -246,28 +418,76 @@
                 :NSObject
                 :(null)
 
-#### 分析:从打印结果可以看出:Block实质也是个对象类型最终继承自NSObject；Block主要分为以下三种类型
-* __NSGlobalBlock__ 全局Block: 存在数据区；
-* __NSStackBlock__  栈Block: 存在栈区,超出作用域就会被销毁；
-* __NSMallocBlock__ 堆Block: 存在堆区；【__NSStackBlock__ copy】就是堆区Block
-* 系统自动分配栈区内存，自动销毁，先入后出；动态分配堆区内存，需要程序员自己申请，程序员自己管理
+#### Block的存储域可以分为三种: __NSGlobalBlock__/__NSMallocBlock__/__NSStackBlock,如果查看源代码,可以发现分别对应的是如下三种
+#### 1.4.1 _NSConcreteGlobalBlock : 全局Block: 存在数据区(.data区)；
+        1. 作为全部变量的Block: 因为在使用全局变量的地方不能使用自动变量,所以不存在对自动变量的捕获
+        void(^WGCustomBlock)(void) = ^{
+            NSLog(@"Hello world");
+        };
+        @implementation WGMainObjcVC
 
-#### 如何判断一个Block所处的存储位置?
-* 没有访问外界变量的Block都是全局Block,存储在数据区;
-* 在MRC下访问外界变量的Block默认存储在栈中;
-* 在ARC下访问外界变量的Block默认存储在堆中(实际在栈中,ARC情况下自动拷贝到堆区),
+        - (void)viewDidLoad {
+            [super viewDidLoad];
+            WGCustomBlock();
+        }
+        
+        2. Block语法中不使用应截获的自动变量时: 虽然通过clang看到是在_NSConcreteStackBlock栈区,但实现上却有不同的
+        void(^WGCustomBlock)(void) = ^{
+            NSLog(@"Hello world");
+        };
+        WGCustomBlock();
+        
+#### 1.4.2 _NSConcreteStackBlock : 栈Block: 存在栈区,超出作用域就会被销毁；
+##### 设置在栈上的Block,如果其所属的变量作用域结束,则该Block就被废弃; 由于__block变量也配置在栈上,所以如果其所属的变量作用域结束,则该__block变量也会被废弃,为了解决这个问题,Block提供了从栈区拷贝Block到堆区的方法,这样即使变量作用域结束了,堆上的Block还可以继续存在; 而__block变量用结构体成员变量__forwarding可以实现无论__block变量配置在栈上还是堆上时都能够正确的访问__block变量,需要注意的就是从栈区拷贝Block到堆区是比较消耗CPU的
+
+##### 在MRC下访问外界变量的Block默认存储在栈中;
+
+#### 1.4.3 _NSConcreteMallocBlock : 存在堆区;【__NSStackBlock__ copy】就是堆区Block
+##### 在ARC下访问外界变量的Block默认存储在堆中(实际在栈中,ARC情况下自动拷贝到堆区);系统自动分配  
+栈区内存，自动销毁，先入后出；动态分配堆区内存，需要程序员自己申请，程序员自己管理
+
+
 
 #### 在ARC下,为什么访问外界变量的Block自动从栈区拷贝到堆区?
-* 栈上的Block,如果其所属的变量作用域结束,该Block就会被销毁/废弃,当然Block中的__block变量也会跟着销毁;为了解决栈区在其变量作用域结束后被销毁的问题,我们需要把Block复制到堆区来延长它的生命周期;将Block从栈区复制(copy)到堆区比较耗费CPU资源,所以在栈区也能够使用就尽量不要复制了
+#####  栈上的Block,如果其所属的变量作用域结束,该Block就会被销毁/废弃,当然Block中的__block变量也会  
+跟着销毁;为了解决栈区在其变量作用域结束后被销毁的问题,我们需要把Block复制到堆区来延长它的生命周期;  
+将Block从栈区复制(copy)到堆区比较耗费CPU资源,所以在栈区也能够使用就尽量不要复制了
 
 
-#### Block copy操作
+#### 1.4.4 Block copy操作
 #### 不同类型的Block执行copy操作后的效果如下
                              副本源的存储域      复制效果
         __NSGlobalBlock__       数据区          什么也不做
         __NSStackBlock__         栈           从栈复制到堆上
         __NSMallocBlock__        堆           引用计数增加
-* Block在堆中copy会造成引用计数增加,这和对象是一样的;虽然在栈上的Block也是以对象的身份存在的,但是栈区没有引用计数,栈区内存是由编译器自动分配释放,所以不需要引用计数
+##### Block在堆中copy会造成引用计数增加,这和对象是一样的;虽然在栈上的Block也是以对象的身份存在的,  
+但是栈区没有引用计数,栈区内存是由编译器自动分配释放,所以不需要引用计数; 不管Block配置在何处,  
+用copy方法复制都不会引起任何问题,在不确定时调用copy方法即可
+
+#### 1.4.5 __block变量存储域
+#### 当Block从栈复制到堆上,__block变量的也会受到影响. 
+1. 当在一个Block1中使用__block时,当Block1从栈复制到堆上时,使用的__block变量也会从栈上复制到堆上,  
+此时Block持有__block变量,即使在该Block1复制到堆上,复制Block1也对所使用的__block变量没有任何影响;
+2. 当多个Block中使用同一个__block变量时,Block1、Block2, 当Block1从栈复制到堆上时,__block变量也会从栈复制到堆上  
+并被Block1所持有,当Block2也从栈上复制到堆上时,被复制的Block2持有__block变量,并增加__block变量的引用计数
+3. 如果配置在堆上的Block被废弃,那么它所使用的__block变量也会被释放; 如果Block1废弃了,那么持有的__block变量也会被释放,而此时Block1仍然持有__block变量,知道Block1也被废弃,__block变量才会被废弃,因为__block变量已经没有持有者了,
+4. __block变量的持有和释放与OC的引用计数很像的,
+5. __forwarding成员变量当在栈上此,指向了__block变量结构体自身的指针, 当复制到堆上后,__forwarding指向了复制到堆上的__block变量结构体的指针, 所以无论Block在堆上还时栈上都可以顺利的访问同一个__block 变量
+
+#### 1.4.6 截获对象
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 ### 1.4.1 Block引用问题
@@ -336,7 +556,7 @@
 #### 在ARC环境下解决循环引用有三种方式
 * __weak: 弱引用，不持有对象，对象释放时会将对象置nil。
 * __unsafe_unretained: 弱引用，不持有对象，对象释放时不会将对象置nil。
-* __block: 必须把引用对象置位nil，并且要调用该block
+* __block: 必须把引用对象置为nil，并且要调用该block
         //.h文件
         typedef void (^WGCustomBlock)(NSString *name);
 

@@ -106,11 +106,7 @@ struct __AtAutoreleasePool {
 };
 
 #define __OFFSETOFIVAR__(TYPE, MEMBER) ((long long) &((TYPE *)0)->MEMBER)
-static __NSConstantStringImpl __NSConstantStringImpl__var_folders_2g_rblj4zp502n0kd06tng4srph0000gn_T_WGMainObjcVC_3b728b_mi_0 __attribute__ ((section ("__DATA, __cfstring"))) = {__CFConstantStringClassReference,0x000007c8,"\345\274\240\344\270\211",6};
-static __NSConstantStringImpl __NSConstantStringImpl__var_folders_2g_rblj4zp502n0kd06tng4srph0000gn_T_WGMainObjcVC_3b728b_mi_1 __attribute__ ((section ("__DATA, __cfstring"))) = {__CFConstantStringClassReference,0x000007c8,"zhang san",9};
-static __NSConstantStringImpl __NSConstantStringImpl__var_folders_2g_rblj4zp502n0kd06tng4srph0000gn_T_WGMainObjcVC_3b728b_mi_2 __attribute__ ((section ("__DATA, __cfstring"))) = {__CFConstantStringClassReference,0x000007c8,"\345\275\223\345\211\215\346\225\260\347\273\204\345\205\203\347\264\240\346\230\257:%@,\345\220\215\345\255\227\346\230\257:%@",37};
-static __NSConstantStringImpl __NSConstantStringImpl__var_folders_2g_rblj4zp502n0kd06tng4srph0000gn_T_WGMainObjcVC_3b728b_mi_3 __attribute__ ((section ("__DATA, __cfstring"))) = {__CFConstantStringClassReference,0x000007c8,"\346\235\216\345\233\233",6};
-static __NSConstantStringImpl __NSConstantStringImpl__var_folders_2g_rblj4zp502n0kd06tng4srph0000gn_T_WGMainObjcVC_3b728b_mi_4 __attribute__ ((section ("__DATA, __cfstring"))) = {__CFConstantStringClassReference,0x000007c8,"li si",5};
+static __NSConstantStringImpl __NSConstantStringImpl__var_folders_wc_tkbgc_ts0pv3lyd2n4wsdc6h0000gn_T_WGMainObjcVC_78d436_mi_0 __attribute__ ((section ("__DATA, __cfstring"))) = {__CFConstantStringClassReference,0x000007c8,"array count is:%ld",18};
 
 
 
@@ -72392,23 +72388,65 @@ __attribute__((availability(ios,introduced=3.2))) __attribute__((availability(tv
 #pragma clang assume_nonnull begin
 
 
-
-
 #ifndef _REWRITER_typedef_WGMainObjcVC
 #define _REWRITER_typedef_WGMainObjcVC
 typedef struct objc_object WGMainObjcVC;
 typedef struct {} _objc_exc_WGMainObjcVC;
 #endif
 
+extern "C" unsigned long OBJC_IVAR_$_WGMainObjcVC$_arrStrong;
+extern "C" unsigned long OBJC_IVAR_$_WGMainObjcVC$_arrCopy;
 struct WGMainObjcVC_IMPL {
 	struct UIViewController_IMPL UIViewController_IVARS;
+	NSArray * _Nonnull _arrStrong;
+	NSArray * _Nonnull _arrCopy;
 };
 
+
+// @property(nonatomic, strong) NSArray *arrStrong;
+// @property(nonatomic, copy) NSArray *arrCopy;
 
 /* @end */
 
 #pragma clang assume_nonnull end
+#pragma clang assume_nonnull begin
 
+
+#ifndef _REWRITER_typedef_BinaryTree
+#define _REWRITER_typedef_BinaryTree
+typedef struct objc_object BinaryTree;
+typedef struct {} _objc_exc_BinaryTree;
+#endif
+
+struct BinaryTree_IMPL {
+	struct NSObject_IMPL NSObject_IVARS;
+};
+
+
+// @property(nonatomic, assign) NSInteger value;
+// @property(nonatomic, strong) BinaryTree *leftNode;
+// @property(nonatomic, strong) BinaryTree *rightNode;
+
+
+// +(BinaryTree *)create:(NSArray *)arr;
+
+
+// +(BinaryTree *)add:(BinaryTree *)treeNode withValue:(NSInteger)value;
+
+
+// +(void)firstOrder:(BinaryTree *)rootNode withHandler:(void(^)(BinaryTree *treeNode))handler;
+
+
+// +(void)middleOrder:(BinaryTree *)rootNode withHandler:(void(^)(BinaryTree *treeNode))handler;
+
+
+// +(void)afterOrder:(BinaryTree *)rootNode withHandler:(void(^)(BinaryTree *treeNode))handler;
+/* @end */
+
+#pragma clang assume_nonnull end
+
+
+typedef void (*WGCustomBlock)(id obj);
 
 // @implementation WGMainObjcVC
 
@@ -72416,24 +72454,23 @@ struct WGMainObjcVC_IMPL {
 struct __WGMainObjcVC__viewDidLoad_block_impl_0 {
   struct __block_impl impl;
   struct __WGMainObjcVC__viewDidLoad_block_desc_0* Desc;
-  NSMutableArray *arr;
-  NSString *name;
-  __WGMainObjcVC__viewDidLoad_block_impl_0(void *fp, struct __WGMainObjcVC__viewDidLoad_block_desc_0 *desc, NSMutableArray *_arr, NSString *_name, int flags=0) : arr(_arr), name(_name) {
+  id array;
+  __WGMainObjcVC__viewDidLoad_block_impl_0(void *fp, struct __WGMainObjcVC__viewDidLoad_block_desc_0 *desc, id _array, int flags=0) : array(_array) {
     impl.isa = &_NSConcreteStackBlock;
     impl.Flags = flags;
     impl.FuncPtr = fp;
     Desc = desc;
   }
 };
-static void __WGMainObjcVC__viewDidLoad_block_func_0(struct __WGMainObjcVC__viewDidLoad_block_impl_0 *__cself) {
-  NSMutableArray *arr = __cself->arr; // bound by copy
-  NSString *name = __cself->name; // bound by copy
+static void __WGMainObjcVC__viewDidLoad_block_func_0(struct __WGMainObjcVC__viewDidLoad_block_impl_0 *__cself, id obj) {
+  id array = __cself->array; // bound by copy
 
-        NSLog((NSString *)&__NSConstantStringImpl__var_folders_2g_rblj4zp502n0kd06tng4srph0000gn_T_WGMainObjcVC_3b728b_mi_2,arr,name);
+        ((void (*)(id, SEL, ObjectType _Nonnull))(void *)objc_msgSend)((id)array, sel_registerName("addObject:"), (id)obj);
+        NSLog((NSString *)&__NSConstantStringImpl__var_folders_wc_tkbgc_ts0pv3lyd2n4wsdc6h0000gn_T_WGMainObjcVC_78d436_mi_0,((NSUInteger (*)(id, SEL))(void *)objc_msgSend)((id)array, sel_registerName("count")));
     }
-static void __WGMainObjcVC__viewDidLoad_block_copy_0(struct __WGMainObjcVC__viewDidLoad_block_impl_0*dst, struct __WGMainObjcVC__viewDidLoad_block_impl_0*src) {_Block_object_assign((void*)&dst->arr, (void*)src->arr, 3/*BLOCK_FIELD_IS_OBJECT*/);_Block_object_assign((void*)&dst->name, (void*)src->name, 3/*BLOCK_FIELD_IS_OBJECT*/);}
+static void __WGMainObjcVC__viewDidLoad_block_copy_0(struct __WGMainObjcVC__viewDidLoad_block_impl_0*dst, struct __WGMainObjcVC__viewDidLoad_block_impl_0*src) {_Block_object_assign((void*)&dst->array, (void*)src->array, 3/*BLOCK_FIELD_IS_OBJECT*/);}
 
-static void __WGMainObjcVC__viewDidLoad_block_dispose_0(struct __WGMainObjcVC__viewDidLoad_block_impl_0*src) {_Block_object_dispose((void*)src->arr, 3/*BLOCK_FIELD_IS_OBJECT*/);_Block_object_dispose((void*)src->name, 3/*BLOCK_FIELD_IS_OBJECT*/);}
+static void __WGMainObjcVC__viewDidLoad_block_dispose_0(struct __WGMainObjcVC__viewDidLoad_block_impl_0*src) {_Block_object_dispose((void*)src->array, 3/*BLOCK_FIELD_IS_OBJECT*/);}
 
 static struct __WGMainObjcVC__viewDidLoad_block_desc_0 {
   size_t reserved;
@@ -72445,16 +72482,23 @@ static struct __WGMainObjcVC__viewDidLoad_block_desc_0 {
 static void _I_WGMainObjcVC_viewDidLoad(WGMainObjcVC * self, SEL _cmd) {
     ((void (*)(__rw_objc_super *, SEL))(void *)objc_msgSendSuper)((__rw_objc_super){(id)self, (id)class_getSuperclass(objc_getClass("WGMainObjcVC"))}, sel_registerName("viewDidLoad"));
 
-    NSMutableArray *arr = ((NSMutableArray * _Nonnull (*)(id, SEL))(void *)objc_msgSend)((id)objc_getClass("NSMutableArray"), sel_registerName("array"));
-    NSString *name = (NSString *)&__NSConstantStringImpl__var_folders_2g_rblj4zp502n0kd06tng4srph0000gn_T_WGMainObjcVC_3b728b_mi_0;
-    ((void (*)(id, SEL, ObjectType _Nonnull))(void *)objc_msgSend)((id)arr, sel_registerName("addObject:"), (id _Nonnull)(NSString *)&__NSConstantStringImpl__var_folders_2g_rblj4zp502n0kd06tng4srph0000gn_T_WGMainObjcVC_3b728b_mi_1);
-    void(*WGCustomBlock)(void) = ((void (*)())&__WGMainObjcVC__viewDidLoad_block_impl_0((void *)__WGMainObjcVC__viewDidLoad_block_func_0, &__WGMainObjcVC__viewDidLoad_block_desc_0_DATA, arr, name, 570425344));
-    name = (NSString *)&__NSConstantStringImpl__var_folders_2g_rblj4zp502n0kd06tng4srph0000gn_T_WGMainObjcVC_3b728b_mi_3;
-    ((void (*)(id, SEL, ObjectType _Nonnull))(void *)objc_msgSend)((id)arr, sel_registerName("addObject:"), (id _Nonnull)(NSString *)&__NSConstantStringImpl__var_folders_2g_rblj4zp502n0kd06tng4srph0000gn_T_WGMainObjcVC_3b728b_mi_4);
-    ((void (*)(__block_impl *))((__block_impl *)WGCustomBlock)->FuncPtr)((__block_impl *)WGCustomBlock);
-
+    WGCustomBlock blk;
+    id array = ((NSMutableArray *(*)(id, SEL))(void *)objc_msgSend)((id)((NSMutableArray *(*)(id, SEL))(void *)objc_msgSend)((id)objc_getClass("NSMutableArray"), sel_registerName("alloc")), sel_registerName("init"));
+    blk = ((void (*)(id))&__WGMainObjcVC__viewDidLoad_block_impl_0((void *)__WGMainObjcVC__viewDidLoad_block_func_0, &__WGMainObjcVC__viewDidLoad_block_desc_0_DATA, array, 570425344));
+    ((void (*)(__block_impl *, id))((__block_impl *)blk)->FuncPtr)((__block_impl *)blk, ((NSObject *(*)(id, SEL))(void *)objc_msgSend)((id)((NSObject *(*)(id, SEL))(void *)objc_msgSend)((id)objc_getClass("NSObject"), sel_registerName("alloc")), sel_registerName("init")));
+    ((void (*)(__block_impl *, id))((__block_impl *)blk)->FuncPtr)((__block_impl *)blk, ((NSObject *(*)(id, SEL))(void *)objc_msgSend)((id)((NSObject *(*)(id, SEL))(void *)objc_msgSend)((id)objc_getClass("NSObject"), sel_registerName("alloc")), sel_registerName("init")));
+    ((void (*)(__block_impl *, id))((__block_impl *)blk)->FuncPtr)((__block_impl *)blk, ((NSObject *(*)(id, SEL))(void *)objc_msgSend)((id)((NSObject *(*)(id, SEL))(void *)objc_msgSend)((id)objc_getClass("NSObject"), sel_registerName("alloc")), sel_registerName("init")));
 }
 
+
+
+static NSArray * _Nonnull _I_WGMainObjcVC_arrStrong(WGMainObjcVC * self, SEL _cmd) { return (*(NSArray * _Nonnull *)((char *)self + OBJC_IVAR_$_WGMainObjcVC$_arrStrong)); }
+static void _I_WGMainObjcVC_setArrStrong_(WGMainObjcVC * self, SEL _cmd, NSArray * _Nonnull arrStrong) { (*(NSArray * _Nonnull *)((char *)self + OBJC_IVAR_$_WGMainObjcVC$_arrStrong)) = arrStrong; }
+
+static NSArray * _Nonnull _I_WGMainObjcVC_arrCopy(WGMainObjcVC * self, SEL _cmd) { return (*(NSArray * _Nonnull *)((char *)self + OBJC_IVAR_$_WGMainObjcVC$_arrCopy)); }
+extern "C" __declspec(dllimport) void objc_setProperty (id, SEL, long, id, bool, bool);
+
+static void _I_WGMainObjcVC_setArrCopy_(WGMainObjcVC * self, SEL _cmd, NSArray * _Nonnull arrCopy) { objc_setProperty (self, _cmd, __OFFSETOFIVAR__(struct WGMainObjcVC, _arrCopy), (id)arrCopy, 0, 1); }
 // @end
 
 struct _prop_t {
@@ -72525,14 +72569,43 @@ struct _category_t {
 extern "C" __declspec(dllimport) struct objc_cache _objc_empty_cache;
 #pragma warning(disable:4273)
 
+extern "C" unsigned long int OBJC_IVAR_$_WGMainObjcVC$_arrStrong __attribute__ ((used, section ("__DATA,__objc_ivar"))) = __OFFSETOFIVAR__(struct WGMainObjcVC, _arrStrong);
+extern "C" unsigned long int OBJC_IVAR_$_WGMainObjcVC$_arrCopy __attribute__ ((used, section ("__DATA,__objc_ivar"))) = __OFFSETOFIVAR__(struct WGMainObjcVC, _arrCopy);
+
+static struct /*_ivar_list_t*/ {
+	unsigned int entsize;  // sizeof(struct _prop_t)
+	unsigned int count;
+	struct _ivar_t ivar_list[2];
+} _OBJC_$_INSTANCE_VARIABLES_WGMainObjcVC __attribute__ ((used, section ("__DATA,__objc_const"))) = {
+	sizeof(_ivar_t),
+	2,
+	{{(unsigned long int *)&OBJC_IVAR_$_WGMainObjcVC$_arrStrong, "_arrStrong", "@\"NSArray\"", 3, 8},
+	 {(unsigned long int *)&OBJC_IVAR_$_WGMainObjcVC$_arrCopy, "_arrCopy", "@\"NSArray\"", 3, 8}}
+};
+
 static struct /*_method_list_t*/ {
 	unsigned int entsize;  // sizeof(struct _objc_method)
 	unsigned int method_count;
-	struct _objc_method method_list[1];
+	struct _objc_method method_list[5];
 } _OBJC_$_INSTANCE_METHODS_WGMainObjcVC __attribute__ ((used, section ("__DATA,__objc_const"))) = {
 	sizeof(_objc_method),
-	1,
-	{{(struct objc_selector *)"viewDidLoad", "v16@0:8", (void *)_I_WGMainObjcVC_viewDidLoad}}
+	5,
+	{{(struct objc_selector *)"viewDidLoad", "v16@0:8", (void *)_I_WGMainObjcVC_viewDidLoad},
+	{(struct objc_selector *)"arrStrong", "@16@0:8", (void *)_I_WGMainObjcVC_arrStrong},
+	{(struct objc_selector *)"setArrStrong:", "v24@0:8@16", (void *)_I_WGMainObjcVC_setArrStrong_},
+	{(struct objc_selector *)"arrCopy", "@16@0:8", (void *)_I_WGMainObjcVC_arrCopy},
+	{(struct objc_selector *)"setArrCopy:", "v24@0:8@16", (void *)_I_WGMainObjcVC_setArrCopy_}}
+};
+
+static struct /*_prop_list_t*/ {
+	unsigned int entsize;  // sizeof(struct _prop_t)
+	unsigned int count_of_properties;
+	struct _prop_t prop_list[2];
+} _OBJC_$_PROP_LIST_WGMainObjcVC __attribute__ ((used, section ("__DATA,__objc_const"))) = {
+	sizeof(_prop_t),
+	2,
+	{{"arrStrong","T@\"NSArray\",&,N,V_arrStrong"},
+	{"arrCopy","T@\"NSArray\",C,N,V_arrCopy"}}
 };
 
 static struct _class_ro_t _OBJC_METACLASS_RO_$_WGMainObjcVC __attribute__ ((used, section ("__DATA,__objc_const"))) = {
@@ -72548,15 +72621,15 @@ static struct _class_ro_t _OBJC_METACLASS_RO_$_WGMainObjcVC __attribute__ ((used
 };
 
 static struct _class_ro_t _OBJC_CLASS_RO_$_WGMainObjcVC __attribute__ ((used, section ("__DATA,__objc_const"))) = {
-	0, sizeof(struct WGMainObjcVC_IMPL), sizeof(struct WGMainObjcVC_IMPL), 
+	0, __OFFSETOFIVAR__(struct WGMainObjcVC, _arrStrong), sizeof(struct WGMainObjcVC_IMPL), 
 	(unsigned int)0, 
 	0, 
 	"WGMainObjcVC",
 	(const struct _method_list_t *)&_OBJC_$_INSTANCE_METHODS_WGMainObjcVC,
 	0, 
+	(const struct _ivar_list_t *)&_OBJC_$_INSTANCE_VARIABLES_WGMainObjcVC,
 	0, 
-	0, 
-	0, 
+	(const struct _prop_list_t *)&_OBJC_$_PROP_LIST_WGMainObjcVC,
 };
 
 extern "C" __declspec(dllimport) struct _class_t OBJC_METACLASS_$_UIViewController;
