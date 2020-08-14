@@ -9,40 +9,31 @@
 #import "WGMainObjcVC.h"
 #import "BinaryTree.h"
 #import <UIKit/UIKit.h>
+#import "WGFirstVC.h"
 
+// Block起别名
+typedef void (^WGCustomBlock)(WGMainObjcVC *);
+@interface WGMainObjcVC()
+@property(nonatomic, strong) NSString *name;
+@property(nonatomic, copy) WGCustomBlock block;
+@end
 
 @implementation WGMainObjcVC
-
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    id array = [[NSMutableArray alloc]init];
-    void (^WGCustomBlock)(id obj) = ^(id obj) {
-        [array addObject:obj];
-        NSLog(@"array count is:%ld",[array count]);
+    self.name = @"张三";
+    self.block = ^(WGMainObjcVC *vc) {
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            NSLog(@"我的名字是:%@",vc.name);
+        });
     };
-    WGCustomBlock([[NSObject alloc]init]);
-    WGCustomBlock([[NSObject alloc]init]);
-    WGCustomBlock([[NSObject alloc]init]);
-    
-//    id array = [[NSMutableArray alloc]init];
-//    WGCustomBlock = ^(id obj) {
-//        [array addObject:obj];
-//        NSLog(@"array count is:%ld",[array count]);
-//    };
-    
-    
-//    id array = [[NSMutableArray alloc]init];
-//    void (^WGCustomBlock)(id) = [^(id obj) {
-//        [array addObject:obj];
-//        NSLog(@"array count is:%ld",[array count]);
-//    } copy];
-//    WGCustomBlock([[NSObject alloc]init]);
-//    WGCustomBlock([[NSObject alloc]init]);
-//    WGCustomBlock([[NSObject alloc]init]);
-    
+    self.block(self);
 }
 
+-(void)dealloc {
+    NSLog(@"对象销毁了");
+}
 
 @end
 

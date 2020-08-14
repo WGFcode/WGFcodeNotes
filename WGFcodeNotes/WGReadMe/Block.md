@@ -393,6 +393,29 @@
 #### 分析:为什么局部变量需要捕获？因为考虑作用域的问题，需要跨函数访问局部变量，所以需要捕获；
 
 ### 1.4 Block存储域
+        1. 全局Block
+        void (^block)(void) = ^{
+            NSLog(@"我的年龄");
+        };
+        block();
+        NSLog(@"%@",block);
+        打印结果: 我的年龄
+                <__NSGlobalBlock__: 0x100574568>
+                
+        //2.堆Block和栈Block
+        int age = 18;
+        void (^block)(void) = ^{
+            NSLog(@"我的年龄:%d",age);
+        };
+        block();
+        NSLog(@"%@",block);
+        NSLog(@"%@",^{
+            NSLog(@"我的年龄:%d",age);
+        });
+        打印结果: 我的年龄:18
+                <__NSMallocBlock__: 0x6000013e2640>
+                <__NSStackBlock__: 0x7ffee5784f10>
+        
 #### Block实质也是个对象类型最终继承自NSObject,Block类型取决于isa指针，可以通过断点打印isa所指向的类型
         - (void)viewDidLoad {
             [super viewDidLoad];
@@ -1089,3 +1112,117 @@
         
         打印结果: 我的名字是:小狗,我的年龄是:18,weakSelfA:<WGAnimal: 0x600002ca8500>
                 我的名字是:小狗,我的年龄是:18,weakSelfA:<WGAnimal: 0x600002ca8500>
+
+### 资源练习
+#### 循环引用, 
+#### 解决循环引用主要用到二种方式:
+1. 方式一: 使用 __weak+__strong共用来解决
+2. 方式二: 使用__block方式,并且在不需要引用对象的时候,主动置nil,来解决循环引用
+3. 方式三: 将引用变量/对象作为参数传递给Block来解决循环引用,主要就是作用域之间的通讯
+#### 1.  使用 __weak+__strong共用来解决
+      //.m文件
+        // Block起别名
+        typedef void (^WGCustomBlock)(void);
+        
+        @interface WGMainObjcVC()
+        @property(nonatomic, strong) NSString *name;
+        @property(nonatomic, copy) WGCustomBlock block;
+        @end
+
+        @implementation WGMainObjcVC
+        - (void)viewDidLoad {
+            [super viewDidLoad];
+            self.name = @"张三";
+            // self持有block, block又持有了self,所以会造成循环引用, 解决循环引用,我们知道使用__weak
+            self.block = ^{
+                NSLog(@"我的名字是:%@",self.name);
+            };
+            self.block();
+        }
+        @end
+#### 解决循环引用问题,我们可以使用__weak 来解决如下
+        - (void)viewDidLoad {
+            [super viewDidLoad];
+            self.name = @"张三";
+            //通过__weak我们可以解决循环引用
+            __weak typeof(self) weakSelf = self;
+            self.block = ^{
+                NSLog(@"我的名字是:%@",weakSelf.name);
+            };
+            self.block();
+        }
+#### 但是__weak是可以解决循环引用,但是如果遇到下面情况,只使用__weak可能就不能解决问题
+        - (void)viewDidLoad {
+            [super viewDidLoad];
+            
+            self.name = @"张三";
+            __weak typeof(self) weakSelf = self;
+            self.block = ^{
+                //等待5秒再执行
+                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                    NSLog(@"我的名字是:%@",weakSelf.name);
+                });
+            };
+            self.block();
+        }
+
+        -(void)dealloc {
+            NSLog(@"对象销毁了");
+        }
+        
+        当我们进入这个页面然后立马返回的时候,打印的结果是:
+        20:59:38 对象销毁了
+        20:59:42 我的名字是:(null)
+#### 我们可以发现页面返回,已经调用了dealloc方法,但是过5秒后block中打印的内容是null,也就是block中捕获到的self已经销毁了,解决办法就是延长self的生命周期,可以使用如下方式
+
+        - (void)viewDidLoad {
+            [super viewDidLoad];
+            
+            self.name = @"张三";
+            __weak typeof(self) weakSelf = self;
+            self.block = ^{
+                //延长weakSelf的生命周期,其实就是在Block内延长,直到Block用完之后再销毁
+                __strong typeof(weakSelf) strongSelf = weakSelf;
+                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                    NSLog(@"我的名字是:%@",strongSelf.name);
+                });
+            };
+            self.block();
+        }
+#### 2. 使用__block方式,并且在不需要引用对象的时候,主动置nil,来解决循环引用
+        - (void)viewDidLoad {
+            [super viewDidLoad];
+            
+            self.name = @"张三";
+            //用一个临时变量vc来持有self,当不需要使用时,主动将临时变量置为nil
+            __block WGMainObjcVC *vc = self;
+            self.block = ^{
+                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                    NSLog(@"我的名字是:%@",vc.name);
+                    //切记一定要置nil,
+                    //vc = nil;
+                });
+            };
+            self.block();
+        }
+#### 3 将引用变量/对象作为参数传递给Block来解决循环引用,主要就是作用域之间的通讯
+        // Block起别名,将引用的对象类型作为参数传递给Block
+        typedef void (^WGCustomBlock)(WGMainObjcVC *);
+        @interface WGMainObjcVC()
+        @property(nonatomic, strong) NSString *name;
+        @property(nonatomic, copy) WGCustomBlock block;
+        @end
+
+        @implementation WGMainObjcVC
+        - (void)viewDidLoad {
+            [super viewDidLoad];
+            self.name = @"张三";
+            self.block = ^(WGMainObjcVC *vc) {
+                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                    NSLog(@"我的名字是:%@",vc.name);
+                });
+            };
+            //将self当做参数传递给Block
+            self.block(self);
+        }
+        @end
