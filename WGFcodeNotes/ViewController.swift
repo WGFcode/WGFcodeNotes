@@ -8,11 +8,36 @@
 
 import UIKit
 
+
+//协议可选方式一
+@objc protocol WGCustom {
+    func eat()
+    func sleep()
+    @objc optional func playBackketbool()
+}
+// 协议可选方式二
+protocol WGCustom1 {
+    func eat()
+    func sleep()
+    func playBackketbool()
+}
+//通过扩展
+extension WGCustom1 {
+    func playBackketbool() {
+    }
+}
+
+
+
+
 class ViewController: UIViewController {
+
+    //UITableViewDelegate , UITableViewDataSource,
+
+
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         
     }
 }

@@ -22,8 +22,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             self.window = UIWindow.init(frame: UIScreen.main.bounds)
 //            self.window?.rootViewController = WGMainVC()
 //            self.window?.rootViewController = WGMainObjcVC()
-            self.window?.rootViewController = UINavigationController.init(rootViewController: WGFirstVC())
-//            self.window?.rootViewController = UINavigationController(rootViewController: WGMainObjcVC())
+//            self.window?.rootViewController = UINavigationController.init(rootViewController: WGFirstVC())
+//            self.window?.rootViewController = UINavigationController.init(rootViewController: ViewController())
+            self.window?.rootViewController = UINavigationController(rootViewController: WGMainObjcVC())
             self.window?.makeKeyAndVisible()
         }
         return true
