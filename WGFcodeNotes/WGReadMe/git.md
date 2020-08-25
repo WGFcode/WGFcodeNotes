@@ -175,3 +175,28 @@
       然后使用 进行强制更新到远程仓库就行了
       git push origin master --force
       
+    
+### 3. master主分支可能因为某些原因导致版本太低，需要将分支A作为新的master分支，那么就需要将master的本地和远程仓库中master都删除，然后再切换到新创建的master分支，再推送到远程仓库即可
+        1.git checkout A        删除master分支前要先切换到分支A上
+        2. git branch -D master  删除本地的master分支（如果用-d会提示删除不成功，需要-D来强制删除）
+        3. git push origin -d master  //删除远程仓库的master分支，这里会报错
+            error: src refspec master does not match any
+            error: failed to push some refs to 'http://192.168.1.242/iOS/default/WLK.git'
+        4.原因是我们使用GitLab代码管理默认的保护分支是master分支，所以需要更改GitLab的设置，具体如下。
+            选择远程仓库 -> 最左边Setting -> Repository -> Default Branch ->选择指定的分支为master分支
+        继续 git push origin -d master 
+        报错：remote: GitLab: You can only delete protected branches using the web interface.
+            To http://192.168.1.242/iOS/default/WLK.git
+            ! [remote rejected] master (pre-receive hook declined)
+            error: failed to push some refs to 'http://192.168.1.242/iOS/default/WLK.git'
+        原因：master分支是受保护的分支，所以需要在 Setting -> Repository -> Protected Branches中设置不受保护,同时也可以设置操作的权限Maintainers/Developers
+        
+        继续 git push origin -d master 
+            To http://192.168.1.242/iOS/default/WLK.git
+            - [deleted]         master
+        删除成功
+        5.在本地创建新的分支并取名为master分支
+        git checkout -b master   在本地创建master分支并切换到master分支
+        6. 将本地master分支推送到远程仓库
+        git push origin master:master
+        6.在GitLab中继续将master分支作为受保护的分支和默认的主分支即可
