@@ -21,7 +21,6 @@
 @property(nonatomic, strong) NSString *name0;
 @property(atomic, strong) NSString *name1;
 @property(nonatomic, copy) NSString *name2;
-//@property(nonatomic, weak) NSString *name3;
 @property(nonatomic, assign) int nameAge;
 
 @end

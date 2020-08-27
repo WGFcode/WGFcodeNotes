@@ -12,10 +12,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface Person : NSObject
 
-@property(nonatomic, strong) NSString *name;
--(void)eat;
--(void)sleep;
-
++(instancetype)shareInstance;
++(void)cleanInstance;
 @end
 
 NS_ASSUME_NONNULL_END
