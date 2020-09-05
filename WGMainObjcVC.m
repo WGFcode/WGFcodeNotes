@@ -7,31 +7,20 @@
 //
 
 #import "WGMainObjcVC.h"
-#import "BinaryTree.h"
 #import <UIKit/UIKit.h>
-#import "WGFirstVC.h"
 #import "Person.h"
-#import "Person+PersonCategory.h"
-
 
 @interface WGMainObjcVC()
-{
-    NSString *name4;
-}
-@property(nonatomic, strong) NSString *name0;
-@property(atomic, strong) NSString *name1;
-@property(nonatomic, copy) NSString *name2;
-@property(nonatomic, assign) int nameAge;
 
 @end
 
 @implementation WGMainObjcVC
 - (void)viewDidLoad {
     [super viewDidLoad];
+    
+    Person *p = [[Person alloc]init];
+    p.name = @"zhangsan";
 }
-
-
-
 @end
 
 

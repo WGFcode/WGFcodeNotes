@@ -58,7 +58,7 @@
 		548F332024F15E8F00AB3540 /* Memory.md in Resources */ = {isa = PBXBuildFile; fileRef = 548F331F24F15E8F00AB3540 /* Memory.md */; };
 		548F332224F2B12C00AB3540 /* 分类扩展.md in Resources */ = {isa = PBXBuildFile; fileRef = 548F332124F2B12C00AB3540 /* 分类扩展.md */; };
 		548F332424F2B13E00AB3540 /* 属性修饰符.md in Resources */ = {isa = PBXBuildFile; fileRef = 548F332324F2B13E00AB3540 /* 属性修饰符.md */; };
-		548F332B24F2B87300AB3540 /* Person.m in Sources */ = {isa = PBXBuildFile; fileRef = 548F332A24F2B87300AB3540 /* Person.m */; };
+		548F332B24F2B87300AB3540 /* Person.m in Sources */ = {isa = PBXBuildFile; fileRef = 548F332A24F2B87300AB3540 /* Person.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		548F332E24F2B8D100AB3540 /* Person+PersonCategory.m in Sources */ = {isa = PBXBuildFile; fileRef = 548F332D24F2B8D100AB3540 /* Person+PersonCategory.m */; };
 /* End PBXBuildFile section */
 
