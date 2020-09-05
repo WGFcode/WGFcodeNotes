@@ -28,7 +28,12 @@
 @implementation WGMainObjcVC
 - (void)viewDidLoad {
     [super viewDidLoad];
+    Person *p = [[Person alloc]init];
+    NSLog(@"p对象的父类%@-----p对象的class:%@----Person的父类:%@----Person的class:%@", [p superclass], [p class], [Person superclass], [Person class]);
+    NSLog(@"%@-----%@", [NSObject superclass], [NSObject class]);
 }
+
+
 
 
 

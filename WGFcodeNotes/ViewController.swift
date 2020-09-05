@@ -32,13 +32,22 @@ extension WGCustom1 {
 
 class ViewController: UIViewController {
 
-    //UITableViewDelegate , UITableViewDataSource,
-
-
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        let total = testSum(num: 100000)
+        NSLog("-----%ld", total)
+    }
+    
+    func testSum(num: Int) -> Int {
+        func sumInternal(n: Int, current: Int) -> Int {
+            if n == 0 {
+                return current
+            }else {
+                return sumInternal(n: n, current: current+n)
+            }
+        }
+        return sumInternal(n: num, current: 0)
     }
 }
 

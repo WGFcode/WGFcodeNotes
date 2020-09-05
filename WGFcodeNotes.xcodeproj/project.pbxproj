@@ -60,6 +60,7 @@
 		548F332424F2B13E00AB3540 /* 属性修饰符.md in Resources */ = {isa = PBXBuildFile; fileRef = 548F332324F2B13E00AB3540 /* 属性修饰符.md */; };
 		548F332B24F2B87300AB3540 /* Person.m in Sources */ = {isa = PBXBuildFile; fileRef = 548F332A24F2B87300AB3540 /* Person.m */; };
 		548F332E24F2B8D100AB3540 /* Person+PersonCategory.m in Sources */ = {isa = PBXBuildFile; fileRef = 548F332D24F2B8D100AB3540 /* Person+PersonCategory.m */; };
+		54CBAE2824FFE4E500AEA0E5 /* iOS内存分区.md in Resources */ = {isa = PBXBuildFile; fileRef = 54CBAE2724FFE4E500AEA0E5 /* iOS内存分区.md */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -150,6 +151,7 @@
 		548F332A24F2B87300AB3540 /* Person.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Person.m; sourceTree = "<group>"; };
 		548F332C24F2B8D100AB3540 /* Person+PersonCategory.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Person+PersonCategory.h"; sourceTree = "<group>"; };
 		548F332D24F2B8D100AB3540 /* Person+PersonCategory.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Person+PersonCategory.m"; sourceTree = "<group>"; };
+		54CBAE2724FFE4E500AEA0E5 /* iOS内存分区.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "iOS内存分区.md"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -329,6 +331,7 @@
 				548F332124F2B12C00AB3540 /* 分类扩展.md */,
 				548F332324F2B13E00AB3540 /* 属性修饰符.md */,
 				54347D3124F69F1C006EE9F2 /* 数据结构.md */,
+				54CBAE2724FFE4E500AEA0E5 /* iOS内存分区.md */,
 			);
 			path = WGReadMe;
 			sourceTree = "<group>";
@@ -449,6 +452,7 @@
 				548F332224F2B12C00AB3540 /* 分类扩展.md in Resources */,
 				5422AC59244F3E8E000CB747 /* block2.png in Resources */,
 				30C1F2B82431F0C7003B30B3 /* face.md in Resources */,
+				54CBAE2824FFE4E500AEA0E5 /* iOS内存分区.md in Resources */,
 				5463C26424B0115D008F9C9A /* CoreAnimal.md in Resources */,
 				545638D324B36CE5007D5447 /* HTTPTCPUDP.md in Resources */,
 				307A0E7B24456BD3006E5429 /* RunLoop.md in Resources */,
