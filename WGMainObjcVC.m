@@ -21,6 +21,7 @@
     Person *p = [[Person alloc]init];
     p.name = @"zhangsan";
 }
+
 @end
 
 
