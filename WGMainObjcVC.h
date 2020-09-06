@@ -10,8 +10,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class Person;
-
 @interface WGMainObjcVC : UIViewController
 
 
