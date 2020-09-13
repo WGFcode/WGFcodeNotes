@@ -10,5 +10,10 @@
 
 @implementation Person
 
+-(void)eat {
+    NSLog(@"开始吃饭");
+}
 
 @end
+
+

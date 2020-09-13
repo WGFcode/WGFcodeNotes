@@ -4,175 +4,27 @@
 * 内核态:系统调用，牵涉到操作系统，底层内核相关的指令
 * 有消息时，从内核态 -> 用户态; 无消息休眠时，从用户态 -> 内核态
 
-### 1 Runloop与线程的关系
-* 每条线程都有唯一的一个与之对应的RunLoop对象
-* runloop保存在一个全局的Dictionary字典中，线程为key，RunLoop为value
-* 主线程的RunLoop已经自动获取(创建)，子线程的runloop需要主动创建
-* 线程刚创建时并没有RunLoop，如果你不主动获取，那它一直都不会有。RunLoop的创建是发生在第一次获取时，RunLoop 的销毁是发生在线程结束时，你只能在一个线程的内部获取其RunLoop(主线程除外)
-
-### 2.Runloop源码
-#### OSX/iOS系统中提供了两个对象:
-* NSRunLoop: 存在于Foundation框架下，是基于CFRunLoopRef的封装，提供了面向对象的API，但是这些API不是线程安全的
-* CFRunLoopRef: 存在于CoreFoundation框架下，它提供了纯 C 函数的API，所有这些API都是线程安全的。
-#### 这里只引出NSRunLoop相关的API，CFRunLoopRef是C函数的API，有兴趣的可以研究
-        @class NSTimer, NSPort, NSArray<ObjectType>, NSString;
-        FOUNDATION_EXPORT NSRunLoopMode const NSDefaultRunLoopMode;
-        FOUNDATION_EXPORT NSRunLoopMode const NSRunLoopCommonModes;
-         
-        @interface NSRunLoop : NSObject {
-         
-        @property (class, readonly, strong) NSRunLoop *currentRunLoop;  获取当前RunLoop对象
-        @property (class, readonly, strong) NSRunLoop *mainRunLoop;     获取主线程的RunLoop对象
-        @property (nullable, readonly, copy) NSRunLoopMode currentMode; 获取当前RunLoop的运行模式
-        添加一个定时器到runloop循环中，并指定运行模式
-        - (void)addTimer:(NSTimer *)timer forMode:(NSRunLoopMode)mode;
-        添加一个端口到runloop循环中，并指定运行模式
-        - (void)addPort:(NSPort *)aPort forMode:(NSRunLoopMode)mode;
-        从runloop循环中移除一个端口到，并指定运行模式
-        - (void)removePort:(NSPort *)aPort forMode:(NSRunLoopMode)mode;
-
-        - (nullable NSDate *)limitDateForMode:(NSRunLoopMode)mode;
-        - (void)acceptInputForMode:(NSRunLoopMode)mode beforeDate:(NSDate *)limitDate;
-         
-        @end
-
-        @interface NSRunLoop (NSRunLoopConveniences)
-         
-        进入处理runloop的事件循环
-        - (void)run;
-        等待多长时间进入处理runloop的事件循环
-        - (void)runUntilDate:(NSDate *)limitDate;
-        - (BOOL)runMode:(NSRunLoopMode)mode beforeDate:(NSDate *)limitDate;
-        ios(10.0)
-        - (void)performInModes:(NSArray<NSRunLoopMode> *)modes block:(void (^)(void))block;
-        ios(10.0)
-        - (void)performBlock:(void (^)(void))block;
-         
-        @end
-
-        Delayed perform
-        @interface NSObject (NSDelayedPerforming)
-         
-        - (void)performSelector:(SEL)aSelector withObject:(nullable id)anArgument afterDelay:(NSTimeInterval)delay inModes:(NSArray<NSRunLoopMode> *)modes;
-        - (void)performSelector:(SEL)aSelector withObject:(nullable id)anArgument afterDelay:(NSTimeInterval)delay;
-        + (void)cancelPreviousPerformRequestsWithTarget:(id)aTarget selector:(SEL)aSelector object:(nullable id)anArgument;
-        + (void)cancelPreviousPerformRequestsWithTarget:(id)aTarget;
-         
-        @end
-
-        @interface NSRunLoop (NSOrderedPerform)
-         
-        - (void)performSelector:(SEL)aSelector target:(id)target argument:(nullable id)arg order:(NSUInteger)order modes:(NSArray<NSRunLoopMode> *)modes;
-        - (void)cancelPerformSelector:(SEL)aSelector target:(id)target argument:(nullable id)arg;
-        - (void)cancelPerformSelectorsWithTarget:(id)target;
-
-        @end
-### 2.1 线程下的Runloop
-        @implementation WGMainObjcVC
-        - (void)viewDidLoad {
-            [super viewDidLoad];
-            self.view.backgroundColor = [UIColor redColor];
-            NSLog(@"\n当前的线程是:%@\n当前的Runloop对象:%p\n主线程的Runloop对象:%p\n",[NSThread currentThread],[NSRunLoop currentRunLoop],[NSRunLoop mainRunLoop]);
-            
-            NSThread *thread = [[NSThread alloc]initWithTarget:self selector:@selector(change) object:nil];
-            [thread start];
-        }
-        -(void)change {
-            NSLog(@"\n当前的线程是:%@\n当前的Runloop对象:%p\n主线程的Runloop对象:%p\n",[NSThread currentThread],[NSRunLoop currentRunLoop],[NSRunLoop mainRunLoop]);
-        }
-        @end
-        打印结果: 当前的线程是:<NSThread: 0x60000376e140>{number = 1, name = main}
-                当前的Runloop对象:0x6000006702a0
-                主线程的Runloop对象:0x6000006702a0
-                
-                当前的线程是:<NSThread: 0x6000037273c0>{number = 7, name = (null)}
-                当前的Runloop对象:0x600000674660
-                主线程的Runloop对象:0x6000006702a0
-#### 分析，在当前线程即主线程中，currentRunLoop和mainRunLoop获取到的都是主线程下的RunLoop对象；开启子线程后，系统会创建一个和这个子线程相对应的RunLoop对象，当然这里需注意的就是我们必须主动去获取，即调用currentRunLoop方法时系统才开始创建，如果不去主动获取，只创建子线程是不会创建对应的RunLoop对象的，而在这个子线程中我们仍然可以通过mainRunLoop来获取主线程下对应的RunLoop对象
-
-### 2.2 验证：线程中任务执行完成后，线程销毁
-        //.h文件
-        @interface WGThread : NSThread
-        @end
-
-        @interface WGMainObjcVC : UIViewController
-        @end
-
-        //.m文件
-        @implementation WGThread
-        -(void)dealloc {
-            NSLog(@"线程消失了");
-            NSRunLoop *loop = [NSRunLoop currentRunLoop];
-            NSRunLoop *mainLoop = [NSRunLoop mainRunLoop];
-            NSLog(@"当前的RunLoop对象:%p,主线程的RunLoop:%p",[NSRunLoop currentRunLoop],[NSRunLoop mainRunLoop]);
-        }
-        @end
-
-        @implementation WGMainObjcVC
-        - (void)viewDidLoad {
-            [super viewDidLoad];
-            self.view.backgroundColor = [UIColor whiteColor];
-            WGThread *thread = [[WGThread alloc]initWithTarget:self selector:@selector(change) object:nil];
-            [thread start];
-        }
-        -(void)change {
-            NSLog(@"---------10---------");
-            NSLog(@"当前的RunLoop对象:%p,主线程的RunLoop:%p",[NSRunLoop currentRunLoop],[NSRunLoop mainRunLoop]);
-        }
-        @end
-
-        打印结果：---------10---------
-                当前的RunLoop对象:0x6000012c9fe0,主线程的RunLoop:0x6000012d4960
-                线程消失了
-                当前的RunLoop对象:0x8c8c8c8c8c8c8c8c,主线程的RunLoop:0x6000012d4960
-#### 分析: 从打印结果可以看出，当线程中的任务执行完成后，线程就会销毁，同时线程对应的RunLoop对象也会随之销毁(虽然打印的地址是0x8c8c8c8c8c8c8c8c，但如果打印它的对象信息会发现里面什么内容都没有)
+### 1. RunLoop作用
+1. 保证RunLoop所在的线程不退出(保证程序不退出)
+2. 负责监听事件(触摸事件/时钟事件/网络事件等)
 
 
-### 3. RunLoop的运行模式分类
-#### RunLoop的运行有自己的运行模式(model),苹果为我们公开提供了两种运行模式
-* NSDefaultRunLoopMode（kCFRunLoopDefaultMode）
-* NSRunLoopCommonModes（kCFRunLoopCommonModes）
+### 2. RunLoop类型
+#### iOS系统为我们提供了两个RunLoop对象
+1. CFRunLoopRef: Core Foundation框架下,它提供了纯 C 函数的API,是线程安全的
+2. NSRunLoop: Foundation框架下，是基于CFRunLoopRef的封装，它提供了面向对象的API，但NSRunLoop不是线程安全的,苹果文档有警告:只能在当前线程中而不要在多个线程中操作RunLoop
 
-        //.m文件
-        @interface WGMainObjcVC()<UIScrollViewDelegate>
-        @end
 
-        @implementation WGMainObjcVC
-        - (void)viewDidLoad {
-            [super viewDidLoad];
-            self.view.backgroundColor = [UIColor whiteColor];
-            
-            NSLog(@"WGMainObjcVC-viewDidLoad当前的model:---%@",[NSRunLoop currentRunLoop].currentMode);
-            
-            UIScrollView *scrol = [[UIScrollView alloc]initWithFrame:CGRectMake(0, 100, UIScreen.mainScreen.bounds.size.width, 100)];
-            scrol.backgroundColor = [UIColor redColor];
-            scrol.delegate = self;
-            scrol.contentSize = CGSizeMake(UIScreen.mainScreen.bounds.size.width, UIScreen.mainScreen.bounds.size.height *2);
-            [self.view addSubview:scrol];
-        }
-        -(void)scrollViewDidScroll:(UIScrollView *)scrollView {
-            NSLog(@"scrollViewDidScroll当前的model:---%@",[NSRunLoop currentRunLoop].currentMode);
-        }
-        @end
-        
-        打印结果: WGMainObjcVC-viewDidLoad当前的model:---kCFRunLoopDefaultMode
-                scrollViewDidScroll当前的model:---kCFRunLoopDefaultMode
-                scrollViewDidScroll当前的model:---UITrackingRunLoopMode
-                scrollViewDidScroll当前的model:---UITrackingRunLoopMode
-                ...
-#### 可以发现在主线程中正常情况下，RunLoop的运行模式是kCFRunLoopDefaultMode，当有UIScrollView滚动的时候，运行模式是UITrackingRunLoopMode,所以除了苹果公开提供的两种运行模式外，我们能证明存在的还有UITrackingRunLoopMode运行模式。
-    
-#### 其实Runloop实际的运行模式有下列五种
+### 3. RunLoop包含5种运行模式
+#### 准确说应该包含四种运行模式,因其中一模式在iOS9时被废弃了,实际开发中会用到的就是前三种运行模式
+1. NSDefaultRunLoopMode/kCFRunLoopDefaultMode: 默认的运行模式,一般用来处理Timer/网络等事件
+2. UITrackingRunLoopMode: UI事件(触摸/滚动)下运行模式;专门处理UI事件
+5. NSRunLoopCommonModes/kCFRunLoopCommonModes: 占位模式(默认模式&UI模式)
+3. NSConnectionReplyMode: 该模式用来监控NSConnection对象,**很少用**(iOS9.0已经废弃NSConnection了，由NSURLSession替代,所以该模式也被苹果废弃了)  
+4. NSModalPanelRunLoopMode: 等待诸如NSSavePanel或NSOpenPanel之类的模式面板的输入时，**很少用**
 
-* kCFRunLoopDefaultMode：App的默认Mode，通常主线程是在这个Mode下运行
-* UITrackingRunLoopMode：界面跟踪Mode，用于ScrollView追踪触摸滑动，保证界面滑动时不受其他Mode影响
-* UIInitializationRunLoopMode：在刚启动App时第进入的第一个Mode，启动完成后就不再使用
-* GSEventReceiveRunLoopMode：接受系统事件的内部Mode，通常用不到
-* kCFRunLoopCommonModes：这是一个占位用的Mode，不是一种真正的Mode
-
-##### 注意 NSDefaultRunLoopMode是NSRunLoop中的叫法，对应的是CFRunLoopRef中的kCFRunLoopDefaultMode，NSRunLoopCommonModes是NSRunLoop中的叫法，对应的是CFRunLoopRef中的kCFRunLoopCommonModes
-### 3.1 运行模式RunLoopMode源码
-#### 通过CFRunLoopRef的源码我们发现每个运行模式model都包含下列内容
+### 4. RunLoop运行模式包含内容
+#### 通过RunLoop源码中CFRunLoop.c文件中发现RunLoop的每一种运行模式都包含如下内容,一个Runloop对象包含若干个mode，每个mode又包含若干个sources0/sources1/observers/timers；当启动一个Runloop时会先指定一个model作为currentMode，然后检查这个指定的mode是否存在以及mode中是否含有Source和Timer，如果mode不存在或者Mode中无Source和Timer，认为该Mode是个空的Mode,RunLoop就直接退出, RunLoop同一时间只能在一种运行模式下处理事件
         typedef struct __CFRunLoopMode *CFRunLoopModeRef;
         struct __CFRunLoopMode {
             pthread_mutex_t _lock;          互斥锁,来使多个线程保持同步
@@ -185,7 +37,8 @@
             __CFPortSet _portSet;
             ...
         }
-        
+### 5. RunLoop状态
+#### 我们知道RunLoop中的每个mode里面都包含Sources/Timers/Observers, Sources是输入事件,Timers不是一个输入事件而是一个定时事件,那么Observers是什么?其实Observers主要就是用来监听RunLoop在当前运行模式mode下的运行状态
         CFRunLoopObserverRef这是一个观察者，主要用途就是监听RunLoop的状态变化
         /* Run Loop Observer Activities */
         typedef CF_OPTIONS(CFOptionFlags, CFRunLoopActivity) {
@@ -197,9 +50,468 @@
             kCFRunLoopExit = (1UL << 7),                 即将推出RunLoop
             kCFRunLoopAllActivities = 0x0FFFFFFFU
         };
-#### 分析：一个Runloop对象包含若干个mode，每个mode又包含若干个sources0/sources1/observers/timers；当启动一个Runloop时会先指定一个model作为currentMode，然后检查这个指定的mode是否存在以及mode中是否含有Source和Timer，如果mode不存在或者Mode中无Source和Timer，认为该Mode是个空的Mode,RunLoop就直接退出
+        
+### 6. Runloop与线程的关系
+* 每条线程都有唯一的一个与之对应的RunLoop对象
+* Runloop保存在一个全局的Dictionary字典中，线程为key，RunLoop为value
+* 主线程的RunLoop已经自动创建并开启，子线程的Runloop并没有创建,我们也无法创建,需要的时候直接去获取(获取的过程中系统才会创建),如果我们不主动获取,那么子线程的RunLoop一直都不会有,子线程中RunLoop的创建是发生在第一次获取时
+* RunLoop 的销毁是发生在子线程结束时，你只能在一个线程的内部获取其RunLoop; 而主线程的RunLoop是不会销毁的,默认创建并开启了
+
+### 7. NSRunLoop 源码
+    @class NSTimer, NSPort, NSArray<ObjectType>, NSString;
+    FOUNDATION_EXPORT NSRunLoopMode const NSDefaultRunLoopMode;
+    FOUNDATION_EXPORT NSRunLoopMode const NSRunLoopCommonModes;
+     
+    @interface NSRunLoop : NSObject {
+        @property (class, readonly, strong) NSRunLoop *currentRunLoop;  获取当前RunLoop对象
+        @property (class, readonly, strong) NSRunLoop *mainRunLoop;     获取主线程的RunLoop对象
+        @property (nullable, readonly, copy) NSRunLoopMode currentMode; 获取当前RunLoop的运行模式
+        添加一个定时器到runloop循环中，并指定运行模式
+        - (void)addTimer:(NSTimer *)timer forMode:(NSRunLoopMode)mode;
+        添加一个端口到runloop循环中，并指定运行模式
+        - (void)addPort:(NSPort *)aPort forMode:(NSRunLoopMode)mode;
+        从runloop循环中移除一个端口到，并指定运行模式
+        - (void)removePort:(NSPort *)aPort forMode:(NSRunLoopMode)mode;
+
+        - (nullable NSDate *)limitDateForMode:(NSRunLoopMode)mode;
+        - (void)acceptInputForMode:(NSRunLoopMode)mode beforeDate:(NSDate *)limitDate;
+    @end
+
+    @interface NSRunLoop (NSRunLoopConveniences)
+        进入处理runloop的事件循环
+        - (void)run;
+        等待多长时间进入处理runloop的事件循环
+        - (void)runUntilDate:(NSDate *)limitDate;
+        - (BOOL)runMode:(NSRunLoopMode)mode beforeDate:(NSDate *)limitDate;
+        ios(10.0)
+        - (void)performInModes:(NSArray<NSRunLoopMode> *)modes block:(void (^)(void))block;
+        ios(10.0)
+        - (void)performBlock:(void (^)(void))block;
+    @end
+
+        Delayed perform
+    @interface NSObject (NSDelayedPerforming)
+        - (void)performSelector:(SEL)aSelector withObject:(nullable id)anArgument afterDelay:(NSTimeInterval)delay inModes:(NSArray<NSRunLoopMode> *)modes;
+        - (void)performSelector:(SEL)aSelector withObject:(nullable id)anArgument afterDelay:(NSTimeInterval)delay;
+        + (void)cancelPreviousPerformRequestsWithTarget:(id)aTarget selector:(SEL)aSelector object:(nullable id)anArgument;
+        + (void)cancelPreviousPerformRequestsWithTarget:(id)aTarget;
+    @end
+
+    @interface NSRunLoop (NSOrderedPerform)
+        - (void)performSelector:(SEL)aSelector target:(id)target argument:(nullable id)arg order:(NSUInteger)order modes:(NSArray<NSRunLoopMode> *)modes;
+        - (void)cancelPerformSelector:(SEL)aSelector target:(id)target argument:(nullable id)arg;
+        - (void)cancelPerformSelectorsWithTarget:(id)target;
+    @end
+    
+   
+### 8. NSTimer
+#### 8.1 NSTimer基本使用
+#### NSTimer是完成依赖RunLoop的,如果没有RunLoop,NSTimer是无法工作的,基本工作流程:创建NSTimer->将其添加到RunLoop中
+        - (void)viewDidLoad {
+            [super viewDidLoad];
+            self.view.backgroundColor = [UIColor redColor];
+            //1. 创建timer
+            NSTimer *timer = [NSTimer timerWithTimeInterval:2.0 target:self selector:@selector(timerChange) userInfo:nil repeats:YES];
+            //2. 将timer添加到当前RunLoop(主线程)中, 如果不添加到NSRunLoop中,NSTimer是无法工作的
+            [[NSRunLoop currentRunLoop] addTimer:timer forMode: NSDefaultRunLoopMode];
+            
+            // 3.添加到UITrackingRunLoopMode运行模式下  NSTimer无效
+            //[[NSRunLoop currentRunLoop] addTimer:timer forMode:UITrackingRunLoopMode];
+            // 4. 添加到NSRunLoopCommonModes运行模式下  NSTimer有效
+            //[[NSRunLoop currentRunLoop] addTimer:timer forMode:NSRunLoopCommonModes];
+        }
+
+        -(void)timerChange {
+            NSLog(@"timer来了");
+        }
+##### 上面NSTimer方法中userInfo参数表示可以给NSTimer传递参数,但是这个参数需要通过NSTimer对象来获取,算个小小的知识点. 
+#### 从上面可以发现NSTimer只能运行在NSDefaultRunLoopMode默认模式和NSRunLoopCommonModes占位(UI&默认)模式这两种模式下,这里就解释了我们在项目中经常遇到的问题: 滚动视图时我们的NSTimer会无效,原因就是当滚动视图时触发的是RunLoop下的UITrackingRunLoopMode(UI模式),也就是说滚动视图时,RunLoop从默认模式NSDefaultRunLoopMode跳到UI模式UITrackingRunLoopMode下去执行了,而RunLoop同一时间只能在一个模式下运行,所以就导致了NSTimer的实效,解决办法就是在创建完NSTimer后将其添加到NSRunLoopCommonModes占位模式下
+
+#### 我们知道UITrackingRunLoopMode(UI模式)下不仅会处理滚动视图事件也会处理触摸事件,所以点击事件同样也是在该模式下被处理的,所以我们应该可以发现一点有UI事件,RunLoop的运行模式就会马上从默认模式下切换到UI模式下进行处理,所以我们得到结论: UITrackingRunLoopMode(UI模式)处理事件的优先级比NSDefaultRunLoopMode(默认模式)要高
+
+
+#### 8.2 GCD下的NSTimer
+#### GCD多线程操作中是存在RunLoop的,只是我们平时操作GCD很少涉及到RunLoop,只是GCD将RunLoop进行了封装
+
+        @interface WGRunLoopVC ()
+        @property(nonatomic, strong) dispatch_source_t timer;
+        @end
+
+        @implementation WGRunLoopVC
+
+        - (void)viewDidLoad {
+            [super viewDidLoad];
+            self.view.backgroundColor = [UIColor redColor];
+            
+            self.timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, dispatch_get_global_queue(0, 0));
+            //设置定时器各种属性  参数: 定时器 开始时间 时间间隔
+            dispatch_source_set_timer(self.timer, DISPATCH_TIME_NOW, 1.0 * NSEC_PER_SEC , 0);
+            // 设置Timer的回调
+            dispatch_source_set_event_handler(self.timer, ^{
+                NSLog(@"当前的线程:%@",[NSThread currentThread]);
+            });
+            //启动Timer
+            dispatch_resume(self.timer);
+            
+        }
+
+        -(void)timerChange{
+            NSLog(@"timer来了");
+        }
+        
+        打印结果:  当前的线程:<NSThread: 0x60000180fe00>{number = 4, name = (null)}
+                 当前的线程:<NSThread: 0x60000180fe00>{number = 4, name = (null)}
+                 当前的线程:<NSThread: 0x60000180fe00>{number = 4, name = (null)}
+                 ...
+#### 在GCD的子线程中添加Timer是不需要去触碰RunLoop的,因为GCD中已经封装了RunLoop了,所以不需要我们去将Timer再添加到RunLoop中了. 扩展问题: 如果有人说iOS下Timer必须手动添加到RunLoop中才能有效,这句话是不准确的,因为在GCD中添加Timer是不需要添加的,GCD内部已经封装好了RunLoop
+
+#### 8.3 NSTimer导致的循环引用问题
+        //WGRunLoopVC.m文件
+        @interface WGRunLoopVC ()
+        @property(nonatomic, strong) NSTimer *timer;
+        @property(nonatomic, strong) NSString *name;
+        @end
+
+        @implementation WGRunLoopVC
+
+        - (void)viewDidLoad {
+            [super viewDidLoad];
+            self.name = @"zhang san";
+            self.view.backgroundColor = [UIColor redColor];
+            //1. 创建NSTimer 2.自动添加到RunLoop中 3.会导致循环引用问题
+            //scheduledTimerWithTimeInterval方式默认已经添加到RunLoop中了
+            self.timer = [NSTimer scheduledTimerWithTimeInterval:0.1 target:self selector:@selector(timerChange) userInfo:nil repeats:YES];
+        }
+
+        -(void)timerChange{
+            NSLog(@"timer来了,名字是: %@", self.name);
+        }
+
+        -(void)dealloc {
+            NSLog(@"WGRunLoopVC页面销毁了");
+        }
+#### 当我们进入WGRunLoopVC这个页面时, 定时器任务开始执行,但是当我们返回这个页面时, dealloc方法并没有执行并且定时器任务也在一直执行并没有停止, 为什么? 因为NSTimer循环引用问题(NSTimer & self之间的循环引用),接下来我们来解决NSTimer导致的循环引用问题, 关键就在于打破这个循环引用
+
+#### NSTimer循环引用解决方式一:  
+#### 前提条件: 在合适的时机先关闭NSTimer并置为nil, 然后再返回页面, **不完美的解决方案**
+        // 这里我们以touchesBegan/viewWillDisappear为例来 模拟合适时机
+        - (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+            [self.timer invalidate];
+            self.timer = nil;
+        }
+        
+        -(void)viewWillDisappear:(BOOL)animated {
+            [super viewWillDisappear:animated];
+            [self.timer invalidate];
+            self.timer = nil;
+        }
+#### 需要注意的就是 NSTImer的invalidate方法和置nil,写在页面的dealloc方法中也是无用的, 必须写在dealloc方法前才有效果
+    
+#### NSTimer循环引用解决方式二:  
+#### 前提条件: 利用NSTimer初始化的Block方法来解决循环引用, 在Block中通过__weak+__strong来打破循环引用,  这种方式和方式一基本一致, **不完美的解决方案**
+        __weak typeof(self) weakSelf = self;
+        self.timer = [NSTimer scheduledTimerWithTimeInterval:0.1 repeats:YES block:^(NSTimer * _Nonnull timer) {
+            NSLog(@"timer来了,名字是: %@", weakSelf.name);
+        }];
+        
+        // 这里我们以touchesBegan/viewWillDisappear为例来 模拟合适时机
+        - (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+            [self.timer invalidate];
+            self.timer = nil;
+        }
+        
+        -(void)viewWillDisappear:(BOOL)animated {
+            [super viewWillDisappear:animated];
+            [self.timer invalidate];
+            self.timer = nil;
+        }
+
+
+#### NSTimer循环引用解决方式三:  
+#### 前提条件: 利用RunTime进行方法交换来打破循环引用, 就是利用中间者来进行方法交换处理, 从而不让NSTimer来引用self
+    //利用RunTimer添加方法需要导入头文件
+    #import <objc/message.h>
+
+    @interface WGRunLoopVC ()
+    @property(nonatomic, strong) NSTimer *timer;
+    @property(nonatomic, strong) id target;
+    @property(nonatomic, strong) NSString *name;
+    @end
+
+    @implementation WGRunLoopVC
+
+    - (void)viewDidLoad {
+        [super viewDidLoad];
+        self.view.backgroundColor = [UIColor redColor];
+        self.name = @"zhang san";
+        //1. 初始化中间者
+        _target = [[NSObject alloc]init];
+        //此时的_target并不具备处理消息(timerChange)的能力,所以我们需要通过RunTime为_target添加处理消息的能力
+        /*
+         给当前的类[NSObject class]添加方法
+         添加方法编号: 其实就是方法名称
+         添加方法的IMP地址: 因为_target对象内部没有timerChange方法,所以这里的方法地址用的就是当前对象self中的方法timerChange地址,然后把这个地址交给_target对象
+         */
+        class_addMethod([NSObject class], @selector(timerChange), class_getMethodImplementation([self class], @selector(timerChange)), "v@:");
+        // 如果只添加方法是不行的,因为定时器任务中有打印self.name,但是_target对象底层是结构体,它的内部并没有name这个属性,所以程序运行会crash,那么我们就需要再动态添加_target对象的name属性
+        //class_addIvar([NSObject class], [@"name" UTF8String], sizeof(id), log2(sizeof(id)), "@");
+        self.timer = [NSTimer scheduledTimerWithTimeInterval:0.1 target:_target selector:@selector(timerChange) userInfo:nil repeats:YES];
+    }
+
+    -(void)timerChange{
+        NSLog(@"timer来了,名字是:");
+    }
+
+    -(void)dealloc {
+        NSLog(@"WGRunLoopVC页面销毁了");
+        [self.timer invalidate];
+        self.timer = nil;
+    }
+#### 进入页面,定时器任务开始执行, 返回页面dealloc方法也被调用了, 这种方式是提供了一种打破循环引用的思考方式,但是在真实项目中,我们不会去写太多类似class_addMethod/class_addIvar这些C语言的方法,太麻烦了
+
+#### NSTimer循环引用解决方式四: **终极方案**
+#### 利用NSProxy类来进行消息的转发,这个类的作用就是消息转发,
+        // 自定义WGProxy类继承自NSProxy 
+        //WGProxy.h文件
+        /// NSProxy消息转发的基类
+        @interface WGProxy : NSProxy
+        @property(nonatomic, weak) id target;
+        @end
+        
+        //WGProxy.h文件
+        @implementation WGProxy
+        //作用就是 消息转发
+        -(void)forwardInvocation:(NSInvocation *)invocation {
+            [invocation invokeWithTarget:self.target];
+        }
+        -(NSMethodSignature *)methodSignatureForSelector:(SEL)sel {
+            return [self.target methodSignatureForSelector:sel];
+        }
+        @end
+
+        // 在WGRunLoopVC文件中引入WGProxy头文件
+        #import "WGProxy.h"
+        //WGRunLoopVC.m文件
+        @interface WGRunLoopVC ()
+        @property(nonatomic, strong) NSTimer *timer;
+        @property(nonatomic, strong) WGProxy *proxy;
+        @property(nonatomic, strong) NSString *name;
+        @end
+
+        @implementation WGRunLoopVC
+        - (void)viewDidLoad {
+            [super viewDidLoad];
+            self.view.backgroundColor = [UIColor redColor];
+            self.name = @"zhang san";
+            // 1. 实例化WGProxy,注意它只有alloc方法没有init方法
+            self.proxy = [WGProxy alloc];
+            // 2. 将self设置为proxy对象的target(类似代理)
+            self.proxy.target = self;
+            // 3. 将NSTimer的target设置为proxy对象
+            self.timer = [NSTimer scheduledTimerWithTimeInterval:0.1 target:self.proxy selector:@selector(timerChange) userInfo:nil repeats:YES];
+        }
+
+        -(void)timerChange{
+            NSLog(@"timer来了,名字是: %@", self.name);
+        }
+
+        -(void)dealloc {
+            NSLog(@"WGRunLoopVC页面销毁了");
+            [self.timer invalidate];
+            self.timer = nil;
+        }
+#### 当进入页面时,定时器任务开始执行,当页面返回时,dealloc方法会被调用,完美解决了NSTimer的循环引用的问题, 对于资深开发者强烈建议使用该方式来解决NSTimer的循环引用问题
+
+
+
+
+
+
+
+
+
+### 9. Source: 事件源
+#### 从GCD中的Timer案例中,我们知道Timer可以包装成一个Source, 按照函数调用栈可以分为两类
+1. Source0: 非Source1就是Source0
+2. Source1: 系统内核事件/基于NSPort端口的事件
+
+
+
+### 10. 线程中的RunLoop
+        - (void)viewDidLoad {
+            [super viewDidLoad];
+            self.view.backgroundColor = [UIColor redColor];
+            //1. 创建子线程
+            NSThread *thread = [[NSThread alloc]initWithBlock:^{
+                //2. 在子线程中添加NSTimer并将其添加到NSRunLoop中
+                NSTimer *timer = [NSTimer timerWithTimeInterval:2.0 target:self selector:@selector(timerChange) userInfo:nil repeats:YES];
+                [[NSRunLoop currentRunLoop] addTimer:timer forMode:NSRunLoopCommonModes];
+                //3. 打印当前线程
+                NSLog(@"当前线程是:%@",[NSThread currentThread]);
+            }];
+            [thread start];
+        }
+
+        -(void)timerChange{
+            NSLog(@"timer来了");
+        }
+        
+        打印结果: 当前线程是:<NSThread: 0x600001f6a180>{number = 6, name = (null)}
+#### 从打印结果可以看出, NSTimer中的事件(timerChange)并没有被执行,为什么? 因为在执行完子线程的任务后,子线程thread已经被销毁了, 接下来我们来验证这个
+        // 1. 自定义继承自NSThread的类
+        @interface WGThread : NSThread
+
+        @end
+
+        @implementation WGThread
+        -(void)dealloc {
+            NSLog(@"线程WGThread已经销毁了");
+        }
+        @end
+        
+        - (void)viewDidLoad {
+            [super viewDidLoad];
+            self.view.backgroundColor = [UIColor redColor];
+            //1. 创建子线程
+            WGThread *thread = [[WGThread alloc]initWithBlock:^{
+                //2. 在子线程中添加NSTimer并将其添加到NSRunLoop中
+                NSTimer *timer = [NSTimer timerWithTimeInterval:2.0 target:self selector:@selector(timerChange) userInfo:nil repeats:YES];
+                [[NSRunLoop currentRunLoop] addTimer:timer forMode:NSRunLoopCommonModes];
+                NSLog(@"当前线程是:%@",[NSThread currentThread]);
+            }];
+            [thread start];
+        }
+
+        -(void)timerChange{
+            NSLog(@"timer来了");
+        }
+        
+        打印结果: 当前线程是:<WGThread: 0x600002dda3c0>{number = 5, name = (null)}
+                线程WGThread已经销毁了
+#### 从打印结果看可以验证我们上面的结论: 在子线程中添加NSTimer并添加到NSRunloop中, NSTimer事件是无效的,原因就是子线程销毁了, 那么随着子线程的销毁子线程中的RunLoop也销毁了,所以NSTimer事件无效
+
+#### 那么我们如何保证子线程不会被销毁? 首先想到的就是将子线程作为属性来强引用它,接下来我们来验证
+        @interface WGRunLoopVC ()
+        @property(nonatomic, strong) WGThread *thread;
+        @end
+
+        @implementation WGRunLoopVC
+
+        - (void)viewDidLoad {
+            [super viewDidLoad];
+            self.view.backgroundColor = [UIColor redColor];
+            //1. 创建子线程
+            self.thread = [[WGThread alloc]initWithBlock:^{
+                //2. 在子线程中添加NSTimer并将其添加到NSRunLoop中
+                NSTimer *timer = [NSTimer timerWithTimeInterval:2.0 target:self selector:@selector(timerChange) userInfo:nil repeats:YES];
+                [[NSRunLoop currentRunLoop] addTimer:timer forMode:NSRunLoopCommonModes];
+                NSLog(@"当前线程是:%@",[NSThread currentThread]);
+            }];
+            [self.thread start];
+        }
+
+        -(void)timerChange{
+            NSLog(@"timer来了");
+        }
+        
+        打印结果: 当前线程是:<WGThread: 0x600002d8ea80>{number = 7, name = (null)}
+#### 从打印结果上看出, “线程WGThread已经销毁了”这个消息并没有打印,说明我们的子线程并没有销毁,但是,但是,但是,子线程没有销毁为什么NSTimer事件还是无效哪? 接下来借用上面的demo,我们继续验证,既然线程没有销毁,那么我们可以继续用这个子线程
+        // 在点击屏幕时,我们继续去启动这个子线程去执行任务
+        - (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+            NSLog(@"子线程地址:%@",self.thread);
+            [self.thread start];
+        }
+        
+        打印结果:  子线程地址:<WGThread: 0x6000038aef80>{number = 5, name = main}
+                  接着程序crash了,报错信息:Terminating app due to uncaught exception 'NSInvalidArgumentException', reason: '*** -[WGThread start]: attempt to start the thread again'
+#### 通过上面分析得出: 我们强引用子线程作为属性, 只能保证这个子线程对象在内存当中(我们打印出WGThread对象的内存地址了), 但是对线程来说, 线程是通过CPU调度的, 实际上这个线程已经无效不能再为我们服务了, 所以我们得出结论: 通过强引用子线程作为属性, 也不能保证子线程有效工作(虽然子线程没有被销毁,但是子线程已经无效不能再工作了), 所以强引用子线程属性来保住子线程的命是毫无意义的
+
+### 究竟怎么才能保证线程不销毁并且有效工作哪? 
+#### 即保证线程的命, 只有唯一的一个方法: 即子线程中的任务没有执行完成
+
+        - (void)viewDidLoad {
+            [super viewDidLoad];
+            self.view.backgroundColor = [UIColor redColor];
+            //1. 创建子线程
+            WGThread *thread = [[WGThread alloc]initWithBlock:^{
+                //2. 在子线程中添加NSTimer并将其添加到NSRunLoop中
+                NSTimer *timer = [NSTimer timerWithTimeInterval:2.0 target:self selector:@selector(timerChange) userInfo:nil repeats:YES];
+                [[NSRunLoop currentRunLoop] addTimer:timer forMode:NSRunLoopCommonModes];
+                //3. 保住线程的命: 开启RunLoop循环,让它一直跑起来
+                [[NSRunLoop currentRunLoop] run];
+                //4 注意注意注意:下面的打印是不会被执行的,为什么? 因为RunLoop开启后是死循环,一直在处理循环里面的事件
+                NSLog(@"当前线程是: %@", [NSThread currentThread]);
+            }];
+            [thread start];
+        }
+
+        -(void)timerChange{
+            NSLog(@"timer来了");
+        }
+        
+        打印结果: timer来了
+                timer来了
+                 ...
+#### 结论: 想保住子线程的命,唯一的方法就是开启RunLoop进入死循环,这样子线程中就一直有任务,  所以线程也不会销毁并可以正常工作, 同时验证了即使这个页面被push/pop/presend/dismiss,这个子线程都不会销毁, 即子线程中的NSTimer事件会一直在执行
+
+### 上面我们通过开启RunLoop来让子线程中一直有任务,这样子线程就不会被销毁了,但是如果我们想释放掉这个子线程该怎么做哪?
+    //.m文件
+    @interface WGRunLoopVC ()
+    @property(nonatomic, assign) Boolean finish;  //声明个变量来控制进出死循环
+    @end
+
+    @implementation WGRunLoopVC
+
+    - (void)viewDidLoad {
+        [super viewDidLoad];
+        self.finish = NO;
+        self.view.backgroundColor = [UIColor redColor];
+        //1. 创建子线程
+        WGThread *thread = [[WGThread alloc]initWithBlock:^{
+            //2. 在子线程中添加NSTimer并将其添加到NSRunLoop中
+            NSTimer *timer = [NSTimer timerWithTimeInterval:2.0 target:self selector:@selector(timerChange) userInfo:nil repeats:YES];
+            [[NSRunLoop currentRunLoop] addTimer:timer forMode:NSRunLoopCommonModes];
+            //3. 如果while里面是Yes就开始开启RunLoop, 知道遇到NO才退出RunLoop循环
+            while (!self.finish) { //
+                //每隔极短的时间就开启一次RunLoop
+                [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.0001]];
+            }
+            //4. 当跳出循环后,下面的代码才会被执行
+            NSLog(@"当前线程是: %@", [NSThread currentThread]);
+        }];
+        [thread start];
+    }
+
+    -(void)timerChange{
+        NSLog(@"timer来了");
+    }
+    
+    //点击屏幕时,我们让循环跳出
+    - (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+        NSLog(@"点击屏幕了");
+        self.finish = YES;
+    }
+
+    打印结果:  timer来了
+              timer来了
+              timer来了
+              timer来了
+              点击屏幕了
+              当前线程是: <WGThread: 0x600003c216c0>{number = 6, name = (null)}
+              线程WGThread已经销毁了
+
+#### 从上面打印结果得出结论: 想让子线程销毁, 可以通过设置变量来控制死循环的进入和退出,这样当子线程中的没有任务时,子线程就销毁了
+
+### 结论: 线程和RunLoop是一一对应的, 在子线程中,想保住子线程的命, 就是让子线程中一直有任务在处理,可以通过开启RunLoop来进入死循环老保证子线程中一直存在任务; 如果想销毁子线程,那么就要设置变量来控制while死循环的进入和进出条件, 然后在while循环中每隔极端的时间开启一次RunLoop, 在需要销毁子线程时,设置变量来控制while循环退出, 当while退出循环时, RunLoop也不再开启了, 子线程中没有任务了,子线程也就销毁了
+
+
+
+
+
+
     
     
+  
 ### 4.RunLoop在项目中应用场景
 * 控制线程的声明周期（线程保活）
 * 解决NSTimer在滚动的时候停止的问题

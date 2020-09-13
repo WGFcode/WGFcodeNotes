@@ -61,6 +61,10 @@
 		548F332B24F2B87300AB3540 /* Person.m in Sources */ = {isa = PBXBuildFile; fileRef = 548F332A24F2B87300AB3540 /* Person.m */; };
 		548F332E24F2B8D100AB3540 /* Person+PersonCategory.m in Sources */ = {isa = PBXBuildFile; fileRef = 548F332D24F2B8D100AB3540 /* Person+PersonCategory.m */; };
 		54CBAE2824FFE4E500AEA0E5 /* iOS内存分区.md in Resources */ = {isa = PBXBuildFile; fileRef = 54CBAE2724FFE4E500AEA0E5 /* iOS内存分区.md */; };
+		54E19658250909050064027B /* WGRunLoopVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 54E19657250909050064027B /* WGRunLoopVC.m */; };
+		54E1965B250A70A90064027B /* WGThread.m in Sources */ = {isa = PBXBuildFile; fileRef = 54E1965A250A70A90064027B /* WGThread.m */; };
+		54E1965E250A7BDC0064027B /* WGRunLoopSecondVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 54E1965D250A7BDC0064027B /* WGRunLoopSecondVC.m */; };
+		54E19661250E750B0064027B /* WGProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 54E19660250E750B0064027B /* WGProxy.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -152,6 +156,14 @@
 		548F332C24F2B8D100AB3540 /* Person+PersonCategory.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Person+PersonCategory.h"; sourceTree = "<group>"; };
 		548F332D24F2B8D100AB3540 /* Person+PersonCategory.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Person+PersonCategory.m"; sourceTree = "<group>"; };
 		54CBAE2724FFE4E500AEA0E5 /* iOS内存分区.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "iOS内存分区.md"; sourceTree = "<group>"; };
+		54E19656250909050064027B /* WGRunLoopVC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WGRunLoopVC.h; sourceTree = "<group>"; };
+		54E19657250909050064027B /* WGRunLoopVC.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WGRunLoopVC.m; sourceTree = "<group>"; };
+		54E19659250A70A90064027B /* WGThread.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WGThread.h; sourceTree = "<group>"; };
+		54E1965A250A70A90064027B /* WGThread.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WGThread.m; sourceTree = "<group>"; };
+		54E1965C250A7BDC0064027B /* WGRunLoopSecondVC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WGRunLoopSecondVC.h; sourceTree = "<group>"; };
+		54E1965D250A7BDC0064027B /* WGRunLoopSecondVC.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WGRunLoopSecondVC.m; sourceTree = "<group>"; };
+		54E1965F250E750B0064027B /* WGProxy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WGProxy.h; sourceTree = "<group>"; };
+		54E19660250E750B0064027B /* WGProxy.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WGProxy.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -184,6 +196,14 @@
 			children = (
 				3015810B245577A600EC6001 /* WGMonitorManage.h */,
 				3015810C245577A600EC6001 /* WGMonitorManage.m */,
+				54E19656250909050064027B /* WGRunLoopVC.h */,
+				54E19657250909050064027B /* WGRunLoopVC.m */,
+				54E19659250A70A90064027B /* WGThread.h */,
+				54E1965A250A70A90064027B /* WGThread.m */,
+				54E1965C250A7BDC0064027B /* WGRunLoopSecondVC.h */,
+				54E1965D250A7BDC0064027B /* WGRunLoopSecondVC.m */,
+				54E1965F250E750B0064027B /* WGProxy.h */,
+				54E19660250E750B0064027B /* WGProxy.m */,
 			);
 			path = WGCore;
 			sourceTree = "<group>";
@@ -507,11 +527,15 @@
 			buildActionMask = 2147483647;
 			files = (
 				548AC957242F4B3100EEE11C /* ViewController.swift in Sources */,
+				54E19661250E750B0064027B /* WGProxy.m in Sources */,
 				30160A2924A75A970074FB82 /* BinaryTree.m in Sources */,
+				54E1965B250A70A90064027B /* WGThread.m in Sources */,
+				54E19658250909050064027B /* WGRunLoopVC.m in Sources */,
 				548F332B24F2B87300AB3540 /* Person.m in Sources */,
 				548AC983242F4C7100EEE11C /* WGMainVC.swift in Sources */,
 				548F332E24F2B8D100AB3540 /* Person+PersonCategory.m in Sources */,
 				30FD75F824357E3800431678 /* WGMainObjcVC.m in Sources */,
+				54E1965E250A7BDC0064027B /* WGRunLoopSecondVC.m in Sources */,
 				3015810D245577A600EC6001 /* WGMonitorManage.m in Sources */,
 				301CF1BC2452BE310024EC69 /* WGFirstVC.m in Sources */,
 				548AC953242F4B3100EEE11C /* AppDelegate.swift in Sources */,
