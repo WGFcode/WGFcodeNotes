@@ -323,3 +323,55 @@
 
 #### 19. 项目中有这么一个方法func findfile(dir: String suffix: String) -> [String] ，可以通过输入文件夹目录，和后缀检索出所需的文件。例如需要在某个文件中检索txt文件或者mp4文件，那就传入dir和suffix就行了。现在又有一些需求，例如需要检索utf8格式的txt或者h264编码的mp4，也会有一些例如查找最近一周更新过的文件这样的需求，你如何优化这个类，让它满足这些情况？
 
+
+#### 20. 如果子视图超出父视图范围，那么点击子视图和父视图重叠位置时，哪个视图会响应事件？如果点击子视图超出父视图位置，会响应事件吗？如果不能响应事件如何做？如果我们希望点击父视图的区域时响应父视图事件，点击子视图时，响应子视图事件，怎么做？
+
+#### 问题1：点击子视图和父视图重叠的位置时，子视图能响应事件而父视图不能，因为点击屏幕,首先调用RunLoop的source1(基于端口的系统事件)来唤醒RunLoop，然后RunLoop会将事件交给source0来处理，source0会把点击时生成的UIEvent事件交给UIApplication,然后通过UIWindow->VC的View->...>bigsupView->subView进行寻找最佳响应者，在找的过程中，找到bigsupView时，判断点击点在bigsupView上，然后继续找到subView，发现点击点subView上，所以事件就交给subView来处理了，所以subView能响应事件，而bigsupView不能响应事件,
+#### 问题2：点击子视图超出父视图的位置时，子视图和父视图都不影响事件，因为在响应链中寻找最佳响应者时，找到bigsupView时，判断点击点不在bigsupView上，直接就返回了不再向下一级的subView寻找了，所以子视图和父视图都不会响应事件
+#### 问题3: 如果点击超出父视图的子视图区域，想让子视图响应事件的话，就两种解决方式
+1. 方式一：自定义bigsupView，并在bigsupView的类中重写系统的方法- (BOOL)pointInside:(CGPoint)point withEvent:(nullable UIEvent *)event，并设置为YES，该方法作用就是当响应链中找到父视图WGBigView时，判断点击点是否在WGBigView上，设置为YES，就表示点击点在父视图上，然后才会继续去subView中找，这样子视图就可以响应事件了
+
+        public class WGBigView : UIView {
+           //方式一：
+           public override func point(inside point: CGPoint, with event: UIEvent?) -> Bool {
+               return true
+           }
+        }
+   
+   2. 方式二: 继续方案一种的demo,在父视图WGBigView中重写系统方法- (nullable UIView *)hitTest:(CGPoint)point withEvent:(nullable UIEvent *)event;在这个方法中遍历父视图WGBigView的子视图，如果点击点在子视图的范围内，就返回这个子视图作为最佳响应者，这样子视图就可以响应事件了
+   
+          public class WGBigView : UIView {
+              //方法二：
+              public override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
+                    let view = super.hitTest(point, with: event)
+                    if view == nil { //如果WGBigView的父视图没有找到最佳响应者，就遍历WGBigView的子视图
+                        for sub in self.subviews {
+                            //将当前点击的点从当前视图的坐标系中换算到sub的坐标系中
+                            let point = sub.convert(point, from: self)
+                            //判断点击点是否在sub的范围之内，如果在就返回这个子视图作为最佳响应者
+                            if sub.bounds.contains(point) {
+                                return sub
+                            }
+                        }
+                    }
+                    return view
+                }
+            }
+#### 问题4，简单描述就是父视图范围在子视图范围内包含着，然后点击父视图范围响应父视图，点击父视图其他范围但是这个范围还在子视图中时，响应子视图事件。方案就是重写WGBigView类中的系统方法hitTest，然后先判断点击位置是否在父视图范围，如果在直接返回，如果不在再去遍历子视图
+
+
+            public class WGBigView : UIView {
+                public override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
+                    //首先判断点是否在self上，如果在就响应事件，如果不在就继续下面的判断
+                     if self.bounds.contains(point) {
+                         return self
+                     }
+                     for sub in self.subviews {
+                         let subPoint = sub.convert(point, from: self)
+                         if sub.bounds.contains(subPoint) {
+                             return sub
+                         }
+                     }
+                    return nil
+                }
+            }
