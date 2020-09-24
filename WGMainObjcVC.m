@@ -8,11 +8,16 @@
 
 #import "WGMainObjcVC.h"
 #import <UIKit/UIKit.h>
-
+#import "Student.h"
+#import "Student+WGStudent.h"
+#import "Student+StudentCategory.h"
 
 @implementation WGMainObjcVC
 - (void)viewDidLoad {
     [super viewDidLoad];
+    Student *stu = [[Student alloc]init];
+    [stu test];
+//    [stu test111];
 }
 @end
 

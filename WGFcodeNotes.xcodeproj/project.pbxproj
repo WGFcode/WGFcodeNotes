@@ -38,7 +38,7 @@
 		30FD94D4243DDE8400EAFAA3 /* error1.png in Resources */ = {isa = PBXBuildFile; fileRef = 30FD94D3243DDE8400EAFAA3 /* error1.png */; };
 		540ED63C246990B600C6DAF7 /* KeyWord.md in Resources */ = {isa = PBXBuildFile; fileRef = 540ED63B246990B600C6DAF7 /* KeyWord.md */; };
 		5422AC59244F3E8E000CB747 /* block2.png in Resources */ = {isa = PBXBuildFile; fileRef = 5422AC58244F3E8E000CB747 /* block2.png */; };
-		542D3D832518E61300394130 /* 分类.md in Resources */ = {isa = PBXBuildFile; fileRef = 542D3D822518E61300394130 /* 分类.md */; };
+		542D3D832518E61300394130 /* 分类扩展.md in Resources */ = {isa = PBXBuildFile; fileRef = 542D3D822518E61300394130 /* 分类扩展.md */; };
 		542D3D8F251A48CC00394130 /* Student.m in Sources */ = {isa = PBXBuildFile; fileRef = 542D3D8E251A48CC00394130 /* Student.m */; };
 		542D3D92251A48F500394130 /* Student+StudentCategory.m in Sources */ = {isa = PBXBuildFile; fileRef = 542D3D91251A48F500394130 /* Student+StudentCategory.m */; };
 		54347D3224F69F1C006EE9F2 /* 数据结构.md in Resources */ = {isa = PBXBuildFile; fileRef = 54347D3124F69F1C006EE9F2 /* 数据结构.md */; };
@@ -60,7 +60,6 @@
 		548AC98F242F4CAD00EEE11C /* Carthage.md in Resources */ = {isa = PBXBuildFile; fileRef = 548AC989242F4CAD00EEE11C /* Carthage.md */; };
 		548AC990242F4CAD00EEE11C /* Framework.md in Resources */ = {isa = PBXBuildFile; fileRef = 548AC98A242F4CAD00EEE11C /* Framework.md */; };
 		548F332024F15E8F00AB3540 /* Memory.md in Resources */ = {isa = PBXBuildFile; fileRef = 548F331F24F15E8F00AB3540 /* Memory.md */; };
-		548F332224F2B12C00AB3540 /* 分类扩展.md in Resources */ = {isa = PBXBuildFile; fileRef = 548F332124F2B12C00AB3540 /* 分类扩展.md */; };
 		548F332424F2B13E00AB3540 /* 属性修饰符.md in Resources */ = {isa = PBXBuildFile; fileRef = 548F332324F2B13E00AB3540 /* 属性修饰符.md */; };
 		548F332B24F2B87300AB3540 /* Person.m in Sources */ = {isa = PBXBuildFile; fileRef = 548F332A24F2B87300AB3540 /* Person.m */; };
 		54CBAE2824FFE4E500AEA0E5 /* iOS内存分区.md in Resources */ = {isa = PBXBuildFile; fileRef = 54CBAE2724FFE4E500AEA0E5 /* iOS内存分区.md */; };
@@ -128,11 +127,12 @@
 		30FD94D3243DDE8400EAFAA3 /* error1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = error1.png; sourceTree = "<group>"; };
 		540ED63B246990B600C6DAF7 /* KeyWord.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = KeyWord.md; sourceTree = "<group>"; };
 		5422AC58244F3E8E000CB747 /* block2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = block2.png; sourceTree = "<group>"; };
-		542D3D822518E61300394130 /* 分类.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "分类.md"; sourceTree = "<group>"; };
+		542D3D822518E61300394130 /* 分类扩展.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "分类扩展.md"; sourceTree = "<group>"; };
 		542D3D8D251A48CC00394130 /* Student.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Student.h; sourceTree = "<group>"; };
 		542D3D8E251A48CC00394130 /* Student.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Student.m; sourceTree = "<group>"; };
 		542D3D90251A48F500394130 /* Student+StudentCategory.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Student+StudentCategory.h"; sourceTree = "<group>"; };
 		542D3D91251A48F500394130 /* Student+StudentCategory.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Student+StudentCategory.m"; sourceTree = "<group>"; };
+		543110AF251CD966007D0061 /* Student+WGStudent.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Student+WGStudent.h"; sourceTree = "<group>"; };
 		54347D3124F69F1C006EE9F2 /* 数据结构.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "数据结构.md"; sourceTree = "<group>"; };
 		545638D224B36CE5007D5447 /* HTTPTCPUDP.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = HTTPTCPUDP.md; sourceTree = "<group>"; };
 		5463C26324B0115D008F9C9A /* CoreAnimal.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = CoreAnimal.md; sourceTree = "<group>"; };
@@ -158,7 +158,6 @@
 		548AC989242F4CAD00EEE11C /* Carthage.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = Carthage.md; sourceTree = "<group>"; };
 		548AC98A242F4CAD00EEE11C /* Framework.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = Framework.md; sourceTree = "<group>"; };
 		548F331F24F15E8F00AB3540 /* Memory.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Memory.md; sourceTree = "<group>"; };
-		548F332124F2B12C00AB3540 /* 分类扩展.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "分类扩展.md"; sourceTree = "<group>"; };
 		548F332324F2B13E00AB3540 /* 属性修饰符.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "属性修饰符.md"; sourceTree = "<group>"; };
 		548F332924F2B87300AB3540 /* Person.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Person.h; sourceTree = "<group>"; };
 		548F332A24F2B87300AB3540 /* Person.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Person.m; sourceTree = "<group>"; };
@@ -263,6 +262,7 @@
 		548AC946242F4B3100EEE11C = {
 			isa = PBXGroup;
 			children = (
+				543110AF251CD966007D0061 /* Student+WGStudent.h */,
 				542D3D90251A48F500394130 /* Student+StudentCategory.h */,
 				542D3D91251A48F500394130 /* Student+StudentCategory.m */,
 				542D3D8D251A48CC00394130 /* Student.h */,
@@ -336,7 +336,7 @@
 		548AC984242F4C9200EEE11C /* WGReadMe */ = {
 			isa = PBXGroup;
 			children = (
-				542D3D822518E61300394130 /* 分类.md */,
+				542D3D822518E61300394130 /* 分类扩展.md */,
 				30F7186B24F7AB020025AD98 /* 设计模式.md */,
 				548F331F24F15E8F00AB3540 /* Memory.md */,
 				5463C26224B01092008F9C9A /* CoreAnimal */,
@@ -358,7 +358,6 @@
 				30160A2524A748870074FB82 /* BinaryTree.md */,
 				540ED63B246990B600C6DAF7 /* KeyWord.md */,
 				545638D224B36CE5007D5447 /* HTTPTCPUDP.md */,
-				548F332124F2B12C00AB3540 /* 分类扩展.md */,
 				548F332324F2B13E00AB3540 /* 属性修饰符.md */,
 				54347D3124F69F1C006EE9F2 /* 数据结构.md */,
 				54CBAE2724FFE4E500AEA0E5 /* iOS内存分区.md */,
@@ -480,7 +479,6 @@
 				30BB26BB244BF62B00255288 /* NSNotification.md in Resources */,
 				30DD858B244F00C100897144 /* block.jpeg in Resources */,
 				30FD76012435CD3100431678 /* NSThread.md in Resources */,
-				548F332224F2B12C00AB3540 /* 分类扩展.md in Resources */,
 				5422AC59244F3E8E000CB747 /* block2.png in Resources */,
 				30C1F2B82431F0C7003B30B3 /* face.md in Resources */,
 				54CBAE2824FFE4E500AEA0E5 /* iOS内存分区.md in Resources */,
@@ -506,7 +504,7 @@
 				30FD94D4243DDE8400EAFAA3 /* error1.png in Resources */,
 				548AC98D242F4CAD00EEE11C /* PackageIpaWithShell.md in Resources */,
 				548AC990242F4CAD00EEE11C /* Framework.md in Resources */,
-				542D3D832518E61300394130 /* 分类.md in Resources */,
+				542D3D832518E61300394130 /* 分类扩展.md in Resources */,
 				548AC95C242F4B3200EEE11C /* Assets.xcassets in Resources */,
 				309F9D682435D98700FFB705 /* ThreadLock.md in Resources */,
 				548F332424F2B13E00AB3540 /* 属性修饰符.md in Resources */,
