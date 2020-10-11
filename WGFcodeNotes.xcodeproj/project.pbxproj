@@ -41,6 +41,7 @@
 		542D3D832518E61300394130 /* 分类扩展.md in Resources */ = {isa = PBXBuildFile; fileRef = 542D3D822518E61300394130 /* 分类扩展.md */; };
 		542D3D8F251A48CC00394130 /* Student.m in Sources */ = {isa = PBXBuildFile; fileRef = 542D3D8E251A48CC00394130 /* Student.m */; };
 		542D3D92251A48F500394130 /* Student+StudentCategory.m in Sources */ = {isa = PBXBuildFile; fileRef = 542D3D91251A48F500394130 /* Student+StudentCategory.m */; };
+		543110B42530A23D007D0061 /* OC对象的本质.md in Resources */ = {isa = PBXBuildFile; fileRef = 543110B32530A23D007D0061 /* OC对象的本质.md */; };
 		54347D3224F69F1C006EE9F2 /* 数据结构.md in Resources */ = {isa = PBXBuildFile; fileRef = 54347D3124F69F1C006EE9F2 /* 数据结构.md */; };
 		545638D324B36CE5007D5447 /* HTTPTCPUDP.md in Resources */ = {isa = PBXBuildFile; fileRef = 545638D224B36CE5007D5447 /* HTTPTCPUDP.md */; };
 		5463C26424B0115D008F9C9A /* CoreAnimal.md in Resources */ = {isa = PBXBuildFile; fileRef = 5463C26324B0115D008F9C9A /* CoreAnimal.md */; };
@@ -133,6 +134,7 @@
 		542D3D90251A48F500394130 /* Student+StudentCategory.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Student+StudentCategory.h"; sourceTree = "<group>"; };
 		542D3D91251A48F500394130 /* Student+StudentCategory.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Student+StudentCategory.m"; sourceTree = "<group>"; };
 		543110AF251CD966007D0061 /* Student+WGStudent.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Student+WGStudent.h"; sourceTree = "<group>"; };
+		543110B32530A23D007D0061 /* OC对象的本质.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "OC对象的本质.md"; sourceTree = "<group>"; };
 		54347D3124F69F1C006EE9F2 /* 数据结构.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "数据结构.md"; sourceTree = "<group>"; };
 		545638D224B36CE5007D5447 /* HTTPTCPUDP.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = HTTPTCPUDP.md; sourceTree = "<group>"; };
 		5463C26324B0115D008F9C9A /* CoreAnimal.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = CoreAnimal.md; sourceTree = "<group>"; };
@@ -362,6 +364,7 @@
 				54347D3124F69F1C006EE9F2 /* 数据结构.md */,
 				54CBAE2724FFE4E500AEA0E5 /* iOS内存分区.md */,
 				3027FD392512197500E512FE /* Swift内存对齐问题.md */,
+				543110B32530A23D007D0061 /* OC对象的本质.md */,
 			);
 			path = WGReadMe;
 			sourceTree = "<group>";
@@ -503,6 +506,7 @@
 				3027FD3A2512197500E512FE /* Swift内存对齐问题.md in Resources */,
 				30FD94D4243DDE8400EAFAA3 /* error1.png in Resources */,
 				548AC98D242F4CAD00EEE11C /* PackageIpaWithShell.md in Resources */,
+				543110B42530A23D007D0061 /* OC对象的本质.md in Resources */,
 				548AC990242F4CAD00EEE11C /* Framework.md in Resources */,
 				542D3D832518E61300394130 /* 分类扩展.md in Resources */,
 				548AC95C242F4B3200EEE11C /* Assets.xcassets in Resources */,
