@@ -53,7 +53,7 @@
         
         NSLog("\n Boolsize:-------\(Boolsize)字节---内存对齐字节数:\(BoolaligSize),\n IntSize:-------\(IntSize)字节---内存对齐字节数:\(IntaligSize), \n Int32Size:-------\(Int32Size)字节---内存对齐字节数:\(Int32aligSize), \n Int64Size:-------\(Int64Size)字节---内存对齐字节数:\(Int64aligSize), \n FloatSize:-------\(FloatSize)字节---内存对齐字节数:\(FloataligSize), \n DoubleSize:-------\(DoubleSize)字节---内存对齐字节数:\(DoublealigSize), \n CFFloatSize:-------\(CFFloatSize)字节---内存对齐字节数:\(CGFloataligSize), \n NSIntegerSize:-------\(NSIntegerSize)字节---内存对齐字节数:\(NSIntegeraligSize), \n StringSize:-------\(StringSize)字节---内存对齐字节数:\(StringaligSize), \n CharacterSize:-------\(CharacterSize)字节---内存对齐字节数:\(CharacteraligSize), \n ArrSize:-------\(ArrSize)字节---内存对齐字节数:\(ArraligSize), \n DicSize:-------\(DicSize)字节---内存对齐字节数:\(DicaligSize), \n 对象的内存空间:-------\(objcSize)字节---内存对齐字节数:\(objcaligSize)")
 
-        打印结果： Boolsize:-------1字节---内存对齐字节数:1,
+        打印结果：Boolsize:-------1字节---内存对齐字节数:1,
                 IntSize:-------8字节---内存对齐字节数:8, 
                 Int32Size:-------8字节---内存对齐字节数:8, 
                 Int64Size:-------8字节---内存对齐字节数:8, 
@@ -137,7 +137,7 @@
         }
         打印结果: 枚举实际占用的内存大小：----3个字节,
                  枚举被系统分配的内存大小：----3个字节,
-                枚举内存对齐的字节数长度：----1个字节,
+                 枚举内存对齐的字节数长度：----1个字节,
                 
         enum WGSexType {
             case Man(Bool,Bool,Bool)
@@ -166,3 +166,28 @@
                 枚举被系统分配的内存大小：----40个字节,
                 枚举内存对齐的字节数长度：----8个字节,
 #### 总结1：从以上打印结果我们知道，枚举的内存对齐的字节数是由各个枚举值中关联值类型的最大内存对齐字节数决定的，比如枚举关联值中有Float(内存对齐4个字节)/Bool(内存对齐1个字节)/String(内存对齐8个字节)类型，那么枚举的内存对齐字节数就取其中最大的内存字节数作为枚举内存对齐字节数，即String的内存对齐字节数8个字节
+#### 总结2: 枚举实际占用的内存字节数，是由各个枚举值中各个关联值类型占用内存的总和表示的，而是取的是各个枚举值中的最大值，比如枚举关联值case Man(String,String,Bool)：它占用的内存就是16+16+1=33个字节，case Woman(Float,Float)：它占用的内存就是4+4=8个字节 ，case RenYao(String)：它占用的内存就是16个字节，取各个枚举值中的最大值，所以该枚举实际占用的内存字节数就是33个字节
+#### 总结3: 系统给枚举分配的内存字节数，是根据枚举对齐字节数和枚举实际占用的内存字节数来判断的，case Man(String,String,Bool)：系统分配的字节数 16 + 16 + 8(内存对齐数为8)=40个字节；case Woman(Float,Float)：系统分配的字节数4 + 4（对齐字节数为8，所以两个4刚好分配一块8字节的内存）；case RenYao(String)：系统分配的字节数为16，取这三个中的最大值，即系统给这个枚举分配的字节数就是40个字节
+
+#### 枚举中无原始值/有原始值的情况下，占用的内存空间就是1字节大小，如果有关联值，那么就是关联值项中占用的最大字节数+1，+1是基于有多个case的情况下，用1字节大小来保存类型的
+
+
+### struct结构体之内存对齐
+#### struct的内存对齐字节数是定义的成员变量中，内存对齐数最大的值作为结构体的内存对齐字节数；实际占用的内存就是定义的所有的成员变量所占用的内存字节数之和；系统分配的内存就是按照定义的成员变量顺序再加上最大内存对齐字节数来判断的
+        struct WGSexType {
+            var age: Int = 0            //8---分配8个字节        
+            var name: String = ""       //16---分配16个字节 
+            var sex: Bool = false       //1---分配8个字节
+        }
+        结构体实际占用的内存大小：----25个字节, 
+        结构体被系统分配的内存大小：----32个字节, 
+        结构体内存对齐的字节数长度：----8个字节, 
+
+        struct WGSexType {
+            var sex: Bool = false       //1---分配8个字节
+            var age: Int = 0            //8---分配8个字节
+            var name: String = ""       //16---分配16个字节
+        }
+        结构体实际占用的内存大小：----32个字节, 
+        结构体被系统分配的内存大小：----32个字节, 
+        结构体内存对齐的字节数长度：----8个字节,

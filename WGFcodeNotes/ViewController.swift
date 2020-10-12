@@ -8,55 +8,37 @@
 
 import UIKit
 
-enum WGSexType {
-//    case Man(Bool,Bool,Bool)
-//    case Woman(Bool,Bool)
-//    case RenYao(Bool)
-    /*
-      枚举实际占用的内存大小：----3个字节,
-      枚举被系统分配的内存大小：----3个字节,
-      枚举内存对齐的字节数长度：----1个字节,
-    */
-//    case Man(Bool,Bool,Bool)
-//    case Woman(Float,Bool)
-//    case RenYao(Bool)
-    /*
-      枚举实际占用的内存大小：----5个字节,
-      枚举被系统分配的内存大小：----8个字节,
-      枚举内存对齐的字节数长度：----4个字节,
-     */
-//    case Man(String,Bool,Bool)
-//    case Woman(Float,Bool)
-//    case RenYao(Bool)
-    /*
-      枚举实际占用的内存大小：----18个字节,
-      枚举被系统分配的内存大小：----24个字节,
-      枚举内存对齐的字节数长度：----8个字节,
-     */
-    case Man(String,String,Bool)
-    case Woman(Float,Float)
-    case RenYao(String)
-    /*
-      枚举实际占用的内存大小：----33个字节,
-      枚举被系统分配的内存大小：----40个字节,
-      枚举内存对齐的字节数长度：----8个字节,
-     */
-}
 
+//enum WGSexType {
+//    case Man(String,String,String) //内存对齐8字节 实际占用48 系统分配：48
+//    case Woman(Bool,Bool)
+////    case RenYao(String)
+//}
+
+struct WGSexType {
+    var sex: Bool = false    //1
+    var age: Int = 0         //8
+    var name: String = ""    //16
+}
 
 class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view.backgroundColor = UIColor.red
         
-        let sexEnum = WGSexType.Man("1","1",true)
+        
+        let sexEnum = WGSexType()
         // 实际占用的内存大小
         let sexEnumSize0 = MemoryLayout.size(ofValue: sexEnum)
         // 系统分配的内存大小
         let sexEnumSize1 = MemoryLayout.stride(ofValue: sexEnum)
         // 内存对齐的字节数长度
         let sexEnumSize2 = MemoryLayout.alignment(ofValue: sexEnum)
-        NSLog("\n枚举实际占用的内存大小：----\(sexEnumSize0)个字节, \n枚举被系统分配的内存大小：----\(sexEnumSize1)个字节, \n 枚举内存对齐的字节数长度：----\(sexEnumSize2)个字节, \n")
+        NSLog("\n结构体实际占用的内存大小：----\(sexEnumSize0)个字节, \n结构体被系统分配的内存大小：----\(sexEnumSize1)个字节, \n 结构体内存对齐的字节数长度：----\(sexEnumSize2)个字节, \n")
+    }
+    
+    private func printAddress(value: Any) {
+        print("\(value)地址是:\(Unmanaged.passUnretained(value as AnyObject).toOpaque())")
     }
 }
 

@@ -200,3 +200,14 @@
         6. 将本地master分支推送到远程仓库
         git push origin master:master
         6.在GitLab中继续将master分支作为受保护的分支和默认的主分支即可
+
+### 4. 远程仓库上的project忘了先做git pull，直接用之前的project版本的代码进行编写，突然想起忘了pull了，然后想用git pull来更新本地代码，结果报错，即新修改的代码，会被git服务器上的代码覆盖掉。由于我不想新修改的代码被覆盖，所以需要先保护现场：
+        error: Your local changes to the following files would be overwritten by merge:
+            WGFcodeNotes.xcodeproj/project.pbxproj
+        Please commit your changes or stash them before you merge.
+
+        解决方法
+        1. git stash（储存现场）
+        2. git pull origin master（拉取远程的master）
+        3. git stash pop（恢复现场）
+        4. 解决冲突
