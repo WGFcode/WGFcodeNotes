@@ -10,7 +10,7 @@
 
 @interface Student()
 {
-    int _weight;
+    int weight;
 }
 
 @end
@@ -18,5 +18,8 @@
 
 @implementation Student
 
+-(void)test {
+    
+}
 
 @end

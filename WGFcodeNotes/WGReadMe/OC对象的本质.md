@@ -32,7 +32,6 @@
 
 
 #### 2. 一个OC对象占用多少个内存空间?
-#### 我们知道一个NSObject对象占用8个字节的内存空间,这8个字节存放的是NSObject对象的isa指针,那么如果是下面的对象哪? 
         //.m文件
         @interface Person()
         {
@@ -91,40 +90,6 @@
         字节大小: b(byte)1字节、h(half word)2个字节、w(word)4个字节、g(ginat work)8个字节
         修改内存中的值
         memory write 内存地址 数值
-        
-        
-#### 4. 更复杂的OC对象占用的内存大小
-#### 假如Person继承自NSObject, Student又继承自Person,那么Person和Student对象各占有多少内存空间?
-        @interface Person()
-        {
-            int _age;
-        }
-        @end
-
-        @interface Student()
-        {
-            int _weight;
-        }
-        @end
-
-#### 通过上面的学习我们知道上面的C/C++代码是这样的
-
-        struct NSObject_IMPL {
-            Class isa;
-        };
-
-        struct Person_IMPL {
-            struct NSObject_IMPL NSObject_IVARS;
-            int _age;
-        };
-
-        struct Student_IMPL {
-            struct Person_IMPL Person_IVARS;
-            int _weight;
-        };
-
-#### 首先我们计算Person对象的内存大小,Person对象的结构体中有isa指针和age成员变量,isa指针占用8个字节,age成员变量占4个字节,但是因为存在内存对其原则,我们知道Person_IMPL结构体的内存对齐大小为8个字节,所以Person对象占用16个字节的大小(isa占8个字节,age成员变量虽然占4个字节,但是因为内存对齐,所以系统会分配8个字节); 再看Student对象,因为Person_IMPL结构体专用16个字节,而weight成员变量占4个字节由于内存对齐,所以可以刚好放进Person_IMPL结构体中没有被填充的4个字节的内存空间中,所以Student对象也占16个字节.
-
 
 #### 5. OC对象分类,分为三类: 实例对象,类对象,元类对象
 1. 实例对象: 通过类alloc出来的对象,每次通过alloc都会产生新的实例对象.实例对象在内存中存储的信息包括**isa指针**、**成员变量的值**, 
@@ -261,16 +226,189 @@
 * 真正有使用的空间是: 一个指针变量所占用的大小(64bit,占8个字节; 32bit,占4个字节)
 * NSObject对象本质是一个结构体,结构体中存放的是isa指针,OC中一个指针占用内存空间就是4/8字节
 
-        // 使用malloc_size 需要导入#import <malloc/malloc.h>头文件
-        //malloc_size 系统分配的内存空间大小
-        //class_getInstanceSize: 真正使用的内存空间大小(可以理解成正在使用的成员变量所使用的空间)
-        //⚠️这两个方法底层实现可以通过RunTime源码可以查找到,后续可以自己看一下
-        
+        验证方式一：
+        //使用malloc_size 需要导入#import <malloc/malloc.h>头文件
         NSObject *objc = [[NSObject alloc]init];
-        NSLog(@"%zd-----%zd",class_getInstanceSize([NSObject class]), malloc_size((__bridge const void *)(objc)));
+        NSLog(@"实际占用内存:%zd-----系统分配内存:%zd",
+        class_getInstanceSize([NSObject class]),
+        malloc_size((__bridge const void *)(objc)));
         
-        打印结果: 8-----16
+        打印结果: 实际占用内存:8-----系统分配内存:16
+        
+        1.class_getInstanceSize: 真正使用的内存空间大小(可以理解成正在使用的成员变量所使用的空间),Runtime源码如下
+        size_t class_getInstanceSize(Class cls) {
+            if (!cls) return 0;
+            return cls->alignedInstanceSize();
+        }
+        
+        // 类成员变量所占内存 Class's ivar size rounded up to a pointer-size boundary.
+        uint32_t alignedInstanceSize() {
+            return word_align(unalignedInstanceSize());
+        }
+        
+        // May be unaligned depending on class's ivars.
+        uint32_t unalignedInstanceSize() {
+            assert(isRealized());
+            return data()->ro->instanceSize;  //成员变量大小
+        }
+        
+        2. malloc_size 系统分配的内存空间大小，Runtime源码查找如下
+        _objc_rootAllocWithZone ---> class_createInstance ---> _class_createInstanceFromZone ---> instanceSize
+        size_t instanceSize(size_t extraBytes) {
+            size_t size = alignedInstanceSize() + extraBytes;
+            // CF requires all objects be at least 16 bytes.
+            if (size < 16) size = 16;
+            return size;
+        }
+        如果内存小于16个字节，系统默认就分配16个字节的内存
+        
+#### 9.2 一个自定义类占用内存
+* 案例1
 
+        //.h文件
+        @interface Person : NSObject
+        @property(nonatomic, assign) int heigth;
+        @end
+        //.m文件
+        @implementation Person
+        @end
+        
+        Person *p = [[Person alloc]init];
+        NSLog(@"实际占用内存:%zd",class_getInstanceSize([Person class]));
+        NSLog(@"系统分配内存:%zd",malloc_size((__bridge const void *)(p)));
+        
+        打印结果：实际占用内存:16
+                系统分配内存:16
+#### 分析，对象实际占用的内存是这个对象中成员变量的内存大小，@property属性系统会自动生成_heigth成员变量，所以Person对象中成员变量有**isa**、**_heigth**两个成员变量，isa占用8个字节，根据内存对齐原则，虽然int heigth占4个字节，但是内存对齐是8个字节，所以_heigth成员变量也占用8个字节，所以Person对象实际占用16个字节，系统分配16个字节
+* 案例2
+
+        //.h文件
+        @interface Person : NSObject
+        @property(nonatomic, assign) int heigth;
+        @end
+        //.m文件
+        @interface Person()
+        {
+            int _age;
+        }
+        @end
+        
+        @implementation Person
+        @end
+        
+        Person *p = [[Person alloc]init];
+        NSLog(@"实际占用内存:%zd",class_getInstanceSize([Person class]));
+        NSLog(@"系统分配内存:%zd",malloc_size((__bridge const void *)(p)));
+        
+        打印结果： 实际占用内存:16
+                 系统分配内存:16
+#### 分析：现在Person对象中有3个成员变量：isa、_height、_age,isa占8个字节，_height和_age都是占4个字节，根据内存对齐，所以Person对象实际占用16字节内存，系统分配16个字节
+* 案例3
+
+        //.h文件
+        @interface Person : NSObject
+        @property(nonatomic, assign) int heigth;
+        @end
+        
+        //.m文件
+        @interface Person()
+        {
+            int _age;
+            NSString *_name;
+        }
+        @end
+
+        @implementation Person
+        @end
+        
+        Person *p = [[Person alloc]init];
+        NSLog(@"实际占用内存:%zd",class_getInstanceSize([Person class]));
+        NSLog(@"系统分配内存:%zd",malloc_size((__bridge const void *)(p)));
+        
+        打印结果： 实际占用内存:32
+                 系统分配内存:32
+####  分析：OC对象底层结构体中成员变量的顺序是1.isa、2.成员变量、3.声明@property时，系统自动生成的属性，
+* isa: 8字节
+* _age: 4个字节,因为接下来是字符串占用8字节，内存对齐为8字节，所以_age要分配8个字节
+* _name: 8个字节
+* @property时系统自动生成的属性_heigth,4个字节，但是内存对齐，所以_heigth要分配8个字节
+#### 所以Person对象实际占用8+8+8+8=32个字节，系统分配肯定是16的整数倍，所以为32个字节
+
+#### 如果我们将_age和_name的顺序换一下
+        @interface Person()
+        {
+            NSString *_name;
+            int _age;
+        }
+        @end
+        
+        Person *p = [[Person alloc]init];
+        NSLog(@"实际占用内存:%zd",class_getInstanceSize([Person class]));
+        NSLog(@"系统分配内存:%zd",malloc_size((__bridge const void *)(p)));
+        
+        打印结果： 实际占用内存:24
+                 系统分配内存:32
+#### 分析： 顺序更换后，Person对象结构体中成员变量的顺序如下
+* isa: 8字节
+* _name: 8个字节
+* _age: 4个字节，因为内存对齐，所以分配8个字节
+* @property时系统生成的属性_heigth,4个字节，但是内存对齐，所以_heigth占用_age分配的8个字节中的剩余4个未用的字节
+#### 所以Person对象实际占用8+8+8=24个字节，系统分配肯定是16的整数倍但是要大于实际分配的字节数(24)，所以为32个字节
+
+
+
+* 案例4 Student继承Person
+
+        //Person.m文件
+        @interface Person()
+        {
+            NSString *_name;
+            int _Height;   
+        }
+        @property(nonatomic, assign) BOOL personSex;
+        @end
+
+        //Student.m文件
+        @interface Student()
+        {
+            int _studentHeight;  
+        }
+        @property(nonatomic, strong) NSString *studentName;
+        @end
+
+        Person *p = [[Person alloc]init];
+        Student *stu = [[Student alloc]init];
+        NSLog(@"Person实际占用内存:%zd,系统分配给Person内存:%zd\n
+        Student实际占用内存:%zd,系统分配给Student内存:%zd\n",
+        class_getInstanceSize([Person class]),
+        malloc_size((__bridge const void *)(p)),
+        class_getInstanceSize([Student class]),
+        malloc_size((__bridge const void *)(stu)));
+
+        打印结果: Person实际占用内存:24,系统分配给Person内存:32
+                Student实际占用内存:40,系统分配给Student内存:48
+#### 分析：Person对象中的成员变量有(按顺序排列):
+* isa: 占8个字节
+* _name: 占8个字节
+* _Height: 占4个字节，因为内存对齐，系统分配了8个字节
+* @property时，系统生成的成员变量_personSex,占1个字节，刚好放在上一个成员变量_Height未被使用完的内存空间中
+* 所以Person对象实际占用的内存就是 8 + 8 + 8 = 24个字节，系统分配了32个字节
+
+#### 分析：Student对象中的成员变量有(按顺序排列): 如果类有继承，那么子类底层结构体中成员变量的顺序是先写继承自父类的成员变量，再写本类中的成员变量
+* isa: 占8个字节
+* 从Person类中继承来的成员变量有(按顺序排列):
+* _name: 占8个字节
+* _Height: 占4个字节，因为内存对齐，系统分配了8个字节
+* @property时，系统生成的成员变量_personSex,占1个字节，刚好放在上一个成员变量_Height未被使用完的内存空间中
+* _studentHeight: 占8个字节
+* @property时，系统生成的成员变量_studentName,占8个字节
+* 所以Student对象实际分配的内存是 (Student自身成员变量内存)8 + 8 + 8 + (Student继承Person的成员变量内存) 8 + 8 = 40个字节，而系统分配了48个字节
+
+
+#### 注意：一般项目开发中，为了避免对象占用太大的内存，我们一般将占用内存大的成员变量写在最前面，这样就可以使用内存对齐来填补，进而减少对象占用内存空间
+
+
+            
 
 #### 9.2  OC的类信息存放在哪里?
 * 成员变量的具体值存放在instance实例对象中
@@ -356,3 +494,44 @@
             const uint8_t * weakIvarLayout;
             property_list_t *baseProperties;
         }
+
+#### 11 自我总结
+#### iOS中成员变量如何写在.m文件中，那么就是私有的，只能在.m文件内访问，权限就是private，子类是无法访问的,并且在.m文件中访问不能通过**实例对象.XXX**的形式访问,而是直接XXX访问即可；如果成员变量写在.h文件中，默认的权限是@protected，在子类中是可以访问这个成员变量的，但是需要通过**self->XXX**的形式访问，如果想在除了子类的其他地方使用，需要修改权限，添加@public即可
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
