@@ -953,7 +953,7 @@
                            delloc                           age:
                            _isKVOA                          setAge: 
                                    
-####NSKVONotifying_Person类对象中setAge方法底层本质可用如下的伪代码来表示
+#### NSKVONotifying_Person类对象中setAge方法底层本质可用如下的伪代码来表示
 
        -(void)setAge:(int)age {
            // 1.先调用C语言函数
@@ -1005,6 +1005,26 @@
 * class：重写class方法作用：主要就是不想暴露NSKVONotifying_Person类的实现细节，即不想公开KVO具体实现细节,如果对象p1调用class方法，返回的其实就是MJPerson这个类对象，这就可以隐藏KVO实现细节了，如果不重写class，那么[p1 class]返回的就是NSKVONotifying_Person这个类
 * dealloc： KVO释放工作
 * _isKVOA：暂时无用
+
+#### 验证class作用
+        Person *p1 = [[Person alloc]init];
+        [p1 addObserver:self forKeyPath:@"age" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:nil];
+        //class方法是NSObject中的方法
+        [p1 class];
+#### 分析：如果NSKVONotifying_Person没有重写class方法，那么调用[p1 class]方法，会先通过isa指针找到NSKVONotifying_Person类对象，NSKVONotifying_Person类对象中没有class方法，就会通过superclass找到Person类对象，再找到NSObject类对象，在NSObject类对象中找到calss方法进行调用，NSObject中的class实现伪代码如下
+        
+        @implementation NSObject
+        -(Class)class {
+            return object_getClass(self);
+            //[p1 class]----> return object_getClass(p1); 
+        }
+        @end
+        
+#### 分析：将p1的isa指针返回，p1的isa指针指向了NSKVONotifying_Person类对象,这样就暴露了KVO的具体实现细节了，但是苹果不想这么干呀，所以才重写了class方法,重写class方法的伪代码如下：
+        -(Class)class {
+            return [Person class];
+        }
+#### 这样调用[p1 class]方法返回的就是Person类，这样就可以隐藏KVO的实现细节了
 
 #### 2. 面试题
 #### 2.1 iOS用什么方式来实现对一个对象的KVO（KVO的本质）？
