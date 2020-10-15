@@ -14,11 +14,6 @@
 
 
 @implementation Person
-//重写监听属性的setter方法
--(void)setAge:(int)age {
-    NSLog(@"setAge方法---");
-    _age = age;
-}
 
 -(void)willChangeValueForKey:(NSString *)key {
     NSLog(@"willChangeValueForKey---begin");
@@ -31,7 +26,6 @@
     [super didChangeValueForKey:key];
     NSLog(@"didChangeValueForKey---begin");
 }
-
 @end
 
 

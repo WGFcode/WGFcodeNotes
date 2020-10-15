@@ -566,4 +566,148 @@
                     "<null>"
                 )
                 
-                
+### MJExtension底层班 
+#### 1 KCV基本方法
+        setValue:(nullable id) forKey:(nonnull NSString *)
+        setValue:(nullable id) forKeyPath:(nonnull NSString *)
+        valueForKey:(nonnull NSString *)
+        valueForKeyPath:(nonnull NSString *)
+#### 1.1 基本操作
+        //Person.h文件
+        @interface Person : NSObject
+        @property(nonatomic, assign)int age;
+        @end
+
+        - (void)viewDidLoad {
+            [super viewDidLoad];
+            Person *p = [[Person alloc]init];
+            //1. 点语法给属性赋值
+            p.age = 10;
+            //2. 通过KVC赋值 注意这里的value是id类型，所以需要转为OC对象NSNumber
+            //[p setValue:@10 forKey:@"age"];
+            [p setValue:[NSNumber numberWithInt:10] forKey:@"age"];
+            NSLog(@"\n属性age的值:%d\n", p.age);
+        }
+        打印结果: 属性age的值: 10
+#### 1.1 KVC赋值的过程/原理(setValue: forKey:)
+    调用setValue:forKey:方法
+            |               NO                                          NO         
+     按照setKey:、_setKey: ----->+(BOOL)accessInstanceVariablesDirectly------>setValue:forUndefinedKey:抛出异常
+       顺序查找方法                                 |YES
+            | YES                      按照_key、_isKey、key、isKey       NO
+    若找到，传递参数，调用方法                    顺序查找成员变量           ------->setValue:forUndefinedKey:抛出异常
+                                                  |YES
+                                                直接赋值
+       
+#### 1.2 KVC取值的过程/原理(valueForKey:)
+    
+    调用valueForKey:方法
+            |                   NO                                          NO         
+    按照getKey/key/isKey/_key: ----->+(BOOL)accessInstanceVariablesDirectly------>valueForUndefinedKey:抛出异常
+       顺序查找方法                                 |YES
+            | YES                      按照_key、_isKey、key、isKey       NO
+    若找到，调用方法                             顺序查找成员变量          ------->valueForUndefinedKey:抛出异常
+                                                  |YES
+                                                直接赋值
+
+#### 2. 面试题
+#### 2.1 通过KVC修改属性会触发KVO吗？会
+        //Person.h文件
+        @interface Person : NSObject
+        @property(nonatomic, assign)int age;
+        @end
+        
+        //Person.m文件
+        @implementation Person
+        //重写监听属性的setter方法
+        -(void)setAge:(int)age {
+            NSLog(@"setAge方法---");
+            _age = age;
+        }
+        -(void)willChangeValueForKey:(NSString *)key {
+            NSLog(@"willChangeValueForKey---begin");
+            [super willChangeValueForKey: key];
+            NSLog(@"willChangeValueForKey---end");
+        }
+
+        -(void)didChangeValueForKey:(NSString *)key {
+            NSLog(@"didChangeValueForKey---begin");
+            [super didChangeValueForKey:key];
+            NSLog(@"didChangeValueForKey---begin");
+        }
+        @end
+        
+        - (void)viewDidLoad {
+            [super viewDidLoad];
+            Person *p = [[Person alloc]init];
+            //为对象p的age属性添加观察者
+            [p addObserver:self forKeyPath:@"age" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:nil];
+            // 1. 点语法对属性进行赋值，是会触发KVO的
+            //p.age = 10;
+            // 2. 通过KVC对属性进行赋值
+            [p setValue:@10 forKeyPath:@"age"];
+        }
+        //观察者实现监听方法
+        -(void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey,id> *)change context:(void *)context {
+            NSLog(@"监听到%p的%@发生改变了---%@",object,keyPath,change);
+        }
+        
+        打印结果:  willChangeValueForKey---begin
+                  willChangeValueForKey---end
+                  setAge方法---
+                  didChangeValueForKey---begin
+                  监听到0x61000000ffb0的age发生改变了---{
+                    kind = 1;
+                    new = 10;
+                    old = 0;
+                  }
+                  didChangeValueForKey---begin
+#### 结论：通过KVC对属性进行赋值会触发KVO的，KVC底层内部是也会调用willChangeValueForKey和didChangeValueForKey方法的 ；
+
+#### 2.2 通过KVC修改成员变量，会触发KVO吗？ 会
+#### 如果通过KVC对成员变量进行赋值，即便没有setter方法同样是会触发KVO的，因为KVC找到成员变量进行赋值时，底层也调用了触发KVO的方法willChangeValueForKey和didChangeValueForKey，但是通过对象->成员变量是无法触发KVO的；验证如下：
+        @interface Person : NSObject
+        {
+            @public
+            int age;
+        }
+        @end
+
+        @implementation Person
+        -(void)willChangeValueForKey:(NSString *)key {
+            NSLog(@"willChangeValueForKey---begin");
+            [super willChangeValueForKey: key];
+            NSLog(@"willChangeValueForKey---end");
+        }
+        -(void)didChangeValueForKey:(NSString *)key {
+            NSLog(@"didChangeValueForKey---begin");
+            [super didChangeValueForKey:key];
+            NSLog(@"didChangeValueForKey---begin");
+        }
+        @end
+
+        - (void)viewDidLoad {
+            [super viewDidLoad];
+            Person *p = [[Person alloc]init];
+            //为对象p的age属性添加观察者
+            [p addObserver:self forKeyPath:@"age" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:nil];
+            //1.直接通过对象->成员变量是不会触发KVO的
+            //p->age = 100;
+            //2. 通过KVC对成员变量进行赋值，是可以触发KVO的
+            [p setValue:@10 forKey:@"age"];
+        }
+
+        //观察者实现监听方法
+        -(void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey,id> *)change context:(void *)context {
+            NSLog(@"监听到%p的%@发生改变了---%@",object,keyPath,change);
+        }
+        
+        打印结果:  willChangeValueForKey---begin
+                  willChangeValueForKey---end
+                  didChangeValueForKey---begin
+                  监听到0x61000000ffb0的age发生改变了---{
+                    kind = 1;
+                    new = 10;
+                    old = 0;
+                  }
+                  didChangeValueForKey---begin

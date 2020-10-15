@@ -12,24 +12,34 @@
 #import <objc/runtime.h>
 #import "Student.h"
 #import <malloc/malloc.h>
+#import "WGTargetProxy.h"
+
+
+@interface WGMainObjcVC()
+@end
 
 @implementation WGMainObjcVC
 - (void)viewDidLoad {
     [super viewDidLoad];
-    Person *p1 = [[Person alloc]init];
-    [p1 addObserver:self forKeyPath:@"age" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:nil];
-    //class方法是NSObject中的方法
-    [p1 class]; //通过isa指针找到NSKVONotifying_Person类对象，如果里面没有class方法，就通过NSKVONotifying_Person的supperclass找到Person类对象，然后再找到NSObject类对象，NSObject类对象中的class方法实现如下
+    
+    //创建定时器
+    /*
+     参数1：源的类型
+     参数2/参数3: 直接传递0即可
+     参数4:设置定时器运行的队列
+     */
+    dispatch_source_t timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, dispatch_get_main_queue());
+    //设置时间
+    NSTimeInterval start = 1.0;
+    NSTimeInterval interval = 1.0;
+    //dispatch_source_set_timer(timer, <#dispatch_time_t start#>, <#uint64_t interval#>, <#uint64_t leeway#>)
+    //设置定时器回调方法
+    dispatch_source_set_event_handler(timer, ^{
+        
+    })
+    
 }
 
--(Class)class {
-    return [Person class];
-}
-
-//观察者实现监听方法
--(void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey,id> *)change context:(void *)context {
-    NSLog(@"监听到%p的%@发生改变了---%@",object,keyPath,change);
-}
 
 @end
 
