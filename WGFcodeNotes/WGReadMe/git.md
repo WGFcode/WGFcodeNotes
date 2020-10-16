@@ -211,3 +211,18 @@
         2. git pull origin master（拉取远程的master）
         3. git stash pop（恢复现场）
         4. 解决冲突
+        
+#### 5. 删除分支
+#### 删除分支A，要先切换到其他分支，然后在执行如下命令
+    1. 删除本地分支
+    git branch -d A
+    2. 删除远程分支
+    git push origin --delete A
+
+#### 6. 查看两个分支的区别
+    1.显示出所有有差异的文件的详细差异
+    git diff 分支A 分支B
+    2.显示出所有有差异的文件列表
+    git diff 分支A 分支B --stat
+    3.显示指定文件的详细差异
+    git diff Refund WLKM 文件路径
