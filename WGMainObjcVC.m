@@ -16,30 +16,50 @@
 
 
 @interface WGMainObjcVC()
+//必须强引用这个定时器，否则定时器是不会工作的
+@property(nonatomic, strong) dispatch_source_t timer;
 @end
 
 @implementation WGMainObjcVC
 - (void)viewDidLoad {
     [super viewDidLoad];
-    
+    NSLog(@"-------begin-------");
+    //创建队列:主队列就是在主线程下，非主队列都是在子线程中
+    dispatch_queue_t queue = dispatch_get_main_queue();
     //创建定时器
     /*
      参数1：源的类型
      参数2/参数3: 直接传递0即可
      参数4:设置定时器运行的队列
      */
-    dispatch_source_t timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, dispatch_get_main_queue());
+    self.timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, queue);
     //设置时间
-    NSTimeInterval start = 1.0;
+    NSTimeInterval start = 3.0;
     NSTimeInterval interval = 1.0;
-    //dispatch_source_set_timer(timer, <#dispatch_time_t start#>, <#uint64_t interval#>, <#uint64_t leeway#>)
-    //设置定时器回调方法
-    dispatch_source_set_event_handler(timer, ^{
-        
-    })
-    
+    /*
+     参数1: 设置哪个定时器
+     参数2: 开始时间，必须是dispatch_time(参数1,开始的时间) NSEC_PER_SEC：纳秒
+     参数3: 间隔多长时间执行一次定时器任务
+     参数4: 误差，设置为0即可
+     */
+    dispatch_source_set_timer(self.timer,
+                              dispatch_time(DISPATCH_TIME_NOW, start * NSEC_PER_SEC),
+                              interval * NSEC_PER_SEC,
+                              0);
+    //设置定时器回调方法一：通过Block方式
+//    dispatch_source_set_event_handler(self.timer, ^{
+//        NSLog(@"1111--current Threaad:%@",[NSThread currentThread]);
+//    });
+    //设置定时器回调方法二：通过Block方式
+    dispatch_source_set_event_handler_f(self.timer, timerTest);
+    //启动定时器
+    dispatch_resume(self.timer);
 }
 
+//typedef void (*dispatch_function_t)(void *_Nullable);
+void timerTest(void* paramer) {
+    NSLog(@"1111--current Threaad:%@",[NSThread currentThread]);
+}
 
 @end
 

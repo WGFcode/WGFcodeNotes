@@ -9,7 +9,5 @@
 #import "Student+StudentCategory.h"
 
 @implementation Student (StudentCategory)
-+(void)load {
-    NSLog(@"Student (StudentCategory)--load");
-}
+
 @end

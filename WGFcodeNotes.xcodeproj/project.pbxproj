@@ -17,6 +17,7 @@
 		301CF1BF2452F1750024EC69 /* runLoop1.png in Resources */ = {isa = PBXBuildFile; fileRef = 301CF1BE2452F1750024EC69 /* runLoop1.png */; };
 		3027FD3A2512197500E512FE /* Swift内存对齐问题.md in Resources */ = {isa = PBXBuildFile; fileRef = 3027FD392512197500E512FE /* Swift内存对齐问题.md */; };
 		30313DC2253829F600941BE5 /* WGTargetProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 30313DC1253829F600941BE5 /* WGTargetProxy.m */; };
+		303D7ABC2539731F00EB6052 /* Xcode错误总结.md in Resources */ = {isa = PBXBuildFile; fileRef = 303D7ABB2539731F00EB6052 /* Xcode错误总结.md */; };
 		3066E0F02435DD48004C71F7 /* GCD.md in Resources */ = {isa = PBXBuildFile; fileRef = 3066E0EF2435DD48004C71F7 /* GCD.md */; };
 		3078C069251C366B00A73E54 /* 传值方式.md in Resources */ = {isa = PBXBuildFile; fileRef = 3078C068251C366B00A73E54 /* 传值方式.md */; };
 		307A0E7B24456BD3006E5429 /* RunLoop.md in Resources */ = {isa = PBXBuildFile; fileRef = 307A0E7A24456BD3006E5429 /* RunLoop.md */; };
@@ -90,6 +91,19 @@
 		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		305FF706253C756E0096B3A9 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		300845CA24456B1700055737 /* KVC.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = KVC.md; sourceTree = "<group>"; };
 		300845CD24456B4C00055737 /* KVO.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = KVO.md; sourceTree = "<group>"; };
@@ -105,6 +119,7 @@
 		3027FD392512197500E512FE /* Swift内存对齐问题.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Swift内存对齐问题.md"; sourceTree = "<group>"; };
 		30313DC0253829F600941BE5 /* WGTargetProxy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WGTargetProxy.h; sourceTree = "<group>"; };
 		30313DC1253829F600941BE5 /* WGTargetProxy.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WGTargetProxy.m; sourceTree = "<group>"; };
+		303D7ABB2539731F00EB6052 /* Xcode错误总结.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Xcode错误总结.md"; sourceTree = "<group>"; };
 		3066E0EF2435DD48004C71F7 /* GCD.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = GCD.md; sourceTree = "<group>"; };
 		3078C068251C366B00A73E54 /* 传值方式.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "传值方式.md"; sourceTree = "<group>"; };
 		307A0E7A24456BD3006E5429 /* RunLoop.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = RunLoop.md; sourceTree = "<group>"; };
@@ -240,6 +255,13 @@
 			path = WGScreenshots;
 			sourceTree = "<group>";
 		};
+		30D566A3253C6DFF007B45F1 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		30FD75FF2435CD1200431678 /* 多线程 */ = {
 			isa = PBXGroup;
 			children = (
@@ -294,6 +316,7 @@
 				548AC973242F4B3200EEE11C /* WGFcodeNotesUITests */,
 				548AC950242F4B3100EEE11C /* Products */,
 				30FD75F524357E3800431678 /* WGFcodeNotes-Bridging-Header.h */,
+				30D566A3253C6DFF007B45F1 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -376,6 +399,7 @@
 				543110B32530A23D007D0061 /* OC对象的本质.md */,
 				3078C068251C366B00A73E54 /* 传值方式.md */,
 				308628EA2537F9D0005E1ADC /* 内存管理.md */,
+				303D7ABB2539731F00EB6052 /* Xcode错误总结.md */,
 			);
 			path = WGReadMe;
 			sourceTree = "<group>";
@@ -390,6 +414,7 @@
 				548AC94B242F4B3100EEE11C /* Sources */,
 				548AC94C242F4B3100EEE11C /* Frameworks */,
 				548AC94D242F4B3100EEE11C /* Resources */,
+				305FF706253C756E0096B3A9 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -485,6 +510,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				303D7ABC2539731F00EB6052 /* Xcode错误总结.md in Resources */,
 				30A7DC832434A43E008DDCF9 /* lock2.png in Resources */,
 				30160A2624A748870074FB82 /* BinaryTree.md in Resources */,
 				548AC98C242F4CAD00EEE11C /* git.md in Resources */,
@@ -746,8 +772,13 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 27V68Z7BA3;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Carthage/Build/iOS",
+					"$(PROJECT_DIR)/WGFcodeNotes/WGLib",
+				);
 				INFOPLIST_FILE = WGFcodeNotes/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -768,8 +799,13 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 27V68Z7BA3;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Carthage/Build/iOS",
+					"$(PROJECT_DIR)/WGFcodeNotes/WGLib",
+				);
 				INFOPLIST_FILE = WGFcodeNotes/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
