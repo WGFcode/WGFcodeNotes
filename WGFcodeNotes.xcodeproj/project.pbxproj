@@ -255,6 +255,13 @@
 			path = ErrorCollect;
 			sourceTree = "<group>";
 		};
+		54388131254459FC00F5E4D1 /* SourceCode */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = SourceCode;
+			sourceTree = "<group>";
+		};
 		5463C26224B01092008F9C9A /* CoreAnimal */ = {
 			isa = PBXGroup;
 			children = (
@@ -303,6 +310,7 @@
 		548AC951242F4B3100EEE11C /* WGFcodeNotes */ = {
 			isa = PBXGroup;
 			children = (
+				54388131254459FC00F5E4D1 /* SourceCode */,
 				3015810A2455778B00EC6001 /* WGCore */,
 				30FD94D1243DDDD000EAFAA3 /* ErrorCollect */,
 				30A7DC7D24348382008DDCF9 /* WGScreenshots */,

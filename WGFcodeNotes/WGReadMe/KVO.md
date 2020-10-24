@@ -1110,3 +1110,6 @@
         }
 #### 分析：手动调用willChangeValueForKey和didChangeValueForKey方法就可以触发KVO，手动触发KVO有什么作用哪？主要就是使用在：当我们监听的属性没有发生改变时，我们也想触发KVO的监听方法
 
+
+#### 2.2 直接修改成员变量会触发KVO吗?
+#### 不会出发KVO, 因为KVO的本质的Runtime动态生成对象的子类NSKVONotifying_类名称,在子类中重写setter方法,然后调用willChangeValueForKey、原类的setter方法、didChangeValueForKey.而成员变量没有setter方法,所以不会触发,想要触发的话,只能手动触发,在成员变量值改变前后手动添加willChangeValueForKey和didChangeValueForKey方法

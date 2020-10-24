@@ -1,8 +1,6 @@
 ## 内存管理
 
 
-
-
 ### 一 自动释放池AutoreleasePool  https://www.jianshu.com/p/9c8139fc3100
 #### 1 自动释放池简介
 #### Autorelease机制是为了延时释放对象, OC对象的生命周期取决于引用计数, 有两种方式可以释放对象: (1)直接调用release释放(2)调用autorelease将对象加入自动释放池中。而自动释放池用来存放那些需要在某个时刻(当次的RunLoop事件循环将要结束的时候会释放掉)释放的对象,如果没有自动释放池而给对象发送autorelease消息,控制台会报错,但一般我们不需要担心自动释放池的创建问题,系统会自动创建一些线程,例如主线程和GCD中的线程,都默认拥有自动释放池,每次执行“事件循环”(event loop)时，就会将自动释放池清空,简单说就是在当次的RunLoop将要结束的时候调用objc_autoreleasePoolPop，并push进来一个新的AutoreleasePool
