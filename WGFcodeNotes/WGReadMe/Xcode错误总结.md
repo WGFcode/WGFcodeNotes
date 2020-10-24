@@ -25,7 +25,8 @@ Xcode Toolchain包括编译器，lldb以及其他相关工具的副本，这些�
 3. 在终端执行 export XCODE_XCCONFIG_FILE=$PWD/WLKOrderCarthage.xcconfig
 4. carthage update --platform iOS --no-use-binaries --cache-builds
 
-#### 解决方案2:存在问题，就是Alamofire.framwork中缺失Header文件，导致项目中的桥接文件找不到对应的Alamofire.h文件，不推荐使用 https://github.com/Carthage/Carthage/blob/master/Documentation/Xcode12Workaround.md
+#### 解决方案2: https://github.com/Carthage/Carthage/blob/master/Documentation/Xcode12Workaround.md，推荐使用这种方式，这样就可以避免在多个工程中创建**tmp.xcconfig**文件了
+#### ⚠️存在问题，就是Alamofire.framwork中缺失Header文件，导致项目中的桥接文件找不到对应的Alamofire.h文件，但最终在github上咨询后，是因为Alamofire新版本已经移除了OC的模块，所以后续新版本的Alamofire就不能再桥接文件中引入Alamofire.h文件了，只能是哪里用到了就import了
 1. 在/usr/local/bin 目录下创建carthage.sh，如: touch carthage.sh
 2. 在carthage.sh文件下粘贴如下代码：
 3. 终端修改权限：chmod +x /usr/local/bin/carthage.sh

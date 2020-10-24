@@ -776,6 +776,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/Carthage/Build/iOS",
 					"$(PROJECT_DIR)/WGFcodeNotes/WGLib",
+					"$(PROJECT_DIR)/WGFcodeNotes",
 				);
 				INFOPLIST_FILE = WGFcodeNotes/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
@@ -803,6 +804,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/Carthage/Build/iOS",
 					"$(PROJECT_DIR)/WGFcodeNotes/WGLib",
+					"$(PROJECT_DIR)/WGFcodeNotes",
 				);
 				INFOPLIST_FILE = WGFcodeNotes/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
