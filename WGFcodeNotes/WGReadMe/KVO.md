@@ -875,7 +875,7 @@
 #### 为什么要自定义KVO，因为我们知道KVO的实现需要注册观察者，然后实现监听方法，我们能不能注册和监听放在一个方法中，即将监听的事件放在block的回调中，然后将block放在注册方法中。接下来我们来实现这个需求
 
 
-### MJExtension
+### MJExtension底层班
 ### 1. KVO实现研究
         - (void)viewDidLoad {
             [super viewDidLoad];

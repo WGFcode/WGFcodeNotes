@@ -45,6 +45,7 @@ public class WGMainVC : UIViewController {
         //将指定的队列恢复,继续后面还没有执行的处理任务;对已经执行的处理任务或者正在执行的处理任务是无效的
         queue.resume()
        
+        
     }
     
     

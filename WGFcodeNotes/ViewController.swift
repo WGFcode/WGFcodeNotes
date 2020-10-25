@@ -8,7 +8,6 @@
 
 import UIKit
 
-
 //enum WGSexType {
 //    case Man(String,String,String) //内存对齐8字节 实际占用48 系统分配：48
 //    case Woman(Bool,Bool)
@@ -25,7 +24,6 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view.backgroundColor = UIColor.red
-        
         
         let sexEnum = WGSexType()
         // 实际占用的内存大小
