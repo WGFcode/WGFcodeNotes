@@ -22,7 +22,6 @@
 		3078C069251C366B00A73E54 /* 传值方式.md in Resources */ = {isa = PBXBuildFile; fileRef = 3078C068251C366B00A73E54 /* 传值方式.md */; };
 		307A0E7B24456BD3006E5429 /* RunLoop.md in Resources */ = {isa = PBXBuildFile; fileRef = 307A0E7A24456BD3006E5429 /* RunLoop.md */; };
 		307A0E7D24456BE4006E5429 /* RunTime.md in Resources */ = {isa = PBXBuildFile; fileRef = 307A0E7C24456BE4006E5429 /* RunTime.md */; };
-		308628EB2537F9D0005E1ADC /* 内存管理.md in Resources */ = {isa = PBXBuildFile; fileRef = 308628EA2537F9D0005E1ADC /* 内存管理.md */; };
 		309F9D682435D98700FFB705 /* ThreadLock.md in Resources */ = {isa = PBXBuildFile; fileRef = 309F9D672435D98700FFB705 /* ThreadLock.md */; };
 		30A73F332447F14A00C86BB8 /* kvc1.png in Resources */ = {isa = PBXBuildFile; fileRef = 30A73F322447F14A00C86BB8 /* kvc1.png */; };
 		30A7DC8124348703008DDCF9 /* lock1.png in Resources */ = {isa = PBXBuildFile; fileRef = 30A7DC8024348703008DDCF9 /* lock1.png */; };
@@ -126,7 +125,6 @@
 		307A0E7A24456BD3006E5429 /* RunLoop.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = RunLoop.md; sourceTree = "<group>"; };
 		307A0E7C24456BE4006E5429 /* RunTime.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = RunTime.md; sourceTree = "<group>"; };
 		307A0E7E24456BF8006E5429 /* Block.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Block.md; sourceTree = "<group>"; };
-		308628EA2537F9D0005E1ADC /* 内存管理.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "内存管理.md"; sourceTree = "<group>"; };
 		309F9D672435D98700FFB705 /* ThreadLock.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = ThreadLock.md; sourceTree = "<group>"; };
 		30A73F322447F14A00C86BB8 /* kvc1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = kvc1.png; sourceTree = "<group>"; };
 		30A7DC8024348703008DDCF9 /* lock1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = lock1.png; sourceTree = "<group>"; };
@@ -411,7 +409,6 @@
 				3027FD392512197500E512FE /* Swift内存对齐问题.md */,
 				543110B32530A23D007D0061 /* OC对象的本质.md */,
 				3078C068251C366B00A73E54 /* 传值方式.md */,
-				308628EA2537F9D0005E1ADC /* 内存管理.md */,
 				303D7ABB2539731F00EB6052 /* Xcode错误总结.md */,
 			);
 			path = WGReadMe;
@@ -554,7 +551,6 @@
 				30ECA52024580E9000E3D312 /* Response.md in Resources */,
 				548F332024F15E8F00AB3540 /* Memory.md in Resources */,
 				3027FD3A2512197500E512FE /* Swift内存对齐问题.md in Resources */,
-				308628EB2537F9D0005E1ADC /* 内存管理.md in Resources */,
 				30FD94D4243DDE8400EAFAA3 /* error1.png in Resources */,
 				548AC98D242F4CAD00EEE11C /* PackageIpaWithShell.md in Resources */,
 				543110B42530A23D007D0061 /* OC对象的本质.md in Resources */,
