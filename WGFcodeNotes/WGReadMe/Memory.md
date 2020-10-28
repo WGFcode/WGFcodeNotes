@@ -892,42 +892,59 @@
                 Program ended with exit code: 0
 #### 分析:  PAGE  (full) (cold): cold冷,表示存满的page; PAGE (hot):hot热,表示当前使用的page
 
-#### 3.9 autorelease释放时机
-#### 
-
-
-
-
-
-
-
-
-
-
-
-
+#### 3.9 autorelease对象在什么时候释放
+        - (void)viewDidLoad {
+            [super viewDidLoad];
+            NSLog(@"%@",[NSRunLoop currentRunLoop]);
+        }
         
+        "<CFRunLoopObserver 0x600000538be0 [0x7fff80617cb0]>{valid = Yes, activities = 0x1, repeats = Yes, order = -2147483647, callout = _wrapRunLoopWithAutoreleasePoolHandler (0x7fff4808bf54), context = <CFArray 0x600003a50810 [0x7fff80617cb0]>{type = mutable-small, count = 1, values = (\n\t0 : <0x7fbdb8803040>\n)}}",
+        "<CFRunLoopObserver 0x600000538c80 [0x7fff80617cb0]>{valid = Yes, activities = 0xa0, repeats = Yes, order = 2147483647, callout = _wrapRunLoopWithAutoreleasePoolHandler (0x7fff4808bf54), context = <CFArray 0x600003a50810 [0x7fff80617cb0]>{type = mutable-small, count = 1, values = (\n\t0 : <0x7fbdb8803040>\n)}}"
+        
+        //RunLoop的状态
+        typedef CF_OPTIONS(CFOptionFlags, CFRunLoopActivity) {
+           kCFRunLoopEntry = (1UL << 0),                即将进入RunLoop (十进制1)
+           kCFRunLoopBeforeTimers = (1UL << 1),         即将处理Timers (十进制2)
+           kCFRunLoopBeforeSources = (1UL << 2),        即将处理Sources (十进制4)
+           kCFRunLoopBeforeWaiting = (1UL << 5),        即将进入休眠 (十进制32)
+           kCFRunLoopAfterWaiting = (1UL << 6),         刚从休眠中唤醒 (十进制64)
+           kCFRunLoopExit = (1UL << 7),                 即将推出RunLoop (十进制128)
+           kCFRunLoopAllActivities = 0x0FFFFFFFU
+       };
+#### 在打印信息中,我们可以发现有两个_wrapRunLoopWithAutoreleasePoolHandler函数,这两个函数和自动释放池有关. 这两个函数中分别对应的有activities = 0x1(十进制1) 和 activities = 0xa0(十进制160),这代表监听的RunLoop的状态,activities = 0x1监听的是即将进入RunLoop的状态kCFRunLoopEntry,activities = 0xa0(十进制160)监听的是kCFRunLoopBeforeWaiting-32(休眠之前)和kCFRunLoopExit-128(退出)
 
+#### 总结
+1. iOS在主线程的RunLoop中注册了2个Observer
+2. 第一个Observer监听了kCFRunLoopEntry事件(即将进入RunLoop),会调用objc_autoreleasePoolPush()方法
+3. 第二个Observer监听了两个事件: 
 
+        kCFRunLoopBeforeWaiting事件(RunLoop进入休眠前),会调用objc_autoreleasePoolPop()、objc_autoreleasePoolPush()
+        kCFRunLoopExit事件(RunLoop即将退出),会调用objc_autoreleasePoolPop()方法
+        4.autorelease对象可能是在某次RunLoop循环中,RunLoop休眠之前调用的release方法进行销毁的
 
+#### 3.10 方法里有局部对象,出了方法会立刻释放吗?
+#### 这个问题应该是考察ARC环境下的,主要就是看下ARC帮我们做了什么,是自动调用了autorelease方法(出了方法体可能还不会销毁,而是等到RunLoop循环中,休眠之前才进行销毁)还是调用了release方法(出了方法立刻释放)
 
-    4. autorelease在什么时机释放
-    5. 方法里有局部对象，出了方法会立即释放吗
-    6. ARC都帮我们做了什么？
-    7. weak指针的实现原理
-    
+        - (void)viewDidLoad {
+            [super viewDidLoad];
+            Person *p = [[Person alloc]init];
+        }
 
+        -(void)viewWillAppear:(BOOL)animated {
+            [super viewWillAppear:animated];
+            NSLog(@"----%s",__func__);
+        }
 
+        -(void)viewDidAppear:(BOOL)animated {
+            [super viewDidAppear:animated];
+            NSLog(@"----%s",__func__);
+        }
+        
+        打印结果: -[Person dealloc]---
+                -----[WGMainObjcVC viewWillAppear:]
+                -----[WGMainObjcVC viewDidAppear:]
 
-
-
-
-
-
-
-
-
-
+#### 分析,我们大胆猜测,ARC环境下,应该是局部变量一旦出了方法体, ARC就会帮我们自动调用对象的release方法,所以局部变量出了方法,是会立刻销毁的
 
 
 
