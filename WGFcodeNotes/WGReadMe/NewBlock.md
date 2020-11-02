@@ -1,7 +1,7 @@
 ### Block系统性总结
 
 
-#### 1. block本质及底层结构
+### 1. block本质及底层结构
 #### 1.1 block本质也是个OC对象,它内部也有isa指针.block是封装了函数调用以及函数环境的OC对象
         int main(int argc, const char * argv[]) {
             @autoreleasepool {
@@ -98,6 +98,654 @@
         //执行block内部代码
         block->FuncPtr)(block);
 #### 从上面我们知道block指向的是结构体__main_block_impl_0,但是__main_block_impl_0结构体中并没有FuncPtr成员变量,这里其实是做了强制类型转化,为什么可以转化?因为__main_block_impl_0结构体的地址其实也是它内部第一个成员变量的地址,所以也就是__block_impl结构体的地址,这样就可以找到block函数实现的地址FuncPtr,然后进行函数调用
+
+### 2. block变量的捕获
+#### 变量分为局部变量(auto自动变量+static静态变量)和全局变量,默认是auto自动变量,自动变量离开了作用域就会销毁
+#### 2.1 block捕获局部变量-auto自动变量
+        int main(int argc, const char * argv[]) {
+            @autoreleasepool {
+                //auto自动变量,离开了作用域就会销毁
+                int age = 10;
+                void (^block)(void) = ^{
+                    NSLog(@"my age is: %d",age);
+                };
+                age = 20;
+                block();
+            }
+            return 0;
+        }
+        
+        打印结果: my age is: 10
+        
+#### 简化后C++代码
+        int age = 10;
+        void (*block)(void) = &__main_block_impl_0(__main_block_func_0, &__main_block_desc_0_DATA, age));
+        age = 20;
+        block->FuncPtr(block);
+        
+        static void __main_block_func_0(struct __main_block_impl_0 *__cself) {
+        int age = __cself->age; // bound by copy
+            NSLog((NSString *)&__NSConstantStringImpl__var_folders_wc_tkbgc_ts0pv3lyd2n4wsdc6h0000gn_T_main_7ea761_mi_0,age);
+        }
+        
+        struct __main_block_impl_0 {
+            struct __block_impl impl;
+            struct __main_block_desc_0* Desc;
+            //block底层结构中多了一个成员变量
+            int age;   
+            //参数中age(_age)是C++语法,表示将_age的值赋值给age,即赋值给block的成员变量age
+            __main_block_impl_0(void *fp, struct __main_block_desc_0 *desc, int _age, int flags=0) : age(_age) {
+                impl.isa = &_NSConcreteStackBlock;
+                impl.Flags = flags;
+                impl.FuncPtr = fp;
+                Desc = desc;
+            }
+        };
+#### 分析,block捕获自动变量时,是底层自动生成了和外部自动变量类型/名称一样的变量,用来保存外部自动变量的值,是值捕获
+
+#### 2.2 block捕获局部变量-static静态局部变量
+        int main(int argc, const char * argv[]) {
+            @autoreleasepool {
+                int age = 10;
+                static int height = 100;
+                void (^block)(void) = ^{
+                    NSLog(@"my age is: %d, my height is: %d",age,height);
+                };
+                age = 20;
+                height = 200;
+                block();
+            }
+            return 0;
+        }
+        
+        打印结果: my age is: 10, my height is: 200
+        
+#### 简化后C++代码
+         int age = 10;
+         static int height = 100;
+         void (*block)(void) = &__main_block_impl_0(__main_block_func_0, &__main_block_desc_0_DATA, age, &height));  //将height的地址传递给这个函数
+         age = 20;
+         height = 200;
+         block->FuncPtr(block);
+        
+        static void __main_block_func_0(struct __main_block_impl_0 *__cself) {
+            int age = __cself->age; // bound by copy
+            int *height = __cself->height; // bound by copy
+            NSLog((NSString *)&__NSConstantStringImpl__var_folders_wc_tkbgc_ts0pv3lyd2n4wsdc6h0000gn_T_main_999b2c_mi_0,age,(*height));
+        }
+        
+        struct __main_block_impl_0 {
+            struct __block_impl impl;
+            struct __main_block_desc_0* Desc;
+            //因为block底层生成了对应的成员变量,所以block对局部变量都会捕获,无论是自动变量还是静态变量
+            int age;
+            int *height;  
+            //age(_age):将_age的值赋值给age; height(_height):将外部传建立的_height赋值给height
+            __main_block_impl_0(void *fp, struct __main_block_desc_0 *desc, int _age, int *_height, int flags=0) : age(_age), height(_height) {  
+                impl.isa = &_NSConcreteStackBlock;
+                impl.Flags = flags;
+                impl.FuncPtr = fp;
+                Desc = desc;
+            }
+        };
+#### 分析,block捕获static静态变量时,是底层自动生成了和外部静态变量名称一样的变量指针,用来保存外部自动变量的地址,也就是block中生成的变量地址和外部静态变量的地址是一样的,所以外部改变静态变量的值,block内部的值也跟着改变,是指针捕获
+
+#### 思考: 为什么block捕获auto自定变量是**值传递**,而捕获static静态变量是**指针传递**? 因为对于自动变量,出了作用域就会被销毁,所以block要在访问时,先保存它的值,来避免访问已经销毁的自动变量而发生错误.而对于static变量的值,static变量即便离开了作用域,它仍然存在于内存中,直接通过指针就可以随时访问到它最新的值
+
+
+#### 2.3 block捕获全局变量(全局变量+全局静态变量)
+        int age = 10;            //全局变量
+        static int height = 100; //全局静态变量
+        int main(int argc, const char * argv[]) {
+            @autoreleasepool {
+                void (^block)(void) = ^{
+                    NSLog(@"my age is: %d, my height is: %d",age,height);
+                };
+                age = 20;
+                height = 200;
+                block();
+            }
+            return 0;
+        }
+
+        打印结果: my age is: 20, my height is: 200
+        
+#### 简化后C++代码
+        void (*block)(void) = &__main_block_impl_0(__main_block_func_0, &__main_block_desc_0_DATA));
+        age = 20;
+        height = 200;
+        block->FuncPtr(block);
+
+        static void __main_block_func_0(struct __main_block_impl_0 *__cself) {
+            NSLog((NSString *)&__NSConstantStringImpl__var_folders_wc_tkbgc_ts0pv3lyd2n4wsdc6h0000gn_T_main_9a7948_mi_0,age,height); //直接访问外部的全局变量即可,不需要捕获
+        }
+
+        int age = 10;
+        static int height = 100;
+        struct __main_block_impl_0 {
+            struct __block_impl impl;
+            struct __main_block_desc_0* Desc;
+            //这里并没有生成对应的成员变量,所以block对全局变量(全局变量+全局静态变量)是不会捕获的
+            __main_block_impl_0(void *fp, struct __main_block_desc_0 *desc, int flags=0) {
+                impl.isa = &_NSConcreteStackBlock;
+                impl.Flags = flags;
+                impl.FuncPtr = fp;
+                Desc = desc;
+            }
+        };
+
+#### 分析,block对全局变量是不会捕获的,因为全局变量是一直存在于内存中的,直接访问即可. 为什么全局变量不需要捕获? 因为全局变量在什么地方都可以访问,所以block不需要捕获
+#### 思考? 为什么局部变量需要捕获? 主要还是因为局部变量作用域的问题,局部变量是跨函数访问,定义的地方和访问的地方不是同一个函数,所以需要捕获
+
+
+#### 2.4 案例
+#### 下面block中是否会捕获self?
+        //WGPerson.h文件
+        @interface WGPerson : NSObject
+        -(void)test;
+        @end
+
+        //WGPerson.m文件
+        @implementation WGPerson
+        -(void)test {
+            void (^block)(void) = ^{
+                NSLog(@"-----%@",self);
+            };
+            block();
+        }
+        @end
+        
+#### 简化后的C++代码
+        // test()方法转化后,可以发现调用test方法,实际传递了两个参数: self对象本身,还有就是方法名称,函数参数也是局部变量,既然是局部变量,那么就都会被block捕获
+        static void _I_WGPerson_test(WGPerson * self, SEL _cmd) {
+            //将self作为参数再传递给block底层构造方法,
+            void (*block)(void) = &__WGPerson__test_block_impl_0(__WGPerson__test_block_func_0, &__WGPerson__test_block_desc_0_DATA, self, 570425344));
+            block->FuncPtr(block);
+        }
+        
+        struct __WGPerson__test_block_impl_0 {
+            struct __block_impl impl;
+            struct __WGPerson__test_block_desc_0* Desc;
+            //生成对应的成员变量
+            WGPerson *self;  
+            //self(_self)接收外部传递进来的_self参数,然后赋值给self
+            __WGPerson__test_block_impl_0(void *fp, struct __WGPerson__test_block_desc_0 *desc, WGPerson *_self, int flags=0) : self(_self) {
+                impl.isa = &_NSConcreteStackBlock;
+                impl.Flags = flags;
+                impl.FuncPtr = fp;
+                Desc = desc;
+            } 
+        };
+        #### 分析,调用对象的方法,底层实际是传递了两个参数: 一个是对象本身self,一个是方法SEL,既然是参数,那么就是局部变量,只要是局部变量,那么就一定会被block捕获. 如果在案例test方法的block中访问WGPerson的成员变量,那么实际block上捕获的是WGPerson对象self本身,然后通过self再去访问它的成员变量
+
+
+
+#### 总结
+#### 为了保证block内部能够正常访问外部的变量,block有变量捕获机制
+                     变量类型            捕获到block内部        访问方式
+        局部变量      auto               捕获                  值传递
+                    static              捕获                  指针传递
+        全局变量      全局变量            不捕获                 直接访问
+
+### 3. block类型
+#### 3.1 block有3中类型,可以通过调用**class**方法或isa指针查看具体类型,最终都是继承自NSBlock类型
+        int main(int argc, const char * argv[]) {
+            @autoreleasepool {
+                //类型一->继承关系:  __NSGlobalBlock__ : __NSGlobalBlock : NSBlock : NSObject : (null)
+                void (^block)(void) = ^{
+                    NSLog(@"hello world");
+                };
+                NSLog(@"%@",[block class]);     //block类对象
+                NSLog(@"%@",[[block class] superclass]);  //block类对象的父类
+                NSLog(@"%@",[[[block class] superclass] superclass]);  //block类对象的父类的父类
+                NSLog(@"%@",[[[[block class] superclass] superclass] superclass]);  //...
+                NSLog(@"%@",[[[[[block class] superclass] superclass] superclass] superclass]);  //...
+            }
+            return 0;
+        }
+
+        打印结果: __NSGlobalBlock__
+                __NSGlobalBlock
+                NSBlock
+                NSObject
+                (null)
+                
+        struct __block_impl {
+          void *isa;
+          int Flags;
+          int Reserved;
+          void *FuncPtr;
+        };
+#### 分析,从结果打印可知,block本质就是一个OC对象,最终是继承自NSBlock类型, 基类就是NSObject, 那么就可以明白之前研究的block底层结构中的**isa**指针就是从NSObject中继承来的, 同理我们可以打印其他block类型
+        int main(int argc, const char * argv[]) {
+            @autoreleasepool {
+                //类型二->继承关系:  __NSMallocBlock__ : __NSMallocBlock : NSBlock : NSObject : (null)
+                int age = 10;
+                void (^block)(void) = ^{
+                    NSLog(@"hello world---%d",age);
+                };
+                block();
+            }
+            return 0;
+        }
+        
+        int main(int argc, const char * argv[]) {
+            @autoreleasepool {
+
+                //类型三->继承关系:  __NSStackBlock__ : __NSStackBlock : NSBlock : NSObject : (null)
+                int age = 10;
+                NSLog(@"--%@---%@---%@",[^{
+                    NSLog(@"----%d",age);
+                } class],[[^{} class] superclass],[[[^{} class] superclass] superclass]);
+            }
+            return 0;
+        }
+        打印结果: --__NSStackBlock__---__NSGlobalBlock---NSBlock
+
+#### 分析,OS中block类型分为三种__NSGlobalBlock__/__NSMallocBlock__/__NSStackBlock__
+
+#### 3.2 编译后的block类型和真实打印block类型的差异
+        int main(int argc, const char * argv[]) {
+            @autoreleasepool {
+                //__NSGlobalBlock__
+                void (^block1)(void) = ^{
+                    NSLog(@"hello world");
+                };
+                //__NSStackBlock__
+                int age = 10;
+                void (^block2)(void) = ^{
+                    NSLog(@"hello world---%d",age);
+                };
+                //__NSStackBlock__
+                NSLog(@"%@ %@ %@",[block1 class],[block2 class],[^{
+                    NSLog(@"%d",age);
+                } class]);
+            }
+            return 0;
+        }
+        
+#### 简化为C++代码后
+        //block1
+        struct __main_block_impl_0 {
+            struct __block_impl impl;
+            struct __main_block_desc_0* Desc;
+            __main_block_impl_0(void *fp, struct __main_block_desc_0 *desc, int flags=0) {
+                impl.isa = &_NSConcreteStackBlock;
+                impl.Flags = flags;
+                impl.FuncPtr = fp;
+                Desc = desc;
+            }
+        };
+        //block2
+        struct __main_block_impl_1 {
+            struct __block_impl impl;
+            struct __main_block_desc_1* Desc;
+            int age;
+            __main_block_impl_1(void *fp, struct __main_block_desc_1 *desc, int _age, int flags=0) : age(_age) {
+                impl.isa = &_NSConcreteStackBlock;
+                impl.Flags = flags;
+                impl.FuncPtr = fp;
+                Desc = desc;
+            }
+        };
+#### 分析,我们可以看出编译后的block的**isa**都指向了**&_NSConcreteStackBlock**类型,这个和我们运行打印的结果是不一样的, 为什么? 我们一切以Runtime运行时为准,我们通过**clang**生成的C++代码并不是我们OC真正生成的代码,会有一些差异化的改变,只是可以作为参考,因为**LLVM**编译器从某个版本开始,不在生成C++代码,而是生成了一种中间文件,这种中间文件和我们**clang**出来的C++文件还是有所差别的,但是差别不大,(clang是属于LLVM编译器种的一部分)
+
+#### 3.3 block类型总结
+        应用程序的内存分配:
+            程序区域(.text区): 程序代码
+            数据区域(.data区): 全局变量/static变量
+            堆区: alloc/malloc出来的对象,动态分配内存,需要我们程序员自己申请和管理内存
+            栈区: 局部变量,函数参数等
+        
+        __NSGlobalBlock__(NSConcreteGlobalBlock): 数据区
+        __NSMallocBlock__(_NSConcreteMallocBlock): 堆区 
+        __NSStackBlock__(_NSConcreteStackBlock): 栈区
+        
+#### 3.4 block类型区别
+        int height = 100;
+        int main(int argc, const char * argv[]) {
+            @autoreleasepool {
+                void (^block1)(void) = ^{
+                    NSLog(@"hello world---");
+                };
+                NSLog(@"block1----%@",[block1 class]);
+
+                static int age = 10;
+                void (^block2)(void) = ^{
+                    NSLog(@"my age is: %d",age);
+                };
+                NSLog(@"block2----%@",[block2 class]);
+                
+                void (^block3)(void) = ^{
+                    NSLog(@"my height is: %d",height);
+                };
+                NSLog(@"block3----%@",[block3 class]);
+            }
+            return 0;
+        }
+        
+        打印结果: block1----__NSGlobalBlock__
+                block2----__NSGlobalBlock__
+                block3----__NSGlobalBlock__
+                
+#### 分析,没有访问auto自动变量的都是NSGlobalBlock类型的, 存放在数据段中. 为什么访问了static静态变量/全局变量的block是NSGlobalBlock类型? 推测可能是因为这些变量存储在数据段中,离开作用域不会销毁的原因
+        int age = 10;
+        void (^block)(void) = ^{
+            NSLog(@"my age is: %d",age);
+        };
+        block();
+        NSLog(@"%@",[block class]);
+        
+        //在MRC(手动管理内存)环境下
+        打印结果: my age is: 10
+                __NSStackBlock__
+
+        //在ARC(自动管理内存)环境下
+        打印结果: my age is: 10
+                __NSMallocBlock__
+#### 分析,访问了auto变量的block在ARC环境下就是__NSMallocBlock__类型,在MRC环境下就是__NSStackBlock__类型,为什么ARC和MRC环境下,block类型会不一致? 原因就是栈(NSStackBlock)类型block会随时销毁的,我们控制不了,在ARC自动管理内存中,ARC底层已经帮我们做了事来保证block不会被销毁,所以将栈(NSStackBlock)类型的block **变成了**  堆(NSMallocBlock)类型的block,即将栈block做了一次copy变成了堆block
+    
+#### 3.5 block类型区分总结
+                 block类型                             环境
+        全局block:__NSGlobalBlock__(数据区)         没有访问auto变量(不访问变量/访问static变量/访问全局变量)
+        栈block:__NSStackBlock__(栈区)             访问了auto变量
+        堆block:__NSMallocBlock__(堆区)            __NSStackBlock__调用了copy
+
+#### 每种block调用copy后的结果
+                 block类型                  副本源的配置存储域       copy复制效果
+        全局block:__NSGlobalBlock             程序的数据区域        什么也不做
+        栈block:__NSStackBlock__(栈区)             栈             从栈复制到堆
+        堆block:__NSMallocBlock__(堆区)            堆             引用计数增加  
+        
+### 4 block的copy操作
+#### 在ARC环境下,编译器会根据情况自动将栈上的block复制到堆上,什么情况下会发生?
+1. block作为函数返回值时
+2. 将block赋值给__strong指针时(对象默认创建的都是强指针,只是省略了__strong关键词)
+3. block作为Cocoa API中方法名含有usingBlock的方法参数时
+4. block作为GCD API的方法参数时
+
+### 5 block捕获-对象类型的auto变量
+        //WGPerson.m文件
+        @implementation WGPerson
+        -(void)dealloc {
+            NSLog(@"%s",__func__);
+        }
+        @end
+
+        typedef void (^WGBlock)(void);
+        int main(int argc, const char * argv[]) {
+            @autoreleasepool {
+                {
+                    WGPerson *person = [[WGPerson alloc]init];
+                    person.age = 10;
+                }
+                打断点: NSLog(@"-----");  
+            }
+            return 0;
+        }
+        
+        打印结果: -[WGPerson dealloc]
+#### 分析, 当出了{}大括号后,WGPerson对象就销毁了,因为{}大括号中的WGPerson对象是局部变量,离开作用域就会销毁,这个很好理解,接下来再分析
+
+        int main(int argc, const char * argv[]) {
+            @autoreleasepool {
+                WGBlock block;
+                {
+                    WGPerson *person = [[WGPerson alloc]init];
+                    person.age = 10;
+                    block = ^{
+                        NSLog(@"------%d",person.age);
+                    };
+                }
+                打断点: NSLog(@"-----");
+            }
+            return 0;
+        }
+        
+        打印结果: ------10
+#### 分析,发现WGPerson对象出了{}大括号后并没有销毁,因为没有打印信息: -[WGPerson dealloc],为什么? 因为block内部访问了person.age,即访问了person对象,那么会对person对象进行强引用, 只有block销毁了person对象才会销毁, 这里的block类型其实就是堆block,因为它被__strong指针引用着(WGBlock block;默认情况下就是__strong,只是省略了而已)
+
+#### 转为C++代码
+        struct __main_block_impl_0 {
+            struct __block_impl impl;
+            struct __main_block_desc_0* Desc;
+            WGPerson *person;   //这里自动生成了成员变量来保存外部的person对象的指针
+            __main_block_impl_0(void *fp, struct __main_block_desc_0 *desc, WGPerson *_person, int flags=0) : person(_person) {
+                impl.isa = &_NSConcreteStackBlock;
+                impl.Flags = flags;
+                impl.FuncPtr = fp;
+                Desc = desc;
+            }
+        };
+        
+#### 上面的验证都是在ARC环境下,block类型是堆block,因为block有强指针(__strong)引用着,接下来我们看下如果在MRC环境下有什么变化, 在Build Settings中将Objective-C Automatic Reference Counting 设置为NO
+        int main(int argc, const char * argv[]) {
+            @autoreleasepool {
+                WGBlock block;
+                {
+                    WGPerson *person = [[WGPerson alloc]init];
+                    person.age = 10;
+                    block = ^{
+                        NSLog(@"------%d",person.age);
+                    };
+                    [person release];  //因为是MRC环境,所以person要进行一次release               
+                }
+                打断点:NSLog(@"-----");
+            }
+            return 0;
+        }
+        打印结果: -[WGPerson dealloc]
+#### 分析,为什么在ARC环境下,person对象没有销毁,而在MRC环境下就销毁了? 原因是因为在MRC环境下,这里的block类型属于栈block,而栈上的block对person没有进行强引用, 如果此时对block进行一次copy操作,block类型变成堆block,那么person对象就不会销毁了,因为堆block是可以保住外部auto对象的命的,这个已经验证过了
+#### 总结: 从上面案例分析中,得出结论: 无论在MRC还是ARC环境下,栈上的block对外部的auto对象是不会强引用的
+    
+#### 5.1 __weak修饰的auto对象类型
+    int main(int argc, const char * argv[]) {
+            @autoreleasepool {
+                WGBlock block;
+                {
+                    WGPerson *person = [[WGPerson alloc]init]; 
+                    person.age = 10;
+                    __weak WGPerson *weakPerson = person;
+                    block = ^{
+                        NSLog(@"------%d",weakPerson.age);
+                    };
+                }
+
+                打断点:NSLog(@"-----");
+            }
+            return 0;
+        }
+
+        打印结果: -[WGPerson dealloc]
+        
+        通过 xcrun -sdk iphoneos clang -arch arm64 -rewrite-objc main.m 转为C++代码,这里会发生如下错误
+        cannot create __weak reference because the current deployment target does
+              not support weak references
+                    __attribute__((objc_ownership(weak))) WGPerson *weakPerson = person;
+        1 error generated.
+        弱引用技术是需要运行时来支持的,解决方案
+        xcrun -sdk iphoneos clang -arch arm64 -rewrite-objc -fobjc-arc -fobjc-runtime=ios-8.0.0 main.m
+        
+        struct __main_block_impl_0 {
+            struct __block_impl impl;
+            struct __main_block_desc_0* Desc;
+            WGPerson *__weak weakPerson;   //此时变成了弱引用
+            __main_block_impl_0(void *fp, struct __main_block_desc_0 *desc, WGPerson *__weak _weakPerson, int flags=0) : weakPerson(_weakPerson) {
+                impl.isa = &_NSConcreteStackBlock;
+                impl.Flags = flags;
+                impl.FuncPtr = fp;
+                Desc = desc;
+            }
+        };
+#### 分析,用__weak修饰符来修饰auto对象,那么堆上的block对person对象就是个弱引用,所以person对象离开了作用域就销毁了
+
+#### 5.2 block访问对象类型的auto变量,底层结果有哪些变化
+        struct __main_block_impl_0 {
+            struct __block_impl impl;
+            struct __main_block_desc_0* Desc;
+            //默认是WGPerson * person,如果clang使用了-fobjc-runtime,就会生成这种类型WGPerson *__strong person,都是强引用,意思是一样的
+            WGPerson *__strong person;  
+            __main_block_impl_0(void *fp, struct __main_block_desc_0 *desc, WGPerson *__strong _person, int flags=0) : person(_person) {
+                impl.isa = &_NSConcreteStackBlock;
+                impl.Flags = flags;
+                impl.FuncPtr = fp;
+                Desc = desc;
+            }
+        };
+        
+        static struct __main_block_desc_0 {
+            size_t reserved;
+            size_t Block_size;
+            //之前访问非对象类型的auto变量时,没有下面两个方法,如果访问的是对象类型的auto变量,那么就会多出来这两个方法
+            void (*copy)(struct __main_block_impl_0*, struct __main_block_impl_0*);
+            void (*dispose)(struct __main_block_impl_0*);
+        } __main_block_desc_0_DATA = { 0, sizeof(struct __main_block_impl_0), __main_block_copy_0, __main_block_dispose_0};
+        
+        copy指针指向了__main_block_copy_0函数,dispose指针指向了__main_block_dispose_0函数
+        
+        //当block进行copy时,就会调用下面的函数
+        static void __main_block_copy_0(struct __main_block_impl_0*dst, struct __main_block_impl_0*src) {
+            //该函数会根据传进去的person对象是强引用还是弱引用,来对person对象进行对应的强引用或弱引用
+            //如果外面person对象是强引用修饰(默认就是强引用,省略了__strong),那么block就对person对象是强引用
+            //如果外面person对象是弱引用修饰(用__weak修饰),那么block就对person对象是弱引用
+            //该函数内部也会处理引用计数的问题,如果是强引,那么就会对person的引用计数+1,在_Block_object_dispose函数中进行对应的-1操作
+            _Block_object_assign((void*)&dst->person, (void*)src->person, 3/*BLOCK_FIELD_IS_OBJECT*/);
+        }
+        
+        //当block释放时,就会调用这个函数
+        static void __main_block_dispose_0(struct __main_block_impl_0*src) {
+            //该函数会自动释放引用的auto变量,类似于release            
+            _Block_object_dispose((void*)src->person, 3/*BLOCK_FIELD_IS_OBJECT*/);
+        }
+        
+
+#### 5.3 总结, 当block内部访问了对象类型的auto变量时
+* 如果block是在栈上,将不会对auto变量产生强引用
+* 如果block被拷贝copy到堆上, 会自动调用block内部的copy函数, copy函数会调用_Block_object_assign函数,_Block_object_assign函数会根据**auto**变量的修饰符(__storng、__weak、__unsafe_unretained)来做出相应的操作,类似retaion(形成强引用、弱引用),__storng就会强引用auto变量,__weak/__unsafe_unretained就会弱引用auto变量
+* 如果block从堆上移除,会调用block内部的dispose函数,dispose函数会调用_Block_object_dispose函数,_Block_object_dispose函数会自动释放引用的auto变量,类似于release
+* 为什么block底层会多出来两个函数(copy函数和dispose函数)? 因为访问的是对象类型的auto变量,而对象类型的auto变量是需要对其进行内存管理的
+
+         block内部函数                      调用时机
+           copy函数                  栈上的block复制到堆上时
+          dispose函数                 堆上的block被废弃时
+          
+#### 5.4 案例分析
+        @implementation WGMainObjcVC
+        - (void)viewDidLoad {
+            [super viewDidLoad];
+            self.view.backgroundColor = [UIColor whiteColor];
+        }
+        - (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+            Person *person = [[Person alloc]init];
+        }
+        @end
+        
+        打印结果: -[Person dealloc]---
+                -[Person dealloc]---
+                -[Person dealloc]---
+                ...
+#### 分析,每次点击屏幕,都会创建一个新的person对象,当离开touchesBegan方法后,person对象就会销毁
+        - (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+            Person *person = [[Person alloc]init];
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (3.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                NSLog(@"----%@",person);
+            });
+            NSLog(@"%s",__func__);
+        }
+        打印结果: 23:18:51.727756+0800 -[WGMainObjcVC touchesBegan:withEvent:]
+                23:18:54.728141+0800  ----<Person: 0x600003b44670>
+                23:18:54.728433+0800  -[Person dealloc]---
+#### 分析,GCD中的block作为参数时,block类型时堆block,因为block内部访问了person对象,所以会对person对象进行强引用,所以知道3秒后,执行完NSLog(@"----%@",person);,block才会销毁,当block销毁的时候,会对引用的person对象进行release操作,随之person对象被销毁
+
+        - (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+            Person *person = [[Person alloc]init];
+            //下面两种写法是一样的,只不是第一种写法可以省略掉类型,用typeof(person)来表示,person是什么类型,这里就是什么类型
+            __weak typeof(person) weakPerson = person;
+            //__weak Person *weakPerson = person;
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (3.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                NSLog(@"----%@",weakPerson);
+            });
+            NSLog(@"%s",__func__);
+        }
+
+        打印结果: 23:24:47.911207+0800 -[WGMainObjcVC touchesBegan:withEvent:]
+                23:24:47.911415+0800  -[Person dealloc]---
+                23:24:50.911296+0800 ----(null)
+#### 分析,person对象先销毁了,因为此时person对象是弱引用,所以block不会对person对象进行强引用,执行完NSLog(@"%s",__func__);方法后,person对象就直接销毁了,销毁后的3秒,打印了----(null)信息,说明此时访问的person对象是一个已经被销毁的对象
+
+        - (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+            Person *person = [[Person alloc]init];
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (1.0 * NSEC_PER_SEC)),          dispatch_get_main_queue(), ^{
+                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (2.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                    NSLog(@"----%@",person);
+                });
+            });
+            NSLog(@"%s",__func__);
+        }
+        
+        打印结果: 23:30:04.904533+0800 -[WGMainObjcVC touchesBegan:withEvent:]
+                23:30:07.904964+0800 ----<Person: 0x60000021c690>
+                23:30:07.905330+0800  -[Person dealloc]---
+
+#### 分析, block强引用了person对象,所以执行完第一个block后,在执行第二个block,所以person对象在3秒后释放
+        - (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+            Person *person = [[Person alloc]init];
+            __weak Person *weakPerson = person;
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (1.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                NSLog(@"1----%@",weakPerson);
+                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (2.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                    NSLog(@"2----%@",person);
+                });
+            });
+            NSLog(@"%s",__func__);
+        }
+        
+        打印结果: 23:33:21.958500+0800 -[WGMainObjcVC touchesBegan:withEvent:]
+                23:33:22.958846+0800  1----<Person: 0x6000024c9830>
+                23:33:25.123819+0800  2----<Person: 0x6000024c9830>
+                23:33:25.124175+0800  -[Person dealloc]---
+#### 分析,在第一个block内,block访问的是一个弱引用类型的person对象,为什么执行完第一个block,person对象没有立即销毁哪? 因为编译器是看整体的block内有没有强引用去引用,如果有强引用,就等强引用结束后才会去释放,而不是根据弱引用来决定的
+
+        - (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+            Person *person = [[Person alloc]init];
+            __weak Person *weakPerson = person;
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (1.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                NSLog(@"1----%@",person);
+                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (2.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                    NSLog(@"2----%@",weakPerson);
+                });
+            });
+            NSLog(@"%s",__func__);
+        }
+
+        打印结果: 23:39:17.005876+0800  -[WGMainObjcVC touchesBegan:withEvent:]
+                23:39:18.005954+0800  1----<Person: 0x600000e450d0>
+                23:39:18.006142+0800  -[Person dealloc]---
+                23:39:20.186553+0800  2----(null)
+#### 分析,因为编译器是根据block内的强引用来决定什么时候释放对象的, 所以第一个block内访问的是强引用的person对象,所以执行完第一个block代码后,person对象就销毁了,知道2秒后,执行了第2个block,此时访问的person的对象已经销毁了,所以打印的是2----(null)
+#### 总结,在GCD中,不管GCD中嵌套了多少个block, 考察对象释放时机,就主要根据强引用类型的对象所在的block什么时候执行完就可以了
+
+
+
+#### 3.2
+#### 3.3 
+#### 3.4 
+#### 3.5 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -24,18 +24,19 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    
-    Person *p = [[Person alloc]init];
+    self.view.backgroundColor = [UIColor whiteColor];
 }
 
--(void)viewWillAppear:(BOOL)animated {
-    [super viewWillAppear:animated];
-    NSLog(@"----%s",__func__);
-}
-
--(void)viewDidAppear:(BOOL)animated {
-    [super viewDidAppear:animated];
-    NSLog(@"----%s",__func__);
+- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+    Person *person = [[Person alloc]init];
+    __weak Person *weakPerson = person;
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (1.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        NSLog(@"1----%@",person);
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (2.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            NSLog(@"2----%@",weakPerson);
+        });
+    });
+    NSLog(@"%s",__func__);
 }
 
 
