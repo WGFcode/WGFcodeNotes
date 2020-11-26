@@ -191,3 +191,393 @@
         结构体实际占用的内存大小：----32个字节, 
         结构体被系统分配的内存大小：----32个字节, 
         结构体内存对齐的字节数长度：----8个字节,
+### MJ小码哥
+#### swift中使用MemoryLayout来窥探内存,主要涉及到以下三个方法，同时可以借助第三方工具(WGCore-MJMemoryTool-Mems.swift)来打印一般项目中无法打印的变量内存地址
+        1.实际占用的内存大小
+        MemoryLayout.size(ofValue:)  
+        2.系统分配的内存大小
+        MemoryLayout.stride(ofValue:) 
+        3.内存对齐大小
+        MemoryLayout.alignment(ofValue:) 
+
+#### 4. 枚举主要有两类：无关联值枚举/有关联值枚举
+#### 4.1 无关联值枚举：无原始值和有原始值的枚举
+#### 4.1.1 无类型的枚举(无原始值)
+        enum Direction {          
+            case left
+            case right
+            case top
+            case bottom
+        }
+        public override func viewDidLoad() {
+            super.viewDidLoad()
+            var dir1 = Direction.left
+            NSLog("dic:\(dic)") 
+            NSLog("实际占用内存大小:\(MemoryLayout.size(ofValue: dir1))")
+            NSLog("系统分配内存大小:\(MemoryLayout.stride(ofValue: dir1))")
+            NSLog("内存对齐大小:\(MemoryLayout.alignment(ofValue: dir1))")
+        }
+        
+        打印结果: dic:left
+                实际占用内存大小:1
+                系统分配内存大小:1
+                内存对齐大小:1
+#### 分析：如果枚举没有声明类型，那么是没有rawValue方法的，rawValue方法是获取枚举的原始值的；为什么只占用一个字节？因为枚举变量只需要一个字节就可以来保存对应的枚举类型即可，这一个字节可以用来保存left或者right或者top或者bottom，接下来我们可以借助**Mems.swift**内存打印工具来窥探
+        public override func viewDidLoad() {
+            super.viewDidLoad()
+            var dir1 = Direction.left
+            //第一个字节保存的是0---00
+            //00 90 AC B8 05 01 00 00 00 28 F0 FD 02 01 00 00
+            NSLog("dir1内存地址:\(Mems.ptr(ofVal: &dir1))")
+            
+            var dir2 = Direction.right
+            //第一个字节保存的是1---01
+            //01 B7 70 40 6D 01 00 00 00 23 00 00 00 00 00 00
+            NSLog("dir2内存地址:\(Mems.ptr(ofVal: &dir2))")
+            
+            var dir3 = Direction.top
+            //第一个字节保存的是2---02
+            //02 4F 70 40 6D 01 00 00 00 23 00 00 00 00 00
+            NSLog("dir3内存地址:\(Mems.ptr(ofVal: &dir3))")
+            
+            var dir4 = Direction.bottom
+            //第一个字节保存的是3---03
+            //03 2F 70 40 6D 01 00 00 00 23 00 00 00 00 00 00
+            NSLog("dir4内存地址:\(Mems.ptr(ofVal: &dir4))")
+        }
+#### 工具使用介绍。获取内存二进制的方式是先获取到变量的地址，然后通过Xcode工具栏的Debug->Debug workflow->View Memory,将变量地址输入进入即可查看内存地址的二进制
+#### 分析，可以看出无关联值的枚举，占用的就是一个字节的空间来保存各个枚举变量，并且这一个字节存储的值是按照各个枚举顺序依次存储为0、1、2、3...
+#### 4.1.2 有类型的枚举(有原始值)
+        enum Direction: String {
+            case left
+            case right
+            case top
+            case bottom
+        }
+        
+        public override func viewDidLoad() {
+            super.viewDidLoad()
+            let dic = Direction.left
+            NSLog("dic:\(dic)----rawValue:\(dic.rawValue)")
+        }
+        打印结果： dic:left----rawValue:left
+#### 如果定义了枚举类型，但是在枚举中没有写原始值，那么默认的原始值就是各枚举项名称的字符串；如果写了原始值，那么通过rawValue就可以获取到原始值
+        
+        public override func viewDidLoad() {
+            super.viewDidLoad()
+            let dir1 = Direction.left
+            NSLog("实际占用内存大小:\(MemoryLayout.size(ofValue: dir1))")
+            NSLog("系统分配内存大小:\(MemoryLayout.stride(ofValue: dir1))")
+            NSLog("内存对齐大小:\(MemoryLayout.alignment(ofValue: dir1))")
+        }
+        
+        打印结果：实际占用内存大小:1
+                系统分配内存大小:1
+                内存对齐大小:1
+#### 分析，通过验证，无论枚举Direction属于String、Int、Double...打印的结果都是一样的，即占用内存的空间大小都是1个字节，这一个字节用来标识不同的枚举项。所以我们可以得出结论：**无关联值的枚举，占用的内存空间都是1字节，不受原始值类型的影响**，枚举底层是不存储枚举的原始值的，原始值的获取可以直接通过rawValue来获取即可，没必要存储
+        
+        enum Direction: Double {
+            case left
+        }
+        public override func viewDidLoad() {
+            super.viewDidLoad()
+            NSLog("实际占用内存大小:\(MemoryLayout.size(ofValue: dir1))")
+            NSLog("系统分配内存大小:\(MemoryLayout.stride(ofValue: dir1))")
+            NSLog("内存对齐大小:\(MemoryLayout.alignment(ofValue: dir1))")
+        }
+        打印结果：实际占用内存大小:0
+                系统分配内存大小:1
+                内存对齐大小:1
+#### 分析，为什么占用的内存大小是0个字节？因为枚举就一项，不需要再单独拿一个字节来标识到底是枚举中的那个项，因为就一个枚举项，不需要区分，但是为什么系统还分配了内存空间，主要就是内存对齐大小为1个字节，所以系统要分配一个字节的内存大小
+
+#### 4.2 有关联值的枚举
+#### 关联值的枚举就不能再声明枚举类型了，
+        enum Direction {
+            case left(Int,Int,Int)
+            case right(Bool)
+            case bottom
+        }
+        public override func viewDidLoad() {
+            super.viewDidLoad()
+            let dir1 = Direction.left(10, 20, 30)
+            NSLog("实际占用内存大小:\(MemoryLayout.size(ofValue: dir1))")
+            NSLog("系统分配内存大小:\(MemoryLayout.stride(ofValue: dir1))")
+            NSLog("内存对齐大小:\(MemoryLayout.alignment(ofValue: dir1))")
+        }
+        
+        打印结果：实际占用内存大小:25
+                系统分配内存大小:32
+                内存对齐大小:8
+#### 分析，三个关联值类型都是int，一个占8个字节，那么就是占用24个字节，剩下一个字节用来标识属于哪个枚举项，所以实际占用25个字节；内存对齐是8个字节，所以系统分配必须是8的倍数，并且要大于25个字节，所以就是32个字节了。
+#### 关联值枚举的实际内存大小=所有项中占用内存最大项的内存值+1字节(标识枚举属于哪个项),这里需要注意的就是+1字节(标识枚举属于哪个项)有些情况下是不需要+的，如下情况
+
+        enum Direction {
+            case left(Int,String,Bool) //8+16+1 = 25字节
+            case right(Bool) //1字节
+            case bottom
+        }
+        public override func viewDidLoad() {
+            super.viewDidLoad()
+            let dir1 = Direction.left(120, "3r", false)
+            NSLog("实际占用内存大小:\(MemoryLayout.size(ofValue: dir1))")
+            NSLog("系统分配内存大小:\(MemoryLayout.stride(ofValue: dir1))")
+            NSLog("内存对齐大小:\(MemoryLayout.alignment(ofValue: dir1))")
+            
+            let dir2 = Direction.bottom
+            NSLog("实际占用内存大小:\(MemoryLayout.size(ofValue: dir2))")
+            NSLog("系统分配内存大小:\(MemoryLayout.stride(ofValue: dir2))")
+            NSLog("内存对齐大小:\(MemoryLayout.alignment(ofValue: dir2))")
+        }
+
+        打印结果：实际占用内存大小:25
+                系统分配内存大小:32
+                内存对齐大小:8
+                
+                实际占用内存大小:25
+                系统分配内存大小:32
+                内存对齐大小:8
+#### 无论枚举变量类型是属于哪个枚举项，所占的内存都是一样的；上面结论中:实际占用的内存大小就是取最大项所占的内存大小(25)+1字节(标识属性哪个枚举项)，这里为什么是25个字节而不是26个字节？因为第25个字节用来存放left(Int,String,Bool)中的最后一个关联值Bool，也可以用来标示属于哪个枚举项，所以没必要再占据一个字节来存储标识了，所以实际占用25个字节就够了，接下来我们来验证
+    enum Direction {
+        case left(Int,String,Bool) //8+16+1 = 25字节
+        case right(Bool) //1字节
+        case bottom
+    }
+
+    public override func viewDidLoad() {
+        super.viewDidLoad()
+        var dir1 = Direction.left(120, "a", true)
+        NSLog("实际占用内存大小:\(MemoryLayout.size(ofValue: dir1))")
+        NSLog("系统分配内存大小:\(MemoryLayout.stride(ofValue: dir1))")
+        NSLog("内存对齐大小:\(MemoryLayout.alignment(ofValue: dir1))")
+        //78 00 00 00 00 00 00 00                          前8字节存储第一个关联值：120
+        //61 00 00 00 00 00 00 00 00 00 00 00 00 00 00 E1  接着16字节用来存储关联值：字符a
+        //01 00 00 00 00 00 00 00                          第25个字节存储关联值：true
+        
+        NSLog("dir1:\(Mems.ptr(ofVal: &dir1))")
+        //01 00 00 00 00 00 00 00                          前8字节存储第一个关联值：true
+        //00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 第二位没有对应的关联值，所以什么都不存储
+        //40 71 FC 6E 01 00 00 00                          第25个字节用来标识枚举类型属于.right
+        var dir2 = Direction.right(true)
+        NSLog("dir2:\(Mems.ptr(ofVal: &dir2))")
+        
+        //00 00 00 00 00 00 00 00                          没有对应的关联值，什么也不存储 
+        //00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  没有对应的关联值，什么也不存储 
+        //80 C2 F2 03 01 00 00 00                          第25个字节用来标示枚举类型.bottom
+        var dir3 = Direction.bottom
+        NSLog("dir3:\(Mems.ptr(ofVal: &dir3))")
+    }
+    
+    打印结果：实际占用内存大小:25
+            系统分配内存大小:32
+            内存对齐大小:8
+#### 分析，通过第三方工具来打印枚举变量的内存地址，然后利用内存地址可以窥探枚举变量在内存中存储布局。枚举的关联值是存储在枚举变量的内存中的，而原始值是不会被存储在枚举变量的内存中的；枚举实际占用的内存大小=枚举各个项中关联值的内存之和的最大值(+标识枚举属于哪个项的1个字节)具体要不要+1字节，不一定，要视情况而定
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -51,7 +51,7 @@ dispatch_semaphore_t semp;
     dispatch_queue_t queue = async ? dispatch_get_global_queue(0, 0) : dispatch_get_main_queue();
     //3. 创建定时器
     dispatch_source_t timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, queue);
-    //4. 设置时间
+    //4. 设置时
     dispatch_source_set_timer(timer,
                               dispatch_time(DISPATCH_TIME_NOW, start * NSEC_PER_SEC),
                               interval * NSEC_PER_SEC,
