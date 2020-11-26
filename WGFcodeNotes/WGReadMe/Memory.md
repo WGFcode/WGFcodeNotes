@@ -758,21 +758,193 @@
 
 
 #### 3.8 autorelease原理
+#### 在MRC环境下,我们探究下源码
+        int main(int argc, const char * argv[]) {
+            @autoreleasepool {
+                WGPerson *p = [[[WGPerson alloc]init] autorelease];
+            }
+            return 0;
+        }
 
-
-
-
+        转为C++代码
+        int main(int argc, const char * argv[]) {
+            /* @autoreleasepool */ { __AtAutoreleasePool __autoreleasepool; 
+                WGPerson *p = ((WGPerson *(*)(id, SEL))(void *)objc_msgSend)((id)((WGPerson *(*)(id, SEL))(void *)objc_msgSend)((id)((WGPerson *(*)(id, SEL))(void *)objc_msgSend)((id)objc_getClass("WGPerson"), sel_registerName("alloc")), sel_registerName("init")), sel_registerName("autorelease"));
+            }
+            return 0;
+        }
+        简化为
+        {   
+            __AtAutoreleasePool __autoreleasepool; 
+            WGPerson *p = [[[WGPerson alloc]init] autorelease];
+        }
+#### 找到对应的结构体
+        struct __AtAutoreleasePool {
+            //C++构造函数,在创建结构体时调用
+            __AtAutoreleasePool() { 
+                atautoreleasepoolobj = objc_autoreleasePoolPush();
+            }
+            //C++析造函数,在结构体销毁时调用
+            ~__AtAutoreleasePool() {
+                objc_autoreleasePoolPop(atautoreleasepoolobj);
+            }
+            void * atautoreleasepoolobj;
+        };
+        
+        {   
+            //定义了局部变量,就会创建结构体__AtAutoreleasePool,所以会调用对应的构造函数,调用objc_autoreleasePoolPush
+            __AtAutoreleasePool __autoreleasepool;   
+            WGPerson *p = [[[WGPerson alloc]init] autorelease];
+        }//当出了{}大括号,局部变量会销毁,所以调用析构函数,调用objc_autoreleasePoolPop方法
+#### 分析, 一旦调用autorelease,会生成对应的结构体,刚开始时调用objc_autoreleasePoolPush方法,当结束时调用objc_autoreleasePoolPop方法,接下来我们通过RunTime源码来探究这两个方法及它的底层结构
 
         
+#### 3.8.1 自动释放池的底层数据结构
+1. 自动释放池的底层数据结构是__AtAutoreleasePool、AutoreleasePoolPage.
+2. 调用autorelease的对象最终都是通过AutoreleasePoolPage对象来管理的
+3. 每个AutoreleasePoolPage对象占用4096个字节的内存,除了用来存放它内部的成员变量(7个成员变量占56个字节),剩下的空间(4040个字节)用来存放autorelease对象的地址
+4. 所有的AutoreleasePoolPage对象通过双向链表的形式连接在一起
 
+        // push方法和AutoreleasePoolPage有关系
+        objc_autoreleasePoolPush(void) {
+            return AutoreleasePoolPage::push();
+        }
+        
+        
+        class AutoreleasePoolPage  {  //简化后的
+            magic_t const magic;
+            id *next;   //存放 下一个能存放autorelease对象 的地址
+            pthread_t const thread;
+            AutoreleasePoolPage * const parent;  //存放上一个AutoreleasePoolPage对象的地址,如果是第一个对象,则为nil
+            AutoreleasePoolPage *child;  //存放下一AutoreleasePoolPage对象的地址,如果是最后一个对象,则为nil
+            uint32_t const depth;
+            uint32_t hiwat;
+        }
+        
+        id * begin() { //存放autorelease对象的开始地址
+            return (id *) ((uint8_t *)this+sizeof(*this));
+        }
 
+        id * end() {  //存放autorelease对象的结束地址
+            return (id *) ((uint8_t *)this+SIZE);  //SIZE = 4096个字节
+        }
+#### 假如我们有1000个autorelease对象需要存储,它的存储过程是怎样的,1000个autorelease对象,用AutoreleasePoolPage对象来存储的,一个AutoreleasePoolPage对象存储4040个字节,而一个对象的地址占用8个字节,也就是需要8000个字节的空间来存储,那么就需要2个AutoreleasePoolPage对象才能存储的下
+        for (int i = 0 ; i < 1000; i++) {
+            WGPerson *p = [[[WGPerson alloc]init] autorelease];
+        }
+#### 3.8.2 存储过程
+1. 当调用push时(此时next指针指向的就是可以存放对象的地址),会将**POOL_BOUNDARY**入栈,并且返回其存放的内存地址(此时next指针指向的就是挨着POOL_BOUNDARY地址的下一个地址空间),存放的位置假如说存放的是第一个AutoreleasePoolPage对象开始存放autorelease对象的开始地址
 
+        atautoreleasepoolobj = objc_autoreleasePoolPush();
+        假如存放POOL_BOUNDARY的地址为0x1038,那么atautoreleasepoolobj的地址就是0x1038
 
-    4. autorelease在什么时机释放
-    5. 方法里有局部对象，出了方法会立即释放吗
-    6. ARC都帮我们做了什么？
-    7. weak指针的实现原理
-    
+2. 当第一个对象调用autorelease方法时,会将第一个对象的地址存放在和POOL_BOUNDARY地址挨着的下一个内存空间
+3. 依次循环存储,当第一个AutoreleasePoolPage的存储空间(4040个字节)占满时,就会继续创建第二个AutoreleasePoolPage对象来存储
+4. 当循环结束时,会调用objc_autoreleasePoolPop方法,调用Pop方法时传入一个**POOL_BOUNDARY**的内存地址,然后会从最后一个入栈的对象开始,发送release方法,直到遇到**POOL_BOUNDARY**的地址,**POOL_BOUNDARY**其实就是一个标记
+
+        //将POOL_BOUNDARY的地址传给pop方法
+        objc_autoreleasePoolPop(atautoreleasepoolobj);
+
+        #define POOL_BOUNDARY nil
+        
+        static inline void *push() {
+            id *dest;
+            if (DebugPoolAllocation) {
+                // Each autorelease pool starts on a new pool page.
+                dest = autoreleaseNewPage(POOL_BOUNDARY);
+            } else {
+                dest = autoreleaseFast(POOL_BOUNDARY);
+            }
+            assert(dest == EMPTY_POOL_PLACEHOLDER || *dest == POOL_BOUNDARY);
+            return dest;
+        }
+        
+#### 3.8.3 利用**extern void _objc_autoreleasePoolPrint(void)**函数可以查看自动释放池的情况
+        int main(int argc, const char * argv[]) {
+            @autoreleasepool {
+                WGPerson *p1 = [[[WGPerson alloc]init] autorelease];
+                WGPerson *p2 = [[[WGPerson alloc]init] autorelease];
+                //_objc_autoreleasePoolPrint();
+                @autoreleasepool {
+                    for (int i = 0; i < 500; i++) {
+                        WGPerson *p3 = [[[WGPerson alloc]init] autorelease];
+                    }
+                    //_objc_autoreleasePoolPrint();
+                    @autoreleasepool {
+                        WGPerson *p4 = [[[WGPerson alloc]init] autorelease];
+                        WGPerson *p5 = [[[WGPerson alloc]init] autorelease];
+                    }
+                    _objc_autoreleasePoolPrint();
+                }
+            }
+            return 0;
+        }
+        
+        打印内存: objc[68116]: ##############
+                objc[68116]: AUTORELEASE POOLS for thread 0x1000aa5c0
+                objc[68116]: 4 releases pending.
+                objc[68116]: [0x101006000]  ................  PAGE  (hot) (cold)  //cold冷,存满的page
+                objc[68116]: [0x101006038]  ################  POOL 0x101006038
+                objc[68116]: [0x101006040]       0x100539370  WGPerson
+                objc[68116]: [0x101006048]       0x100539180  WGPerson
+                objc[68116]: [0x101006050]  ################  POOL 0x101006050
+                objc[68116]: ##############
+                Program ended with exit code: 0
+#### 分析:  PAGE  (full) (cold): cold冷,表示存满的page; PAGE (hot):hot热,表示当前使用的page
+
+#### 3.9 autorelease对象在什么时候释放
+        - (void)viewDidLoad {
+            [super viewDidLoad];
+            NSLog(@"%@",[NSRunLoop currentRunLoop]);
+        }
+        
+        "<CFRunLoopObserver 0x600000538be0 [0x7fff80617cb0]>{valid = Yes, activities = 0x1, repeats = Yes, order = -2147483647, callout = _wrapRunLoopWithAutoreleasePoolHandler (0x7fff4808bf54), context = <CFArray 0x600003a50810 [0x7fff80617cb0]>{type = mutable-small, count = 1, values = (\n\t0 : <0x7fbdb8803040>\n)}}",
+        "<CFRunLoopObserver 0x600000538c80 [0x7fff80617cb0]>{valid = Yes, activities = 0xa0, repeats = Yes, order = 2147483647, callout = _wrapRunLoopWithAutoreleasePoolHandler (0x7fff4808bf54), context = <CFArray 0x600003a50810 [0x7fff80617cb0]>{type = mutable-small, count = 1, values = (\n\t0 : <0x7fbdb8803040>\n)}}"
+        
+        //RunLoop的状态
+        typedef CF_OPTIONS(CFOptionFlags, CFRunLoopActivity) {
+           kCFRunLoopEntry = (1UL << 0),                即将进入RunLoop (十进制1)
+           kCFRunLoopBeforeTimers = (1UL << 1),         即将处理Timers (十进制2)
+           kCFRunLoopBeforeSources = (1UL << 2),        即将处理Sources (十进制4)
+           kCFRunLoopBeforeWaiting = (1UL << 5),        即将进入休眠 (十进制32)
+           kCFRunLoopAfterWaiting = (1UL << 6),         刚从休眠中唤醒 (十进制64)
+           kCFRunLoopExit = (1UL << 7),                 即将推出RunLoop (十进制128)
+           kCFRunLoopAllActivities = 0x0FFFFFFFU
+       };
+#### 在打印信息中,我们可以发现有两个_wrapRunLoopWithAutoreleasePoolHandler函数,这两个函数和自动释放池有关. 这两个函数中分别对应的有activities = 0x1(十进制1) 和 activities = 0xa0(十进制160),这代表监听的RunLoop的状态,activities = 0x1监听的是即将进入RunLoop的状态kCFRunLoopEntry,activities = 0xa0(十进制160)监听的是kCFRunLoopBeforeWaiting-32(休眠之前)和kCFRunLoopExit-128(退出)
+
+#### 总结
+1. iOS在主线程的RunLoop中注册了2个Observer
+2. 第一个Observer监听了kCFRunLoopEntry事件(即将进入RunLoop),会调用objc_autoreleasePoolPush()方法
+3. 第二个Observer监听了两个事件: 
+
+        kCFRunLoopBeforeWaiting事件(RunLoop进入休眠前),会调用objc_autoreleasePoolPop()、objc_autoreleasePoolPush()
+        kCFRunLoopExit事件(RunLoop即将退出),会调用objc_autoreleasePoolPop()方法
+        4.autorelease对象可能是在某次RunLoop循环中,RunLoop休眠之前调用的release方法进行销毁的
+
+#### 3.10 方法里有局部对象,出了方法会立刻释放吗?
+#### 这个问题应该是考察ARC环境下的,主要就是看下ARC帮我们做了什么,是自动调用了autorelease方法(出了方法体可能还不会销毁,而是等到RunLoop循环中,休眠之前才进行销毁)还是调用了release方法(出了方法立刻释放)
+
+        - (void)viewDidLoad {
+            [super viewDidLoad];
+            Person *p = [[Person alloc]init];
+        }
+
+        -(void)viewWillAppear:(BOOL)animated {
+            [super viewWillAppear:animated];
+            NSLog(@"----%s",__func__);
+        }
+
+        -(void)viewDidAppear:(BOOL)animated {
+            [super viewDidAppear:animated];
+            NSLog(@"----%s",__func__);
+        }
+        
+        打印结果: -[Person dealloc]---
+                -----[WGMainObjcVC viewWillAppear:]
+                -----[WGMainObjcVC viewDidAppear:]
+
+#### 分析,我们大胆猜测,ARC环境下,应该是局部变量一旦出了方法体, ARC就会帮我们自动调用对象的release方法,所以局部变量出了方法,是会立刻销毁的
 
 
 
