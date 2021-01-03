@@ -725,7 +725,338 @@
 #### 分析,因为编译器是根据block内的强引用来决定什么时候释放对象的, 所以第一个block内访问的是强引用的person对象,所以执行完第一个block代码后,person对象就销毁了,知道2秒后,执行了第2个block,此时访问的person的对象已经销毁了,所以打印的是2----(null)
 #### 总结,在GCD中,不管GCD中嵌套了多少个block, 考察对象释放时机,就主要根据强引用类型的对象所在的block什么时候执行完就可以了
 
+### 6 __block修饰符
+#### 6.1 __block修改变量
+#### 如果我们需要更改外面age变量的值,是无法修改的,那么为什么不能修改?
+        typedef void (^WGBlock)(void);
 
+        int main(int argc, const char * argv[]) {
+            @autoreleasepool {
+                int age = 10;
+                WGBlock block = ^ {
+                    NSLog(@"my age is %d", age);
+                };
+                block();
+            }
+            return 0;
+        }
+        
+        转为C++后, 可以看到这个是两个不同的函数, 在__main_block_func_0函数中是无法对main函数中的age变量进行修改值的,
+        __main_block_func_0函数只能修改block内部的age变量值,而修改block内部变量值并不会影响外部变量的值
+        int main(int argc, const char * argv[]) {
+            /* @autoreleasepool */ { __AtAutoreleasePool __autoreleasepool; 
+                int age = 10;
+                WGBlock block = ((void (*)())&__main_block_impl_0((void *)__main_block_func_0, &__main_block_desc_0_DATA, age));
+                ((void (*)(__block_impl *))((__block_impl *)block)->FuncPtr)((__block_impl *)block);
+            }
+            return 0;
+        }
+        
+        static void __main_block_func_0(struct __main_block_impl_0 *__cself) {
+            int age = __cself->age; // bound by copy
+            NSLog((NSString *)&__NSConstantStringImpl__var_folders_wc_tkbgc_ts0pv3lyd2n4wsdc6h0000gn_T_main_25a4d8_mi_0, age);
+        }
+        
+        struct __main_block_impl_0 {
+            struct __block_impl impl;
+            struct __main_block_desc_0* Desc;
+            int age;
+            __main_block_impl_0(void *fp, struct __main_block_desc_0 *desc, int _age, int flags=0) : age(_age) {
+                impl.isa = &_NSConcreteStackBlock;
+                impl.Flags = flags; 
+                impl.FuncPtr = fp;
+                Desc = desc;
+            }
+        };
+#### 如果我们想在block内部修改外部变量的值,有以下几种方式
+1. 将变量变为static变量(全局变量也可以,全局变量不会被block捕获,在任何地方都可以被修改),缺点就是static变量和全局变量会一直存在于内存中,不会销毁,因为这些变量是放在全局区的
+
+        typedef void (^WGBlock)(void);
+        int main(int argc, const char * argv[]) {
+            @autoreleasepool {
+                static int age = 10;
+                WGBlock block = ^ {
+                    age = 20;
+                    NSLog(@"my age is %d", age);
+                };
+                block();
+            }
+            return 0;
+        }
+        转为C++后代码 在main函数中,将静态变量age的地址传递给了函数__main_block_impl_0
+        int main(int argc, const char * argv[]) {
+            /* @autoreleasepool */ { __AtAutoreleasePool __autoreleasepool; 
+                static int age = 10;
+                WGBlock block = ((void (*)())&__main_block_impl_0((void *)__main_block_func_0, &__main_block_desc_0_DATA, &age));
+                ((void (*)(__block_impl *))((__block_impl *)block)->FuncPtr)((__block_impl *)block);
+            }
+            return 0;
+        }
+        
+        //在block内部会生成对应的变量指针,来保存外部传进来的变量的地址
+        struct __main_block_impl_0 {
+            struct __block_impl impl;
+            struct __main_block_desc_0* Desc;
+            int *age;
+            __main_block_impl_0(void *fp, struct __main_block_desc_0 *desc, int *_age, int flags=0) : age(_age) {
+                impl.isa = &_NSConcreteStackBlock;
+                impl.Flags = flags;
+                impl.FuncPtr = fp;
+                Desc = desc;
+            }
+        };
+        
+        //通过外部传递进来的变量地址对其进行修改值,虽然修改的是block内部变量的值,但是这个变量的地址和外部变量的地址是一样的
+        ,所以外部变量就会被修改了
+        static void __main_block_func_0(struct __main_block_impl_0 *__cself) {
+            int *age = __cself->age; // bound by copy
+            (*age) = 20;
+            NSLog((NSString *)&__NSConstantStringImpl__var_folders_wc_tkbgc_ts0pv3lyd2n4wsdc6h0000gn_T_main_c7c690_mi_0, (*age));
+        }
+2. 添加__block修饰符
+
+        typedef void (^WGBlock)(void);
+        int main(int argc, const char * argv[]) {
+            @autoreleasepool {
+                __block int age = 10;
+                WGBlock block = ^ {
+                    age = 20;
+                    NSLog(@"my age is %d", age);
+                };
+                block();
+            }
+            return 0;
+        }
+#### 给auto变量添加__block修饰符后,就可以更改auto变量的值了,但是并不会影响变量的作用域,它仍然是个auto变量,出了作用域就会被销毁. 那么__block底层是如何实现的哪?
+
+#### 6.2 __block本质
+1. __block可以用于解决block内部无法修改auto变量值的问题
+2. __block不能修改全局变量、静态变量(static)
+3. 编译器会将__block修改的变量包装成一个对象 
+#### 接着上面的例子,来分析下它的C++代码
+
+        int main(int argc, const char * argv[]) {
+            /* @autoreleasepool */ { __AtAutoreleasePool __autoreleasepool; 
+                
+                __attribute__((__blocks__(byref))) __Block_byref_age_0 age = {(void*)0,(__Block_byref_age_0 *)&age, 0, sizeof(__Block_byref_age_0), 10};
+                 WGBlock block = ((void (*)())&__main_block_impl_0((void *)__main_block_func_0, &__main_block_desc_0_DATA, (__Block_byref_age_0 *)&age, 570425344));
+                 ((void (*)(__block_impl *))((__block_impl *)block)->FuncPtr)((__block_impl *)block);
+                //上面代码可以简化成
+                //__Block_byref_age_0 age = {0, &age, 0, sizeof(__Block_byref_age_0), 10};
+                WGBlock block = &__main_block_impl_0(__main_block_func_0, &__main_block_desc_0_DATA, &age, 570425344));
+                 block->FuncPtr(block);
+            }
+            return 0;
+        }
+        
+        struct __main_block_impl_0 {
+            struct __block_impl impl;
+            struct __main_block_desc_0* Desc;
+            __Block_byref_age_0 *age; // by ref
+            __main_block_impl_0(void *fp, struct __main_block_desc_0 *desc, __Block_byref_age_0 *_age, int flags=0) : age(_age->__forwarding) {
+                impl.isa = &_NSConcreteStackBlock;
+                impl.Flags = flags;
+                impl.FuncPtr = fp;
+                Desc = desc;   
+            }
+        };
+        
+        //__Block_byref_age_0 age = {0, &age, 0, sizeof(__Block_byref_age_0), 10};对下面一一赋值
+        struct __Block_byref_age_0 {
+            void *__isa;    //这里有个isa指针,所以可以理解成一个对象
+            __Block_byref_age_0 *__forwarding;  //指向这个结构体本身的地址
+            int __flags;
+            int __size; //结构体专用的内存大小
+            int age;    //变量的值
+        };
+        
+        static void __main_block_func_0(struct __main_block_impl_0 *__cself) {
+            __Block_byref_age_0 *age = __cself->age; // bound by ref
+            //通过age拿到__forwarding,然后再通过__forwarding拿到age,然后对其进行修改值
+            (age->__forwarding->age) = 20;
+            NSLog((NSString *)&__NSConstantStringImpl__var_folders_wc_tkbgc_ts0pv3lyd2n4wsdc6h0000gn_T_main_46c985_mi_0, (age->__forwarding->age));
+        }
+#### 总结,编译器会将__block修饰的变量包装成一个对象(底层就是个结构体),Block底层内部会有个指针指向包装成的结构体,然后通过指针修改结构体中的age变量进行修改
+
+        typedef void (^WGBlock)(void);
+        int main(int argc, const char * argv[]) {
+            @autoreleasepool {
+                __block int age = 10;
+                __block NSObject *obj = [[NSObject alloc]init];
+                WGBlock block = ^ {
+                    obj = nil;
+                    age = 20;
+                    NSLog(@"my age is %d", age);
+                };
+                block();
+            }
+            return 0;
+        }
+        
+#### __block无论是修饰auto变量还是对象类型的变量,底层都会包装成一个对象,只是修饰对象类型时,包装成对象的结构体中会多出来copy/dispose方法,主要就是为了进行内存管理用的
+        struct __Block_byref_age_0 {
+          void *__isa;
+        __Block_byref_age_0 *__forwarding;
+         int __flags;
+         int __size;
+         int age;
+        };
+        
+        struct __Block_byref_obj_1 {
+          void *__isa;
+        __Block_byref_obj_1 *__forwarding;
+         int __flags;
+         int __size;
+         void (*__Block_byref_id_object_copy)(void*, void*);
+         void (*__Block_byref_id_object_dispose)(void*);
+         NSObject *obj;
+        };
+
+#### 如果我们修改可变数组中的元素个数,是不需要添加__block修饰符的,因为我们只是用arr这个地址,而并不是对其进行赋值操作,只有对其进行赋值操作才需要添加__block修饰符
+        typedef void (^WGBlock)(void);
+        int main(int argc, const char * argv[]) {
+            @autoreleasepool {
+                NSMutableArray *arr = [NSMutableArray array];
+                WGBlock block = ^ {
+                    [arr addObject:@"123"];
+                };
+                block();
+            }
+            return 0;
+        }
+
+#### 6.2.1 __block底层细节
+        typedef void (^WGBlock)(void);
+        int main(int argc, const char * argv[]) {
+            @autoreleasepool {
+                
+                __block int age = 10;
+                WGBlock block = ^ {
+                    age = 20;
+                };
+                block();
+                NSLog(@"%p",&age);
+            }
+            return 0;
+        }
+#### 分析,我们现在访问age地址,其实访问的是__Block_byref_age_0结构体中变量age(int age;)的地址,而不是block底层结构体__main_block_impl_0中的成员age(__Block_byref_age_0 *age;),为什么打印的地址不是block结构体中的成员变量age? 可能是苹果想屏蔽__block内部的实现细节,就像KVO一样
+        struct __Block_byref_age_0 {
+          void *__isa;
+        __Block_byref_age_0 *__forwarding;
+         int __flags;
+         int __size;
+         int age;
+        };
+        
+        struct __main_block_impl_0 {
+            struct __block_impl impl;
+            struct __main_block_desc_0* Desc;
+            __Block_byref_age_0 *age; // by ref
+            ...
+        }
+
+#### 6.3 __block内存管理
+1. 当block在栈上时,并不会对__block修饰的变量产生强引用
+2. 当block被拷贝到堆上时
+*  1.会调用block内部的copy函数
+* 2. copy函数内部会调用_Block_object_assign函数
+* 3. _Block_object_assign函数会对__block变量形成强引用(retain)
+
+            typedef void (^WGBlock)(void);
+            int main(int argc, const char * argv[]) {
+                @autoreleasepool {
+                    __block int age = 10;
+                    WGBlock block = ^ {
+                        age = 20;
+                    };
+                    block();
+                }
+                return 0;
+            }
+            
+            int main(int argc, const char * argv[]) {
+                /* @autoreleasepool */ { __AtAutoreleasePool __autoreleasepool; 
+
+                    __attribute__((__blocks__(byref))) __Block_byref_age_0 age = {(void*)0,(__Block_byref_age_0 *)&age, 0, sizeof(__Block_byref_age_0), 10};
+                    WGBlock block = ((void (*)())&__main_block_impl_0((void *)__main_block_func_0, &__main_block_desc_0_DATA, (__Block_byref_age_0 *)&age, 570425344));
+                    ((void (*)(__block_impl *))((__block_impl *)block)->FuncPtr)((__block_impl *)block);
+                }
+                return 0;
+            }
+            
+            struct __main_block_impl_0 {
+                struct __block_impl impl;
+                struct __main_block_desc_0* Desc;
+                __Block_byref_age_0 *age; // by ref
+                __main_block_impl_0(void *fp, struct __main_block_desc_0 *desc, __Block_byref_age_0 *_age, int flags=0) : age(_age->__forwarding) {
+                    impl.isa = &_NSConcreteStackBlock;
+                    impl.Flags = flags;
+                    impl.FuncPtr = fp;
+                    Desc = desc;
+                }
+            };
+            
+            //block内部存在copy和dispose函数
+            static struct __main_block_desc_0 {
+              size_t reserved;
+              size_t Block_size;
+              void (*copy)(struct __main_block_impl_0*, struct __main_block_impl_0*);
+              void (*dispose)(struct __main_block_impl_0*);
+            } __main_block_desc_0_DATA = { 0, sizeof(struct __main_block_impl_0), __main_block_copy_0, __main_block_dispose_0};
+            
+            static void __main_block_copy_0(struct __main_block_impl_0*dst, struct __main_block_impl_0*src) {
+                _Block_object_assign((void*)&dst->age, (void*)src->age, 8/*BLOCK_FIELD_IS_BYREF*/);
+            }
+            
+            static void __main_block_dispose_0(struct __main_block_impl_0*src) {
+                _Block_object_dispose((void*)src->age, 8/*BLOCK_FIELD_IS_BYREF*/);
+            }
+            
+3. 当block从堆上移除时
+* 1. 会调用block内部的dispose函数
+* 2 dispose函数内部会调用_Block_object_dispose函数
+* 3 _Block_object_dispose函数会自动释放引用的__block变量(release)
+
+        typedef void (^WGBlock)(void);
+        int main(int argc, const char * argv[]) {
+            @autoreleasepool {
+                NSObject *objc = [[NSObject alloc]init];
+                __block int age = 10;
+                WGBlock block = ^ {
+                    NSLog(@"age: %d",age);
+                    NSLog(@"objc: %p",objc);
+                };
+                block();
+            }
+            return 0;
+        }
+        
+        struct __main_block_impl_0 {
+            struct __block_impl impl;
+            struct __main_block_desc_0* Desc;
+            NSObject *__strong objc;     //强引用 
+            __Block_byref_age_0 *age; // by ref
+            __main_block_impl_0(void *fp, struct __main_block_desc_0 *desc, NSObject *__strong _objc, __Block_byref_age_0 *_age, int flags=0) : objc(_objc), age(_age->__forwarding) {
+                impl.isa = &_NSConcreteStackBlock;
+                impl.Flags = flags;
+                impl.FuncPtr = fp;
+                Desc = desc;
+            }
+        };
+        
+        static void __main_block_copy_0(struct __main_block_impl_0*dst, struct __main_block_impl_0*src) {
+            //会对__block修饰的age变量包装成的对象-强引用
+            _Block_object_assign((void*)&dst->age, (void*)src->age, 8/*BLOCK_FIELD_IS_BYREF*/); 
+            //会对objc变量-强引用  如果是__weak NSObject *weakSelf = objc;,那么就对objc变量进行的是弱引用
+            _Block_object_assign((void*)&dst->objc, (void*)src->objc, 3/*BLOCK_FIELD_IS_OBJECT*/);
+        }
+#### 总结,block对__block修饰的变量包装成的对象会是强引用,而对普通对象会是强引用,如果普通对象是通过弱引用访问的,那么block就对普通对象是形成弱引用
+
+
+
+
+#### 6.4 __block循环引用
+#### 6.5 __block总结
 
 #### 3.2
 #### 3.3 
@@ -759,6 +1090,7 @@
 
 #### 面试题
 #### 1. block的原理是怎样的,本质是什么
+#### 
 #### 2. __block的作用是什么? 有什么使用注意点?
 #### 3. block的属性修饰符为什么是copy?使用block有哪些使用注意?
 #### 4. block在修改NSMutableArray,需不需要添加__block?
