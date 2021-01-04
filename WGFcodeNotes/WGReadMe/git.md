@@ -86,7 +86,8 @@
         git checkout master   :切到主分支上
         git merge testBranch   :将testBranch分支合并到当前分支(master分支)
     6.完成分支合并后，就可以删除分支了
-        git branch -d testBranch
+        git branch -d testBranch  :删除本地的分支testBranch
+        git push origin --delete testBranch  :删除远程仓库的分支testBranch
     7.注意:在分支1上添加功能,当切换到另一个分支2(例如master分支),分支1上的代码是不会在分支2上显示的
 #多任务多分支协作
         
