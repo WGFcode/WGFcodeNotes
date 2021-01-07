@@ -52,4 +52,6 @@ Xcode Toolchain包括编译器，lldb以及其他相关工具的副本，这些�
         export XCODE_XCCONFIG_FILE="$xcconfig"
         carthage "$@"
 
-
+3.  升级Xcode12后，运行项目，导入的第三方库会报警告：
+The iOS deployment target 'IPHONEOS_DEPLOYMENT_TARGET' is set to 8.0, but the range of supported deployment target versions is 9.0 to 14.1.99.
+#### 原因是升级Xcode12后，Xcode默认支持的iOS版本是iOS9.0，如果想支持iOS8.0，那么就需要在/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/DeviceSupport文件中添加iOS8.0的版本包，然后在同级目录的Developer/SDKs/iPhoneOS.sdk/SDKSettings.plist中添加支持的iOS版本号，这里修改SDKSettings.plist文件可能没有权限，那么就需要将SDKSettings.plist文件和它的上一级文件的权限打开，点击显示简介->共享与权限->打开锁->设置本用户权限为可读可写并应用到该项目中即可
