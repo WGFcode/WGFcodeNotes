@@ -1,6 +1,5 @@
 ### Block系统性总结
 
-
 ### 1. block本质及底层结构
 #### 1.1 block本质也是个OC对象,它内部也有isa指针.block是封装了函数调用以及函数环境的OC对象
         int main(int argc, const char * argv[]) {
@@ -958,9 +957,9 @@
 #### 6.3 __block内存管理
 1. 当block在栈上时,并不会对__block修饰的变量产生强引用
 2. 当block被拷贝到堆上时
-*  1.会调用block内部的copy函数
-* 2. copy函数内部会调用_Block_object_assign函数
-* 3. _Block_object_assign函数会对__block变量形成强引用(retain)
+* 1 会调用block内部的copy函数
+* 2 copy函数内部会调用_Block_object_assign函数
+* 3 _Block_object_assign函数会对__block变量形成强引用(retain)
 
             typedef void (^WGBlock)(void);
             int main(int argc, const char * argv[]) {
@@ -1013,7 +1012,7 @@
             }
             
 3. 当block从堆上移除时
-* 1. 会调用block内部的dispose函数
+* 1 会调用block内部的dispose函数
 * 2 dispose函数内部会调用_Block_object_dispose函数
 * 3 _Block_object_dispose函数会自动释放引用的__block变量(release)
 
