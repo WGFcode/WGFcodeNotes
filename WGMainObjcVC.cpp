@@ -106,6 +106,13 @@ struct __AtAutoreleasePool {
 };
 
 #define __OFFSETOFIVAR__(TYPE, MEMBER) ((long long) &((TYPE *)0)->MEMBER)
+static void __Block_byref_id_object_copy_131(void *dst, void *src) {
+ _Block_object_assign((char*)dst + 40, *(void * *) ((char*)src + 40), 131);
+}
+static void __Block_byref_id_object_dispose_131(void *src) {
+ _Block_object_dispose(*(void * *) ((char*)src + 40), 131);
+}
+static __NSConstantStringImpl __NSConstantStringImpl__var_folders_wc_tkbgc_ts0pv3lyd2n4wsdc6h0000gn_T_WGMainObjcVC_bb8139_mi_0 __attribute__ ((section ("__DATA, __cfstring"))) = {__CFConstantStringClassReference,0x000007c8,"---%p",5};
 
 
 
@@ -3119,7 +3126,7 @@ CFAllocatorRef CFGetAllocator(CFTypeRef cf);
 
 
 extern
-CFTypeRef CFMakeCollectable(CFTypeRef cf) ;
+CFTypeRef CFMakeCollectable(CFTypeRef cf) __attribute__((unavailable("not available in automatic reference counting mode")));
 
 
 
@@ -7156,7 +7163,7 @@ extern "C" __attribute__((visibility("default"))) const char * _Nonnull object_g
     __attribute__((availability(macosx,introduced=10.0))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
 extern "C" __attribute__((visibility("default"))) void * _Nullable object_getIndexedIvars(id _Nullable obj)
     __attribute__((availability(macosx,introduced=10.0))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)))
-                        ;
+    __attribute__((unavailable("not available in automatic reference counting mode")));
 extern "C" __attribute__((visibility("default"))) BOOL sel_isMapped(SEL _Nonnull sel)
     __attribute__((availability(macosx,introduced=10.0))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
 extern "C" __attribute__((visibility("default"))) SEL _Nonnull sel_getUid(const char * _Nonnull str)
@@ -7226,12 +7233,12 @@ typedef struct {} _objc_exc_NSInvocation;
 
 // - (BOOL)respondsToSelector:(SEL)aSelector;
 
-// - (instancetype)retain ;
-// - (oneway void)release ;
-// - (instancetype)autorelease ;
-// - (NSUInteger)retainCount ;
+// - (instancetype)retain __attribute__((unavailable("not available in automatic reference counting mode")));
+// - (oneway void)release __attribute__((unavailable("not available in automatic reference counting mode")));
+// - (instancetype)autorelease __attribute__((unavailable("not available in automatic reference counting mode")));
+// - (NSUInteger)retainCount __attribute__((unavailable("not available in automatic reference counting mode")));
 
-// - (struct _NSZone *)zone ;
+// - (struct _NSZone *)zone __attribute__((unavailable("not available in automatic reference counting mode")));
 
 // @property (readonly, copy) NSString *description;
 /* @optional */
@@ -7252,7 +7259,7 @@ typedef struct {} _objc_exc_NSObject;
 #endif
 
 struct NSObject_IMPL {
-	Class isa;
+	__unsafe_unretained Class isa;
 };
 
 
@@ -7278,8 +7285,8 @@ struct NSObject_IMPL {
 // - (id)copy;
 // - (id)mutableCopy;
 
-// + (id)copyWithZone:(struct _NSZone *)zone ;
-// + (id)mutableCopyWithZone:(struct _NSZone *)zone ;
+// + (id)copyWithZone:(struct _NSZone *)zone __attribute__((unavailable("not available in automatic reference counting mode")));
+// + (id)mutableCopyWithZone:(struct _NSZone *)zone __attribute__((unavailable("not available in automatic reference counting mode")));
 
 // + (BOOL)instancesRespondToSelector:(SEL)aSelector;
 // + (BOOL)conformsToProtocol:(Protocol *)protocol;
@@ -7392,7 +7399,7 @@ static __inline__ __attribute__((__always_inline__)) __attribute__((__nonnull__)
 void
 _dispatch_object_validate(dispatch_object_t object)
 {
- void *isa = *(void *volatile*)( void*)object;
+ void *isa = *(void *volatile*)(__bridge void*)object;
  (void)isa;
 }
 typedef void (*dispatch_block_t)(void);
@@ -7544,7 +7551,7 @@ static __inline__ __attribute__((__always_inline__)) __attribute__((__const__)) 
 dispatch_queue_main_t
 dispatch_get_main_queue(void)
 {
- return (( dispatch_queue_main_t)&(_dispatch_main_q));
+ return ((__bridge dispatch_queue_main_t)&(_dispatch_main_q));
 }
 typedef long dispatch_queue_priority_t;
 __attribute__((availability(macos,introduced=10.6))) __attribute__((availability(ios,introduced=4.0)))
@@ -10539,12 +10546,12 @@ extern "C" void *NSZoneMalloc(NSZone * _Nullable zone, NSUInteger size) __attrib
 extern "C" void *NSZoneCalloc(NSZone * _Nullable zone, NSUInteger numElems, NSUInteger byteSize) __attribute__((availability(swift, unavailable, message="Zone-based memory management is unavailable")));
 extern "C" void *NSZoneRealloc(NSZone * _Nullable zone, void * _Nullable ptr, NSUInteger size) __attribute__((availability(swift, unavailable, message="Zone-based memory management is unavailable")));
 extern "C" void NSZoneFree(NSZone * _Nullable zone, void *ptr) __attribute__((availability(swift, unavailable, message="Zone-based memory management is unavailable")));
-static __inline__ __attribute__((always_inline)) __attribute__((ns_returns_retained)) id _Nullable NSMakeCollectable(CFTypeRef _Nullable __attribute__((cf_consumed)) cf) __attribute__((availability(swift, unavailable, message="Garbage Collection is not supported")));
+static __inline__ __attribute__((always_inline)) __attribute__((ns_returns_retained)) id _Nullable NSMakeCollectable(CFTypeRef _Nullable __attribute__((cf_consumed)) cf) __attribute__((unavailable("not available in automatic reference counting mode"))) __attribute__((availability(swift, unavailable, message="Garbage Collection is not supported")));
 static __inline__ __attribute__((always_inline)) __attribute__((ns_returns_retained)) id _Nullable NSMakeCollectable(CFTypeRef _Nullable __attribute__((cf_consumed)) cf) {
 
+    return __null;
 
 
-    return (id)cf;
 
 }
 
@@ -10663,26 +10670,29 @@ typedef struct {} _objc_exc_Protocol;
 
 
 
-extern "C" id NSAllocateObject(Class aClass, NSUInteger extraBytes, NSZone * _Nullable zone) ;
+extern "C" id NSAllocateObject(Class aClass, NSUInteger extraBytes, NSZone * _Nullable zone) __attribute__((unavailable("not available in automatic reference counting mode")));
 
-extern "C" void NSDeallocateObject(id object) ;
+extern "C" void NSDeallocateObject(id object) __attribute__((unavailable("not available in automatic reference counting mode")));
 
-extern "C" id NSCopyObject(id object, NSUInteger extraBytes, NSZone * _Nullable zone) __attribute__((availability(macos,introduced=10.0,deprecated=10.8,message="Not supported"))) __attribute__((availability(ios,introduced=2.0,deprecated=6.0,message="Not supported"))) __attribute__((availability(watchos,introduced=2.0,deprecated=2.0,message="Not supported"))) __attribute__((availability(tvos,introduced=9.0,deprecated=9.0,message="Not supported")));
+extern "C" id NSCopyObject(id object, NSUInteger extraBytes, NSZone * _Nullable zone) __attribute__((unavailable("not available in automatic reference counting mode"))) __attribute__((availability(macos,introduced=10.0,deprecated=10.8,message="Not supported"))) __attribute__((availability(ios,introduced=2.0,deprecated=6.0,message="Not supported"))) __attribute__((availability(watchos,introduced=2.0,deprecated=2.0,message="Not supported"))) __attribute__((availability(tvos,introduced=9.0,deprecated=9.0,message="Not supported")));
 
-extern "C" BOOL NSShouldRetainWithZone(id anObject, NSZone * _Nullable requestedZone) ;
+extern "C" BOOL NSShouldRetainWithZone(id anObject, NSZone * _Nullable requestedZone) __attribute__((unavailable("not available in automatic reference counting mode")));
 
-extern "C" void NSIncrementExtraRefCount(id object) ;
+extern "C" void NSIncrementExtraRefCount(id object) __attribute__((unavailable("not available in automatic reference counting mode")));
 
-extern "C" BOOL NSDecrementExtraRefCountWasZero(id object) ;
+extern "C" BOOL NSDecrementExtraRefCountWasZero(id object) __attribute__((unavailable("not available in automatic reference counting mode")));
 
-extern "C" NSUInteger NSExtraRefCount(id object) ;
+extern "C" NSUInteger NSExtraRefCount(id object) __attribute__((unavailable("not available in automatic reference counting mode")));
+
+
+
+
 static __inline__ __attribute__((always_inline)) __attribute__((cf_returns_retained)) CFTypeRef _Nullable CFBridgingRetain(id _Nullable X) {
-    return X ? CFRetain((CFTypeRef)X) : __null;
+    return (__bridge_retained CFTypeRef)X;
 }
 
-
-static __inline__ __attribute__((always_inline)) id _Nullable CFBridgingRelease(CFTypeRef __attribute__((cf_consumed)) _Nullable X) __attribute__((ns_returns_retained)) {
-    return ((id (*)(id, SEL))(void *)objc_msgSend)((id)CFMakeCollectable(X), sel_registerName("autorelease"));
+static __inline__ __attribute__((always_inline)) id _Nullable CFBridgingRelease(CFTypeRef __attribute__((cf_consumed)) _Nullable X) {
+    return (__bridge_transfer id)X;
 }
 #pragma clang assume_nonnull end
 
@@ -11468,7 +11478,7 @@ __attribute__((availability(swift, unavailable, message="NSMutableArray diffing 
 
 #pragma clang assume_nonnull begin
 
-
+__attribute__((unavailable("not available in automatic reference counting mode")))
 
 #ifndef _REWRITER_typedef_NSAutoreleasePool
 #define _REWRITER_typedef_NSAutoreleasePool
@@ -12680,7 +12690,7 @@ typedef struct {} _objc_exc_NSCountedSet;
 
 struct NSCountedSet_IMPL {
 	struct NSMutableSet_IMPL NSMutableSet_IVARS;
-	id _table;
+	__strong id _table;
 	void *_reserved;
 };
 
@@ -13144,12 +13154,12 @@ typedef struct {} _objc_exc_NSBundle;
 struct NSBundle_IMPL {
 	struct NSObject_IMPL NSObject_IVARS;
 	NSUInteger _flags;
-	id _cfBundle;
+	__strong id _cfBundle;
 	NSUInteger _reserved2;
-	Class _principalClass;
-	id _initialPath;
-	id _resolvedPath;
-	NSString *_firstClassName;
+	__unsafe_unretained Class _principalClass;
+	__strong id _initialPath;
+	__strong id _resolvedPath;
+	NSString *__strong _firstClassName;
 };
 
 
@@ -14229,8 +14239,8 @@ struct NSCoder_IMPL {
 
 
 
-// - (void)setObjectZone:(nullable NSZone *)zone ;
-// - (nullable NSZone *)objectZone ;
+// - (void)setObjectZone:(nullable NSZone *)zone __attribute__((unavailable("not available in automatic reference counting mode")));
+// - (nullable NSZone *)objectZone __attribute__((unavailable("not available in automatic reference counting mode")));
 
 // @property (readonly) unsigned int systemVersion;
 
@@ -14912,7 +14922,7 @@ typedef struct {} _objc_exc_NSDateFormatter;
 
 struct NSDateFormatter_IMPL {
 	struct NSFormatter_IMPL NSFormatter_IVARS;
-	NSMutableDictionary *_attributes;
+	NSMutableDictionary *__strong _attributes;
 	CFDateFormatterRef _formatter;
 	NSUInteger _counter;
 };
@@ -15051,17 +15061,17 @@ typedef struct {} _objc_exc_NSDateIntervalFormatter;
 
 struct NSDateIntervalFormatter_IMPL {
 	struct NSFormatter_IMPL NSFormatter_IVARS;
-	NSLocale *_locale;
-	NSCalendar *_calendar;
-	NSTimeZone *_timeZone;
-	NSString *_dateTemplate;
-	NSString *_dateTemplateFromStyles;
+	NSLocale *__strong _locale;
+	NSCalendar *__strong _calendar;
+	NSTimeZone *__strong _timeZone;
+	NSString *__strong _dateTemplate;
+	NSString *__strong _dateTemplateFromStyles;
 	void *_formatter;
 	NSDateIntervalFormatterStyle _dateStyle;
 	NSDateIntervalFormatterStyle _timeStyle;
 	BOOL _modified;
 	BOOL _useTemplate;
-	dispatch_semaphore_t _lock;
+	__strong dispatch_semaphore_t _lock;
 	void *_reserved[4];
 };
 
@@ -15152,7 +15162,7 @@ typedef struct {} _objc_exc_NSISO8601DateFormatter;
 struct NSISO8601DateFormatter_IMPL {
 	struct NSFormatter_IMPL NSFormatter_IVARS;
 	CFDateFormatterRef _formatter;
-	NSTimeZone *_timeZone;
+	NSTimeZone *__strong _timeZone;
 	NSISO8601DateFormatOptions _formatOptions;
 };
 
@@ -15428,7 +15438,7 @@ typedef struct {} _objc_exc_NSUnit;
 
 struct NSUnit_IMPL {
 	struct NSObject_IMPL NSObject_IVARS;
-	NSString *_symbol;
+	NSString *__strong _symbol;
 };
 
 
@@ -15456,7 +15466,7 @@ typedef struct {} _objc_exc_NSDimension;
 struct NSDimension_IMPL {
 	struct NSUnit_IMPL NSUnit_IVARS;
 	NSUInteger _reserved;
-	NSUnitConverter *_converter;
+	NSUnitConverter *__strong _converter;
 };
 
 
@@ -16151,7 +16161,7 @@ typedef struct {} _objc_exc_NSMeasurement;
 
 struct NSMeasurement_IMPL {
 	struct NSObject_IMPL NSObject_IVARS;
-	UnitType _unit;
+	__strong UnitType _unit;
 	double _doubleValue;
 };
 
@@ -16258,11 +16268,11 @@ typedef struct {} _objc_exc_NSNumberFormatter;
 
 struct NSNumberFormatter_IMPL {
 	struct NSFormatter_IMPL NSFormatter_IVARS;
-	NSMutableDictionary *_attributes;
+	NSMutableDictionary *__strong _attributes;
 	CFNumberFormatterRef _formatter;
 	NSUInteger _counter;
 	NSNumberFormatterBehavior _behavior;
-	NSRecursiveLock *_lock;
+	NSRecursiveLock *__strong _lock;
 	unsigned long _stateBitMask;
 	NSInteger _cacheGeneration;
 	void *_reserved[8];
@@ -16661,7 +16671,7 @@ typedef struct {} _objc_exc_NSPersonNameComponents;
 
 struct NSPersonNameComponents_IMPL {
 	struct NSObject_IMPL NSObject_IVARS;
-	id _private;
+	__strong id _private;
 };
 
 
@@ -16738,7 +16748,7 @@ typedef struct {} _objc_exc_NSPersonNameComponentsFormatter;
 
 struct NSPersonNameComponentsFormatter_IMPL {
 	struct NSFormatter_IMPL NSFormatter_IVARS;
-	id _private;
+	__strong id _private;
 };
 
 
@@ -17204,10 +17214,10 @@ typedef struct {} _objc_exc_NSException;
 
 struct NSException_IMPL {
 	struct NSObject_IMPL NSObject_IVARS;
-	NSString *name;
-	NSString *reason;
-	NSDictionary *userInfo;
-	id reserved;
+	NSString *__strong name;
+	NSString *__strong reason;
+	NSDictionary *__strong userInfo;
+	__strong id reserved;
 };
 
 
@@ -17521,8 +17531,8 @@ struct NSError_IMPL {
 	struct NSObject_IMPL NSObject_IVARS;
 	void *_reserved;
 	NSInteger _code;
-	NSString *_domain;
-	NSDictionary *_userInfo;
+	NSString *__strong _domain;
+	NSDictionary *__strong _userInfo;
 };
 
 
@@ -17633,11 +17643,11 @@ typedef struct {} _objc_exc_NSRunLoop;
 
 struct NSRunLoop_IMPL {
 	struct NSObject_IMPL NSObject_IVARS;
-	id _rl;
-	id _dperf;
-	id _perft;
-	id _info;
-	id _ports;
+	__strong id _rl;
+	__strong id _dperf;
+	__strong id _perft;
+	__strong id _info;
+	__strong id _ports;
 	void *_reserved[6];
 };
 
@@ -18100,8 +18110,8 @@ typedef struct {} _objc_exc_NSURL;
 
 struct NSURL_IMPL {
 	struct NSObject_IMPL NSObject_IVARS;
-	NSString *_urlString;
-	NSURL *_baseURL;
+	NSString *__strong _urlString;
+	NSURL *__strong _baseURL;
 	void *_clients;
 	void *_reserved;
 };
@@ -18522,8 +18532,8 @@ typedef struct {} _objc_exc_NSURLQueryItem;
 
 struct NSURLQueryItem_IMPL {
 	struct NSObject_IMPL NSObject_IVARS;
-	NSString *_name;
-	NSString *_value;
+	NSString *__strong _name;
+	NSString *__strong _value;
 };
 
 // - (instancetype)initWithName:(NSString *)name value:(nullable NSString *)value __attribute__((objc_designated_initializer));
@@ -19198,9 +19208,9 @@ typedef struct {} _objc_exc_NSFileProviderService;
 
 struct NSFileProviderService_IMPL {
 	struct NSObject_IMPL NSObject_IVARS;
-	NSFileProviderServiceName _name;
-	id _endpointCreatingProxy;
-	dispatch_group_t _requestFinishedGroup;
+	__strong NSFileProviderServiceName _name;
+	__strong id _endpointCreatingProxy;
+	__strong dispatch_group_t _requestFinishedGroup;
 };
 
 // - (void)getFileProviderConnectionWithCompletionHandler:(void (^)(NSXPCConnection * _Nullable connection, NSError * _Nullable error))completionHandler;
@@ -19629,7 +19639,7 @@ typedef struct {} _objc_exc_NSHTTPCookie;
 
 struct NSHTTPCookie_IMPL {
 	struct NSObject_IMPL NSObject_IVARS;
-	NSHTTPCookieInternal *_cookiePrivate;
+	NSHTTPCookieInternal *__strong _cookiePrivate;
 };
 
 // - (nullable instancetype)initWithProperties:(NSDictionary<NSHTTPCookiePropertyKey, id> *)properties;
@@ -19745,7 +19755,7 @@ typedef struct {} _objc_exc_NSHTTPCookieStorage;
 
 struct NSHTTPCookieStorage_IMPL {
 	struct NSObject_IMPL NSObject_IVARS;
-	NSHTTPCookieStorageInternal *_internal;
+	NSHTTPCookieStorageInternal *__strong _internal;
 };
 
 @property(class, readonly, strong) NSHTTPCookieStorage *sharedHTTPCookieStorage;
@@ -20712,20 +20722,20 @@ struct NSKeyedArchiver_IMPL {
 	struct NSCoder_IMPL NSCoder_IVARS;
 	void *_stream;
 	NSUInteger _flags;
-	id _delegate;
-	id _containers;
-	id _objects;
-	id _objRefMap;
-	id _replacementMap;
-	id _classNameMap;
-	id _conditionals;
-	id _classes;
+	__strong id _delegate;
+	__strong id _containers;
+	__strong id _objects;
+	__strong id _objRefMap;
+	__strong id _replacementMap;
+	__strong id _classNameMap;
+	__strong id _conditionals;
+	__strong id _classes;
 	NSUInteger _genericKey;
 	void *_cache;
 	NSUInteger _cacheSize;
 	NSUInteger _estimatedCount;
 	void *_reserved2;
-	id _visited;
+	__strong id _visited;
 	void *_reserved0;
 };
 
@@ -20781,21 +20791,21 @@ typedef struct {} _objc_exc_NSKeyedUnarchiver;
 
 struct NSKeyedUnarchiver_IMPL {
 	struct NSCoder_IMPL NSCoder_IVARS;
-	id _delegate;
+	__strong id _delegate;
 	uint32_t _flags;
-	id _objRefMap;
-	id _replacementMap;
-	id _nameClassMap;
-	id _tmpRefObjMap;
-	id _refObjMap;
+	__strong id _objRefMap;
+	__strong id _replacementMap;
+	__strong id _nameClassMap;
+	__strong id _tmpRefObjMap;
+	__strong id _refObjMap;
 	int32_t _genericKey;
-	id _data;
+	__strong id _data;
 	void *_offsetData;
-	id _containers;
-	id _objects;
+	__strong id _containers;
+	__strong id _objects;
 	const uint8_t *_bytes;
 	uint64_t _len;
-	id _helper;
+	__strong id _helper;
 	void *_reserved0;
 };
 
@@ -21286,11 +21296,11 @@ typedef struct {} _objc_exc_NSNotificationQueue;
 
 struct NSNotificationQueue_IMPL {
 	struct NSObject_IMPL NSObject_IVARS;
-	id _notificationCenter;
-	id _asapQueue;
-	id _asapObs;
-	id _idleQueue;
-	id _idleObs;
+	__strong id _notificationCenter;
+	__strong id _asapQueue;
+	__strong id _asapObs;
+	__strong id _idleQueue;
+	__strong id _idleObs;
 };
 
 @property (class, readonly, strong) NSNotificationQueue *defaultQueue;
@@ -21768,7 +21778,7 @@ typedef struct {} _objc_exc_NSMachPort;
 
 struct NSMachPort_IMPL {
 	struct NSPort_IMPL NSPort_IVARS;
-	id _delegate;
+	__strong id _delegate;
 	NSUInteger _flags;
 	uint32_t _machPort;
 	NSUInteger _reserved;
@@ -21826,7 +21836,7 @@ typedef struct {} _objc_exc_NSMessagePort;
 struct NSMessagePort_IMPL {
 	struct NSPort_IMPL NSPort_IVARS;
 	void *_port;
-	id _delegate;
+	__strong id _delegate;
 };
 
 
@@ -21888,10 +21898,10 @@ typedef struct {} _objc_exc_NSProcessInfo;
 
 struct NSProcessInfo_IMPL {
 	struct NSObject_IMPL NSObject_IVARS;
-	NSDictionary *environment;
-	NSArray *arguments;
-	NSString *hostName;
-	NSString *name;
+	NSDictionary *__strong environment;
+	NSArray *__strong arguments;
+	NSString *__strong hostName;
+	NSString *__strong name;
 	NSInteger automaticTerminationOptOutCounter;
 };
 
@@ -22077,12 +22087,12 @@ typedef struct {} _objc_exc_NSProxy;
 #endif
 
 struct NSProxy_IMPL {
-	Class isa;
+	__unsafe_unretained Class isa;
 };
 
 
 // + (id)alloc;
-// + (id)allocWithZone:(nullable NSZone *)zone ;
+// + (id)allocWithZone:(nullable NSZone *)zone __attribute__((unavailable("not available in automatic reference counting mode")));
 // + (Class)class;
 
 // - (void)forwardInvocation:(NSInvocation *)invocation;
@@ -22313,10 +22323,10 @@ typedef struct {} _objc_exc_NSRegularExpression;
 
 struct NSRegularExpression_IMPL {
 	struct NSObject_IMPL NSObject_IVARS;
-	NSString *_pattern;
+	NSString *__strong _pattern;
 	NSUInteger _options;
 	void *_internal;
-	id _reserved1;
+	__strong id _reserved1;
 	int32_t _checkout;
 	int32_t _reserved2;
 };
@@ -22427,9 +22437,9 @@ typedef struct {} _objc_exc_NSSortDescriptor;
 struct NSSortDescriptor_IMPL {
 	struct NSObject_IMPL NSObject_IVARS;
 	NSUInteger _sortDescriptorFlags;
-	NSString *_key;
+	NSString *__strong _key;
 	SEL _selector;
-	id _selectorOrBlock;
+	__strong id _selectorOrBlock;
 };
 
 
@@ -22826,7 +22836,7 @@ typedef struct {} _objc_exc_NSThread;
 
 struct NSThread_IMPL {
 	struct NSObject_IMPL NSObject_IVARS;
-	id _private;
+	__strong id _private;
 	uint8_t _bytes[44];
 };
 
@@ -23186,7 +23196,7 @@ typedef struct {} _objc_exc_NSURLAuthenticationChallenge;
 
 struct NSURLAuthenticationChallenge_IMPL {
 	struct NSObject_IMPL NSObject_IVARS;
-	NSURLAuthenticationChallengeInternal *_internal;
+	NSURLAuthenticationChallengeInternal *__strong _internal;
 };
 
 // - (instancetype)initWithProtectionSpace:(NSURLProtectionSpace *)space proposedCredential:(nullable NSURLCredential *)credential previousFailureCount:(NSInteger)previousFailureCount failureResponse:(nullable NSURLResponse *)response error:(nullable NSError *)error sender:(id<NSURLAuthenticationChallengeSender>)sender;
@@ -23284,7 +23294,7 @@ typedef struct {} _objc_exc_NSCachedURLResponse;
 
 struct NSCachedURLResponse_IMPL {
 	struct NSObject_IMPL NSObject_IVARS;
-	NSCachedURLResponseInternal *_internal;
+	NSCachedURLResponseInternal *__strong _internal;
 };
 
 // - (instancetype)initWithResponse:(NSURLResponse *)response data:(NSData *)data;
@@ -23342,7 +23352,7 @@ typedef struct {} _objc_exc_NSURLCache;
 
 struct NSURLCache_IMPL {
 	struct NSObject_IMPL NSObject_IVARS;
-	NSURLCacheInternal *_internal;
+	NSURLCacheInternal *__strong _internal;
 };
 
 @property (class, strong) NSURLCache *sharedURLCache;
@@ -23494,7 +23504,7 @@ typedef struct {} _objc_exc_NSURLConnection;
 
 struct NSURLConnection_IMPL {
 	struct NSObject_IMPL NSObject_IVARS;
-	NSURLConnectionInternal *_internal;
+	NSURLConnectionInternal *__strong _internal;
 };
 
 
@@ -25202,10 +25212,6 @@ CFStringRef SecCreateSharedWebCredentialPassword(void) __attribute__((availabili
 
 
 }
-extern "C" {
-__attribute__((visibility("default"))) void *sec_retain(void *obj);
-__attribute__((visibility("default"))) void sec_release(void *obj);
-}
 // @protocol OS_sec_object <NSObject> /* @end */
  typedef NSObject/*<OS_sec_object>*/ * __attribute__((objc_independent_class)) sec_object_t;
 typedef uint16_t SSLCipherSuite;
@@ -25789,7 +25795,7 @@ typedef struct {} _objc_exc_NSURLCredential;
 
 struct NSURLCredential_IMPL {
 	struct NSObject_IMPL NSObject_IVARS;
-	NSURLCredentialInternal *_internal;
+	NSURLCredentialInternal *__strong _internal;
 };
 
 
@@ -26006,7 +26012,7 @@ typedef struct {} _objc_exc_NSURLProtectionSpace;
 
 struct NSURLProtectionSpace_IMPL {
 	struct NSObject_IMPL NSObject_IVARS;
-	NSURLProtectionSpaceInternal *_internal;
+	NSURLProtectionSpaceInternal *__strong _internal;
 };
 
 // - (instancetype)initWithHost:(NSString *)host port:(NSInteger)port protocol:(nullable NSString *)protocol realm:(nullable NSString *)realm authenticationMethod:(nullable NSString *)authenticationMethod;
@@ -26141,7 +26147,7 @@ typedef struct {} _objc_exc_NSURLCredentialStorage;
 
 struct NSURLCredentialStorage_IMPL {
 	struct NSObject_IMPL NSObject_IVARS;
-	NSURLCredentialStorageInternal *_internal;
+	NSURLCredentialStorageInternal *__strong _internal;
 };
 
 
@@ -27441,7 +27447,7 @@ typedef struct {} _objc_exc_NSURLProtocol;
 
 struct NSURLProtocol_IMPL {
 	struct NSObject_IMPL NSObject_IVARS;
-	NSURLProtocolInternal *_internal;
+	NSURLProtocolInternal *__strong _internal;
 };
 
 // - (instancetype)initWithRequest:(NSURLRequest *)request cachedResponse:(nullable NSCachedURLResponse *)cachedResponse client:(nullable id <NSURLProtocolClient>)client __attribute__((objc_designated_initializer));
@@ -27570,7 +27576,7 @@ typedef struct {} _objc_exc_NSURLRequest;
 
 struct NSURLRequest_IMPL {
 	struct NSObject_IMPL NSObject_IVARS;
-	NSURLRequestInternal *_internal;
+	NSURLRequestInternal *__strong _internal;
 };
 
 // + (instancetype)requestWithURL:(NSURL *)URL;
@@ -27789,7 +27795,7 @@ typedef struct {} _objc_exc_NSURLResponse;
 
 struct NSURLResponse_IMPL {
 	struct NSObject_IMPL NSObject_IVARS;
-	NSURLResponseInternal *_internal;
+	NSURLResponseInternal *__strong _internal;
 };
 
 // - (instancetype)initWithURL:(NSURL *)URL MIMEType:(nullable NSString *)MIMEType expectedContentLength:(NSInteger)length textEncodingName:(nullable NSString *)name __attribute__((objc_designated_initializer));
@@ -27825,7 +27831,7 @@ typedef struct {} _objc_exc_NSHTTPURLResponse;
 
 struct NSHTTPURLResponse_IMPL {
 	struct NSURLResponse_IMPL NSURLResponse_IVARS;
-	NSHTTPURLResponseInternal *_httpInternal;
+	NSHTTPURLResponseInternal *__strong _httpInternal;
 };
 
 // - (nullable instancetype)initWithURL:(NSURL *)url statusCode:(NSInteger)statusCode HTTPVersion:(nullable NSString *)HTTPVersion headerFields:(nullable NSDictionary<NSString *, NSString *> *)headerFields __attribute__((availability(macos,introduced=10.7))) __attribute__((availability(ios,introduced=5.0))) __attribute__((availability(watchos,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0)));
@@ -27904,7 +27910,7 @@ typedef struct {} _objc_exc_NSUserDefaults;
 
 struct NSUserDefaults_IMPL {
 	struct NSObject_IMPL NSObject_IVARS;
-	id _kvo_;
+	__strong id _kvo_;
 	CFStringRef _identifier_;
 	CFStringRef _container_;
 	void *_reserved[2];
@@ -28214,11 +28220,11 @@ typedef struct {} _objc_exc_NSXMLParser;
 
 struct NSXMLParser_IMPL {
 	struct NSObject_IMPL NSObject_IVARS;
-	id _reserved0;
-	id _delegate;
-	id _reserved1;
-	id _reserved2;
-	id _reserved3;
+	__strong id _reserved0;
+	__strong id _delegate;
+	__strong id _reserved1;
+	__strong id _reserved2;
+	__strong id _reserved3;
 };
 
 // - (nullable instancetype)initWithContentsOfURL:(NSURL *)url;
@@ -28689,22 +28695,22 @@ typedef struct {} _objc_exc_NSXPCConnection;
 struct NSXPCConnection_IMPL {
 	struct NSObject_IMPL NSObject_IVARS;
 	void *_xconnection;
-	id _repliesExpected;
-	dispatch_queue_t _userQueue;
+	__strong id _repliesExpected;
+	__strong dispatch_queue_t _userQueue;
 	uint32_t _state;
 	uint32_t _state2;
 	void (*_interruptionHandler)();
 	void (*_invalidationHandler)();
-	id _exportInfo;
-	id _repliesRequested;
-	id _importInfo;
+	__strong id _exportInfo;
+	__strong id _repliesRequested;
+	__strong id _importInfo;
 	id _otherInfo;
-	id _reserved1;
-	NSXPCInterface *_remoteObjectInterface;
-	NSString *_serviceName;
-	NSXPCListenerEndpoint *_endpoint;
-	id _eCache;
-	id _dCache;
+	__strong id _reserved1;
+	NSXPCInterface *__strong _remoteObjectInterface;
+	NSString *__strong _serviceName;
+	NSXPCListenerEndpoint *__strong _endpoint;
+	__strong id _eCache;
+	__strong id _dCache;
 };
 
 
@@ -28782,13 +28788,13 @@ typedef struct {} _objc_exc_NSXPCListener;
 struct NSXPCListener_IMPL {
 	struct NSObject_IMPL NSObject_IVARS;
 	void *_xconnection;
-	dispatch_queue_t _userQueue;
+	__strong dispatch_queue_t _userQueue;
 	void *reserved0;
-	id _delegate;
-	NSString *_serviceName;
+	__strong id _delegate;
+	NSString *__strong _serviceName;
 	uint64_t _state;
-	id _reserved1;
-	id _reserved2;
+	__strong id _reserved1;
+	__strong id _reserved2;
 };
 
 
@@ -28840,9 +28846,9 @@ typedef struct {} _objc_exc_NSXPCInterface;
 
 struct NSXPCInterface_IMPL {
 	struct NSObject_IMPL NSObject_IVARS;
-	Protocol *_protocol;
+	Protocol *__strong _protocol;
 	void *_reserved2;
-	id _reserved1;
+	__strong id _reserved1;
 };
 
 
@@ -28902,7 +28908,7 @@ typedef struct {} _objc_exc_NSXPCCoder;
 struct NSXPCCoder_IMPL {
 	struct NSCoder_IMPL NSCoder_IVARS;
 	id _userInfo;
-	id _reserved1;
+	__strong id _reserved1;
 };
 
 // @property (nullable, retain) id <NSObject> userInfo;
@@ -29183,7 +29189,7 @@ typedef struct {} _objc_exc_NSCache;
 
 struct NSCache_IMPL {
 	struct NSObject_IMPL NSObject_IVARS;
-	id _delegate;
+	__strong id _delegate;
 	void *_private[5];
 	void *_reserved;
 };
@@ -29378,9 +29384,9 @@ typedef struct {} _objc_exc_NSComparisonPredicate;
 struct NSComparisonPredicate_IMPL {
 	struct NSPredicate_IMPL NSPredicate_IVARS;
 	void *_reserved2;
-	NSPredicateOperator *_predicateOperator;
-	NSExpression *_lhs;
-	NSExpression *_rhs;
+	NSPredicateOperator *__strong _predicateOperator;
+	NSExpression *__strong _lhs;
+	NSExpression *__strong _rhs;
 };
 
 
@@ -29437,7 +29443,7 @@ struct NSCompoundPredicate_IMPL {
 	struct NSPredicate_IMPL NSPredicate_IVARS;
 	void *_reserved2;
 	NSUInteger _type;
-	NSArray *_subpredicates;
+	NSArray *__strong _subpredicates;
 };
 
 
@@ -29503,10 +29509,10 @@ struct NSDateComponentsFormatter_IMPL {
 	pthread_mutex_t _lock;
 	void *_fmt;
 	void *_unused;
-	NSString *_fmtLocaleIdent;
-	NSCalendar *_calendar;
-	NSDate *_referenceDate;
-	NSNumberFormatter *_unitFormatter;
+	NSString *__strong _fmtLocaleIdent;
+	NSCalendar *__strong _calendar;
+	NSDate *__strong _referenceDate;
+	NSNumberFormatter *__strong _unitFormatter;
 	NSCalendarUnit _allowedUnits;
 	NSFormattingContext _formattingContext;
 	NSDateComponentsFormatterUnitsStyle _unitsStyle;
@@ -29922,7 +29928,7 @@ typedef struct {} _objc_exc_NSFileAccessIntent;
 
 struct NSFileAccessIntent_IMPL {
 	struct NSObject_IMPL NSObject_IVARS;
-	NSURL *_url;
+	NSURL *__strong _url;
 	BOOL _isRead;
 	NSInteger _options;
 };
@@ -29944,13 +29950,13 @@ typedef struct {} _objc_exc_NSFileCoordinator;
 
 struct NSFileCoordinator_IMPL {
 	struct NSObject_IMPL NSObject_IVARS;
-	id _accessArbiter;
-	id _fileReactor;
-	id _purposeID;
-	NSURL *_recentFilePresenterURL;
-	id _accessClaimIDOrIDs;
+	__strong id _accessArbiter;
+	__strong id _fileReactor;
+	__strong id _purposeID;
+	NSURL *__strong _recentFilePresenterURL;
+	__strong id _accessClaimIDOrIDs;
 	BOOL _isCancelled;
-	NSMutableDictionary *_movedItems;
+	NSMutableDictionary *__strong _movedItems;
 };
 
 
@@ -30211,19 +30217,19 @@ typedef struct {} _objc_exc_NSFileVersion;
 
 struct NSFileVersion_IMPL {
 	struct NSObject_IMPL NSObject_IVARS;
-	NSURL *_fileURL;
-	id _addition;
-	id _deadVersionIdentifier;
-	id _nonLocalVersion;
-	NSURL *_contentsURL;
+	NSURL *__strong _fileURL;
+	__strong id _addition;
+	__strong id _deadVersionIdentifier;
+	__strong id _nonLocalVersion;
+	NSURL *__strong _contentsURL;
 	BOOL _isBackup;
-	NSString *_localizedName;
-	NSString *_localizedComputerName;
-	NSDate *_modificationDate;
+	NSString *__strong _localizedName;
+	NSString *__strong _localizedComputerName;
+	NSDate *__strong _modificationDate;
 	BOOL _isResolved;
 	BOOL _contentsURLIsAccessed;
-	id _reserved;
-	NSString *_name;
+	__strong id _reserved;
+	NSString *__strong _name;
 };
 
 
@@ -30406,12 +30412,12 @@ typedef struct {} _objc_exc_NSFileWrapper;
 
 struct NSFileWrapper_IMPL {
 	struct NSObject_IMPL NSObject_IVARS;
-	NSDictionary *_fileAttributes;
-	NSString *_preferredFileName;
-	NSString *_fileName;
-	id _contents;
-	id _icon;
-	id _moreVars;
+	NSDictionary *__strong _fileAttributes;
+	NSString *__strong _preferredFileName;
+	NSString *__strong _fileName;
+	__strong id _contents;
+	__strong id _icon;
+	__strong id _moreVars;
 };
 
 
@@ -30636,11 +30642,11 @@ typedef struct {} _objc_exc_NSLinguisticTagger;
 
 struct NSLinguisticTagger_IMPL {
 	struct NSObject_IMPL NSObject_IVARS;
-	NSArray *_schemes;
+	NSArray *__strong _schemes;
 	NSUInteger _options;
-	NSString *_string;
-	id _orthographyArray;
-	id _tokenArray;
+	NSString *__strong _string;
+	__strong id _orthographyArray;
+	__strong id _tokenArray;
 	void *_reserved;
 };
 
@@ -31033,7 +31039,7 @@ struct NSMetadataQuery_IMPL {
 	struct NSObject_IMPL NSObject_IVARS;
 	NSUInteger _flags;
 	NSTimeInterval _interval;
-	id _private[11];
+	id __strong _private[11];
 	void *_reserved;
 };
 
@@ -31135,7 +31141,7 @@ typedef struct {} _objc_exc_NSMetadataItem;
 
 struct NSMetadataItem_IMPL {
 	struct NSObject_IMPL NSObject_IVARS;
-	id _item;
+	__strong id _item;
 	void *_reserved;
 };
 
@@ -31160,8 +31166,8 @@ typedef struct {} _objc_exc_NSMetadataQueryAttributeValueTuple;
 
 struct NSMetadataQueryAttributeValueTuple_IMPL {
 	struct NSObject_IMPL NSObject_IVARS;
-	id _attr;
-	id _value;
+	__strong id _attr;
+	__strong id _value;
 	NSUInteger _count;
 	void *_reserved;
 };
@@ -31184,7 +31190,7 @@ typedef struct {} _objc_exc_NSMetadataQueryResultGroup;
 
 struct NSMetadataQueryResultGroup_IMPL {
 	struct NSObject_IMPL NSObject_IVARS;
-	id _private[9];
+	id __strong _private[9];
 	NSUInteger _private2[1];
 	void *_reserved;
 };
@@ -31322,9 +31328,9 @@ typedef struct {} _objc_exc_NSNetService;
 
 struct NSNetService_IMPL {
 	struct NSObject_IMPL NSObject_IVARS;
-	id _netService;
-	id _delegate;
-	id _reserved;
+	__strong id _netService;
+	__strong id _delegate;
+	__strong id _reserved;
 };
 
 
@@ -31444,8 +31450,8 @@ typedef struct {} _objc_exc_NSNetServiceBrowser;
 
 struct NSNetServiceBrowser_IMPL {
 	struct NSObject_IMPL NSObject_IVARS;
-	id _netServiceBrowser;
-	id _delegate;
+	__strong id _netServiceBrowser;
+	__strong id _delegate;
 	void *_reserved;
 };
 
@@ -31610,9 +31616,9 @@ typedef struct {} _objc_exc_NSUbiquitousKeyValueStore;
 
 struct NSUbiquitousKeyValueStore_IMPL {
 	struct NSObject_IMPL NSObject_IVARS;
-	id _private1;
-	id _private2;
-	id _private3;
+	__strong id _private1;
+	__strong id _private2;
+	__strong id _private3;
 	void *_private4;
 	void *_reserved[3];
 	int _daemonWakeToken;
@@ -31689,12 +31695,12 @@ typedef struct {} _objc_exc_NSUndoManager;
 
 struct NSUndoManager_IMPL {
 	struct NSObject_IMPL NSObject_IVARS;
-	id _undoStack;
-	id _redoStack;
-	NSArray *_runLoopModes;
+	__strong id _undoStack;
+	__strong id _redoStack;
+	NSArray *__strong _runLoopModes;
 	uint64_t _NSUndoManagerPrivate1;
-	id _target;
-	id _proxy;
+	__strong id _target;
+	__strong id _proxy;
 	void *_NSUndoManagerPrivate2;
 	void *_NSUndoManagerPrivate3;
 };
@@ -41183,7 +41189,7 @@ typedef struct {} _objc_exc_CAValueFunction;
 
 struct CAValueFunction_IMPL {
 	struct NSObject_IMPL NSObject_IVARS;
-	NSString *_string;
+	NSString *__strong _string;
 	void *_impl;
 };
 
@@ -46735,7 +46741,7 @@ struct CIQRCodeFeature_IMPL {
 	CGPoint topRight;
 	CGPoint bottomLeft;
 	CGPoint bottomRight;
-	CIQRCodeDescriptor *symbolDescriptor;
+	CIQRCodeDescriptor *__strong symbolDescriptor;
 };
 
 
@@ -47737,7 +47743,7 @@ typedef struct {} _objc_exc_CIQRCodeDescriptor;
 
 struct CIQRCodeDescriptor_IMPL {
 	struct CIBarcodeDescriptor_IMPL CIBarcodeDescriptor_IVARS;
-	NSData *errorCorrectedPayload;
+	NSData *__strong errorCorrectedPayload;
 	NSInteger symbolVersion;
 	uint8_t maskPattern;
 	CIQRCodeErrorCorrectionLevel errorCorrectionLevel;
@@ -47778,7 +47784,7 @@ typedef struct {} _objc_exc_CIAztecCodeDescriptor;
 
 struct CIAztecCodeDescriptor_IMPL {
 	struct CIBarcodeDescriptor_IMPL CIBarcodeDescriptor_IVARS;
-	NSData *errorCorrectedPayload;
+	NSData *__strong errorCorrectedPayload;
 	BOOL isCompact;
 	NSInteger layerCount;
 	NSInteger dataCodewordCount;
@@ -47819,7 +47825,7 @@ typedef struct {} _objc_exc_CIPDF417CodeDescriptor;
 
 struct CIPDF417CodeDescriptor_IMPL {
 	struct CIBarcodeDescriptor_IMPL CIBarcodeDescriptor_IVARS;
-	NSData *errorCorrectedPayload;
+	NSData *__strong errorCorrectedPayload;
 	BOOL isCompact;
 	NSInteger rowCount;
 	NSInteger columnCount;
@@ -47877,7 +47883,7 @@ typedef struct {} _objc_exc_CIDataMatrixCodeDescriptor;
 
 struct CIDataMatrixCodeDescriptor_IMPL {
 	struct CIBarcodeDescriptor_IMPL CIBarcodeDescriptor_IVARS;
-	NSData *errorCorrectedPayload;
+	NSData *__strong errorCorrectedPayload;
 	NSInteger rowCount;
 	NSInteger columnCount;
 	CIDataMatrixCodeECCVersion eccVersion;
@@ -51488,8 +51494,8 @@ typedef struct {} _objc_exc_UIDictationPhrase;
 
 struct UIDictationPhrase_IMPL {
 	struct NSObject_IMPL NSObject_IVARS;
-	NSString *_text;
-	NSArray * _Nullable _alternativeInterpretations;
+	NSString *__strong _text;
+	NSArray * _Nullable __strong _alternativeInterpretations;
 };
 
 
@@ -71857,8 +71863,10 @@ typedef struct objc_object WGMainObjcVC;
 typedef struct {} _objc_exc_WGMainObjcVC;
 #endif
 
+extern "C" unsigned long OBJC_IVAR_$_WGMainObjcVC$_name;
 struct WGMainObjcVC_IMPL {
 	struct UIViewController_IMPL UIViewController_IVARS;
+	NSString *__strong _name;
 };
 
 
@@ -71867,13 +71875,2615 @@ struct WGMainObjcVC_IMPL {
 
 #pragma clang assume_nonnull end
 
+#pragma clang assume_nonnull begin
+
+
+#ifndef _REWRITER_typedef_Person
+#define _REWRITER_typedef_Person
+typedef struct objc_object Person;
+typedef struct {} _objc_exc_Person;
+#endif
+
+struct Person_IMPL {
+	struct NSObject_IMPL NSObject_IVARS;
+};
+
+
+/* @end */
+
+#pragma clang assume_nonnull end
+typedef struct objc_method *Method;
+
+
+typedef struct objc_ivar *Ivar;
+
+
+typedef struct objc_category *Category;
+
+
+typedef struct objc_property *objc_property_t;
+
+struct objc_class {
+    Class _Nonnull isa __attribute__((deprecated));
+} __attribute__((unavailable));
+
+
+
+
+
+// @class Protocol;
+#ifndef _REWRITER_typedef_Protocol
+#define _REWRITER_typedef_Protocol
+typedef struct objc_object Protocol;
+typedef struct {} _objc_exc_Protocol;
+#endif
+
+
+
+
+
+
+struct objc_method_description {
+    SEL _Nullable name;
+    char * _Nullable types;
+};
+
+
+typedef struct {
+    const char * _Nonnull name;
+    const char * _Nonnull value;
+} objc_property_attribute_t;
+extern "C" __attribute__((visibility("default"))) id _Nullable object_copy(id _Nullable obj, size_t size)
+    __attribute__((availability(macosx,introduced=10.0))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)))
+    __attribute__((unavailable("not available in automatic reference counting mode")));
+extern "C" __attribute__((visibility("default"))) id _Nullable
+object_dispose(id _Nullable obj)
+    __attribute__((availability(macosx,introduced=10.0))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)))
+    __attribute__((unavailable("not available in automatic reference counting mode")));
+extern "C" __attribute__((visibility("default"))) Class _Nullable
+object_getClass(id _Nullable obj)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) Class _Nullable
+object_setClass(id _Nullable obj, Class _Nonnull cls)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) BOOL
+object_isClass(id _Nullable obj)
+    __attribute__((availability(macosx,introduced=10.10))) __attribute__((availability(ios,introduced=8.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) id _Nullable
+object_getIvar(id _Nullable obj, Ivar _Nonnull ivar)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) void
+object_setIvar(id _Nullable obj, Ivar _Nonnull ivar, id _Nullable value)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) void
+object_setIvarWithStrongDefault(id _Nullable obj, Ivar _Nonnull ivar,
+                                id _Nullable value)
+    __attribute__((availability(macosx,introduced=10.12))) __attribute__((availability(ios,introduced=10.0))) __attribute__((availability(tvos,introduced=10.0))) __attribute__((availability(watchos,introduced=3.0)));
+extern "C" __attribute__((visibility("default"))) Ivar _Nullable
+object_setInstanceVariable(id _Nullable obj, const char * _Nonnull name,
+                           void * _Nullable value)
+    __attribute__((availability(macosx,introduced=10.0))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)))
+    __attribute__((unavailable("not available in automatic reference counting mode")));
+extern "C" __attribute__((visibility("default"))) Ivar _Nullable
+object_setInstanceVariableWithStrongDefault(id _Nullable obj,
+                                            const char * _Nonnull name,
+                                            void * _Nullable value)
+    __attribute__((availability(macosx,introduced=10.12))) __attribute__((availability(ios,introduced=10.0))) __attribute__((availability(tvos,introduced=10.0))) __attribute__((availability(watchos,introduced=3.0)))
+    __attribute__((unavailable("not available in automatic reference counting mode")));
+extern "C" __attribute__((visibility("default"))) Ivar _Nullable
+object_getInstanceVariable(id _Nullable obj, const char * _Nonnull name,
+                           void * _Nullable * _Nullable outValue)
+    __attribute__((availability(macosx,introduced=10.0))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)))
+    __attribute__((unavailable("not available in automatic reference counting mode")));
+extern "C" __attribute__((visibility("default"))) Class _Nullable
+objc_getClass(const char * _Nonnull name)
+    __attribute__((availability(macosx,introduced=10.0))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) Class _Nullable
+objc_getMetaClass(const char * _Nonnull name)
+    __attribute__((availability(macosx,introduced=10.0))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) Class _Nullable
+objc_lookUpClass(const char * _Nonnull name)
+    __attribute__((availability(macosx,introduced=10.0))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) Class _Nonnull
+objc_getRequiredClass(const char * _Nonnull name)
+    __attribute__((availability(macosx,introduced=10.0))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) int
+objc_getClassList(Class _Nonnull * _Nullable buffer, int bufferCount)
+    __attribute__((availability(macosx,introduced=10.0))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) Class _Nonnull * _Nullable
+objc_copyClassList(unsigned int * _Nullable outCount)
+    __attribute__((availability(macosx,introduced=10.7))) __attribute__((availability(ios,introduced=3.1))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) const char * _Nonnull
+class_getName(Class _Nullable cls)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) BOOL
+class_isMetaClass(Class _Nullable cls)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) Class _Nullable
+class_getSuperclass(Class _Nullable cls)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) Class _Nonnull
+class_setSuperclass(Class _Nonnull cls, Class _Nonnull newSuper)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(macosx,deprecated=10.5,message="not recommended")))
+    __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(ios,deprecated=2.0,message="not recommended")))
+    __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(tvos,deprecated=9.0,message="not recommended")))
+    __attribute__((availability(watchos,introduced=1.0))) __attribute__((availability(watchos,deprecated=1.0,message="not recommended")))
+
+;
+extern "C" __attribute__((visibility("default"))) int
+class_getVersion(Class _Nullable cls)
+    __attribute__((availability(macosx,introduced=10.0))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) void
+class_setVersion(Class _Nullable cls, int version)
+    __attribute__((availability(macosx,introduced=10.0))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) size_t
+class_getInstanceSize(Class _Nullable cls)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) Ivar _Nullable
+class_getInstanceVariable(Class _Nullable cls, const char * _Nonnull name)
+    __attribute__((availability(macosx,introduced=10.0))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) Ivar _Nullable
+class_getClassVariable(Class _Nullable cls, const char * _Nonnull name)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) Ivar _Nonnull * _Nullable
+class_copyIvarList(Class _Nullable cls, unsigned int * _Nullable outCount)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) Method _Nullable
+class_getInstanceMethod(Class _Nullable cls, SEL _Nonnull name)
+    __attribute__((availability(macosx,introduced=10.0))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) Method _Nullable
+class_getClassMethod(Class _Nullable cls, SEL _Nonnull name)
+    __attribute__((availability(macosx,introduced=10.0))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) IMP _Nullable
+class_getMethodImplementation(Class _Nullable cls, SEL _Nonnull name)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) IMP _Nullable
+class_getMethodImplementation_stret(Class _Nullable cls, SEL _Nonnull name)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)))
+    __attribute__((unavailable("not available in arm64")));
+extern "C" __attribute__((visibility("default"))) BOOL
+class_respondsToSelector(Class _Nullable cls, SEL _Nonnull sel)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) Method _Nonnull * _Nullable
+class_copyMethodList(Class _Nullable cls, unsigned int * _Nullable outCount)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) BOOL
+class_conformsToProtocol(Class _Nullable cls, Protocol * _Nullable protocol)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) Protocol * __attribute__((objc_ownership(none))) _Nonnull * _Nullable
+class_copyProtocolList(Class _Nullable cls, unsigned int * _Nullable outCount)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) objc_property_t _Nullable
+class_getProperty(Class _Nullable cls, const char * _Nonnull name)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) objc_property_t _Nonnull * _Nullable
+class_copyPropertyList(Class _Nullable cls, unsigned int * _Nullable outCount)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) const uint8_t * _Nullable
+class_getIvarLayout(Class _Nullable cls)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) const uint8_t * _Nullable
+class_getWeakIvarLayout(Class _Nullable cls)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) BOOL
+class_addMethod(Class _Nullable cls, SEL _Nonnull name, IMP _Nonnull imp,
+                const char * _Nullable types)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) IMP _Nullable
+class_replaceMethod(Class _Nullable cls, SEL _Nonnull name, IMP _Nonnull imp,
+                    const char * _Nullable types)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) BOOL
+class_addIvar(Class _Nullable cls, const char * _Nonnull name, size_t size,
+              uint8_t alignment, const char * _Nullable types)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) BOOL
+class_addProtocol(Class _Nullable cls, Protocol * _Nonnull protocol)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) BOOL
+class_addProperty(Class _Nullable cls, const char * _Nonnull name,
+                  const objc_property_attribute_t * _Nullable attributes,
+                  unsigned int attributeCount)
+    __attribute__((availability(macosx,introduced=10.7))) __attribute__((availability(ios,introduced=4.3))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) void
+class_replaceProperty(Class _Nullable cls, const char * _Nonnull name,
+                      const objc_property_attribute_t * _Nullable attributes,
+                      unsigned int attributeCount)
+    __attribute__((availability(macosx,introduced=10.7))) __attribute__((availability(ios,introduced=4.3))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+
+
+
+
+
+
+
+extern "C" __attribute__((visibility("default"))) void
+class_setIvarLayout(Class _Nullable cls, const uint8_t * _Nullable layout)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+
+
+
+
+
+
+
+extern "C" __attribute__((visibility("default"))) void
+class_setWeakIvarLayout(Class _Nullable cls, const uint8_t * _Nullable layout)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) Class _Nonnull
+objc_getFutureClass(const char * _Nonnull name)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)))
+    __attribute__((unavailable("not available in automatic reference counting mode")));
+extern "C" __attribute__((visibility("default"))) id _Nullable
+class_createInstance(Class _Nullable cls, size_t extraBytes)
+    __attribute__((ns_returns_retained))
+    __attribute__((availability(macosx,introduced=10.0))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) id _Nullable
+objc_constructInstance(Class _Nullable cls, void * _Nullable bytes)
+    __attribute__((availability(macosx,introduced=10.6))) __attribute__((availability(ios,introduced=3.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)))
+    __attribute__((unavailable("not available in automatic reference counting mode")));
+extern "C" __attribute__((visibility("default"))) void * _Nullable objc_destructInstance(id _Nullable obj)
+    __attribute__((availability(macosx,introduced=10.6))) __attribute__((availability(ios,introduced=3.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)))
+    __attribute__((unavailable("not available in automatic reference counting mode")));
+extern "C" __attribute__((visibility("default"))) Class _Nullable
+objc_allocateClassPair(Class _Nullable superclass, const char * _Nonnull name,
+                       size_t extraBytes)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+
+
+
+
+
+
+extern "C" __attribute__((visibility("default"))) void
+objc_registerClassPair(Class _Nonnull cls)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+
+
+
+
+
+
+extern "C" __attribute__((visibility("default"))) Class _Nonnull
+objc_duplicateClass(Class _Nonnull original, const char * _Nonnull name,
+                    size_t extraBytes)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) void
+objc_disposeClassPair(Class _Nonnull cls)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) SEL _Nonnull
+method_getName(Method _Nonnull m)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) IMP _Nonnull
+method_getImplementation(Method _Nonnull m)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) const char * _Nullable
+method_getTypeEncoding(Method _Nonnull m)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) unsigned int
+method_getNumberOfArguments(Method _Nonnull m)
+    __attribute__((availability(macosx,introduced=10.0))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) char * _Nonnull
+method_copyReturnType(Method _Nonnull m)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) char * _Nullable
+method_copyArgumentType(Method _Nonnull m, unsigned int index)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) void
+method_getReturnType(Method _Nonnull m, char * _Nonnull dst, size_t dst_len)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) void
+method_getArgumentType(Method _Nonnull m, unsigned int index,
+                       char * _Nullable dst, size_t dst_len)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+
+extern "C" __attribute__((visibility("default"))) struct objc_method_description * _Nonnull
+method_getDescription(Method _Nonnull m)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) IMP _Nonnull
+method_setImplementation(Method _Nonnull m, IMP _Nonnull imp)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) void
+method_exchangeImplementations(Method _Nonnull m1, Method _Nonnull m2)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) const char * _Nullable
+ivar_getName(Ivar _Nonnull v)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) const char * _Nullable
+ivar_getTypeEncoding(Ivar _Nonnull v)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) ptrdiff_t
+ivar_getOffset(Ivar _Nonnull v)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) const char * _Nonnull
+property_getName(objc_property_t _Nonnull property)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) const char * _Nullable
+property_getAttributes(objc_property_t _Nonnull property)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) objc_property_attribute_t * _Nullable
+property_copyAttributeList(objc_property_t _Nonnull property,
+                           unsigned int * _Nullable outCount)
+    __attribute__((availability(macosx,introduced=10.7))) __attribute__((availability(ios,introduced=4.3))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) char * _Nullable
+property_copyAttributeValue(objc_property_t _Nonnull property,
+                            const char * _Nonnull attributeName)
+    __attribute__((availability(macosx,introduced=10.7))) __attribute__((availability(ios,introduced=4.3))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) Protocol * _Nullable
+objc_getProtocol(const char * _Nonnull name)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) Protocol * __attribute__((objc_ownership(none))) _Nonnull * _Nullable
+objc_copyProtocolList(unsigned int * _Nullable outCount)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) BOOL
+protocol_conformsToProtocol(Protocol * _Nullable proto,
+                            Protocol * _Nullable other)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) BOOL
+protocol_isEqual(Protocol * _Nullable proto, Protocol * _Nullable other)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) const char * _Nonnull
+protocol_getName(Protocol * _Nonnull proto)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) struct objc_method_description
+protocol_getMethodDescription(Protocol * _Nonnull proto, SEL _Nonnull aSel,
+                              BOOL isRequiredMethod, BOOL isInstanceMethod)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) struct objc_method_description * _Nullable
+protocol_copyMethodDescriptionList(Protocol * _Nonnull proto,
+                                   BOOL isRequiredMethod,
+                                   BOOL isInstanceMethod,
+                                   unsigned int * _Nullable outCount)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) objc_property_t _Nullable
+protocol_getProperty(Protocol * _Nonnull proto,
+                     const char * _Nonnull name,
+                     BOOL isRequiredProperty, BOOL isInstanceProperty)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) objc_property_t _Nonnull * _Nullable
+protocol_copyPropertyList(Protocol * _Nonnull proto,
+                          unsigned int * _Nullable outCount)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) objc_property_t _Nonnull * _Nullable
+protocol_copyPropertyList2(Protocol * _Nonnull proto,
+                           unsigned int * _Nullable outCount,
+                           BOOL isRequiredProperty, BOOL isInstanceProperty)
+    __attribute__((availability(macosx,introduced=10.12))) __attribute__((availability(ios,introduced=10.0))) __attribute__((availability(tvos,introduced=10.0))) __attribute__((availability(watchos,introduced=3.0)));
+extern "C" __attribute__((visibility("default"))) Protocol * __attribute__((objc_ownership(none))) _Nonnull * _Nullable
+protocol_copyProtocolList(Protocol * _Nonnull proto,
+                          unsigned int * _Nullable outCount)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) Protocol * _Nullable
+objc_allocateProtocol(const char * _Nonnull name)
+    __attribute__((availability(macosx,introduced=10.7))) __attribute__((availability(ios,introduced=4.3))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+
+
+
+
+
+
+
+extern "C" __attribute__((visibility("default"))) void
+objc_registerProtocol(Protocol * _Nonnull proto)
+    __attribute__((availability(macosx,introduced=10.7))) __attribute__((availability(ios,introduced=4.3))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) void
+protocol_addMethodDescription(Protocol * _Nonnull proto, SEL _Nonnull name,
+                              const char * _Nullable types,
+                              BOOL isRequiredMethod, BOOL isInstanceMethod)
+    __attribute__((availability(macosx,introduced=10.7))) __attribute__((availability(ios,introduced=4.3))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) void
+protocol_addProtocol(Protocol * _Nonnull proto, Protocol * _Nonnull addition)
+    __attribute__((availability(macosx,introduced=10.7))) __attribute__((availability(ios,introduced=4.3))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) void
+protocol_addProperty(Protocol * _Nonnull proto, const char * _Nonnull name,
+                     const objc_property_attribute_t * _Nullable attributes,
+                     unsigned int attributeCount,
+                     BOOL isRequiredProperty, BOOL isInstanceProperty)
+    __attribute__((availability(macosx,introduced=10.7))) __attribute__((availability(ios,introduced=4.3))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) const char * _Nonnull * _Nonnull
+objc_copyImageNames(unsigned int * _Nullable outCount)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) const char * _Nullable
+class_getImageName(Class _Nullable cls)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) const char * _Nonnull * _Nullable
+objc_copyClassNamesForImage(const char * _Nonnull image,
+                            unsigned int * _Nullable outCount)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) const char * _Nonnull
+sel_getName(SEL _Nonnull sel)
+    __attribute__((availability(macosx,introduced=10.0))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) SEL _Nonnull
+sel_registerName(const char * _Nonnull str)
+    __attribute__((availability(macosx,introduced=10.0))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) BOOL
+sel_isEqual(SEL _Nonnull lhs, SEL _Nonnull rhs)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) void
+objc_enumerationMutation(id _Nonnull obj)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+
+
+
+
+
+
+extern "C" __attribute__((visibility("default"))) void
+objc_setEnumerationMutationHandler(void (*_Nullable handler)(id _Nonnull ))
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) void
+objc_setForwardHandler(void * _Nonnull fwd, void * _Nonnull fwd_stret)
+    __attribute__((availability(macosx,introduced=10.5))) __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) IMP _Nonnull
+imp_implementationWithBlock(id _Nonnull block)
+    __attribute__((availability(macosx,introduced=10.7))) __attribute__((availability(ios,introduced=4.3))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) id _Nullable
+imp_getBlock(IMP _Nonnull anImp)
+    __attribute__((availability(macosx,introduced=10.7))) __attribute__((availability(ios,introduced=4.3))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) BOOL
+imp_removeBlock(IMP _Nonnull anImp)
+    __attribute__((availability(macosx,introduced=10.7))) __attribute__((availability(ios,introduced=4.3))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) id _Nullable
+objc_loadWeak(id _Nullable * _Nonnull location)
+    __attribute__((availability(macosx,introduced=10.7))) __attribute__((availability(ios,introduced=5.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) id _Nullable
+objc_storeWeak(id _Nullable * _Nonnull location, id _Nullable obj)
+    __attribute__((availability(macosx,introduced=10.7))) __attribute__((availability(ios,introduced=5.0))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+typedef uintptr_t objc_AssociationPolicy; enum {
+    OBJC_ASSOCIATION_ASSIGN = 0,
+    OBJC_ASSOCIATION_RETAIN_NONATOMIC = 1,
+
+    OBJC_ASSOCIATION_COPY_NONATOMIC = 3,
+
+    OBJC_ASSOCIATION_RETAIN = 01401,
+
+    OBJC_ASSOCIATION_COPY = 01403
+
+};
+extern "C" __attribute__((visibility("default"))) void
+objc_setAssociatedObject(id _Nonnull object, const void * _Nonnull key,
+                         id _Nullable value, objc_AssociationPolicy policy)
+    __attribute__((availability(macosx,introduced=10.6))) __attribute__((availability(ios,introduced=3.1))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) id _Nullable
+objc_getAssociatedObject(id _Nonnull object, const void * _Nonnull key)
+    __attribute__((availability(macosx,introduced=10.6))) __attribute__((availability(ios,introduced=3.1))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+extern "C" __attribute__((visibility("default"))) void
+objc_removeAssociatedObjects(id _Nonnull object)
+    __attribute__((availability(macosx,introduced=10.6))) __attribute__((availability(ios,introduced=3.1))) __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(watchos,introduced=1.0)));
+typedef BOOL (*objc_hook_getImageName)(Class _Nonnull cls, const char * _Nullable * _Nonnull outImageName);
+extern "C" __attribute__((visibility("default"))) void objc_setHook_getImageName(objc_hook_getImageName _Nonnull newValue,
+                                           objc_hook_getImageName _Nullable * _Nonnull outOldValue)
+    __attribute__((availability(macosx,introduced=10.14))) __attribute__((availability(ios,introduced=12.0))) __attribute__((availability(tvos,introduced=12.0))) __attribute__((availability(watchos,introduced=5.0)));
+typedef BOOL (*objc_hook_getClass)(const char * _Nonnull name, Class _Nullable * _Nonnull outClass);
+extern "C" __attribute__((visibility("default"))) void objc_setHook_getClass(objc_hook_getClass _Nonnull newValue,
+                                       objc_hook_getClass _Nullable * _Nonnull outOldValue)
+    __attribute__((availability(macosx,introduced=10.14.4))) __attribute__((availability(ios,introduced=12.2))) __attribute__((availability(tvos,introduced=12.2))) __attribute__((availability(watchos,introduced=5.2)));
+typedef void (*objc_hook_setAssociatedObject)(id _Nonnull object, const void * _Nonnull key,
+                                              id _Nullable value, objc_AssociationPolicy policy);
+extern "C" __attribute__((visibility("default"))) void objc_setHook_setAssociatedObject(objc_hook_setAssociatedObject _Nonnull newValue,
+                                       objc_hook_setAssociatedObject _Nullable * _Nonnull outOldValue)
+    __attribute__((availability(macosx,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(tvos,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0)));
+
+
+
+
+
+
+
+struct mach_header;
+typedef void (*objc_func_loadImage)(const struct mach_header * _Nonnull header);
+extern "C" __attribute__((visibility("default"))) void objc_addLoadImageFunc(objc_func_loadImage _Nonnull func)
+    __attribute__((availability(macosx,introduced=10.15))) __attribute__((availability(ios,introduced=13.0))) __attribute__((availability(tvos,introduced=13.0))) __attribute__((availability(watchos,introduced=6.0)));
+
+
+
+
+
+typedef Class _Nullable
+(*_objc_swiftMetadataInitializer)(Class _Nonnull cls, void * _Nullable arg);
+extern "C" __attribute__((visibility("default"))) Class _Nullable
+_objc_realizeClassFromSwift(Class _Nullable cls, void * _Nullable previously)
+    __attribute__((availability(macosx,introduced=10.14.4))) __attribute__((availability(ios,introduced=12.2))) __attribute__((availability(tvos,introduced=12.2))) __attribute__((availability(watchos,introduced=5.2)));
+struct objc_method_list;
+
+
+
+
+
+
+extern "C" __attribute__((visibility("default"))) IMP _Nullable
+class_lookupMethod(Class _Nullable cls, SEL _Nonnull sel)
+    __attribute__((availability(macosx,introduced=10.0))) __attribute__((availability(macosx,deprecated=10.5,message="use class_getMethodImplementation instead")))
+    __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(ios,deprecated=2.0,message="use class_getMethodImplementation instead")))
+    __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(tvos,deprecated=9.0,message="use class_getMethodImplementation instead")))
+    __attribute__((availability(watchos,introduced=1.0))) __attribute__((availability(watchos,deprecated=1.0,message="use class_getMethodImplementation instead")))
+
+;
+extern "C" __attribute__((visibility("default"))) BOOL
+class_respondsToMethod(Class _Nullable cls, SEL _Nonnull sel)
+    __attribute__((availability(macosx,introduced=10.0))) __attribute__((availability(macosx,deprecated=10.5,message="use class_respondsToSelector instead")))
+    __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(ios,deprecated=2.0,message="use class_respondsToSelector instead")))
+    __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(tvos,deprecated=9.0,message="use class_respondsToSelector instead")))
+    __attribute__((availability(watchos,introduced=1.0))) __attribute__((availability(watchos,deprecated=1.0,message="use class_respondsToSelector instead")))
+
+;
+
+extern "C" __attribute__((visibility("default"))) void
+_objc_flush_caches(Class _Nullable cls)
+    __attribute__((availability(macosx,introduced=10.0))) __attribute__((availability(macosx,deprecated=10.5,message="not recommended")))
+    __attribute__((availability(ios,introduced=2.0))) __attribute__((availability(ios,deprecated=2.0,message="not recommended")))
+    __attribute__((availability(tvos,introduced=9.0))) __attribute__((availability(tvos,deprecated=9.0,message="not recommended")))
+    __attribute__((availability(watchos,introduced=1.0))) __attribute__((availability(watchos,deprecated=1.0,message="not recommended")))
+
+;
+
+extern "C" __attribute__((visibility("default"))) id _Nullable
+object_copyFromZone(id _Nullable anObject, size_t nBytes, void * _Nullable z)
+    __attribute__((availability(macosx,introduced=10.0))) __attribute__((availability(macosx,deprecated=10.5,message="use object_copy instead"))) __attribute__((availability(ios,unavailable))) __attribute__((availability(tvos,unavailable))) __attribute__((availability(watchos,unavailable)));
+
+extern "C" __attribute__((visibility("default"))) id _Nullable
+object_realloc(id _Nullable anObject, size_t nBytes)
+    __attribute__((unavailable));
+
+extern "C" __attribute__((visibility("default"))) id _Nullable
+object_reallocFromZone(id _Nullable anObject, size_t nBytes, void * _Nullable z)
+    __attribute__((unavailable));
+
+
+extern "C" __attribute__((visibility("default"))) void * _Nonnull
+objc_getClasses(void)
+    __attribute__((unavailable));
+
+extern "C" __attribute__((visibility("default"))) void
+objc_addClass(Class _Nonnull myClass)
+    __attribute__((unavailable));
+
+extern "C" __attribute__((visibility("default"))) void
+objc_setClassHandler(int (* _Nullable )(const char * _Nonnull))
+    __attribute__((unavailable));
+
+extern "C" __attribute__((visibility("default"))) void
+objc_setMultithreaded(BOOL flag)
+    __attribute__((unavailable));
+
+extern "C" __attribute__((visibility("default"))) id _Nullable
+class_createInstanceFromZone(Class _Nullable, size_t idxIvars,
+                             void * _Nullable z)
+    __attribute__((availability(macosx,introduced=10.0))) __attribute__((availability(macosx,deprecated=10.5,message="use class_createInstance instead"))) __attribute__((availability(ios,unavailable))) __attribute__((availability(tvos,unavailable))) __attribute__((availability(watchos,unavailable)));
+
+extern "C" __attribute__((visibility("default"))) void
+class_addMethods(Class _Nullable, struct objc_method_list * _Nonnull)
+    __attribute__((unavailable));
+
+extern "C" __attribute__((visibility("default"))) void
+class_removeMethods(Class _Nullable, struct objc_method_list * _Nonnull)
+    __attribute__((unavailable));
+
+extern "C" __attribute__((visibility("default"))) void
+_objc_resolve_categories_for_class(Class _Nonnull cls)
+    __attribute__((unavailable));
+
+extern "C" __attribute__((visibility("default"))) Class _Nonnull
+class_poseAs(Class _Nonnull imposter, Class _Nonnull original)
+    __attribute__((unavailable));
+
+extern "C" __attribute__((visibility("default"))) unsigned int
+method_getSizeOfArguments(Method _Nonnull m)
+    __attribute__((unavailable));
+
+extern "C" __attribute__((visibility("default"))) unsigned
+method_getArgumentInfo(struct objc_method * _Nonnull m, int arg,
+                       const char * _Nullable * _Nonnull type,
+                       int * _Nonnull offset)
+    __attribute__((unavailable))
+    __attribute__((unavailable));
+
+extern "C" __attribute__((visibility("default"))) Class _Nullable
+objc_getOrigClass(const char * _Nonnull name)
+    __attribute__((unavailable));
+
+
+extern "C" __attribute__((visibility("default"))) struct objc_method_list * _Nullable
+class_nextMethodList(Class _Nullable, void * _Nullable * _Nullable)
+    __attribute__((unavailable));
+
+
+
+
+
+
+
+extern "C" __attribute__((visibility("default"))) id _Nullable
+(* _Nonnull _alloc)(Class _Nullable, size_t)
+    __attribute__((unavailable));
+
+extern "C" __attribute__((visibility("default"))) id _Nullable
+(* _Nonnull _copy)(id _Nullable, size_t)
+     __attribute__((unavailable));
+
+extern "C" __attribute__((visibility("default"))) id _Nullable
+(* _Nonnull _realloc)(id _Nullable, size_t)
+     __attribute__((unavailable));
+
+extern "C" __attribute__((visibility("default"))) id _Nullable
+(* _Nonnull _dealloc)(id _Nullable)
+     __attribute__((unavailable));
+
+extern "C" __attribute__((visibility("default"))) id _Nullable
+(* _Nonnull _zoneAlloc)(Class _Nullable, size_t, void * _Nullable)
+     __attribute__((unavailable));
+
+extern "C" __attribute__((visibility("default"))) id _Nullable
+(* _Nonnull _zoneRealloc)(id _Nullable, size_t, void * _Nullable)
+     __attribute__((unavailable));
+
+extern "C" __attribute__((visibility("default"))) id _Nullable
+(* _Nonnull _zoneCopy)(id _Nullable, size_t, void * _Nullable)
+     __attribute__((unavailable));
+
+extern "C" __attribute__((visibility("default"))) void
+(* _Nonnull _error)(id _Nullable, const char * _Nonnull, va_list)
+     __attribute__((unavailable));
+#pragma clang assume_nonnull begin
+
+
+#ifndef _REWRITER_typedef_Student
+#define _REWRITER_typedef_Student
+typedef struct objc_object Student;
+typedef struct {} _objc_exc_Student;
+#endif
+
+struct Student_IMPL {
+	struct Person_IMPL Person_IVARS;
+};
+
+/* @end */
+
+#pragma clang assume_nonnull end
+struct vm_statistics {
+ natural_t free_count;
+ natural_t active_count;
+ natural_t inactive_count;
+ natural_t wire_count;
+ natural_t zero_fill_count;
+ natural_t reactivations;
+ natural_t pageins;
+ natural_t pageouts;
+ natural_t faults;
+ natural_t cow_faults;
+ natural_t lookups;
+ natural_t hits;
+
+
+ natural_t purgeable_count;
+ natural_t purges;
+ natural_t speculative_count;
+};
+
+
+typedef struct vm_statistics *vm_statistics_t;
+typedef struct vm_statistics vm_statistics_data_t;
+struct vm_statistics64 {
+ natural_t free_count;
+ natural_t active_count;
+ natural_t inactive_count;
+ natural_t wire_count;
+ uint64_t zero_fill_count;
+ uint64_t reactivations;
+ uint64_t pageins;
+ uint64_t pageouts;
+ uint64_t faults;
+ uint64_t cow_faults;
+ uint64_t lookups;
+ uint64_t hits;
+ uint64_t purges;
+ natural_t purgeable_count;
+
+
+
+
+
+
+ natural_t speculative_count;
+
+
+ uint64_t decompressions;
+ uint64_t compressions;
+ uint64_t swapins;
+ uint64_t swapouts;
+ natural_t compressor_page_count;
+ natural_t throttled_count;
+ natural_t external_page_count;
+ natural_t internal_page_count;
+ uint64_t total_uncompressed_pages_in_compressor;
+} __attribute__((aligned(8)));
+
+typedef struct vm_statistics64 *vm_statistics64_t;
+typedef struct vm_statistics64 vm_statistics64_data_t;
+struct vm_extmod_statistics {
+ int64_t task_for_pid_count;
+ int64_t task_for_pid_caller_count;
+ int64_t thread_creation_count;
+ int64_t thread_creation_caller_count;
+ int64_t thread_set_state_count;
+ int64_t thread_set_state_caller_count;
+} __attribute__((aligned(8)));
+
+typedef struct vm_extmod_statistics *vm_extmod_statistics_t;
+typedef struct vm_extmod_statistics vm_extmod_statistics_data_t;
+
+typedef struct vm_purgeable_stat {
+ uint64_t count;
+ uint64_t size;
+}vm_purgeable_stat_t;
+
+struct vm_purgeable_info {
+ vm_purgeable_stat_t fifo_data[8];
+ vm_purgeable_stat_t obsolete_data;
+ vm_purgeable_stat_t lifo_data[8];
+};
+
+typedef struct vm_purgeable_info *vm_purgeable_info_t;
+enum virtual_memory_guard_exception_codes {
+ kGUARD_EXC_DEALLOC_GAP = 1u << 0
+};
+typedef integer_t cpu_type_t;
+typedef integer_t cpu_subtype_t;
+typedef integer_t cpu_threadtype_t;
+
+
+
+
+
+
+
+
+typedef integer_t *host_info_t;
+typedef integer_t *host_info64_t;
+
+
+typedef integer_t host_info_data_t[(1024)];
+
+
+typedef char kernel_version_t[(512)];
+
+
+typedef char kernel_boot_info_t[(4096)];
+
+
+
+
+
+typedef integer_t host_flavor_t;
+struct host_can_has_debugger_info {
+ boolean_t can_has_debugger;
+};
+typedef struct host_can_has_debugger_info host_can_has_debugger_info_data_t;
+typedef struct host_can_has_debugger_info *host_can_has_debugger_info_t;
+
+
+
+#pragma pack(push, 4)
+
+struct host_basic_info {
+ integer_t max_cpus;
+ integer_t avail_cpus;
+ natural_t memory_size;
+ cpu_type_t cpu_type;
+ cpu_subtype_t cpu_subtype;
+ cpu_threadtype_t cpu_threadtype;
+ integer_t physical_cpu;
+ integer_t physical_cpu_max;
+ integer_t logical_cpu;
+ integer_t logical_cpu_max;
+ uint64_t max_mem;
+};
+
+#pragma pack(pop)
+
+typedef struct host_basic_info host_basic_info_data_t;
+typedef struct host_basic_info *host_basic_info_t;
+
+
+
+struct host_sched_info {
+ integer_t min_timeout;
+ integer_t min_quantum;
+};
+
+typedef struct host_sched_info host_sched_info_data_t;
+typedef struct host_sched_info *host_sched_info_t;
+
+
+
+struct kernel_resource_sizes {
+ natural_t task;
+ natural_t thread;
+ natural_t port;
+ natural_t memory_region;
+ natural_t memory_object;
+};
+
+typedef struct kernel_resource_sizes kernel_resource_sizes_data_t;
+typedef struct kernel_resource_sizes *kernel_resource_sizes_t;
+
+
+
+struct host_priority_info {
+ integer_t kernel_priority;
+ integer_t system_priority;
+ integer_t server_priority;
+ integer_t user_priority;
+ integer_t depress_priority;
+ integer_t idle_priority;
+ integer_t minimum_priority;
+ integer_t maximum_priority;
+};
+
+typedef struct host_priority_info host_priority_info_data_t;
+typedef struct host_priority_info *host_priority_info_t;
+struct host_load_info {
+ integer_t avenrun[3];
+ integer_t mach_factor[3];
+};
+
+typedef struct host_load_info host_load_info_data_t;
+typedef struct host_load_info *host_load_info_t;
+
+
+
+typedef struct vm_purgeable_info host_purgable_info_data_t;
+typedef struct vm_purgeable_info *host_purgable_info_t;
+struct host_cpu_load_info {
+ natural_t cpu_ticks[4];
+};
+
+typedef struct host_cpu_load_info host_cpu_load_info_data_t;
+typedef struct host_cpu_load_info *host_cpu_load_info_t;
+
+
+
+struct host_preferred_user_arch {
+ cpu_type_t cpu_type;
+ cpu_subtype_t cpu_subtype;
+};
+
+typedef struct host_preferred_user_arch host_preferred_user_arch_data_t;
+typedef struct host_preferred_user_arch *host_preferred_user_arch_t;
+
+
+typedef int vm_prot_t;
+typedef unsigned vm_sync_t;
+typedef vm_offset_t pointer_t;
+typedef vm_offset_t vm_address_t;
+
+
+
+
+
+
+
+typedef uint64_t addr64_t;
+typedef uint32_t reg64_t;
+
+
+
+
+
+
+typedef uint32_t ppnum_t;
+
+
+
+
+typedef mach_port_t vm_map_t;
+typedef uint64_t vm_object_offset_t;
+typedef uint64_t vm_object_size_t;
+
+
+
+
+typedef mach_port_t upl_t;
+typedef mach_port_t vm_named_entry_t;
+
+
+
+
+
+
+typedef unsigned long long memory_object_offset_t;
+typedef unsigned long long memory_object_size_t;
+typedef natural_t memory_object_cluster_size_t;
+typedef natural_t * memory_object_fault_info_t;
+
+typedef unsigned long long vm_object_id_t;
+
+
+
+
+
+
+
+typedef mach_port_t memory_object_t;
+typedef mach_port_t memory_object_control_t;
+
+
+typedef memory_object_t *memory_object_array_t;
+
+
+
+
+typedef mach_port_t memory_object_name_t;
+
+
+
+typedef mach_port_t memory_object_default_t;
+typedef int memory_object_copy_strategy_t;
+typedef int memory_object_return_t;
+typedef int *memory_object_info_t;
+typedef int memory_object_flavor_t;
+typedef int memory_object_info_data_t[(1024)];
+
+
+
+
+
+
+
+struct memory_object_perf_info {
+ memory_object_cluster_size_t cluster_size;
+ boolean_t may_cache;
+};
+
+struct memory_object_attr_info {
+ memory_object_copy_strategy_t copy_strategy;
+ memory_object_cluster_size_t cluster_size;
+ boolean_t may_cache_object;
+ boolean_t temporary;
+};
+
+struct memory_object_behave_info {
+ memory_object_copy_strategy_t copy_strategy;
+ boolean_t temporary;
+ boolean_t invalidate;
+ boolean_t silent_overwrite;
+ boolean_t advisory_pageout;
+};
+
+
+typedef struct memory_object_behave_info *memory_object_behave_info_t;
+typedef struct memory_object_behave_info memory_object_behave_info_data_t;
+
+typedef struct memory_object_perf_info *memory_object_perf_info_t;
+typedef struct memory_object_perf_info memory_object_perf_info_data_t;
+
+typedef struct memory_object_attr_info *memory_object_attr_info_t;
+typedef struct memory_object_attr_info memory_object_attr_info_data_t;
+
+struct arm_state_hdr {
+ uint32_t flavor;
+ uint32_t count;
+};
+typedef struct arm_state_hdr arm_state_hdr_t;
+
+typedef struct __darwin_arm_thread_state arm_thread_state_t;
+typedef struct __darwin_arm_thread_state arm_thread_state32_t;
+typedef struct __darwin_arm_thread_state64 arm_thread_state64_t;
+struct arm_unified_thread_state {
+ arm_state_hdr_t ash;
+ union {
+  arm_thread_state32_t ts_32;
+  arm_thread_state64_t ts_64;
+ } uts;
+};
+
+
+typedef struct arm_unified_thread_state arm_unified_thread_state_t;
+typedef struct __darwin_arm_vfp_state arm_vfp_state_t;
+typedef struct __darwin_arm_neon_state arm_neon_state_t;
+typedef struct __darwin_arm_neon_state arm_neon_state32_t;
+typedef struct __darwin_arm_neon_state64 arm_neon_state64_t;
+
+typedef struct __darwin_arm_amx_state_v1 arm_amx_state_v1_t;
+
+typedef struct __darwin_arm_exception_state arm_exception_state_t;
+typedef struct __darwin_arm_exception_state arm_exception_state32_t;
+typedef struct __darwin_arm_exception_state64 arm_exception_state64_t;
+
+typedef struct __darwin_arm_debug_state32 arm_debug_state32_t;
+typedef struct __darwin_arm_debug_state64 arm_debug_state64_t;
+
+typedef struct __arm_pagein_state arm_pagein_state_t;
+typedef struct arm_legacy_debug_state arm_debug_state_t;
+struct arm_amx_state {
+ arm_state_hdr_t ash;
+ union {
+  arm_amx_state_v1_t as_v1;
+ } uas;
+};
+
+typedef struct arm_amx_state arm_amx_state_t;
+
+
+
+
+
+typedef natural_t *thread_state_t;
+
+
+typedef natural_t thread_state_data_t[(1296)];
+
+
+
+
+
+
+
+typedef int thread_state_flavor_t;
+typedef thread_state_flavor_t *thread_state_flavor_array_t;
+
+
+
+
+
+typedef int exception_type_t;
+typedef integer_t exception_data_type_t;
+typedef int64_t mach_exception_data_type_t;
+typedef int exception_behavior_t;
+typedef exception_data_type_t *exception_data_t;
+typedef mach_exception_data_type_t *mach_exception_data_t;
+typedef unsigned int exception_mask_t;
+typedef exception_mask_t *exception_mask_array_t;
+typedef exception_behavior_t *exception_behavior_array_t;
+typedef thread_state_flavor_t *exception_flavor_array_t;
+typedef mach_port_t *exception_port_array_t;
+typedef mach_exception_data_type_t mach_exception_code_t;
+typedef mach_exception_data_type_t mach_exception_subcode_t;
+
+typedef mach_port_t mach_voucher_t;
+
+
+typedef mach_port_name_t mach_voucher_name_t;
+
+
+typedef mach_voucher_name_t *mach_voucher_name_array_t;
+
+
+
+
+
+
+typedef mach_voucher_t ipc_voucher_t;
+
+
+
+
+
+
+
+typedef uint32_t mach_voucher_selector_t;
+typedef uint32_t mach_voucher_attr_key_t;
+typedef mach_voucher_attr_key_t *mach_voucher_attr_key_array_t;
+typedef uint8_t *mach_voucher_attr_content_t;
+typedef uint32_t mach_voucher_attr_content_size_t;
+
+
+
+
+
+typedef uint32_t mach_voucher_attr_command_t;
+typedef uint32_t mach_voucher_attr_recipe_command_t;
+typedef mach_voucher_attr_recipe_command_t *mach_voucher_attr_recipe_command_array_t;
+#pragma pack(push, 1)
+
+typedef struct mach_voucher_attr_recipe_data {
+ mach_voucher_attr_key_t key;
+ mach_voucher_attr_recipe_command_t command;
+ mach_voucher_name_t previous_voucher;
+ mach_voucher_attr_content_size_t content_size;
+ uint8_t content[];
+} mach_voucher_attr_recipe_data_t;
+typedef mach_voucher_attr_recipe_data_t *mach_voucher_attr_recipe_t;
+typedef mach_msg_type_number_t mach_voucher_attr_recipe_size_t;
+
+
+typedef uint8_t *mach_voucher_attr_raw_recipe_t;
+typedef mach_voucher_attr_raw_recipe_t mach_voucher_attr_raw_recipe_array_t;
+typedef mach_msg_type_number_t mach_voucher_attr_raw_recipe_size_t;
+typedef mach_msg_type_number_t mach_voucher_attr_raw_recipe_array_size_t;
+
+
+
+
+#pragma pack(pop)
+typedef mach_port_t mach_voucher_attr_manager_t;
+typedef mach_port_t mach_voucher_attr_control_t;
+
+
+
+
+
+
+
+typedef mach_port_t ipc_voucher_attr_manager_t;
+typedef mach_port_t ipc_voucher_attr_control_t;
+typedef uint64_t mach_voucher_attr_value_handle_t;
+typedef mach_voucher_attr_value_handle_t *mach_voucher_attr_value_handle_array_t;
+
+typedef mach_msg_type_number_t mach_voucher_attr_value_handle_array_size_t;
+
+
+typedef uint32_t mach_voucher_attr_value_reference_t;
+typedef uint32_t mach_voucher_attr_value_flags_t;
+
+
+
+
+typedef uint32_t mach_voucher_attr_control_flags_t;
+typedef uint32_t mach_voucher_attr_importance_refs;
+struct processor_cpu_stat {
+ uint32_t irq_ex_cnt;
+ uint32_t ipi_cnt;
+ uint32_t timer_cnt;
+ uint32_t undef_ex_cnt;
+ uint32_t unaligned_cnt;
+ uint32_t vfp_cnt;
+ uint32_t vfp_shortv_cnt;
+ uint32_t data_ex_cnt;
+ uint32_t instr_ex_cnt;
+};
+
+typedef struct processor_cpu_stat processor_cpu_stat_data_t;
+typedef struct processor_cpu_stat *processor_cpu_stat_t;
+
+
+
+struct processor_cpu_stat64 {
+ uint64_t irq_ex_cnt;
+ uint64_t ipi_cnt;
+ uint64_t timer_cnt;
+ uint64_t undef_ex_cnt;
+ uint64_t unaligned_cnt;
+ uint64_t vfp_cnt;
+ uint64_t vfp_shortv_cnt;
+ uint64_t data_ex_cnt;
+ uint64_t instr_ex_cnt;
+ uint64_t pmi_cnt;
+} __attribute__((packed, aligned(4)));
+
+typedef struct processor_cpu_stat64 processor_cpu_stat64_data_t;
+typedef struct processor_cpu_stat64 *processor_cpu_stat64_t;
+
+
+
+
+typedef integer_t *processor_info_t;
+typedef integer_t *processor_info_array_t;
+
+
+typedef integer_t processor_info_data_t[(1024)];
+
+
+typedef integer_t *processor_set_info_t;
+
+
+typedef integer_t processor_set_info_data_t[(1024)];
+
+
+
+
+typedef int processor_flavor_t;
+
+
+
+
+
+struct processor_basic_info {
+ cpu_type_t cpu_type;
+ cpu_subtype_t cpu_subtype;
+ boolean_t running;
+ int slot_num;
+ boolean_t is_master;
+};
+
+typedef struct processor_basic_info processor_basic_info_data_t;
+typedef struct processor_basic_info *processor_basic_info_t;
+
+
+
+struct processor_cpu_load_info {
+ unsigned int cpu_ticks[4];
+};
+
+typedef struct processor_cpu_load_info processor_cpu_load_info_data_t;
+typedef struct processor_cpu_load_info *processor_cpu_load_info_t;
+typedef int processor_set_flavor_t;
+
+
+struct processor_set_basic_info {
+ int processor_count;
+ int default_policy;
+};
+
+typedef struct processor_set_basic_info processor_set_basic_info_data_t;
+typedef struct processor_set_basic_info *processor_set_basic_info_t;
+
+
+
+
+
+struct processor_set_load_info {
+ int task_count;
+ int thread_count;
+ integer_t load_average;
+ integer_t mach_factor;
+};
+
+typedef struct processor_set_load_info processor_set_load_info_data_t;
+typedef struct processor_set_load_info *processor_set_load_info_t;
+typedef int policy_t;
+typedef integer_t *policy_info_t;
+typedef integer_t *policy_base_t;
+typedef integer_t *policy_limit_t;
+struct policy_timeshare_base {
+ integer_t base_priority;
+};
+struct policy_timeshare_limit {
+ integer_t max_priority;
+};
+struct policy_timeshare_info {
+ integer_t max_priority;
+ integer_t base_priority;
+ integer_t cur_priority;
+ boolean_t depressed;
+ integer_t depress_priority;
+};
+
+typedef struct policy_timeshare_base *policy_timeshare_base_t;
+typedef struct policy_timeshare_limit *policy_timeshare_limit_t;
+typedef struct policy_timeshare_info *policy_timeshare_info_t;
+
+typedef struct policy_timeshare_base policy_timeshare_base_data_t;
+typedef struct policy_timeshare_limit policy_timeshare_limit_data_t;
+typedef struct policy_timeshare_info policy_timeshare_info_data_t;
+struct policy_rr_base {
+ integer_t base_priority;
+ integer_t quantum;
+};
+struct policy_rr_limit {
+ integer_t max_priority;
+};
+struct policy_rr_info {
+ integer_t max_priority;
+ integer_t base_priority;
+ integer_t quantum;
+ boolean_t depressed;
+ integer_t depress_priority;
+};
+
+typedef struct policy_rr_base *policy_rr_base_t;
+typedef struct policy_rr_limit *policy_rr_limit_t;
+typedef struct policy_rr_info *policy_rr_info_t;
+
+typedef struct policy_rr_base policy_rr_base_data_t;
+typedef struct policy_rr_limit policy_rr_limit_data_t;
+typedef struct policy_rr_info policy_rr_info_data_t;
+struct policy_fifo_base {
+ integer_t base_priority;
+};
+struct policy_fifo_limit {
+ integer_t max_priority;
+};
+struct policy_fifo_info {
+ integer_t max_priority;
+ integer_t base_priority;
+ boolean_t depressed;
+ integer_t depress_priority;
+};
+
+typedef struct policy_fifo_base *policy_fifo_base_t;
+typedef struct policy_fifo_limit *policy_fifo_limit_t;
+typedef struct policy_fifo_info *policy_fifo_info_t;
+
+typedef struct policy_fifo_base policy_fifo_base_data_t;
+typedef struct policy_fifo_limit policy_fifo_limit_data_t;
+typedef struct policy_fifo_info policy_fifo_info_data_t;
+struct policy_bases {
+ policy_timeshare_base_data_t ts;
+ policy_rr_base_data_t rr;
+ policy_fifo_base_data_t fifo;
+};
+
+struct policy_limits {
+ policy_timeshare_limit_data_t ts;
+ policy_rr_limit_data_t rr;
+ policy_fifo_limit_data_t fifo;
+};
+
+struct policy_infos {
+ policy_timeshare_info_data_t ts;
+ policy_rr_info_data_t rr;
+ policy_fifo_info_data_t fifo;
+};
+
+typedef struct policy_bases policy_base_data_t;
+typedef struct policy_limits policy_limit_data_t;
+typedef struct policy_infos policy_info_data_t;
+
+
+
+
+
+
+
+
+typedef natural_t task_flavor_t;
+typedef integer_t *task_info_t;
+
+
+
+typedef integer_t task_info_data_t[(1024)];
+
+
+
+
+
+#pragma pack(push, 4)
+
+
+
+
+
+struct task_basic_info_32 {
+ integer_t suspend_count;
+ natural_t virtual_size;
+ natural_t resident_size;
+ time_value_t user_time;
+
+ time_value_t system_time;
+
+ policy_t policy;
+};
+typedef struct task_basic_info_32 task_basic_info_32_data_t;
+typedef struct task_basic_info_32 *task_basic_info_32_t;
+
+
+
+
+struct task_basic_info_64 {
+ integer_t suspend_count;
+
+ mach_vm_size_t virtual_size;
+ mach_vm_size_t resident_size;
+
+
+
+
+ time_value_t user_time;
+
+ time_value_t system_time;
+
+ policy_t policy;
+};
+typedef struct task_basic_info_64 task_basic_info_64_data_t;
+typedef struct task_basic_info_64 *task_basic_info_64_t;
+struct task_basic_info {
+ integer_t suspend_count;
+ vm_size_t virtual_size;
+ vm_size_t resident_size;
+ time_value_t user_time;
+
+ time_value_t system_time;
+
+ policy_t policy;
+};
+
+typedef struct task_basic_info task_basic_info_data_t;
+typedef struct task_basic_info *task_basic_info_t;
+struct task_events_info {
+ integer_t faults;
+ integer_t pageins;
+ integer_t cow_faults;
+ integer_t messages_sent;
+ integer_t messages_received;
+ integer_t syscalls_mach;
+ integer_t syscalls_unix;
+ integer_t csw;
+};
+typedef struct task_events_info task_events_info_data_t;
+typedef struct task_events_info *task_events_info_t;
+
+
+
+
+
+
+struct task_thread_times_info {
+ time_value_t user_time;
+
+ time_value_t system_time;
+
+};
+
+typedef struct task_thread_times_info task_thread_times_info_data_t;
+typedef struct task_thread_times_info *task_thread_times_info_t;
+
+
+
+
+
+struct task_absolutetime_info {
+ uint64_t total_user;
+ uint64_t total_system;
+ uint64_t threads_user;
+ uint64_t threads_system;
+};
+
+typedef struct task_absolutetime_info task_absolutetime_info_data_t;
+typedef struct task_absolutetime_info *task_absolutetime_info_t;
+
+
+
+
+
+struct task_kernelmemory_info {
+ uint64_t total_palloc;
+ uint64_t total_pfree;
+ uint64_t total_salloc;
+ uint64_t total_sfree;
+};
+
+typedef struct task_kernelmemory_info task_kernelmemory_info_data_t;
+typedef struct task_kernelmemory_info *task_kernelmemory_info_t;
+struct task_affinity_tag_info {
+ integer_t set_count;
+ integer_t min;
+ integer_t max;
+ integer_t task_count;
+};
+typedef struct task_affinity_tag_info task_affinity_tag_info_data_t;
+typedef struct task_affinity_tag_info *task_affinity_tag_info_t;
+
+
+
+
+
+struct task_dyld_info {
+ mach_vm_address_t all_image_info_addr;
+ mach_vm_size_t all_image_info_size;
+ integer_t all_image_info_format;
+};
+typedef struct task_dyld_info task_dyld_info_data_t;
+typedef struct task_dyld_info *task_dyld_info_t;
+struct task_basic_info_64_2 {
+ integer_t suspend_count;
+ mach_vm_size_t virtual_size;
+ mach_vm_size_t resident_size;
+ time_value_t user_time;
+
+ time_value_t system_time;
+
+ policy_t policy;
+};
+typedef struct task_basic_info_64_2 task_basic_info_64_2_data_t;
+typedef struct task_basic_info_64_2 *task_basic_info_64_2_t;
+
+
+
+
+
+
+struct task_extmod_info {
+ unsigned char task_uuid[16];
+ vm_extmod_statistics_data_t extmod_statistics;
+};
+typedef struct task_extmod_info task_extmod_info_data_t;
+typedef struct task_extmod_info *task_extmod_info_t;
+
+
+
+
+
+struct mach_task_basic_info {
+ mach_vm_size_t virtual_size;
+ mach_vm_size_t resident_size;
+ mach_vm_size_t resident_size_max;
+ time_value_t user_time;
+
+ time_value_t system_time;
+
+ policy_t policy;
+ integer_t suspend_count;
+};
+typedef struct mach_task_basic_info mach_task_basic_info_data_t;
+typedef struct mach_task_basic_info *mach_task_basic_info_t;
+
+
+
+
+
+
+struct task_power_info {
+ uint64_t total_user;
+ uint64_t total_system;
+ uint64_t task_interrupt_wakeups;
+ uint64_t task_platform_idle_wakeups;
+ uint64_t task_timer_wakeups_bin_1;
+ uint64_t task_timer_wakeups_bin_2;
+};
+
+typedef struct task_power_info task_power_info_data_t;
+typedef struct task_power_info *task_power_info_t;
+
+
+
+
+
+
+
+struct task_vm_info {
+ mach_vm_size_t virtual_size;
+ integer_t region_count;
+ integer_t page_size;
+ mach_vm_size_t resident_size;
+ mach_vm_size_t resident_size_peak;
+
+ mach_vm_size_t device;
+ mach_vm_size_t device_peak;
+ mach_vm_size_t internal;
+ mach_vm_size_t internal_peak;
+ mach_vm_size_t external;
+ mach_vm_size_t external_peak;
+ mach_vm_size_t reusable;
+ mach_vm_size_t reusable_peak;
+ mach_vm_size_t purgeable_volatile_pmap;
+ mach_vm_size_t purgeable_volatile_resident;
+ mach_vm_size_t purgeable_volatile_virtual;
+ mach_vm_size_t compressed;
+ mach_vm_size_t compressed_peak;
+ mach_vm_size_t compressed_lifetime;
+
+
+ mach_vm_size_t phys_footprint;
+
+
+ mach_vm_address_t min_address;
+ mach_vm_address_t max_address;
+
+
+ int64_t ledger_phys_footprint_peak;
+ int64_t ledger_purgeable_nonvolatile;
+ int64_t ledger_purgeable_novolatile_compressed;
+ int64_t ledger_purgeable_volatile;
+ int64_t ledger_purgeable_volatile_compressed;
+ int64_t ledger_tag_network_nonvolatile;
+ int64_t ledger_tag_network_nonvolatile_compressed;
+ int64_t ledger_tag_network_volatile;
+ int64_t ledger_tag_network_volatile_compressed;
+ int64_t ledger_tag_media_footprint;
+ int64_t ledger_tag_media_footprint_compressed;
+ int64_t ledger_tag_media_nofootprint;
+ int64_t ledger_tag_media_nofootprint_compressed;
+ int64_t ledger_tag_graphics_footprint;
+ int64_t ledger_tag_graphics_footprint_compressed;
+ int64_t ledger_tag_graphics_nofootprint;
+ int64_t ledger_tag_graphics_nofootprint_compressed;
+ int64_t ledger_tag_neural_footprint;
+ int64_t ledger_tag_neural_footprint_compressed;
+ int64_t ledger_tag_neural_nofootprint;
+ int64_t ledger_tag_neural_nofootprint_compressed;
+
+
+ uint64_t limit_bytes_remaining;
+
+
+ integer_t decompressions;
+};
+typedef struct task_vm_info task_vm_info_data_t;
+typedef struct task_vm_info *task_vm_info_t;
+typedef struct vm_purgeable_info task_purgable_info_t;
+
+
+
+struct task_trace_memory_info {
+ uint64_t user_memory_address;
+ uint64_t buffer_size;
+ uint64_t mailbox_array_size;
+};
+typedef struct task_trace_memory_info task_trace_memory_info_data_t;
+typedef struct task_trace_memory_info * task_trace_memory_info_t;
+
+
+
+
+struct task_wait_state_info {
+ uint64_t total_wait_state_time;
+ uint64_t total_wait_sfi_state_time;
+ uint32_t _reserved[4];
+};
+typedef struct task_wait_state_info task_wait_state_info_data_t;
+typedef struct task_wait_state_info * task_wait_state_info_t;
+
+
+
+
+
+typedef struct {
+ uint64_t task_gpu_utilisation;
+ uint64_t task_gpu_stat_reserved0;
+ uint64_t task_gpu_stat_reserved1;
+ uint64_t task_gpu_stat_reserved2;
+} gpu_energy_data;
+
+typedef gpu_energy_data *gpu_energy_data_t;
+struct task_power_info_v2 {
+ task_power_info_data_t cpu_energy;
+ gpu_energy_data gpu_energy;
+
+ uint64_t task_energy;
+
+ uint64_t task_ptime;
+ uint64_t task_pset_switches;
+};
+
+typedef struct task_power_info_v2 task_power_info_v2_data_t;
+typedef struct task_power_info_v2 *task_power_info_v2_t;
+struct task_flags_info {
+ uint32_t flags;
+};
+typedef struct task_flags_info task_flags_info_data_t;
+typedef struct task_flags_info * task_flags_info_t;
+typedef uint32_t task_exc_guard_behavior_t;
+#pragma pack(pop)
+typedef natural_t task_inspect_flavor_t;
+
+enum task_inspect_flavor {
+ TASK_INSPECT_BASIC_COUNTS = 1,
+};
+
+struct task_inspect_basic_counts {
+ uint64_t instructions;
+ uint64_t cycles;
+};
+
+
+typedef struct task_inspect_basic_counts task_inspect_basic_counts_data_t;
+typedef struct task_inspect_basic_counts *task_inspect_basic_counts_t;
+
+typedef integer_t *task_inspect_info_t;
+typedef natural_t task_policy_flavor_t;
+typedef integer_t *task_policy_t;
+enum task_role {
+ TASK_RENICED = -1,
+ TASK_UNSPECIFIED = 0,
+ TASK_FOREGROUND_APPLICATION = 1,
+ TASK_BACKGROUND_APPLICATION = 2,
+ TASK_CONTROL_APPLICATION = 3,
+ TASK_GRAPHICS_SERVER = 4,
+ TASK_THROTTLE_APPLICATION = 5,
+ TASK_NONUI_APPLICATION = 6,
+ TASK_DEFAULT_APPLICATION = 7,
+ TASK_DARWINBG_APPLICATION = 8,
+};
+
+typedef integer_t task_role_t;
+
+struct task_category_policy {
+ task_role_t role;
+};
+
+typedef struct task_category_policy task_category_policy_data_t;
+typedef struct task_category_policy *task_category_policy_t;
+
+
+
+
+
+enum task_latency_qos {
+ LATENCY_QOS_TIER_UNSPECIFIED = 0x0,
+ LATENCY_QOS_TIER_0 = ((0xFF << 16) | 1),
+ LATENCY_QOS_TIER_1 = ((0xFF << 16) | 2),
+ LATENCY_QOS_TIER_2 = ((0xFF << 16) | 3),
+ LATENCY_QOS_TIER_3 = ((0xFF << 16) | 4),
+ LATENCY_QOS_TIER_4 = ((0xFF << 16) | 5),
+ LATENCY_QOS_TIER_5 = ((0xFF << 16) | 6)
+};
+typedef integer_t task_latency_qos_t;
+enum task_throughput_qos {
+ THROUGHPUT_QOS_TIER_UNSPECIFIED = 0x0,
+ THROUGHPUT_QOS_TIER_0 = ((0xFE << 16) | 1),
+ THROUGHPUT_QOS_TIER_1 = ((0xFE << 16) | 2),
+ THROUGHPUT_QOS_TIER_2 = ((0xFE << 16) | 3),
+ THROUGHPUT_QOS_TIER_3 = ((0xFE << 16) | 4),
+ THROUGHPUT_QOS_TIER_4 = ((0xFE << 16) | 5),
+ THROUGHPUT_QOS_TIER_5 = ((0xFE << 16) | 6),
+};
+
+
+
+
+typedef integer_t task_throughput_qos_t;
+
+struct task_qos_policy {
+ task_latency_qos_t task_latency_qos_tier;
+ task_throughput_qos_t task_throughput_qos_tier;
+};
+
+typedef struct task_qos_policy *task_qos_policy_t;
+typedef int task_special_port_t;
+typedef natural_t thread_flavor_t;
+typedef integer_t *thread_info_t;
+
+
+typedef integer_t thread_info_data_t[(32)];
+
+
+
+
+
+
+struct thread_basic_info {
+ time_value_t user_time;
+ time_value_t system_time;
+ integer_t cpu_usage;
+ policy_t policy;
+ integer_t run_state;
+ integer_t flags;
+ integer_t suspend_count;
+ integer_t sleep_time;
+
+};
+
+typedef struct thread_basic_info thread_basic_info_data_t;
+typedef struct thread_basic_info *thread_basic_info_t;
+
+
+
+
+
+struct thread_identifier_info {
+ uint64_t thread_id;
+ uint64_t thread_handle;
+ uint64_t dispatch_qaddr;
+};
+
+typedef struct thread_identifier_info thread_identifier_info_data_t;
+typedef struct thread_identifier_info *thread_identifier_info_t;
+struct thread_extended_info {
+ uint64_t pth_user_time;
+ uint64_t pth_system_time;
+ int32_t pth_cpu_usage;
+ int32_t pth_policy;
+ int32_t pth_run_state;
+ int32_t pth_flags;
+ int32_t pth_sleep_time;
+ int32_t pth_curpri;
+ int32_t pth_priority;
+ int32_t pth_maxpriority;
+ char pth_name[64];
+};
+typedef struct thread_extended_info thread_extended_info_data_t;
+typedef struct thread_extended_info * thread_extended_info_t;
+struct io_stat_entry {
+ uint64_t count;
+ uint64_t size;
+};
+
+struct io_stat_info {
+ struct io_stat_entry disk_reads;
+ struct io_stat_entry io_priority[4];
+ struct io_stat_entry paging;
+ struct io_stat_entry metadata;
+ struct io_stat_entry total_io;
+};
+
+typedef struct io_stat_info *io_stat_info_t;
+typedef natural_t thread_policy_flavor_t;
+typedef integer_t *thread_policy_t;
+struct thread_standard_policy {
+ natural_t no_data;
+};
+
+typedef struct thread_standard_policy thread_standard_policy_data_t;
+typedef struct thread_standard_policy *thread_standard_policy_t;
+struct thread_extended_policy {
+ boolean_t timeshare;
+};
+
+typedef struct thread_extended_policy thread_extended_policy_data_t;
+typedef struct thread_extended_policy *thread_extended_policy_t;
+struct thread_time_constraint_policy {
+ uint32_t period;
+ uint32_t computation;
+ uint32_t constraint;
+ boolean_t preemptible;
+};
+
+typedef struct thread_time_constraint_policy thread_time_constraint_policy_data_t;
+
+typedef struct thread_time_constraint_policy *thread_time_constraint_policy_t;
+struct thread_precedence_policy {
+ integer_t importance;
+};
+
+typedef struct thread_precedence_policy thread_precedence_policy_data_t;
+typedef struct thread_precedence_policy *thread_precedence_policy_t;
+struct thread_affinity_policy {
+ integer_t affinity_tag;
+};
+
+
+
+typedef struct thread_affinity_policy thread_affinity_policy_data_t;
+typedef struct thread_affinity_policy *thread_affinity_policy_t;
+struct thread_background_policy {
+ integer_t priority;
+};
+
+
+
+typedef struct thread_background_policy thread_background_policy_data_t;
+typedef struct thread_background_policy *thread_background_policy_t;
+
+
+
+
+
+
+typedef integer_t thread_latency_qos_t;
+
+struct thread_latency_qos_policy {
+ thread_latency_qos_t thread_latency_qos_tier;
+};
+
+typedef struct thread_latency_qos_policy thread_latency_qos_policy_data_t;
+typedef struct thread_latency_qos_policy *thread_latency_qos_policy_t;
+
+
+
+
+
+typedef integer_t thread_throughput_qos_t;
+
+struct thread_throughput_qos_policy {
+ thread_throughput_qos_t thread_throughput_qos_tier;
+};
+
+typedef struct thread_throughput_qos_policy thread_throughput_qos_policy_data_t;
+typedef struct thread_throughput_qos_policy *thread_throughput_qos_policy_t;
+
+
+
+typedef unsigned int vm_machine_attribute_t;
+typedef int vm_machine_attribute_val_t;
+typedef unsigned int vm_inherit_t;
+typedef int vm_purgable_t;
+typedef int vm_behavior_t;
+
+
+
+
+
+
+extern "C" {
+
+
+
+
+
+extern vm_size_t vm_page_size;
+extern vm_size_t vm_page_mask;
+extern int vm_page_shift;
+extern vm_size_t vm_kernel_page_size __attribute__((availability(ios,introduced=7.0)));
+extern vm_size_t vm_kernel_page_mask __attribute__((availability(ios,introduced=7.0)));
+extern int vm_kernel_page_shift __attribute__((availability(ios,introduced=7.0)));
+
+
+
+
+}
+
+
+
+
+
+#pragma pack(push, 4)
+
+
+
+
+typedef uint32_t vm32_object_id_t;
+typedef int *vm_region_info_t;
+typedef int *vm_region_info_64_t;
+typedef int *vm_region_recurse_info_t;
+typedef int *vm_region_recurse_info_64_t;
+typedef int vm_region_flavor_t;
+typedef int vm_region_info_data_t[(1024)];
+
+
+struct vm_region_basic_info_64 {
+ vm_prot_t protection;
+ vm_prot_t max_protection;
+ vm_inherit_t inheritance;
+ boolean_t shared;
+ boolean_t reserved;
+ memory_object_offset_t offset;
+ vm_behavior_t behavior;
+ unsigned short user_wired_count;
+};
+typedef struct vm_region_basic_info_64 *vm_region_basic_info_64_t;
+typedef struct vm_region_basic_info_64 vm_region_basic_info_data_64_t;
+struct vm_region_basic_info {
+ vm_prot_t protection;
+ vm_prot_t max_protection;
+ vm_inherit_t inheritance;
+ boolean_t shared;
+ boolean_t reserved;
+ uint32_t offset;
+ vm_behavior_t behavior;
+ unsigned short user_wired_count;
+};
+
+typedef struct vm_region_basic_info *vm_region_basic_info_t;
+typedef struct vm_region_basic_info vm_region_basic_info_data_t;
+struct vm_region_extended_info {
+ vm_prot_t protection;
+ unsigned int user_tag;
+ unsigned int pages_resident;
+ unsigned int pages_shared_now_private;
+ unsigned int pages_swapped_out;
+ unsigned int pages_dirtied;
+ unsigned int ref_count;
+ unsigned short shadow_depth;
+ unsigned char external_pager;
+ unsigned char share_mode;
+ unsigned int pages_reusable;
+};
+typedef struct vm_region_extended_info *vm_region_extended_info_t;
+typedef struct vm_region_extended_info vm_region_extended_info_data_t;
+struct vm_region_top_info {
+ unsigned int obj_id;
+ unsigned int ref_count;
+ unsigned int private_pages_resident;
+ unsigned int shared_pages_resident;
+ unsigned char share_mode;
+};
+
+typedef struct vm_region_top_info *vm_region_top_info_t;
+typedef struct vm_region_top_info vm_region_top_info_data_t;
+struct vm_region_submap_info {
+ vm_prot_t protection;
+ vm_prot_t max_protection;
+ vm_inherit_t inheritance;
+ uint32_t offset;
+ unsigned int user_tag;
+ unsigned int pages_resident;
+ unsigned int pages_shared_now_private;
+ unsigned int pages_swapped_out;
+ unsigned int pages_dirtied;
+ unsigned int ref_count;
+ unsigned short shadow_depth;
+ unsigned char external_pager;
+ unsigned char share_mode;
+ boolean_t is_submap;
+ vm_behavior_t behavior;
+ vm32_object_id_t object_id;
+ unsigned short user_wired_count;
+};
+
+typedef struct vm_region_submap_info *vm_region_submap_info_t;
+typedef struct vm_region_submap_info vm_region_submap_info_data_t;
+
+
+
+
+
+struct vm_region_submap_info_64 {
+ vm_prot_t protection;
+ vm_prot_t max_protection;
+ vm_inherit_t inheritance;
+ memory_object_offset_t offset;
+ unsigned int user_tag;
+ unsigned int pages_resident;
+ unsigned int pages_shared_now_private;
+ unsigned int pages_swapped_out;
+ unsigned int pages_dirtied;
+ unsigned int ref_count;
+ unsigned short shadow_depth;
+ unsigned char external_pager;
+ unsigned char share_mode;
+ boolean_t is_submap;
+ vm_behavior_t behavior;
+ vm32_object_id_t object_id;
+ unsigned short user_wired_count;
+ unsigned int pages_reusable;
+ vm_object_id_t object_id_full;
+};
+
+typedef struct vm_region_submap_info_64 *vm_region_submap_info_64_t;
+typedef struct vm_region_submap_info_64 vm_region_submap_info_data_64_t;
+struct vm_region_submap_short_info_64 {
+ vm_prot_t protection;
+ vm_prot_t max_protection;
+ vm_inherit_t inheritance;
+ memory_object_offset_t offset;
+ unsigned int user_tag;
+ unsigned int ref_count;
+ unsigned short shadow_depth;
+ unsigned char external_pager;
+ unsigned char share_mode;
+ boolean_t is_submap;
+ vm_behavior_t behavior;
+ vm32_object_id_t object_id;
+ unsigned short user_wired_count;
+};
+
+typedef struct vm_region_submap_short_info_64 *vm_region_submap_short_info_64_t;
+typedef struct vm_region_submap_short_info_64 vm_region_submap_short_info_data_64_t;
+
+
+
+
+
+struct mach_vm_read_entry {
+ mach_vm_address_t address;
+ mach_vm_size_t size;
+};
+
+struct vm_read_entry {
+ vm_address_t address;
+ vm_size_t size;
+};
+typedef struct mach_vm_read_entry mach_vm_read_entry_t[(256)];
+typedef struct vm_read_entry vm_read_entry_t[(256)];
+
+
+
+
+#pragma pack(pop)
+
+
+
+typedef int *vm_page_info_t;
+typedef int vm_page_info_data_t[];
+typedef int vm_page_info_flavor_t;
+
+
+struct vm_page_info_basic {
+ int disposition;
+ int ref_count;
+ vm_object_id_t object_id;
+ memory_object_offset_t offset;
+ int depth;
+ int __pad;
+};
+typedef struct vm_page_info_basic *vm_page_info_basic_t;
+typedef struct vm_page_info_basic vm_page_info_basic_data_t;
+
+
+
+extern "C" {
+typedef int kmod_t;
+
+struct kmod_info;
+typedef kern_return_t kmod_start_func_t(struct kmod_info * ki, void * data);
+typedef kern_return_t kmod_stop_func_t(struct kmod_info * ki, void * data);
+#pragma pack(push, 4)
+
+
+typedef struct kmod_reference {
+ struct kmod_reference * next;
+ struct kmod_info * info;
+} kmod_reference_t;
+typedef struct kmod_info {
+ struct kmod_info * next;
+ int32_t info_version;
+ uint32_t id;
+ char name[64];
+ char version[64];
+ int32_t reference_count;
+ kmod_reference_t * reference_list;
+ vm_address_t address;
+ vm_size_t size;
+ vm_size_t hdr_size;
+ kmod_start_func_t * start;
+ kmod_stop_func_t * stop;
+} kmod_info_t;
+
+
+
+typedef struct kmod_info_32_v1 {
+ uint32_t next_addr;
+ int32_t info_version;
+ uint32_t id;
+ uint8_t name[64];
+ uint8_t version[64];
+ int32_t reference_count;
+ uint32_t reference_list_addr;
+ uint32_t address;
+ uint32_t size;
+ uint32_t hdr_size;
+ uint32_t start_addr;
+ uint32_t stop_addr;
+} kmod_info_32_v1_t;
+
+
+
+typedef struct kmod_info_64_v1 {
+ uint64_t next_addr;
+ int32_t info_version;
+ uint32_t id;
+ uint8_t name[64];
+ uint8_t version[64];
+ int32_t reference_count;
+ uint64_t reference_list_addr;
+ uint64_t address;
+ uint64_t size;
+ uint64_t hdr_size;
+ uint64_t start_addr;
+ uint64_t stop_addr;
+} kmod_info_64_v1_t;
+
+#pragma pack(pop)
+typedef void * kmod_args_t;
+typedef int kmod_control_flavor_t;
+typedef kmod_info_t * kmod_info_array_t;
+
+}
+typedef struct fsid { int32_t val[2]; } fsid_t;
+
+typedef struct fsobj_id {
+ u_int32_t fid_objno;
+ u_int32_t fid_generation;
+} fsobj_id_t;
+
+
+
+
+
+
+struct dyld_kernel_image_info {
+ uuid_t uuid;
+ fsobj_id_t fsobjid;
+ fsid_t fsid;
+ uint64_t load_addr;
+};
+
+struct dyld_kernel_process_info {
+ struct dyld_kernel_image_info cache_image_info;
+ uint64_t timestamp;
+ uint32_t imageCount;
+ uint32_t initialImageCount;
+ uint8_t dyldState;
+ boolean_t no_cache;
+ boolean_t private_cache;
+};
+
+
+
+typedef struct dyld_kernel_image_info dyld_kernel_image_info_t;
+typedef struct dyld_kernel_process_info dyld_kernel_process_info_t;
+typedef dyld_kernel_image_info_t *dyld_kernel_image_info_array_t;
+
+
+
+
+
+
+typedef mach_port_t task_t;
+typedef mach_port_t task_name_t;
+typedef mach_port_t task_inspect_t;
+typedef mach_port_t task_suspension_token_t;
+typedef mach_port_t thread_t;
+typedef mach_port_t thread_act_t;
+typedef mach_port_t thread_inspect_t;
+typedef mach_port_t ipc_space_t;
+typedef mach_port_t ipc_space_inspect_t;
+typedef mach_port_t coalition_t;
+typedef mach_port_t host_t;
+typedef mach_port_t host_priv_t;
+typedef mach_port_t host_security_t;
+typedef mach_port_t processor_t;
+typedef mach_port_t processor_set_t;
+typedef mach_port_t processor_set_control_t;
+typedef mach_port_t semaphore_t;
+typedef mach_port_t lock_set_t;
+typedef mach_port_t ledger_t;
+typedef mach_port_t alarm_t;
+typedef mach_port_t clock_serv_t;
+typedef mach_port_t clock_ctrl_t;
+
+typedef mach_port_t arcade_register_t;
+
+
+
+
+
+
+typedef processor_set_t processor_set_name_t;
+
+
+
+
+typedef mach_port_t clock_reply_t;
+typedef mach_port_t bootstrap_t;
+typedef mach_port_t mem_entry_name_port_t;
+typedef mach_port_t exception_handler_t;
+typedef exception_handler_t *exception_handler_array_t;
+typedef mach_port_t vm_task_entry_t;
+typedef mach_port_t io_master_t;
+typedef mach_port_t UNDServerRef;
+typedef task_t *task_array_t;
+typedef thread_t *thread_array_t;
+typedef processor_set_t *processor_set_array_t;
+typedef processor_set_t *processor_set_name_array_t;
+typedef processor_t *processor_array_t;
+typedef thread_act_t *thread_act_array_t;
+typedef ledger_t *ledger_array_t;
+
+
+
+
+
+
+
+typedef task_t task_port_t;
+typedef task_array_t task_port_array_t;
+typedef thread_t thread_port_t;
+typedef thread_array_t thread_port_array_t;
+typedef ipc_space_t ipc_space_port_t;
+typedef host_t host_name_t;
+typedef host_t host_name_port_t;
+typedef processor_set_t processor_set_port_t;
+typedef processor_set_t processor_set_name_port_t;
+typedef processor_set_array_t processor_set_name_port_array_t;
+typedef processor_set_t processor_set_control_port_t;
+typedef processor_t processor_port_t;
+typedef processor_array_t processor_port_array_t;
+typedef thread_act_t thread_act_port_t;
+typedef thread_act_array_t thread_act_port_array_t;
+typedef semaphore_t semaphore_port_t;
+typedef lock_set_t lock_set_port_t;
+typedef ledger_t ledger_port_t;
+typedef ledger_array_t ledger_port_array_t;
+typedef alarm_t alarm_port_t;
+typedef clock_serv_t clock_serv_port_t;
+typedef clock_ctrl_t clock_ctrl_port_t;
+typedef exception_handler_t exception_port_t;
+typedef exception_handler_array_t exception_port_arrary_t;
+typedef char vfs_path_t[4096];
+typedef char nspace_path_t[1024];
+typedef natural_t ledger_item_t;
+
+
+typedef int64_t ledger_amount_t;
+
+
+typedef mach_vm_offset_t *emulation_vector_t;
+typedef char *user_subsystem_t;
+
+typedef char *labelstr_t;
+extern "C" {
+
+
+typedef struct _malloc_zone_t {
+
+
+    void *reserved1;
+    void *reserved2;
+    size_t (* size)(struct _malloc_zone_t *zone, const void *ptr);
+    void *(* malloc)(struct _malloc_zone_t *zone, size_t size);
+    void *(* calloc)(struct _malloc_zone_t *zone, size_t num_items, size_t size);
+    void *(* valloc)(struct _malloc_zone_t *zone, size_t size);
+    void (* free)(struct _malloc_zone_t *zone, void *ptr);
+    void *(* realloc)(struct _malloc_zone_t *zone, void *ptr, size_t size);
+    void (* destroy)(struct _malloc_zone_t *zone);
+    const char *zone_name;
+
+
+    unsigned (* batch_malloc)(struct _malloc_zone_t *zone, size_t size, void **results, unsigned num_requested);
+    void (* batch_free)(struct _malloc_zone_t *zone, void **to_be_freed, unsigned num_to_be_freed);
+
+    struct malloc_introspection_t * introspect;
+    unsigned version;
+
+
+    void *(* memalign)(struct _malloc_zone_t *zone, size_t alignment, size_t size);
+
+
+    void (* free_definite_size)(struct _malloc_zone_t *zone, void *ptr, size_t size);
+
+
+    size_t (* pressure_relief)(struct _malloc_zone_t *zone, size_t goal);
+
+
+
+
+
+
+    boolean_t (* claimed_address)(struct _malloc_zone_t *zone, void *ptr);
+} malloc_zone_t;
+
+
+
+extern malloc_zone_t *malloc_default_zone(void);
+
+
+extern malloc_zone_t *malloc_create_zone(vm_size_t start_size, unsigned flags);
+
+
+extern void malloc_destroy_zone(malloc_zone_t *zone);
+
+
+
+
+extern void *malloc_zone_malloc(malloc_zone_t *zone, size_t size) __attribute__((alloc_size(2)));
+
+
+extern void *malloc_zone_calloc(malloc_zone_t *zone, size_t num_items, size_t size) __attribute__((alloc_size(2,3)));
+
+
+extern void *malloc_zone_valloc(malloc_zone_t *zone, size_t size) __attribute__((alloc_size(2)));
+
+
+extern void malloc_zone_free(malloc_zone_t *zone, void *ptr);
+
+
+extern void *malloc_zone_realloc(malloc_zone_t *zone, void *ptr, size_t size) __attribute__((alloc_size(3)));
+
+
+extern malloc_zone_t *malloc_zone_from_ptr(const void *ptr);
+
+
+
+extern size_t malloc_size(const void *ptr);
+
+
+extern size_t malloc_good_size(size_t size);
+
+
+extern void *malloc_zone_memalign(malloc_zone_t *zone, size_t alignment, size_t size) __attribute__((alloc_size(3))) __attribute__((availability(ios,introduced=3.0)));
+extern unsigned malloc_zone_batch_malloc(malloc_zone_t *zone, size_t size, void **results, unsigned num_requested);
+
+
+extern void malloc_zone_batch_free(malloc_zone_t *zone, void **to_be_freed, unsigned num);
+
+
+
+
+extern malloc_zone_t *malloc_default_purgeable_zone(void) __attribute__((availability(ios,introduced=3.0)));
+
+
+extern void malloc_make_purgeable(void *ptr) __attribute__((availability(ios,introduced=3.0)));
+
+
+extern int malloc_make_nonpurgeable(void *ptr) __attribute__((availability(ios,introduced=3.0)));
+
+
+
+
+
+
+extern void malloc_zone_register(malloc_zone_t *zone);
+
+
+
+
+
+extern void malloc_zone_unregister(malloc_zone_t *zone);
+
+
+
+extern void malloc_set_zone_name(malloc_zone_t *zone, const char *name);
+
+
+extern const char *malloc_get_zone_name(malloc_zone_t *zone);
+
+
+size_t malloc_zone_pressure_relief(malloc_zone_t *zone, size_t goal) __attribute__((availability(ios,introduced=4.3)));
+
+
+
+
+
+
+
+typedef struct {
+    vm_address_t address;
+    vm_size_t size;
+} vm_range_t;
+
+typedef struct malloc_statistics_t {
+    unsigned blocks_in_use;
+    size_t size_in_use;
+    size_t max_size_in_use;
+    size_t size_allocated;
+} malloc_statistics_t;
+
+typedef kern_return_t memory_reader_t(task_t remote_task, vm_address_t remote_address, vm_size_t size, void **local_memory);
+typedef void vm_range_recorder_t(task_t, void *, unsigned type, vm_range_t *, unsigned);
+
+
+
+typedef void print_task_printer_t(const char *fmt, ...);
+
+typedef struct malloc_introspection_t {
+ kern_return_t (* enumerator)(task_t task, void *, unsigned type_mask, vm_address_t zone_address, memory_reader_t reader, vm_range_recorder_t recorder);
+ size_t (* good_size)(malloc_zone_t *zone, size_t size);
+ boolean_t (* check)(malloc_zone_t *zone);
+ void (* print)(malloc_zone_t *zone, boolean_t verbose);
+ void (* log)(malloc_zone_t *zone, void *address);
+ void (* force_lock)(malloc_zone_t *zone);
+ void (* force_unlock)(malloc_zone_t *zone);
+ void (* statistics)(malloc_zone_t *zone, malloc_statistics_t *stats);
+ boolean_t (* zone_locked)(malloc_zone_t *zone);
+
+
+ boolean_t (* enable_discharge_checking)(malloc_zone_t *zone);
+ void (* disable_discharge_checking)(malloc_zone_t *zone);
+ void (* discharge)(malloc_zone_t *zone, void *memory);
+
+ void (* enumerate_discharged_pointers)(malloc_zone_t *zone, void (^report_discharged)(void *memory, void *info));
+
+
+
+ void (* reinit_lock)(malloc_zone_t *zone);
+ void (* print_task)(task_t task, unsigned level, vm_address_t zone_address, memory_reader_t reader, print_task_printer_t printer);
+ void (* task_statistics)(task_t task, vm_address_t zone_address, memory_reader_t reader, malloc_statistics_t *stats);
+} malloc_introspection_t;
+
+
+
+
+
+extern void malloc_printf(const char *format, ...);
+
+
+
+
+
+
+
+extern kern_return_t malloc_get_all_zones(task_t task, memory_reader_t reader, vm_address_t **addresses, unsigned *count);
+
+
+
+
+
+extern void malloc_zone_print_ptr_info(void *ptr);
+
+
+extern boolean_t malloc_zone_check(malloc_zone_t *zone);
+
+
+extern void malloc_zone_print(malloc_zone_t *zone, boolean_t verbose);
+
+
+extern void malloc_zone_statistics(malloc_zone_t *zone, malloc_statistics_t *stats);
+
+
+extern void malloc_zone_log(malloc_zone_t *zone, void *address);
+
+
+
+
+
+struct mstats {
+    size_t bytes_total;
+    size_t chunks_used;
+    size_t bytes_used;
+    size_t chunks_free;
+    size_t bytes_free;
+};
+
+extern struct mstats mstats(void);
+
+extern boolean_t malloc_zone_enable_discharge_checking(malloc_zone_t *zone) __attribute__((availability(ios,introduced=4.3)));
+
+
+extern void malloc_zone_disable_discharge_checking(malloc_zone_t *zone) __attribute__((availability(ios,introduced=4.3)));
+
+
+extern void malloc_zone_discharge(malloc_zone_t *zone, void *memory) __attribute__((availability(ios,introduced=4.3)));
+
+
+
+
+
+extern void malloc_zone_enumerate_discharged_pointers(malloc_zone_t *zone, void (*report_discharged)(void *memory, void *info)) __attribute__((availability(ios,introduced=4.3)));
+
+
+
+
+
+
+
+}
+#pragma clang assume_nonnull begin
+
+
+#ifndef _REWRITER_typedef_WGTargetProxy
+#define _REWRITER_typedef_WGTargetProxy
+typedef struct objc_object WGTargetProxy;
+typedef struct {} _objc_exc_WGTargetProxy;
+#endif
+
+struct WGTargetProxy_IMPL {
+	struct NSProxy_IMPL NSProxy_IVARS;
+};
+
+// @property(nonatomic, weak) id target;
+// +(instancetype)proxyWithTarget:(id)target;
+/* @end */
+
+#pragma clang assume_nonnull end
+
+
+
+
+// @interface WGMainObjcVC()
+// @property(nonatomic, copy) NSString *name;
+/* @end */
+
+
+
+typedef void (*WGBlock) (void);
 
 // @implementation WGMainObjcVC
+struct __Block_byref_weakPerson_0 {
+  void *__isa;
+__Block_byref_weakPerson_0 *__forwarding;
+ int __flags;
+ int __size;
+ void (*__Block_byref_id_object_copy)(void*, void*);
+ void (*__Block_byref_id_object_dispose)(void*);
+ Person *__weak weakPerson;
+};
+
+struct __WGMainObjcVC__viewDidLoad_block_impl_0 {
+  struct __block_impl impl;
+  struct __WGMainObjcVC__viewDidLoad_block_desc_0* Desc;
+  __Block_byref_weakPerson_0 *weakPerson; // by ref
+  __WGMainObjcVC__viewDidLoad_block_impl_0(void *fp, struct __WGMainObjcVC__viewDidLoad_block_desc_0 *desc, __Block_byref_weakPerson_0 *_weakPerson, int flags=0) : weakPerson(_weakPerson->__forwarding) {
+    impl.isa = &_NSConcreteStackBlock;
+    impl.Flags = flags;
+    impl.FuncPtr = fp;
+    Desc = desc;
+  }
+};
+static void __WGMainObjcVC__viewDidLoad_block_func_0(struct __WGMainObjcVC__viewDidLoad_block_impl_0 *__cself) {
+  __Block_byref_weakPerson_0 *weakPerson = __cself->weakPerson; // bound by ref
+
+        NSLog((NSString *)&__NSConstantStringImpl__var_folders_wc_tkbgc_ts0pv3lyd2n4wsdc6h0000gn_T_WGMainObjcVC_bb8139_mi_0,(weakPerson->__forwarding->weakPerson));
+    }
+static void __WGMainObjcVC__viewDidLoad_block_copy_0(struct __WGMainObjcVC__viewDidLoad_block_impl_0*dst, struct __WGMainObjcVC__viewDidLoad_block_impl_0*src) {_Block_object_assign((void*)&dst->weakPerson, (void*)src->weakPerson, 8/*BLOCK_FIELD_IS_BYREF*/);}
+
+static void __WGMainObjcVC__viewDidLoad_block_dispose_0(struct __WGMainObjcVC__viewDidLoad_block_impl_0*src) {_Block_object_dispose((void*)src->weakPerson, 8/*BLOCK_FIELD_IS_BYREF*/);}
+
+static struct __WGMainObjcVC__viewDidLoad_block_desc_0 {
+  size_t reserved;
+  size_t Block_size;
+  void (*copy)(struct __WGMainObjcVC__viewDidLoad_block_impl_0*, struct __WGMainObjcVC__viewDidLoad_block_impl_0*);
+  void (*dispose)(struct __WGMainObjcVC__viewDidLoad_block_impl_0*);
+} __WGMainObjcVC__viewDidLoad_block_desc_0_DATA = { 0, sizeof(struct __WGMainObjcVC__viewDidLoad_block_impl_0), __WGMainObjcVC__viewDidLoad_block_copy_0, __WGMainObjcVC__viewDidLoad_block_dispose_0};
 
 static void _I_WGMainObjcVC_viewDidLoad(WGMainObjcVC * self, SEL _cmd) {
     ((void (*)(__rw_objc_super *, SEL))(void *)objc_msgSendSuper)((__rw_objc_super){(id)self, (id)class_getSuperclass(objc_getClass("WGMainObjcVC"))}, sel_registerName("viewDidLoad"));
-    NSObject *objc = ((NSObject *(*)(id, SEL))(void *)objc_msgSend)((id)((NSObject *(*)(id, SEL))(void *)objc_msgSend)((id)objc_getClass("NSObject"), sel_registerName("alloc")), sel_registerName("init"));
+    ((void (*)(id, SEL, UIColor * _Nullable))(void *)objc_msgSend)((id)((UIView *(*)(id, SEL))(void *)objc_msgSend)((id)self, sel_registerName("view")), sel_registerName("setBackgroundColor:"), (UIColor * _Nonnull)((UIColor * _Nonnull (*)(id, SEL))(void *)objc_msgSend)((id)objc_getClass("UIColor"), sel_registerName("whiteColor")));
+    Person *person = ((Person *(*)(id, SEL))(void *)objc_msgSend)((id)((Person *(*)(id, SEL))(void *)objc_msgSend)((id)objc_getClass("Person"), sel_registerName("alloc")), sel_registerName("init"));
+    __attribute__((__blocks__(byref))) __attribute__((objc_ownership(weak))) __Block_byref_weakPerson_0 weakPerson = {(void*)0,(__Block_byref_weakPerson_0 *)&weakPerson, 33554432, sizeof(__Block_byref_weakPerson_0), __Block_byref_id_object_copy_131, __Block_byref_id_object_dispose_131, person};
+    WGBlock block = ((void (*)())&__WGMainObjcVC__viewDidLoad_block_impl_0((void *)__WGMainObjcVC__viewDidLoad_block_func_0, &__WGMainObjcVC__viewDidLoad_block_desc_0_DATA, (__Block_byref_weakPerson_0 *)&weakPerson, 570425344));
+    ((void (*)(__block_impl *))((__block_impl *)block)->FuncPtr)((__block_impl *)block);
 }
+
+
+
+
+
+static NSString * _I_WGMainObjcVC_name(WGMainObjcVC * self, SEL _cmd) { return (*(NSString *__strong *)((char *)self + OBJC_IVAR_$_WGMainObjcVC$_name)); }
+extern "C" __declspec(dllimport) void objc_setProperty (id, SEL, long, id, bool, bool);
+
+static void _I_WGMainObjcVC_setName_(WGMainObjcVC * self, SEL _cmd, NSString *name) { objc_setProperty (self, _cmd, __OFFSETOFIVAR__(struct WGMainObjcVC, _name), (id)name, 0, 1); }
 // @end
 
 struct _prop_t {
@@ -71943,14 +74553,28 @@ struct _category_t {
 extern "C" __declspec(dllimport) struct objc_cache _objc_empty_cache;
 #pragma warning(disable:4273)
 
+extern "C" unsigned long int OBJC_IVAR_$_WGMainObjcVC$_name __attribute__ ((used, section ("__DATA,__objc_ivar"))) = __OFFSETOFIVAR__(struct WGMainObjcVC, _name);
+
+static struct /*_ivar_list_t*/ {
+	unsigned int entsize;  // sizeof(struct _prop_t)
+	unsigned int count;
+	struct _ivar_t ivar_list[1];
+} _OBJC_$_INSTANCE_VARIABLES_WGMainObjcVC __attribute__ ((used, section ("__DATA,__objc_const"))) = {
+	sizeof(_ivar_t),
+	1,
+	{{(unsigned long int *)&OBJC_IVAR_$_WGMainObjcVC$_name, "_name", "@\"NSString\"", 3, 8}}
+};
+
 static struct /*_method_list_t*/ {
 	unsigned int entsize;  // sizeof(struct _objc_method)
 	unsigned int method_count;
-	struct _objc_method method_list[1];
+	struct _objc_method method_list[3];
 } _OBJC_$_INSTANCE_METHODS_WGMainObjcVC __attribute__ ((used, section ("__DATA,__objc_const"))) = {
 	sizeof(_objc_method),
-	1,
-	{{(struct objc_selector *)"viewDidLoad", "v16@0:8", (void *)_I_WGMainObjcVC_viewDidLoad}}
+	3,
+	{{(struct objc_selector *)"viewDidLoad", "v16@0:8", (void *)_I_WGMainObjcVC_viewDidLoad},
+	{(struct objc_selector *)"name", "@16@0:8", (void *)_I_WGMainObjcVC_name},
+	{(struct objc_selector *)"setName:", "v24@0:8@16", (void *)_I_WGMainObjcVC_setName_}}
 };
 
 static struct _class_ro_t _OBJC_METACLASS_RO_$_WGMainObjcVC __attribute__ ((used, section ("__DATA,__objc_const"))) = {
@@ -71965,12 +74589,12 @@ static struct _class_ro_t _OBJC_METACLASS_RO_$_WGMainObjcVC __attribute__ ((used
 };
 
 static struct _class_ro_t _OBJC_CLASS_RO_$_WGMainObjcVC __attribute__ ((used, section ("__DATA,__objc_const"))) = {
-	0, sizeof(struct WGMainObjcVC_IMPL), sizeof(struct WGMainObjcVC_IMPL), 
+	0, __OFFSETOFIVAR__(struct WGMainObjcVC, _name), sizeof(struct WGMainObjcVC_IMPL), 
 	0, 
 	"WGMainObjcVC",
 	(const struct _method_list_t *)&_OBJC_$_INSTANCE_METHODS_WGMainObjcVC,
 	0, 
-	0, 
+	(const struct _ivar_list_t *)&_OBJC_$_INSTANCE_VARIABLES_WGMainObjcVC,
 	0, 
 	0, 
 };

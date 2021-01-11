@@ -15,29 +15,28 @@
 #import "WGTargetProxy.h"
 
 
+
+
 @interface WGMainObjcVC()
 @property(nonatomic, copy) NSString *name;
 @end
 
+
+typedef void (^WGBlock) (void);
+
 @implementation WGMainObjcVC
-
-
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.view.backgroundColor = [UIColor whiteColor];
+    Person *person = [[Person alloc]init];
+    __block __weak Person *weakPerson = person;
+    WGBlock block = ^{
+        NSLog(@"---%p",weakPerson);
+    };
+    block();
 }
 
-- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
-    Person *person = [[Person alloc]init];
-    __weak Person *weakPerson = person;
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (1.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        NSLog(@"1----%@",person);
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (2.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-            NSLog(@"2----%@",weakPerson);
-        });
-    });
-    NSLog(@"%s",__func__);
-}
+
 
 
 @end

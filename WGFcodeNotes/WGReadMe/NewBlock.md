@@ -275,7 +275,7 @@
                 Desc = desc;
             } 
         };
-        #### 分析,调用对象的方法,底层实际是传递了两个参数: 一个是对象本身self,一个是方法SEL,既然是参数,那么就是局部变量,只要是局部变量,那么就一定会被block捕获. 如果在案例test方法的block中访问WGPerson的成员变量,那么实际block上捕获的是WGPerson对象self本身,然后通过self再去访问它的成员变量
+#### 分析,调用对象的方法,底层实际是传递了两个参数: 一个是对象本身self,一个是方法SEL,既然是参数,那么就是局部变量,只要是局部变量,那么就一定会被block捕获. 如果在案例test方法的block中访问WGPerson的成员变量,那么实际block上捕获的是WGPerson对象self本身,然后通过self再去访问它的成员变量
 
 
 
@@ -619,7 +619,7 @@
         
 
 #### 5.3 总结, 当block内部访问了对象类型的auto变量时
-* 如果block是在栈上,将不会对auto变量产生强引用
+* 如果block是在栈上,肯定不会对auto变量产生强引用(不管是在ARC还是MRC环境下)
 * 如果block被拷贝copy到堆上, 会自动调用block内部的copy函数, copy函数会调用_Block_object_assign函数,_Block_object_assign函数会根据**auto**变量的修饰符(__storng、__weak、__unsafe_unretained)来做出相应的操作,类似retaion(形成强引用、弱引用),__storng就会强引用auto变量,__weak/__unsafe_unretained就会弱引用auto变量
 * 如果block从堆上移除,会调用block内部的dispose函数,dispose函数会调用_Block_object_dispose函数,_Block_object_dispose函数会自动释放引用的auto变量,类似于release
 * 为什么block底层会多出来两个函数(copy函数和dispose函数)? 因为访问的是对象类型的auto变量,而对象类型的auto变量是需要对其进行内存管理的
@@ -654,11 +654,11 @@
         打印结果: 23:18:51.727756+0800 -[WGMainObjcVC touchesBegan:withEvent:]
                 23:18:54.728141+0800  ----<Person: 0x600003b44670>
                 23:18:54.728433+0800  -[Person dealloc]---
-#### 分析,GCD中的block作为参数时,block类型时堆block,因为block内部访问了person对象,所以会对person对象进行强引用,所以知道3秒后,执行完NSLog(@"----%@",person);,block才会销毁,当block销毁的时候,会对引用的person对象进行release操作,随之person对象被销毁
+#### 分析,GCD中的block作为参数时,block类型是堆block,因为block内部访问了person对象,所以会对person对象进行强引用,所以直到3秒后,执行完NSLog(@"----%@",person);,block才会销毁,当block销毁的时候,会对引用的person对象进行release操作,随之person对象被销毁
 
         - (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
             Person *person = [[Person alloc]init];
-            //下面两种写法是一样的,只不是第一种写法可以省略掉类型,用typeof(person)来表示,person是什么类型,这里就是什么类型
+            //下面两种写法是一样的,只不过第一种写法可以省略掉类型,用typeof(person)来表示,person是什么类型,这里就是什么类型
             __weak typeof(person) weakPerson = person;
             //__weak Person *weakPerson = person;
             dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (3.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
@@ -721,7 +721,7 @@
                 23:39:18.005954+0800  1----<Person: 0x600000e450d0>
                 23:39:18.006142+0800  -[Person dealloc]---
                 23:39:20.186553+0800  2----(null)
-#### 分析,因为编译器是根据block内的强引用来决定什么时候释放对象的, 所以第一个block内访问的是强引用的person对象,所以执行完第一个block代码后,person对象就销毁了,知道2秒后,执行了第2个block,此时访问的person的对象已经销毁了,所以打印的是2----(null)
+#### 分析,因为编译器是根据block内的强引用来决定什么时候释放对象的, 所以第一个block内访问的是强引用的person对象,所以执行完第一个block代码后,person对象就销毁了,直到2秒后,执行了第2个block,此时访问的person的对象已经销毁了,所以打印的是2----(null)
 #### 总结,在GCD中,不管GCD中嵌套了多少个block, 考察对象释放时机,就主要根据强引用类型的对象所在的block什么时候执行完就可以了
 
 ### 6 __block修饰符
@@ -894,24 +894,24 @@
         
 #### __block无论是修饰auto变量还是对象类型的变量,底层都会包装成一个对象,只是修饰对象类型时,包装成对象的结构体中会多出来copy/dispose方法,主要就是为了进行内存管理用的
         struct __Block_byref_age_0 {
-          void *__isa;
-        __Block_byref_age_0 *__forwarding;
-         int __flags;
-         int __size;
-         int age;
+            void *__isa;
+            __Block_byref_age_0 *__forwarding;
+            int __flags;
+            int __size;
+            int age;
         };
         
         struct __Block_byref_obj_1 {
-          void *__isa;
-        __Block_byref_obj_1 *__forwarding;
-         int __flags;
-         int __size;
-         void (*__Block_byref_id_object_copy)(void*, void*);
-         void (*__Block_byref_id_object_dispose)(void*);
-         NSObject *obj;
+            void *__isa;
+            __Block_byref_obj_1 *__forwarding;
+            int __flags;
+            int __size;
+            void (*__Block_byref_id_object_copy)(void*, void*);
+            void (*__Block_byref_id_object_dispose)(void*);
+            NSObject *obj;
         };
 
-#### 如果我们修改可变数组中的元素个数,是不需要添加__block修饰符的,因为我们只是用arr这个地址,而并不是对其进行赋值操作,只有对其进行赋值操作才需要添加__block修饰符
+#### 如果我们修改可变数组中的元素个数,是不需要添加__block修饰符的,因为我们只是用arr这个地址,而并不是对其进行赋值操作,只有对其进行赋值操作才需要添加__block修饰符. 能不加__block就不加,因为加__block会生成新的对象
         typedef void (^WGBlock)(void);
         int main(int argc, const char * argv[]) {
             @autoreleasepool {
@@ -928,7 +928,6 @@
         typedef void (^WGBlock)(void);
         int main(int argc, const char * argv[]) {
             @autoreleasepool {
-                
                 __block int age = 10;
                 WGBlock block = ^ {
                     age = 20;
@@ -940,11 +939,11 @@
         }
 #### 分析,我们现在访问age地址,其实访问的是__Block_byref_age_0结构体中变量age(int age;)的地址,而不是block底层结构体__main_block_impl_0中的成员age(__Block_byref_age_0 *age;),为什么打印的地址不是block结构体中的成员变量age? 可能是苹果想屏蔽__block内部的实现细节,就像KVO一样
         struct __Block_byref_age_0 {
-          void *__isa;
-        __Block_byref_age_0 *__forwarding;
-         int __flags;
-         int __size;
-         int age;
+            void *__isa;
+            __Block_byref_age_0 *__forwarding;
+            int __flags;
+            int __size;
+            int age;
         };
         
         struct __main_block_impl_0 {
@@ -953,6 +952,16 @@
             __Block_byref_age_0 *age; // by ref
             ...
         }
+        
+#### 6.2.2 __block的__forwarding指针
+#### 为什么我们拿到age的指针后,不直接去访问age指针指向的结构体中的age变量,而是通过__forwarding指针再去获取age变量? 
+        static void __main_block_func_0(struct __main_block_impl_0 *__cself) {
+            __Block_byref_age_0 *age = __cself->age; // bound by ref
+            //通过age拿到__forwarding,然后再通过__forwarding拿到age,然后对其进行修改值
+            (age->__forwarding->age) = 20;
+            NSLog((NSString *)&__NSConstantStringImpl__var_folders_wc_tkbgc_ts0pv3lyd2n4wsdc6h0000gn_T_main_46c985_mi_0, (age->__forwarding->age));
+        }
+#### block在栈上时,__forwarding指针指向的是它自己,如果block拷贝到了堆上,那么栈上的__forwarding指针会指向堆上的block对象,堆上的__forwarding指针指向的是堆上block的自身,这样不论是访问栈上的__forwarding指针还是堆上的__forwarding指针,都可以找到堆上的变量
 
 #### 6.3 __block内存管理
 1. 当block在栈上时,并不会对__block修饰的变量产生强引用
@@ -1049,18 +1058,115 @@
             //会对objc变量-强引用  如果是__weak NSObject *weakSelf = objc;,那么就对objc变量进行的是弱引用
             _Block_object_assign((void*)&dst->objc, (void*)src->objc, 3/*BLOCK_FIELD_IS_OBJECT*/);
         }
-#### 总结,block对__block修饰的变量包装成的对象会是强引用,而对普通对象会是强引用,如果普通对象是通过弱引用访问的,那么block就对普通对象是形成弱引用
+#### 总结: block访问auto类型的对象时,如果对象是强引用修饰(默认的都是Strong),那么block就对外部的auto对象是强引用;如果对象是弱引用(用__weak修饰),那么block对auto对象就是弱引用; 如果block访问的是__block修饰的对象,那么block对修饰的对象就是强引用
+
+
+#### 6.4 对象类型的auto变量和__block修饰的变量的内存管理
+1. 当block在栈上时,对它们都不会产生强引用
+2. 当block拷贝到堆上时,都会通过copy函数来处理它们
+
+        __block变量age: 对age就是强引用
+            _Block_object_assign((void*)&dst->age, (void*)src->age, 8/*BLOCK_FIELD_IS_BYREF*/); 
+        对象类型的auto变量person: 若person对象是Strong修饰,block对person就是强引用;若person对象是__weak修饰,则是弱引用
+            _Block_object_assign((void*)&dst->person, (void*)src->objc, 3/*BLOCK_FIELD_IS_OBJECT*/);
+3. 当block从堆上移除时,都会通过dispose函数来释放它们
+
+        __block变量age: 
+            _Block_object_dispose((void*)src->age, 8/*BLOCK_FIELD_IS_BYREF*/);
+        对象类型的auto变量person:
+            _Block_object_dispose((void*)src->person, 3/*BLOCK_FIELD_IS_BYREF*/);
+4. __block int age = 20,不能再用__weak来修饰了,因为__weak是用来修饰对象类型的 
+
+
+#### 6.5 __block修饰的对象类型
+        typedef void (^WGBlock) (void);
+
+        @implementation WGMainObjcVC
+        - (void)viewDidLoad {
+            [super viewDidLoad];
+            self.view.backgroundColor = [UIColor whiteColor];
+            __block Person *person = [[Person alloc]init];
+            WGBlock block = ^{
+                NSLog(@"---%p",person);
+            };
+            block();
+        }
+        
+        xcrun -sdk iphoneos clang -arch arm64 -rewrite-objc -fobjc-arc -fobjc-runtime=ios-8.0.0 WGMainObjcVC.m
+        转为C++代码如下
+
+        struct __Block_byref_person_0 {
+            void *__isa;
+            __Block_byref_person_0 *__forwarding;
+            int __flags;
+            int __size;
+            void (*__Block_byref_id_object_copy)(void*, void*);
+            void (*__Block_byref_id_object_dispose)(void*);
+            Person *__strong person;
+        };
+
+        struct __WGMainObjcVC__viewDidLoad_block_impl_0 {
+            struct __block_impl impl;
+            struct __WGMainObjcVC__viewDidLoad_block_desc_0* Desc;
+            __Block_byref_person_0 *person; // by ref
+            __WGMainObjcVC__viewDidLoad_block_impl_0(void *fp, struct __WGMainObjcVC__viewDidLoad_block_desc_0 *desc, __Block_byref_person_0 *_person, int flags=0) : person(_person->__forwarding) {
+                impl.isa = &_NSConcreteStackBlock;
+                impl.Flags = flags;
+                impl.FuncPtr = fp;
+                Desc = desc;
+            }
+        };
+#### WGBlock内有个person指针,指向了__Block_byref_person_0结构体(是个强指针即强引用),__Block_byref_person_0结构体中有个person指针(Person *__strong person;),这个指针指向了我们alloc出来的person对象(强引用还是弱引用根据外部person对象是strong修饰还是__weak修饰的)
+
+        - (void)viewDidLoad {
+            [super viewDidLoad];
+            self.view.backgroundColor = [UIColor whiteColor];
+            Person *person = [[Person alloc]init];
+            __block __weak Person *weakPerson = person;  //若是用__weak修饰的弱引用
+            WGBlock block = ^{
+                NSLog(@"---%p",weakPerson);
+            };
+            block();
+        }
+        
+        struct __Block_byref_weakPerson_0 {
+            void *__isa;
+            __Block_byref_weakPerson_0 *__forwarding;
+            int __flags;
+            int __size;
+            void (*__Block_byref_id_object_copy)(void*, void*);
+            void (*__Block_byref_id_object_dispose)(void*);
+            Person *__weak weakPerson;  //这里显示的就是弱引用
+        };
+
+        struct __WGMainObjcVC__viewDidLoad_block_impl_0 {
+            struct __block_impl impl;
+            struct __WGMainObjcVC__viewDidLoad_block_desc_0* Desc;
+            __Block_byref_weakPerson_0 *weakPerson; // by ref  
+            __WGMainObjcVC__viewDidLoad_block_impl_0(void *fp, struct __WGMainObjcVC__viewDidLoad_block_desc_0 *desc, __Block_byref_weakPerson_0 *_weakPerson, int flags=0) : weakPerson(_weakPerson->__forwarding) {
+                impl.isa = &_NSConcreteStackBlock;
+                impl.Flags = flags;
+                impl.FuncPtr = fp;
+                Desc = desc;
+            }
+        };
+#### 如果外部是弱引用,那么block中的weakPerson指针指向的是__Block_byref_weakPerson_0结构体,这里都是强引用;而__Block_byref_weakPerson_0结构体中有weakPerson指针(Person *__weak weakPerson;),它对我们alloc出来的person对象是弱引用
+
+#### 总结
+1. 当__block变量在栈上时,不会对指向的对象产生强引用
+2. 当__block变量被拷贝到堆上时
+* 会调用__block变量内部的copy函数
+* copy函数内部会调用_Block_object_assign函数
+* _Block_object_assign函数会根据所指向对象的修饰符(__strong、__weak、__unsafe_unretained)做出相应的操作,形成强引用(retain)或者弱引用(注意⚠️这里仅限在ARC时会retain,MRC时不会retain)
+3. 如果__block变量从堆上移除
+* 会调用__block变量内部的dispose函数
+* dispose函数内部会调用_Block_object_dispose函数
+* _Block_object_dispose函数会自动释放指向的对象(release)
 
 
 
+#### 7 block循环引用
 
-#### 6.4 __block循环引用
-#### 6.5 __block总结
-
-#### 3.2
-#### 3.3 
-#### 3.4 
-#### 3.5 
 
 
 
