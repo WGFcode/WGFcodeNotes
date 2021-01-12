@@ -34,6 +34,10 @@ typedef void (^WGBlock) (void);
         NSLog(@"---%p",weakPerson);
     };
     block();
+    
+    ^{
+        NSLog(@"----");
+    };
 }
 
 
