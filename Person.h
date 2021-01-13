@@ -10,8 +10,12 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface Person : NSObject
+typedef void(^WGBlock) (void);
 
+@interface Person : NSObject
+//copy、strong都可以保证将block拷贝到堆上,但建议使用copy,这样无论是ARC还是MRC,这个写法都是一致的
+@property(nonatomic, copy) WGBlock block;
+@property(nonatomic, assign) int age;
 @end
 
 

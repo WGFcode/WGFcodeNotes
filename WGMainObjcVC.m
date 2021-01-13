@@ -22,22 +22,17 @@
 @end
 
 
-typedef void (^WGBlock) (void);
-
 @implementation WGMainObjcVC
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.view.backgroundColor = [UIColor whiteColor];
-    Person *person = [[Person alloc]init];
-    __block __weak Person *weakPerson = person;
-    WGBlock block = ^{
-        NSLog(@"---%p",weakPerson);
-    };
-    block();
-    
-    ^{
-        NSLog(@"----");
-    };
+    __block Person *person = [[Person alloc]init];
+    person.age = 18;
+    person.block = [^{
+        NSLog(@"age is %d",person.age);
+    } copy];
+    [person release];
+    NSLog(@"111111111");
 }
 
 

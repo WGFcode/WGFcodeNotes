@@ -1166,38 +1166,208 @@
 
 
 #### 7 block循环引用
+#### 7.1 循环引用会导致内存泄漏,导致该释放的对象无法释放
+
+        typedef void(^WGBlock) (void);
+
+        @interface Person : NSObject
+        //copy、strong都可以保证将block拷贝到堆上,但建议使用copy,这样无论是ARC还是MRC,这个写法都是一致的
+        @property(nonatomic, copy) WGBlock block;
+        @property(nonatomic, assign) int age;
+        @end
+        
+        @implementation Person
+        -(void)dealloc {
+            NSLog(@"%s---",__func__);
+        }
+        @end
+
+        - (void)viewDidLoad {
+            [super viewDidLoad];
+            self.view.backgroundColor = [UIColor whiteColor];
+            Person *person = [[Person alloc]init];
+            person.age = 18;
+            person.block = ^{
+                NSLog(@"----%d",20);
+            };
+            NSLog(@"111111111");
+        }
+        
+        打印结果: 111111111
+                -[Person dealloc]---
+#### 因为block没有访问任何外部变量,所以执行完viewDidLoad方法后,person对象就销毁了
 
 
+        - (void)viewDidLoad {
+            [super viewDidLoad];
+            self.view.backgroundColor = [UIColor whiteColor];
+            Person *person = [[Person alloc]init];
+            person.age = 18;
+            person.block = ^{
+                NSLog(@"age is %d",person.age);
+            };
+            NSLog(@"111111111");
+        }
+        
+        打印结果: 111111111
+#### block内访问了person对象的age属性.person对象无法释放.因为person对象内持有block,block内又持有person对象,相互引用,导致循环引用,具体如下
+
+        struct __WGMainObjcVC__viewDidLoad_block_impl_0 {
+            struct __block_impl impl;
+            struct __WGMainObjcVC__viewDidLoad_block_desc_0* Desc;
+            Person *__strong person;  //block底层对象中有个person指针
+            __WGMainObjcVC__viewDidLoad_block_impl_0(void *fp, struct __WGMainObjcVC__viewDidLoad_block_desc_0 *desc, Person *__strong _person, int flags=0) : person(_person) {
+                impl.isa = &_NSConcreteStackBlock;
+                impl.Flags = flags;
+                impl.FuncPtr = fp;
+                Desc = desc;
+            }
+        };
+                        2.block(person):block内访问了person对象,这个person对象指向了1
+                                            |
+                                            |
+        person ------------------->  1.MJPerson(内有_block成员):_block指向了2
+#### 循环引用的本质就是你引用我,我引用你,相互引用,导致无法释放
+
+#### 7.2 循环引用的解决方法
+#### 7.2.1 在ARC环境下
+1. __weak修饰(弱引用): 指向的对象销毁时,会自动让指针置为nil
+
+            - (void)viewDidLoad {
+                [super viewDidLoad];
+                self.view.backgroundColor = [UIColor whiteColor];
+                Person *person = [[Person alloc]init];
+                person.age = 18;
+                //下面两种方法都可以
+                __weak typeof(person) weakPerson = person;
+                //__weak Person *weakPerson = person;
+                person.block = ^{
+                    NSLog(@"age is %d",weakPerson.age);
+                };
+                NSLog(@"111111111");
+            }
+            
+            打印结果: 111111111
+                    -[Person dealloc]---
+                    
+            struct __WGMainObjcVC__viewDidLoad_block_impl_0 {
+                struct __block_impl impl;
+                struct __WGMainObjcVC__viewDidLoad_block_desc_0* Desc;
+                Person *__weak weakPerson;  //弱引用来打破循环引用
+                __WGMainObjcVC__viewDidLoad_block_impl_0(void *fp, struct __WGMainObjcVC__viewDidLoad_block_desc_0 *desc, Person *__weak _weakPerson, int flags=0) : weakPerson(_weakPerson) {
+                    impl.isa = &_NSConcreteStackBlock;
+                    impl.Flags = flags;
+                    impl.FuncPtr = fp;
+                    Desc = desc;
+                }
+            };
+#### 通过__weak弱指针来引用对象,这样循环引用就不存在了. Person中持有block,block中持有的person对象是弱引用,这样就打破了循环引用
+
+2. __unsafe_unretained修饰(弱引用): 指向的对象销毁时,指针存储的地址值不变
+
+        - (void)viewDidLoad {
+            [super viewDidLoad];
+            self.view.backgroundColor = [UIColor whiteColor];
+            Person *person = [[Person alloc]init];
+            person.age = 18;
+            __unsafe_unretained typeof(person) weakPerson = person;
+            person.block = ^{
+                NSLog(@"age is %d",weakPerson.age);
+            };
+            NSLog(@"111111111");
+        }
+        
+        打印结果: 111111111
+                -[Person dealloc]---
+3. __block(必须调用block并在block内对访问的变量在不需要时置为nil)
+
+        - (void)viewDidLoad {
+            [super viewDidLoad];
+            self.view.backgroundColor = [UIColor whiteColor];
+            __block Person *person = [[Person alloc]init];
+            person.age = 18;
+            person.block = ^{
+                NSLog(@"age is %d",person.age);
+                person = nil;
+            };
+            person.block();
+            NSLog(@"111111111");
+        }
+        打印结果: age is 18
+                -[Person dealloc]---
+                111111111
+          
+        //__block包装成的对象
+        struct __Block_byref_person_0 {  
+            void *__isa;
+            __Block_byref_person_0 *__forwarding;
+            int __flags;
+            int __size;
+            void (*__Block_byref_id_object_copy)(void*, void*);
+            void (*__Block_byref_id_object_dispose)(void*);
+            Person *__strong person;
+        };
+        
+        //block对象
+        struct __WGMainObjcVC__viewDidLoad_block_impl_0 {
+            struct __block_impl impl;
+            struct __WGMainObjcVC__viewDidLoad_block_desc_0* Desc;
+            __Block_byref_person_0 *person; // by ref
+            __WGMainObjcVC__viewDidLoad_block_impl_0(void *fp, struct __WGMainObjcVC__viewDidLoad_block_desc_0 *desc, __Block_byref_person_0 *_person, int flags=0) : person(_person->__forwarding) {
+                impl.isa = &_NSConcreteStackBlock;
+                impl.Flags = flags;
+                impl.FuncPtr = fp;
+                Desc = desc;
+            }
+        };
+                
+#### 这里有三个对象,Person对象、block对象、__block包装成的对象, 首先我们知道person对象会对我们的__block包装成的对象形成强引用,而Person对象持有block对象,block对象内又持有__block包装成的对象,__block包装成的对象内部又持有并且是强引用了person对象,导致三个对象之间形成了闭环的循环引用,而现在我们主动将person对象置为nil,其实就是将__block包装成的对象内部的person指针置为nil,这样就打破了闭环的循环引用
+#### 7.2.2 在MRC环境下
+#### 在Xcode中设置为MRC环境(Build Setting ->automatic Reference Counting -> NO),需要注意的是在MRC环境是,是没有__weak这种弱引用的概念的,即MRC环境下不支持__weak.
+1.  __unsafe_unretained
+
+        - (void)viewDidLoad {
+            [super viewDidLoad];
+            self.view.backgroundColor = [UIColor whiteColor];
+            __unsafe_unretained Person *person = [[Person alloc]init];
+            person.age = 18;
+            person.block = [^{  //如果不加__unsafe_unretained,在block内会对person进行一次retain
+                NSLog(@"age is %d",person.age);
+            } copy];
+            [person release];
+            NSLog(@"111111111");
+        }
+        
+        打印结果: -[Person dealloc]---
+                111111111
+2. __block
+
+           - (void)viewDidLoad {
+               [super viewDidLoad];
+               self.view.backgroundColor = [UIColor whiteColor];
+               __block Person *person = [[Person alloc]init];
+               person.age = 18;
+               person.block = [^{
+                   NSLog(@"age is %d",person.age);
+               } copy];
+               [person release];
+               NSLog(@"111111111");
+           }
+           
+           打印结果: -[Person dealloc]---
+                        111111111
+
+#### ⚠️在MRC环境下,__block包装成的对象不会对其内部的person对象形成强引用,仅限在MRC环境下
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#### 面试题
+#### 8.面试题
 #### 1. block的原理是怎样的,本质是什么
-#### 
+#### 封装了函数调用及其调用环境的OC对象
 #### 2. __block的作用是什么? 有什么使用注意点?
+#### __block会将修饰的变量包装成一个对象,可以解决block内无法修改auto变量值的问题,可以通过包装成对象的指针来访问auto变量,进而进行修改;注意点就是内存管理的问题(详细可以看上面的__block内存管理的总结)
 #### 3. block的属性修饰符为什么是copy?使用block有哪些使用注意?
+#### block一旦没有进行copy操作,就不会在堆上,我们希望在堆上的原因是我们希望能够控制block的销毁时机;使用注意点就是要注意循环引用的问题
 #### 4. block在修改NSMutableArray,需不需要添加__block?
+#### 不需要,因为我们知道访问的是数组的指针, 而不是修改,所以不需要添加__block
 
 
