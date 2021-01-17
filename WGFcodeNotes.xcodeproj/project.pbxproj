@@ -73,6 +73,7 @@
 		54C118BE2584EF8B00B39379 /* LLVM.md in Resources */ = {isa = PBXBuildFile; fileRef = 54C118BD2584EF8B00B39379 /* LLVM.md */; };
 		54CBAE2824FFE4E500AEA0E5 /* iOS内存分区.md in Resources */ = {isa = PBXBuildFile; fileRef = 54CBAE2724FFE4E500AEA0E5 /* iOS内存分区.md */; };
 		54DA257025B3D77F00E1B980 /* Person+PersonTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 54DA256F25B3D77F00E1B980 /* Person+PersonTest.m */; };
+		54DA257225B47ADC00E1B980 /* 性能优化.md in Resources */ = {isa = PBXBuildFile; fileRef = 54DA257125B47ADC00E1B980 /* 性能优化.md */; };
 		54E19658250909050064027B /* WGRunLoopVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 54E19657250909050064027B /* WGRunLoopVC.m */; };
 		54E1965B250A70A90064027B /* WGThread.m in Sources */ = {isa = PBXBuildFile; fileRef = 54E1965A250A70A90064027B /* WGThread.m */; };
 		54E1965E250A7BDC0064027B /* WGRunLoopSecondVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 54E1965D250A7BDC0064027B /* WGRunLoopSecondVC.m */; };
@@ -198,6 +199,7 @@
 		54CBAE2724FFE4E500AEA0E5 /* iOS内存分区.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "iOS内存分区.md"; sourceTree = "<group>"; };
 		54DA256E25B3D77F00E1B980 /* Person+PersonTest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Person+PersonTest.h"; sourceTree = "<group>"; };
 		54DA256F25B3D77F00E1B980 /* Person+PersonTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Person+PersonTest.m"; sourceTree = "<group>"; };
+		54DA257125B47ADC00E1B980 /* 性能优化.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "性能优化.md"; sourceTree = "<group>"; };
 		54E19656250909050064027B /* WGRunLoopVC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WGRunLoopVC.h; sourceTree = "<group>"; };
 		54E19657250909050064027B /* WGRunLoopVC.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WGRunLoopVC.m; sourceTree = "<group>"; };
 		54E19659250A70A90064027B /* WGThread.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WGThread.h; sourceTree = "<group>"; };
@@ -427,6 +429,7 @@
 				543C213225485B44000212B6 /* NewBlock.md */,
 				54C118BD2584EF8B00B39379 /* LLVM.md */,
 				5406AA76259A144D0053E251 /* iOS签名机制.md */,
+				54DA257125B47ADC00E1B980 /* 性能优化.md */,
 			);
 			path = WGReadMe;
 			sourceTree = "<group>";
@@ -566,6 +569,7 @@
 				300845CB24456B2800055737 /* KVC.md in Resources */,
 				30F8F49E243F142900968177 /* Summary.md in Resources */,
 				30FD75FE2435C88B00431678 /* lock5.png in Resources */,
+				54DA257225B47ADC00E1B980 /* 性能优化.md in Resources */,
 				301CF1BF2452F1750024EC69 /* runLoop1.png in Resources */,
 				30ECA52024580E9000E3D312 /* Response.md in Resources */,
 				548F332024F15E8F00AB3540 /* Memory.md in Resources */,
