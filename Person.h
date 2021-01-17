@@ -13,8 +13,7 @@ NS_ASSUME_NONNULL_BEGIN
 typedef void(^WGBlock) (void);
 
 @interface Person : NSObject
-//copy、strong都可以保证将block拷贝到堆上,但建议使用copy,这样无论是ARC还是MRC,这个写法都是一致的
-@property(nonatomic, copy) WGBlock block;
+//属性会帮我们 1.生成_age的成员变量、2.生成setter/getter方法声明、3.setter/getter方法的具体实现
 @property(nonatomic, assign) int age;
 @end
 

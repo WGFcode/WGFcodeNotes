@@ -876,7 +876,7 @@
 
 
 ### MJExtension底层班
-### 1. KVO实现研究
+### 1. KVO实现研究(KVO可以用于监听某个对象属性值的改变)
         - (void)viewDidLoad {
             [super viewDidLoad];
             Person *p1 = [[Person alloc]init];
@@ -974,7 +974,7 @@
        }
 #### KVO底层实现总结：为对象的属性添加KVO后，Runtime会在运行时生成类NSKVONotifying_XXX,其实类NSKVONotifying_XXX是对象类的子类，当属性发生改变时，会调用NSKVONotifying_XXX类对象中属性的setter方法，本质调用的是C语言的函数__NSSetTTTValueAndNotify(TTT代表监听属性的类型)，在这个函数内先调用willChangeValueForKey、然后调用父类（及对象所属的类）的监听属性的setter方法，然后调用didChangeValueForKey，在didChangeValueForKey方法中会调用监听方法observeValueForKeyPath，通知监听者属性发生了改变
 
-#### 验证 NSKVONotifying_Person类有哪些方法
+#### 1.2 验证KVO子类 NSKVONotifying_Person内部有哪些方法
         Person *p1 = [[Person alloc]init];
         Person *p2 = [[Person alloc]init];
         p1.age = 10;
@@ -1028,13 +1028,15 @@
 
 #### 2. 面试题
 #### 2.1 iOS用什么方式来实现对一个对象的KVO（KVO的本质）？
-1. 当对对象的属性添加KVO监听，iOS系统会修改这个对象的isa指针，改为指向一个全新的通过RunTime动态创建的子类
-2. 子类名称形如：NSKVONotifying_Person。这个子类对象拥有自己的setter方法实现，内部会调用 
+1. 利用Runtime API动态生成一个子类(名称形如：NSKVONotifying_Person),并且让instance对象的isa指针指向这个全新的类
+2. 当修改instance对象的属性时,会调用Foundation的_NSSetXXXValueAndNotify函数
 
         willChangeValueForKey
-        原来的setter方法
-        didChangeValueForKey：这个方法内部又会调用监听器的监听方法
+        父类原来的setter方法
+        didChangeValueForKey: 这个方法内部又会调用监听器的监听方法
+        内部会触发监听器(Observer)的监听方法(observeValueForKeyPath:ofObject:change:context:)
         
+
 #### 验证监听属性的setter方法内部调用顺序
         //Person.h文件
         @interface Person : NSObject
@@ -1108,8 +1110,8 @@
             new = 10;
             old = 10;
         }
-#### 分析：手动调用willChangeValueForKey和didChangeValueForKey方法就可以触发KVO，手动触发KVO有什么作用哪？主要就是使用在：当我们监听的属性没有发生改变时，我们也想触发KVO的监听方法
+#### 分析: 手动调用willChangeValueForKey和didChangeValueForKey方法就可以触发KVO，手动触发KVO有什么作用？主要就是使用在：当我们监听的属性没有发生改变时，我们也想触发KVO的监听方法
 
 
 #### 2.2 直接修改成员变量会触发KVO吗?
-#### 不会出发KVO, 因为KVO的本质的Runtime动态生成对象的子类NSKVONotifying_类名称,在子类中重写setter方法,然后调用willChangeValueForKey、原类的setter方法、didChangeValueForKey.而成员变量没有setter方法,所以不会触发,想要触发的话,只能手动触发,在成员变量值改变前后手动添加willChangeValueForKey和didChangeValueForKey方法
+#### 不会触发KVO, 因为KVO的本质的Runtime动态生成对象的子类NSKVONotifying_类名称,在子类中重写setter方法,然后调用willChangeValueForKey、原类的setter方法、didChangeValueForKey.而成员变量没有setter方法,所以不会触发,想要触发的话,只能手动触发,在成员变量值改变前后手动添加willChangeValueForKey和didChangeValueForKey方法

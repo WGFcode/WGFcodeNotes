@@ -43,7 +43,7 @@
 		5406AA77259A144D0053E251 /* iOS签名机制.md in Resources */ = {isa = PBXBuildFile; fileRef = 5406AA76259A144D0053E251 /* iOS签名机制.md */; };
 		540ED63C246990B600C6DAF7 /* KeyWord.md in Resources */ = {isa = PBXBuildFile; fileRef = 540ED63B246990B600C6DAF7 /* KeyWord.md */; };
 		5422AC59244F3E8E000CB747 /* block2.png in Resources */ = {isa = PBXBuildFile; fileRef = 5422AC58244F3E8E000CB747 /* block2.png */; };
-		542D3D832518E61300394130 /* 分类扩展.md in Resources */ = {isa = PBXBuildFile; fileRef = 542D3D822518E61300394130 /* 分类扩展.md */; };
+		542D3D832518E61300394130 /* 分类扩展关联对象.md in Resources */ = {isa = PBXBuildFile; fileRef = 542D3D822518E61300394130 /* 分类扩展关联对象.md */; };
 		542D3D8F251A48CC00394130 /* Student.m in Sources */ = {isa = PBXBuildFile; fileRef = 542D3D8E251A48CC00394130 /* Student.m */; };
 		542D3D92251A48F500394130 /* Student+StudentCategory.m in Sources */ = {isa = PBXBuildFile; fileRef = 542D3D91251A48F500394130 /* Student+StudentCategory.m */; };
 		543110B42530A23D007D0061 /* OC对象的本质.md in Resources */ = {isa = PBXBuildFile; fileRef = 543110B32530A23D007D0061 /* OC对象的本质.md */; };
@@ -72,6 +72,7 @@
 		548F332B24F2B87300AB3540 /* Person.m in Sources */ = {isa = PBXBuildFile; fileRef = 548F332A24F2B87300AB3540 /* Person.m */; };
 		54C118BE2584EF8B00B39379 /* LLVM.md in Resources */ = {isa = PBXBuildFile; fileRef = 54C118BD2584EF8B00B39379 /* LLVM.md */; };
 		54CBAE2824FFE4E500AEA0E5 /* iOS内存分区.md in Resources */ = {isa = PBXBuildFile; fileRef = 54CBAE2724FFE4E500AEA0E5 /* iOS内存分区.md */; };
+		54DA257025B3D77F00E1B980 /* Person+PersonTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 54DA256F25B3D77F00E1B980 /* Person+PersonTest.m */; };
 		54E19658250909050064027B /* WGRunLoopVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 54E19657250909050064027B /* WGRunLoopVC.m */; };
 		54E1965B250A70A90064027B /* WGThread.m in Sources */ = {isa = PBXBuildFile; fileRef = 54E1965A250A70A90064027B /* WGThread.m */; };
 		54E1965E250A7BDC0064027B /* WGRunLoopSecondVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 54E1965D250A7BDC0064027B /* WGRunLoopSecondVC.m */; };
@@ -155,7 +156,7 @@
 		5406AA76259A144D0053E251 /* iOS签名机制.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "iOS签名机制.md"; sourceTree = "<group>"; };
 		540ED63B246990B600C6DAF7 /* KeyWord.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = KeyWord.md; sourceTree = "<group>"; };
 		5422AC58244F3E8E000CB747 /* block2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = block2.png; sourceTree = "<group>"; };
-		542D3D822518E61300394130 /* 分类扩展.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "分类扩展.md"; sourceTree = "<group>"; };
+		542D3D822518E61300394130 /* 分类扩展关联对象.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "分类扩展关联对象.md"; sourceTree = "<group>"; };
 		542D3D8D251A48CC00394130 /* Student.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Student.h; sourceTree = "<group>"; };
 		542D3D8E251A48CC00394130 /* Student.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Student.m; sourceTree = "<group>"; };
 		542D3D90251A48F500394130 /* Student+StudentCategory.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Student+StudentCategory.h"; sourceTree = "<group>"; };
@@ -195,6 +196,8 @@
 		548F332A24F2B87300AB3540 /* Person.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Person.m; sourceTree = "<group>"; };
 		54C118BD2584EF8B00B39379 /* LLVM.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = LLVM.md; sourceTree = "<group>"; };
 		54CBAE2724FFE4E500AEA0E5 /* iOS内存分区.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "iOS内存分区.md"; sourceTree = "<group>"; };
+		54DA256E25B3D77F00E1B980 /* Person+PersonTest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Person+PersonTest.h"; sourceTree = "<group>"; };
+		54DA256F25B3D77F00E1B980 /* Person+PersonTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Person+PersonTest.m"; sourceTree = "<group>"; };
 		54E19656250909050064027B /* WGRunLoopVC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WGRunLoopVC.h; sourceTree = "<group>"; };
 		54E19657250909050064027B /* WGRunLoopVC.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WGRunLoopVC.m; sourceTree = "<group>"; };
 		54E19659250A70A90064027B /* WGThread.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WGThread.h; sourceTree = "<group>"; };
@@ -322,6 +325,8 @@
 				542D3D8E251A48CC00394130 /* Student.m */,
 				548F332924F2B87300AB3540 /* Person.h */,
 				548F332A24F2B87300AB3540 /* Person.m */,
+				54DA256E25B3D77F00E1B980 /* Person+PersonTest.h */,
+				54DA256F25B3D77F00E1B980 /* Person+PersonTest.m */,
 				30160A2724A75A970074FB82 /* BinaryTree.h */,
 				30160A2824A75A970074FB82 /* BinaryTree.m */,
 				30D3DF70245E74790012F803 /* WGTestModel.h */,
@@ -390,7 +395,7 @@
 		548AC984242F4C9200EEE11C /* WGReadMe */ = {
 			isa = PBXGroup;
 			children = (
-				542D3D822518E61300394130 /* 分类扩展.md */,
+				542D3D822518E61300394130 /* 分类扩展关联对象.md */,
 				30F7186B24F7AB020025AD98 /* 设计模式.md */,
 				548F331F24F15E8F00AB3540 /* Memory.md */,
 				5463C26224B01092008F9C9A /* CoreAnimal */,
@@ -569,7 +574,7 @@
 				548AC98D242F4CAD00EEE11C /* PackageIpaWithShell.md in Resources */,
 				543110B42530A23D007D0061 /* OC对象的本质.md in Resources */,
 				548AC990242F4CAD00EEE11C /* Framework.md in Resources */,
-				542D3D832518E61300394130 /* 分类扩展.md in Resources */,
+				542D3D832518E61300394130 /* 分类扩展关联对象.md in Resources */,
 				548AC95C242F4B3200EEE11C /* Assets.xcassets in Resources */,
 				309F9D682435D98700FFB705 /* ThreadLock.md in Resources */,
 				548F332424F2B13E00AB3540 /* 属性修饰符.md in Resources */,
@@ -611,6 +616,7 @@
 				30160A2924A75A970074FB82 /* BinaryTree.m in Sources */,
 				54E1965B250A70A90064027B /* WGThread.m in Sources */,
 				54E19658250909050064027B /* WGRunLoopVC.m in Sources */,
+				54DA257025B3D77F00E1B980 /* Person+PersonTest.m in Sources */,
 				548F332B24F2B87300AB3540 /* Person.m in Sources */,
 				548AC983242F4C7100EEE11C /* WGMainVC.swift in Sources */,
 				30FD75F824357E3800431678 /* WGMainObjcVC.m in Sources */,
@@ -796,7 +802,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
-				CLANG_ENABLE_OBJC_ARC = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 27V68Z7BA3;
 				EXCLUDED_ARCHS = "";
@@ -826,7 +832,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
-				CLANG_ENABLE_OBJC_ARC = NO;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 27V68Z7BA3;
 				EXCLUDED_ARCHS = "";

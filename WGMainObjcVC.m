@@ -13,7 +13,7 @@
 #import "Student.h"
 #import <malloc/malloc.h>
 #import "WGTargetProxy.h"
-
+#import "Person+PersonTest.h"
 
 
 
@@ -25,19 +25,16 @@
 @implementation WGMainObjcVC
 - (void)viewDidLoad {
     [super viewDidLoad];
-    self.view.backgroundColor = [UIColor whiteColor];
-    __block Person *person = [[Person alloc]init];
-    person.age = 18;
-    person.block = [^{
-        NSLog(@"age is %d",person.age);
-    } copy];
-    [person release];
-    NSLog(@"111111111");
+    
+    Person *person1 = [[Person alloc]init];
+    person1.name= @"zhang san";
+    NSLog(@"name is %@",person1.name);
+    
+    Person *person2 = [[Person alloc]init];
+    person2.name= @"li si";
+    NSLog(@"name is %@",person2.name);
+    
 }
-
-
-
-
 @end
 
 

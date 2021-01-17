@@ -566,15 +566,12 @@
                     "<null>"
                 )
                 
-#### 10 面试题
-#### 10.1 通过KVC修改属性会触发KVO吗?
-#### 会触发
-
-#### 10.2 KVC的赋值和取值过程是怎样的?原理是什么
 ### MJExtension底层班 
-#### 1 KCV基本方法
+#### 1 KVC基本方法
+        设置属性值
         setValue:(nullable id) forKey:(nonnull NSString *)
         setValue:(nullable id) forKeyPath:(nonnull NSString *)
+        获取属性值
         valueForKey:(nonnull NSString *)
         valueForKeyPath:(nonnull NSString *)
 #### 1.1 基本操作
@@ -594,7 +591,7 @@
             NSLog(@"\n属性age的值:%d\n", p.age);
         }
         打印结果: 属性age的值: 10
-#### 1.1 KVC赋值的过程/原理(setValue: forKey:)
+#### 1.2 KVC赋值的过程/原理(setValue: forKey:)
     调用setValue:forKey:方法
             |               NO                                          NO         
      按照setKey:、_setKey: ----->+(BOOL)accessInstanceVariablesDirectly------>setValue:forUndefinedKey:抛出异常
@@ -604,7 +601,7 @@
                                                   |YES
                                                 直接赋值
        
-#### 1.2 KVC取值的过程/原理(valueForKey:)
+#### 1.3 KVC取值的过程/原理(valueForKey:)
     
     调用valueForKey:方法
             |                   NO                                          NO         
@@ -667,7 +664,7 @@
                     old = 0;
                   }
                   didChangeValueForKey---begin
-#### 结论：通过KVC对属性进行赋值会触发KVO的，KVC底层内部是也会调用willChangeValueForKey和didChangeValueForKey方法的 ；
+#### 结论：通过KVC对属性进行赋值会触发KVO的，KVC底层内部是也会调用willChangeValueForKey和didChangeValueForKey方法的；
 
 #### 2.2 通过KVC修改成员变量，会触发KVO吗？ 会
 #### 如果通过KVC对成员变量进行赋值，即便没有setter方法同样是会触发KVO的，因为KVC找到成员变量进行赋值时，底层也调用了触发KVO的方法willChangeValueForKey和didChangeValueForKey，但是通过对象->成员变量是无法触发KVO的；验证如下：
