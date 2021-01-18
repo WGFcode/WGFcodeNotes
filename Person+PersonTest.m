@@ -12,17 +12,27 @@
 
 @implementation Person (PersonTest)
 
-const void *PersonNameKey = &PersonNameKey;
+NSString *name_;
 
 -(void)setName:(NSString *)name {
-    //添加关联对象: 关联哪个对象(self)、、关联的值是什么(name)、关联策略(name用的是copy修饰所以使用如下策略)
-    objc_setAssociatedObject(self, @selector(name), name, OBJC_ASSOCIATION_COPY_NONATOMIC);
-    
+    name_ = name;
 }
+
 -(NSString *)name {
-    //获取关联对象
-    return objc_getAssociatedObject(self, _cmd);
+    return name_;
 }
+
+//const void *PersonNameKey = &PersonNameKey;
+
+//-(void)setName:(NSString *)name {
+//    //添加关联对象: 关联哪个对象(self)、、关联的值是什么(name)、关联策略(name用的是copy修饰所以使用如下策略)
+//    objc_setAssociatedObject(self, @selector(name), name, OBJC_ASSOCIATION_COPY_NONATOMIC);
+//
+//}
+//-(NSString *)name {
+//    //获取关联对象
+//    return objc_getAssociatedObject(self, _cmd);
+//}
 
 /*
 关联策略
