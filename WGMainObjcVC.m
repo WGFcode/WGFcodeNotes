@@ -15,39 +15,108 @@
 #import "WGTargetProxy.h"
 #import "Person+PersonTest.h"
 
-
+#import <pthread.h>
 
 @interface WGMainObjcVC()
-@property(nonatomic, copy) NSString *name;
+@property(nonatomic, assign) int ticketCount;
+@property(nonatomic, assign) pthread_mutex_t mutex;
+@property(nonatomic, strong) NSMutableArray *data;
+@property(nonatomic, assign) pthread_cond_t cond;
+@property(nonatomic, strong) NSConditionLock *lock;
 @end
 
 
 @implementation WGMainObjcVC
 - (void)viewDidLoad {
     [super viewDidLoad];
+    self.view.backgroundColor = [UIColor redColor];
+    _ticketCount = 15;
+    _data = [NSMutableArray array];
     
-    Person *person1 = [[Person alloc]init];
-    person1.name= @"zhang san";
-//    NSLog(@"name is %@",person1.name);
+    _lock = [[NSCondition alloc]init];
     
-
-    Person *person2 = [[Person alloc]init];
-    person2.name= @"li si";
-    NSLog(@"name is %@",person1.name);
+    //1. 静态初始化
+    //pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+    //初始化属性
+    pthread_mutexattr_t attr;
+    pthread_mutexattr_init(&attr);
+    pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_DEFAULT);
+    //2.初始化锁
+    pthread_mutex_init(&_mutex, &attr);
+    /*
+     #define PTHREAD_MUTEX_NORMAL        0          普通锁
+     #define PTHREAD_MUTEX_ERRORCHECK    1          检测错误锁(一般用不上)
+     #define PTHREAD_MUTEX_RECURSIVE        2       递归锁
+     #define PTHREAD_MUTEX_DEFAULT        PTHREAD_MUTEX_NORMAL  普通锁
+     */
+    //3.销毁属性
+    pthread_mutexattr_destroy(&attr);
     
-//    //文字计算
-//    [@"sdf" boundingRectWithSize:CGSizeMake(100, MAXFLOAT) options:NSStringDrawingUsesLineFragmentOrigin attributes:nil context:nil];
-//    //文字绘制
-//    [@"test" drawWithRect:CGRectMake(0, 0, 100, 100) options:NSStringDrawingUsesLineFragmentOrigin attributes:nil context:nil];
-//
-//    UIImageView *imgView = [[UIImageView alloc]init];
-//    //通过这种方式加载图片,其实是不会直接显示到屏幕上的,加载的其实是经过压缩后的二进制数据
-//    //如果要渲染到屏幕上,还需再经过解码,解码成屏幕需要的格式,而解码是放在主线程的,所以可能会产生卡顿
-//    //可以把解码放在子线程,具体如何解码可以参考网上好多第三方的库中找到
-//    imgView.image = [UIImage imageNamed:@"test"];
-//    [self.view addSubview:imgView];
+    //初始化条件
+    pthread_cond_init(&_cond, NULL);
     
+    [self test];
 }
+
+-(void)testTicket {
+    dispatch_queue_t queue = dispatch_get_global_queue(0, 0);
+    dispatch_async(queue, ^{
+        for (int i = 0; i < 5; i++) {
+            [self saleTicket];
+        }
+    });
+    dispatch_async(queue, ^{
+        for (int i = 0; i < 5; i++) {
+            [self saleTicket];
+        }
+    });
+    dispatch_async(queue, ^{
+        for (int i = 0; i < 5; i++) {
+            [self saleTicket];
+        }
+    });
+}
+-(void)saleTicket{
+    //2. 加锁
+    [_lock lock];
+    _ticketCount -= 1;
+    NSLog(@"还剩%d张票",_ticketCount);
+    //3. 解锁
+    [_lock unlock];
+}
+
+-(void)dealloc {
+    //4.销毁锁
+    pthread_mutex_destroy(&_mutex);
+    //5.销毁条件
+    pthread_cond_destroy(&_cond);
+}
+
+-(void)test {
+    //在不同的子线程中执行增、删操作
+    [[[NSThread alloc] initWithTarget:self selector:@selector(add) object:nil] start];
+    [[[NSThread alloc] initWithTarget:self selector:@selector(remove) object:nil] start];
+}
+
+-(void)add{
+    [_lock lock];
+    [_data addObject:@"123"];
+    sleep(3);
+    NSLog(@"添加了元素");
+    //唤醒刚刚因为pthread_cond_wait而睡眠的线程
+    [_lock signal];
+    [_lock unlock];
+}
+-(void)remove{
+    [_lock lock];
+    if (_data.count == 0) {
+        [_lock wait];
+    }
+    [_data removeLastObject];
+    NSLog(@"删除了元素");
+    [_lock unlock];
+}
+
 @end
 
 
