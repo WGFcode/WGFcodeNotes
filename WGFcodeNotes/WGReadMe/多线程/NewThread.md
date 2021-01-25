@@ -694,3 +694,172 @@
             - (BOOL)lockBeforeDate:(NSDate *)limit;
             - (BOOL)lockWhenCondition:(NSInteger)condition beforeDate:(NSDate *)limit;
         }
+        
+#### 6.2.8 dispatch_queue
+#### 直接使用GCD的串行队列也可以实现线程同步的
+        @interface WGMainObjcVC()
+        @property(nonatomic, assign) int ticketCount;
+        @property(nonatomic, strong) dispatch_queue_t serialQueue; //串行队列
+        @end
+
+        @implementation WGMainObjcVC
+        - (void)viewDidLoad {
+            [super viewDidLoad];
+            self.view.backgroundColor = [UIColor redColor];
+            _ticketCount = 15;
+            _serialQueue = dispatch_queue_create("myQueue", DISPATCH_QUEUE_SERIAL);
+            [self testTicket];
+        }
+
+        -(void)testTicket {
+            dispatch_queue_t queue = dispatch_get_global_queue(0, 0);
+            dispatch_async(queue, ^{
+                for (int i = 0; i < 5; i++) {
+                    [self saleTicket];
+                }
+            });
+            dispatch_async(queue, ^{
+                for (int i = 0; i < 5; i++) {
+                    [self saleTicket];
+                }
+            });
+            dispatch_async(queue, ^{
+                for (int i = 0; i < 5; i++) {
+                    [self saleTicket];
+                }
+            });
+        }
+        -(void)saleTicket{
+            dispatch_sync(_serialQueue, ^{
+                _ticketCount -= 1;
+                NSLog(@"还剩%d张票",_ticketCount);
+            });
+        }
+#### saleTicket方法本身就是在子线程中执行的,那么这里使用dispatch_sync同步并且放在串行队列中就可以保证该条线程下任务完成后才能执行下一个任务,就能保证线程同步了
+
+#### 6.2.9 dispatch_semaphore_t信号量
+* 信号量的初始值,可以用来控制线程并发访问的最大数量
+* 信号量的初始化为1时,代表同时只允许1条线程访问资源,保证线程同步
+* dispatch_semaphore_create(value); value值代表并发执行的最大线程数量,即同时可以多少条线程执行任务
+* dispatch_semaphore_wait(dispatch_semaphore_t, dispatch_time_t); 
+
+        当信号量value值 > 0时,将value值减1,继续往下执行
+        当信号量value值 <= 0时,就休眠等待,知道信号量的值变成 > 0, 然后将value值减1,继续往下执行代码
+* dispatch_semaphore_signal(dispatch_semaphore_t); 使信号量value值加1
+* 通过将信号量初始值设置为1, 可以达到线程同步,即每次只有一个线程在执行任务
+#### 案例1:创建了20个子线程,想让每次执行task的线程只有5个线程在执行,即控制最大线程执行数是5
+        
+        @interface WGMainObjcVC()
+        @property(nonatomic, strong) dispatch_semaphore_t semaphore;
+        @end
+
+        @implementation WGMainObjcVC
+        - (void)viewDidLoad {
+            [super viewDidLoad];
+            self.view.backgroundColor = [UIColor redColor];
+            //设置信号量的初始值为5,代表线程执行的最大并发数为5,即每次只能有5个线程在执行任务
+            _semaphore = dispatch_semaphore_create(5);
+            [self test];
+        }
+
+        -(void)test {
+            for (int i = 0; i < 20; i++) {
+                [[[NSThread alloc]initWithTarget:self selector:@selector(task) object:nil] start];
+            }
+        }
+
+        -(void)task {
+            //如果信号量的值 > 0,就让信号量的值减1,然后继续往下执行代码
+            //如果信号量的值 <= 0,就会休眠等待,知道信号量的值变成 >0,然后就让信号量的值减1,然后继续往下执行代码
+            dispatch_semaphore_wait(_semaphore, DISPATCH_TIME_FOREVER);
+            sleep(2);
+            NSLog(@"task----%@",[NSThread currentThread]);
+            //让信号量的值+1
+            dispatch_semaphore_signal(_semaphore);
+        }
+#### 案例2: 使用信号量实现线程同步
+
+        @interface WGMainObjcVC()
+        @property(nonatomic, assign) int ticketCount;
+        @property(nonatomic, strong) dispatch_semaphore_t semaphore;
+        @end
+
+
+        @implementation WGMainObjcVC
+        - (void)viewDidLoad {
+            [super viewDidLoad];
+            self.view.backgroundColor = [UIColor redColor];
+            _ticketCount = 15;
+            //1. 初始值设置为1, 代表每次只能有一个线程在执行任务
+            _semaphore = dispatch_semaphore_create(1);
+            [self testTicket];
+        }
+
+        -(void)testTicket {
+            dispatch_queue_t queue = dispatch_get_global_queue(0, 0);
+            dispatch_async(queue, ^{
+                for (int i = 0; i < 5; i++) {
+                    [self saleTicket];
+                }
+            });
+            dispatch_async(queue, ^{
+                for (int i = 0; i < 5; i++) {
+                    [self saleTicket];
+                }
+            });
+            dispatch_async(queue, ^{
+                for (int i = 0; i < 5; i++) {
+                    [self saleTicket];
+                }
+            });
+        }
+        -(void)saleTicket{
+            //2. 初始化为1, 判断为信号量>0,然后将信号量的值减1变成0,继续往下执行任务
+            //此时如果有第二个线程到来,发现信号量=0,就会处于等待状态,等待信号量的值 > 0
+            dispatch_semaphore_wait(_semaphore, DISPATCH_TIME_FOREVER);
+            _ticketCount -= 1;
+            NSLog(@"还剩%d张票",_ticketCount);
+            //3. 将信号量的值+1
+            dispatch_semaphore_signal(_semaphore);
+        }
+
+#### 6.2.10 @synchronized
+#### @synchronized是对mutex递归锁的封装,所以@synchronized就是个递归锁,源码查看: objc4中的objc-sync.mm文件, 底层就是根据@synchronized(对象)传进来的对象找到对应的锁, 每个对象对应一个锁,底层是个Map结构,拿到对应对应的锁后进行加锁解锁操作
+        -(void)saleTicket{
+            @synchronized (self) {
+                _ticketCount -= 1;
+                NSLog(@"还剩%d张票",_ticketCount);
+            }
+        }
+
+#### 这里传进的时self对象,根据业务需要,如果想保证所有对象(项目中可能会创建多个对象情况下)使用的是同一把锁,也可以传进去[self class]对象,因为所有对象的类对象只有一个,这样就能保证使用的是同一把锁,或者也可以这么操作
+        -(void)saleTicket{
+            //保证testObj对象只会被创建一次,每个对象都对应一把锁,只要对象是唯一的,那么使用的就是同一把锁
+            static NSObject *testObj;
+            static dispatch_once_t onceToken;
+            dispatch_once(&onceToken, ^{
+                testObj = [[NSObject alloc]init];
+            });
+            @synchronized (testObj) {
+                _ticketCount -= 1;
+                NSLog(@"还剩%d张票",_ticketCount);
+            }
+        }
+
+#### 6.3 iOS线程同步方案性能比较
+#### 性能从高到低: 
+1. os_unfair_lock(iOS10+)
+2. OSSpinLock(iOS10+以后已经被舍弃了,替换成os_unfair_lock了)
+3. dispatch_semaphore(可以支持iOS8)  **推荐使用**
+4. pthread_mutex(可以支持iOS8、扩平台) **推荐使用**
+5. dispatch_queue(DISPATCH_QUEUE_SERIAL)
+6. NSLock(对pthread_mutex的封装)
+7. NSCondition
+8. pthread_mutex(recursive):递归锁
+9. NSRecursiveLock(对pthread_mutex(recursive)的封装)
+10. NSConditionLock
+11. @synchronized 
+
+
+### 7. 自选锁和互斥锁比较
+
