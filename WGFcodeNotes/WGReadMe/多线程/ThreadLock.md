@@ -862,17 +862,70 @@
 11. @synchronized 
 
 
-### 7. 自选锁和互斥锁比较
+### 7. 自旋锁和互斥锁比较
+#### OSSpinLock就是自旋锁,自旋锁的特点就是当发生多个线程资源抢夺时,会处于忙等的状态,即等待锁的线程会处于忙等(busy-wait)状态,一直占用CPU资源, 而互斥锁就是mutex,即等待锁的线程会处于休眠状态,不会一致占用CPU资源. iOS中其实自旋锁已经没法用了,OSSpinLock在iOS10+上已经不能用了,虽然用os_unfair_lock这个来替代,但是os_unfair_lock底层调用并没有看出来是自旋锁, 它仍然属于低级锁(遇到锁要等待时,直接进入休眠去等待),即互斥锁, 虽然我们现在不用了,但是面试过程中仍然会有自旋锁的问题,所以我们可以了解一下
 
+#### 7.1 什么情况使用自旋锁
+1. 预计线程等待锁的时间很短(锁内的代码或者任务花费很少的时间,就可以用自旋锁,因为时间短,所以就不需要用互斥锁先进入睡眠,再唤醒,这样也比较消耗性能)
+2. 加锁的代码(临界区)经常被调用,但竞争情况不激烈(很少的线程来抢夺资源)
+3. CPU资源不紧张
+4. 多核处理器
+#### 7.2 什么情况使用互斥锁
+1. 预计线程等待锁的时间很长
+2. 单核处理器
+3. 临界区有IO(文件读写)操作
+4. 临界区代码复杂或者循环最大
+5. 临界区竞争非常激烈
 
+### 8. automic关键词
+1. automic关键词用于保证属性getter/setter方法的原子操作,相当于在getter/setter方法内部加了线程同步的锁
+2. 可以参考RunTime源码中的objc-accessors.mm
+3. 它并不能保证使用属性的过程是线程安全的
 
+        /*
+        nonatomic: 非原子属性
+        atomic: 原子属性
+        原子在物理学中就是不可再分割的,代码层面就是 int a = 10, int b = 20 int c = a+b, 正常情况三行代码会按照顺序逐条执行,如果有
+        多个线程访问,那么同一时间可能线程1访问int a = 10, 线程2访问int b = 20, 线程3访问int c = a+b,而如果是原子属性,那么就是不可
+        分割的,线程会把这三行代码看成是一个整体,即同一时间多个线程访问时,某一个线程只能访问的是这三行代码的整体
+        */
+        @property(atomic, strong) NSString *name;
+        -(void)setName:(NSString *)name {
+            //加锁
+            self.name = name;
+            //解锁
+        }
+        -(NSString *)name {
+            //加锁
+            return self.name;
+            //解锁
+        }
+#### 既然atomic是原子属性,可以保证线程安全,为什么iOS项目中声明属性时,很少用atomic?
+1. 首先atomic内部是自选锁, 会很消耗性能和内存的
+2. 实际业务中很少遇到多个线程访问同一个属性的,除非是多个线程访问多个对象的同一个属性,如果真是这种情况再考虑加锁解锁问题即可
 
+#### 为什么atomic并不能保证使用属性的过程是线程安全的? 
+        @interface WGMainObjcVC()
+        @property(atomic, strong) NSMutableArray *data;
+        @end
+        
+        @implementation WGMainObjcVC
+        - (void)viewDidLoad {
+            [super viewDidLoad];
+            self.view.backgroundColor = [UIColor redColor];
 
+            //1. 下面的代码相当于调用了属性data的setter方法,所以它是线程安全的
+            //[self setData:[NSMutableArray array]];
+            self.data = [NSMutableArray array];
 
+            //2. 添加元素相当于先通过getter方法获取到data对象,这一步是线程安全的,但是再调用addObject方法这一步就不是线程安全的了
+            //[[self data] addObject:@"1"];
+            [self.data addObject:@"1"];
+            [self.data addObject:@"2"];
+            [self.data addObject:@"3"];
+        }
 
-
-
-
+#### atomic属性只有在使用它的getter/setter方法时是线程安全的,但是在使用过程中并不能保证线程安全
 
 
 
