@@ -297,10 +297,6 @@
             const char *name;
             const char *attributes;
         };
-        
-
-
-
 
 
 ### 二,Runtime特性之方法调用和消息转发

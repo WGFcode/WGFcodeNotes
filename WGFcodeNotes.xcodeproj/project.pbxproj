@@ -47,6 +47,7 @@
 		542D3D8F251A48CC00394130 /* Student.m in Sources */ = {isa = PBXBuildFile; fileRef = 542D3D8E251A48CC00394130 /* Student.m */; };
 		542D3D92251A48F500394130 /* Student+StudentCategory.m in Sources */ = {isa = PBXBuildFile; fileRef = 542D3D91251A48F500394130 /* Student+StudentCategory.m */; };
 		543110B42530A23D007D0061 /* OC对象的本质.md in Resources */ = {isa = PBXBuildFile; fileRef = 543110B32530A23D007D0061 /* OC对象的本质.md */; };
+		54330A4F25C1B40E00055C66 /* NewRunloop.md in Resources */ = {isa = PBXBuildFile; fileRef = 54330A4E25C1B40E00055C66 /* NewRunloop.md */; };
 		54347D3224F69F1C006EE9F2 /* 数据结构.md in Resources */ = {isa = PBXBuildFile; fileRef = 54347D3124F69F1C006EE9F2 /* 数据结构.md */; };
 		5438813425445D6F00F5E4D1 /* WGGCDTimer.m in Sources */ = {isa = PBXBuildFile; fileRef = 5438813325445D6F00F5E4D1 /* WGGCDTimer.m */; };
 		543C213325485B44000212B6 /* NewBlock.md in Resources */ = {isa = PBXBuildFile; fileRef = 543C213225485B44000212B6 /* NewBlock.md */; };
@@ -164,6 +165,7 @@
 		542D3D91251A48F500394130 /* Student+StudentCategory.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Student+StudentCategory.m"; sourceTree = "<group>"; };
 		543110AF251CD966007D0061 /* Student+WGStudent.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Student+WGStudent.h"; sourceTree = "<group>"; };
 		543110B32530A23D007D0061 /* OC对象的本质.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "OC对象的本质.md"; sourceTree = "<group>"; };
+		54330A4E25C1B40E00055C66 /* NewRunloop.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = NewRunloop.md; sourceTree = "<group>"; };
 		54347D3124F69F1C006EE9F2 /* 数据结构.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "数据结构.md"; sourceTree = "<group>"; };
 		5438813225445D6F00F5E4D1 /* WGGCDTimer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WGGCDTimer.h; sourceTree = "<group>"; };
 		5438813325445D6F00F5E4D1 /* WGGCDTimer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WGGCDTimer.m; sourceTree = "<group>"; };
@@ -430,6 +432,7 @@
 				54C118BD2584EF8B00B39379 /* LLVM.md */,
 				5406AA76259A144D0053E251 /* iOS签名机制.md */,
 				54DA257125B47ADC00E1B980 /* 性能优化.md */,
+				54330A4E25C1B40E00055C66 /* NewRunloop.md */,
 			);
 			path = WGReadMe;
 			sourceTree = "<group>";
@@ -545,6 +548,7 @@
 				30160A2624A748870074FB82 /* BinaryTree.md in Resources */,
 				548AC98C242F4CAD00EEE11C /* git.md in Resources */,
 				30A73F332447F14A00C86BB8 /* kvc1.png in Resources */,
+				54330A4F25C1B40E00055C66 /* NewRunloop.md in Resources */,
 				548AC98F242F4CAD00EEE11C /* Carthage.md in Resources */,
 				30BB26BB244BF62B00255288 /* NSNotification.md in Resources */,
 				30DD858B244F00C100897144 /* block.jpeg in Resources */,

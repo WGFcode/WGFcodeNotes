@@ -1147,7 +1147,7 @@ autorelease函数和push函数一样，关键代码都是调用autoreleaseFast�
 #### 8.2 AutoreleasePool子线程上的释放时机
 #### 子线程默认不开启RunLoop,那么其中的延时对象该如何释放呢?依然要从Thread和AutoreleasePool的关系来考虑：每一个线程都会维护自己的 Autoreleasepool栈，所以子线程虽然默认没有开启RunLoop，但是依然存在AutoreleasePool，在子线程退出的时候会去释放autorelease对象。所以，一般情况下，子线程中即使我们不手动添加自动释放池，也不会产生内存泄漏。
 
-#### 9. AutoreleasePool需要手动添加的情况
+### 9. AutoreleasePool需要手动添加的情况
 #### 尽管ARC已经做了诸多优化，但是有些情况我们必须手动创建AutoreleasePool，而其中的延时对象将在当前释放池的作用域结束时释放.苹果文档中说明了三种情况，我们可能会需要手动添加自动释放池：
 1. 编写的不是基于UI框架的程序，例如命令行工具；
 2. 通过循环方式创建大量临时对象；

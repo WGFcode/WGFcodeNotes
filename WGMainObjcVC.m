@@ -18,7 +18,7 @@
 #import <pthread.h>
 
 @interface WGMainObjcVC()
-@property(atomic, strong) NSMutableArray *data;
+@property(nonatomic, strong) dispatch_queue_t queue;
 @end
 
 
@@ -27,18 +27,32 @@
     [super viewDidLoad];
     self.view.backgroundColor = [UIColor redColor];
 
-    //1. 下面的代码相当于调用了属性data的setter方法,所以它是线程安全的
-    //[self setData:[NSMutableArray array]];
-    self.data = [NSMutableArray array];
+    //1. 手动创建的并发队列
+    self.queue = dispatch_queue_create("myqueue", DISPATCH_QUEUE_CONCURRENT);
 
-    //2. 添加元素相当于先通过getter方法获取到data对象,这一步是线程安全的,但是再调用addObject方法这一步就不是线程安全的了
-    //[[self data] addObject:@"1"];
-    [self.data addObject:@"1"];
-    [self.data addObject:@"2"];
-    [self.data addObject:@"3"];
+    for (int i = 0; i < 10; i++) {
+        [self read];
+        [self write];
+    }
 }
 
+//从文件中读取内容
+-(void)read {
+    //2. 读时:
+    dispatch_async(self.queue, ^{
+        sleep(1);
+        NSLog(@"read");
+    });
+}
 
+//往文件中写入内容
+-(void)write {
+    //3. 写时: 调用dispatch_barrier_async函数
+    dispatch_barrier_async(self.queue, ^{
+        sleep(1);
+        NSLog(@"write");
+    });
+}
 
 @end
 

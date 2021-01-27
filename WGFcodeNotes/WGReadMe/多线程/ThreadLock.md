@@ -927,41 +927,133 @@
 
 #### atomic属性只有在使用它的getter/setter方法时是线程安全的,但是在使用过程中并不能保证线程安全
 
+### 9. iOS中的读写安全方案
+#### iOS中的IO操作(文件操作), 如何保证读写安全? 从文件中读取内容、往文件中写入内容,读写是不能同时进行的
+        @interface WGMainObjcVC()
+        @property(nonatomic, strong) dispatch_semaphore_t semaphore;
+        @end
+        
+        @implementation WGMainObjcVC
+        - (void)viewDidLoad {
+            [super viewDidLoad];
+            self.view.backgroundColor = [UIColor redColor];
+            
+            //1.初始化信号量,value设置为1,即只能有一条线程在执行任务
+            self.semaphore = dispatch_semaphore_create(1);
+            for (int i = 0; i < 5; i++) {
+                [[[NSThread alloc]initWithTarget:self selector:@selector(read) object:nil] start];
+                [[[NSThread alloc]initWithTarget:self selector:@selector(write) object:nil] start];
+            }
+        }
 
+        //从文件中读取内容
+        -(void)read {
+            dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_FOREVER);
+            NSLog(@"%s",__func__);
+            dispatch_semaphore_signal(self.semaphore);
+        }
+        //往文件中写入内容
+        -(void)write {
+            dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_FOREVER);
+            NSLog(@"%s",__func__);
+            dispatch_semaphore_signal(self.semaphore);
+        }
 
+#### 通过信号量的方式,虽然我们能够保证同一时间只能有读操作,或者同一时间只能有写操作,但是实际情况中,我们需要的是允许在同一时间有多个线程可以读操作,但是同一时间只能有一个线程在写操作,这样才会更加提高项目,即多读单写操作
 
+#### 9.1项目中需求(多读单写)
+1. 同一时间,只能有1条线程进行写的操作
+2. 同一时间,允许有多个线程进行读的操作
+3. 同一时间, 不允许既有写的操作,又有读的操作,即读写不能同步进行
 
+#### 9.2 iOS中读写安全的方案有2中
+1. pthread_rwlock: 读写锁
+2. dispatch_barrier_async: 异步栅栏调用
 
+#### 方案1: 读写锁pthread_rwlock, 等待锁的线程会进入休眠,类似互斥锁
+        #import <pthread.h>
 
+        @interface WGMainObjcVC()
+        @property(nonatomic, assign) pthread_rwlock_t lock;
+        @end
 
+        @implementation WGMainObjcVC
+        - (void)viewDidLoad {
+            [super viewDidLoad];
+            self.view.backgroundColor = [UIColor redColor];
+            //1. 初始化读写锁
+            pthread_rwlock_init(&_lock, NULL);
 
+            //全局并发队列异步任务,这样就能让读写同时进行,主要为了能更好的观察打印结果中read可以同时进行,但是write只能1秒进行一次
+            dispatch_queue_t queue = dispatch_get_global_queue(0, 0);
+            for (int i = 0; i < 10; i++) {
+                dispatch_async(queue, ^{
+                    [self read];
+                });
+                dispatch_async(queue, ^{
+                    [self write];
+                });
+            }
+        }
 
+        //从文件中读取内容
+        -(void)read {
+            pthread_rwlock_rdlock(&_lock); //读-加锁
+            sleep(1);
+            NSLog(@"%s",__func__);
+            pthread_rwlock_unlock(&_lock); //解锁
+        }
 
+        //往文件中写入内容
+        -(void)write {
+            pthread_rwlock_wrlock(&_lock);  //写-加锁
+            sleep(1);
+            NSLog(@"%s",__func__);
+            pthread_rwlock_unlock(&_lock);  //解锁
+        }
 
+        //销毁锁
+        -(void)dealloc {
+            pthread_rwlock_destroy(&_lock);
+        }
+#### 这样就能保证可以同时进行多次读操作,但是每次只能进行一次写操作, 读写操作不会同时进行
 
+#### 方案2: 异步栅栏调用dispatch_barrier_async
+1. 这个函数传入的并发队列必须是自己通过dispatch_queue_create创建的,而不能系统创建的全局队列
+2. 读写操作中,必须传入的是同一个并发队列
+3. 如果传入的是一个串行队列或者一个全局的并发队列,那这个函数便等同于dispatch_async函数的效果
 
+        @interface WGMainObjcVC()
+        @property(nonatomic, strong) dispatch_queue_t queue;
+        @end
 
+        @implementation WGMainObjcVC
+        - (void)viewDidLoad {
+            [super viewDidLoad];
+            self.view.backgroundColor = [UIColor redColor];
+            //1. 手动创建的并发队列
+            self.queue = dispatch_queue_create("myqueue", DISPATCH_QUEUE_CONCURRENT);
+            for (int i = 0; i < 10; i++) {
+                [self read];
+                [self write];
+            }
+        }
 
+        //从文件中读取内容
+        -(void)read {
+            dispatch_async(self.queue, ^{   //2.读时
+                sleep(1);
+                NSLog(@"read");
+            });
+        }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        //往文件中写入内容
+        -(void)write {
+            dispatch_barrier_async(self.queue, ^{  //3.写时: 调用dispatch_barrier_async函数
+                sleep(1);
+                NSLog(@"write");
+            });
+        }
 
 
 
