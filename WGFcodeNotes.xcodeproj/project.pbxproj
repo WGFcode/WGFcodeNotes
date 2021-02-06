@@ -51,6 +51,8 @@
 		54347D3224F69F1C006EE9F2 /* 数据结构.md in Resources */ = {isa = PBXBuildFile; fileRef = 54347D3124F69F1C006EE9F2 /* 数据结构.md */; };
 		5438813425445D6F00F5E4D1 /* WGGCDTimer.m in Sources */ = {isa = PBXBuildFile; fileRef = 5438813325445D6F00F5E4D1 /* WGGCDTimer.m */; };
 		543C213325485B44000212B6 /* NewBlock.md in Resources */ = {isa = PBXBuildFile; fileRef = 543C213225485B44000212B6 /* NewBlock.md */; };
+		543FF0B225CEDFA2006B72E6 /* WGPermanentThreadOC.m in Sources */ = {isa = PBXBuildFile; fileRef = 543FF0B125CEDFA2006B72E6 /* WGPermanentThreadOC.m */; };
+		543FF0B525CEEBFD006B72E6 /* WGPermanentThreadC.m in Sources */ = {isa = PBXBuildFile; fileRef = 543FF0B425CEEBFD006B72E6 /* WGPermanentThreadC.m */; };
 		545638D324B36CE5007D5447 /* HTTPTCPUDP.md in Resources */ = {isa = PBXBuildFile; fileRef = 545638D224B36CE5007D5447 /* HTTPTCPUDP.md */; };
 		5463C26424B0115D008F9C9A /* CoreAnimal.md in Resources */ = {isa = PBXBuildFile; fileRef = 5463C26324B0115D008F9C9A /* CoreAnimal.md */; };
 		548AC953242F4B3100EEE11C /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 548AC952242F4B3100EEE11C /* AppDelegate.swift */; };
@@ -336,6 +338,10 @@
 		5438813225445D6F00F5E4D1 /* WGGCDTimer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WGGCDTimer.h; sourceTree = "<group>"; };
 		5438813325445D6F00F5E4D1 /* WGGCDTimer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WGGCDTimer.m; sourceTree = "<group>"; };
 		543C213225485B44000212B6 /* NewBlock.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = NewBlock.md; sourceTree = "<group>"; };
+		543FF0B025CEDFA2006B72E6 /* WGPermanentThreadOC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WGPermanentThreadOC.h; sourceTree = "<group>"; };
+		543FF0B125CEDFA2006B72E6 /* WGPermanentThreadOC.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WGPermanentThreadOC.m; sourceTree = "<group>"; };
+		543FF0B325CEEBFD006B72E6 /* WGPermanentThreadC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WGPermanentThreadC.h; sourceTree = "<group>"; };
+		543FF0B425CEEBFD006B72E6 /* WGPermanentThreadC.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WGPermanentThreadC.m; sourceTree = "<group>"; };
 		545638D224B36CE5007D5447 /* HTTPTCPUDP.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = HTTPTCPUDP.md; sourceTree = "<group>"; };
 		5463C26324B0115D008F9C9A /* CoreAnimal.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = CoreAnimal.md; sourceTree = "<group>"; };
 		548AC94F242F4B3100EEE11C /* WGFcodeNotes.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WGFcodeNotes.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -419,6 +425,10 @@
 				54E19660250E750B0064027B /* WGProxy.m */,
 				5438813225445D6F00F5E4D1 /* WGGCDTimer.h */,
 				5438813325445D6F00F5E4D1 /* WGGCDTimer.m */,
+				543FF0B025CEDFA2006B72E6 /* WGPermanentThreadOC.h */,
+				543FF0B125CEDFA2006B72E6 /* WGPermanentThreadOC.m */,
+				543FF0B325CEEBFD006B72E6 /* WGPermanentThreadC.h */,
+				543FF0B425CEEBFD006B72E6 /* WGPermanentThreadC.m */,
 			);
 			path = WGCore;
 			sourceTree = "<group>";
@@ -755,6 +765,7 @@
 		548AC984242F4C9200EEE11C /* WGReadMe */ = {
 			isa = PBXGroup;
 			children = (
+				54330A4E25C1B40E00055C66 /* NewRunloop.md */,
 				542D3D822518E61300394130 /* 分类扩展关联对象.md */,
 				30F7186B24F7AB020025AD98 /* 设计模式.md */,
 				548F331F24F15E8F00AB3540 /* Memory.md */,
@@ -788,7 +799,6 @@
 				54C118BD2584EF8B00B39379 /* LLVM.md */,
 				5406AA76259A144D0053E251 /* iOS签名机制.md */,
 				54DA257125B47ADC00E1B980 /* 性能优化.md */,
-				54330A4E25C1B40E00055C66 /* NewRunloop.md */,
 			);
 			path = WGReadMe;
 			sourceTree = "<group>";
@@ -987,7 +997,9 @@
 				54E1965E250A7BDC0064027B /* WGRunLoopSecondVC.m in Sources */,
 				30FCCF84256F8DB000AEC012 /* Mems.swift in Sources */,
 				3015810D245577A600EC6001 /* WGMonitorManage.m in Sources */,
+				543FF0B225CEDFA2006B72E6 /* WGPermanentThreadOC.m in Sources */,
 				542D3D92251A48F500394130 /* Student+StudentCategory.m in Sources */,
+				543FF0B525CEEBFD006B72E6 /* WGPermanentThreadC.m in Sources */,
 				301CF1BC2452BE310024EC69 /* WGFirstVC.m in Sources */,
 				5438813425445D6F00F5E4D1 /* WGGCDTimer.m in Sources */,
 				548AC953242F4B3100EEE11C /* AppDelegate.swift in Sources */,

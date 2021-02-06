@@ -14,10 +14,12 @@
 #import <malloc/malloc.h>
 #import "WGTargetProxy.h"
 #import "Person+PersonTest.h"
-
+#import "WGThread.h"
+#import "WGPermanentThreadOC.h"
 #import <pthread.h>
 
 @interface WGMainObjcVC()
+@property(nonatomic, strong) WGPermanentThreadOC *thread;
 @end
 
 
@@ -25,19 +27,18 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.view.backgroundColor = [UIColor whiteColor];
-
+    self.thread = [[WGPermanentThreadOC alloc]init];
+    [self.thread run];
 }
 
 
 - (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
-    NSThread *thread = [[NSThread alloc]initWithBlock:^{
-        NSLog(@"执行任务1");
+    
+    //__weak typeof(self) weakSelf = self;
+    [self.thread executeTask:^{
+        //[weakSelf XXX]; 如果访问self,就要使用弱引用
+        NSLog(@"-------%@",[NSThread currentThread]);
     }];
-    [thread start];
-    [self performSelector:@selector(test) onThread:thread withObject:nil waitUntilDone:YES];
-}
--(void)test{
-    NSLog(@"执行任务2");
 }
 
 @end
