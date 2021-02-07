@@ -8,10 +8,10 @@
 
 #import "WGPermanentThreadC.h"
 
-@interface MJThread : NSThread
+@interface MJThreadC : NSThread
 @end
 
-@implementation MJThread
+@implementation MJThreadC
 -(void)dealloc {
     NSLog(@"永久线程WGPermanentThread销毁了");
 }
@@ -19,7 +19,7 @@
 
 
 @interface WGPermanentThreadC()
-@property(nonatomic, strong) MJThread *innerThread;
+@property(nonatomic, strong) MJThreadC *innerThread;
 @end
 
 
@@ -29,7 +29,7 @@
 -(instancetype)init {
     self = [super init];
     if (self) {
-        self.innerThread = [[MJThread alloc]initWithBlock:^{
+        self.innerThread = [[MJThreadC alloc]initWithBlock:^{
             // 1.创建上下文 CFRunLoopSourceContext是个结构体,它是一个成员变量,如果不初始化,它可能存放的是内容是不确定的
             //所以这里建议这么写对这个结构体进行初始化
             //CFRunLoopSourceContext context;

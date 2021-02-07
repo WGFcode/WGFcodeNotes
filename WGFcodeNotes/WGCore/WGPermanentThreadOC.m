@@ -9,10 +9,10 @@
 #import "WGPermanentThreadOC.h"
 
 //将MJThread写在这里是为了方便查看线程销毁,后续项目中也可以直接用NSThread
-@interface MJThread : NSThread
+@interface MJThreadOC : NSThread
 @end
 
-@implementation MJThread
+@implementation MJThreadOC
 -(void)dealloc {
     NSLog(@"永久线程WGPermanentThread销毁了");
 }
@@ -22,12 +22,12 @@
 
 /// 永久线程类-WGPermanentThread
 @interface WGPermanentThreadOC()
-@property(nonatomic, strong) MJThread *innerThread; //内部线程
+@property(nonatomic, strong) MJThreadOC *innerThread; //内部线程
 @property(nonatomic, assign, getter=isStopped) BOOL stopped;
 @end
 
 
-@implementation WGPermanentThread
+@implementation WGPermanentThreadOC
 
 #pragma mark public method
 /// 初始化时就创建线程,并添加事件到RunLoop中
@@ -36,7 +36,7 @@
     if (self) {
         self.stopped = NO;
         __weak typeof(self) weakSelf = self;
-        self.innerThread = [[MJThread alloc]initWithBlock:^{
+        self.innerThread = [[MJThreadOC alloc]initWithBlock:^{
             [[NSRunLoop currentRunLoop] addPort:[[NSPort alloc]init] forMode:NSDefaultRunLoopMode];
             while (weakSelf && !weakSelf.stopped) {
                 [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]];

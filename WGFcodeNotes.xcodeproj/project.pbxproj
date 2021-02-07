@@ -1184,8 +1184,6 @@
 				EXCLUDED_ARCHS = "";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(PROJECT_DIR)/Carthage/Build/iOS",
-					"$(PROJECT_DIR)/WGFcodeNotes/WGLib",
 					"$(PROJECT_DIR)/WGFcodeNotes",
 				);
 				INFOPLIST_FILE = WGFcodeNotes/Info.plist;
@@ -1214,8 +1212,6 @@
 				EXCLUDED_ARCHS = "";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(PROJECT_DIR)/Carthage/Build/iOS",
-					"$(PROJECT_DIR)/WGFcodeNotes/WGLib",
 					"$(PROJECT_DIR)/WGFcodeNotes",
 				);
 				INFOPLIST_FILE = WGFcodeNotes/Info.plist;

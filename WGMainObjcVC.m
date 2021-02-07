@@ -8,18 +8,12 @@
 
 #import "WGMainObjcVC.h"
 #import <UIKit/UIKit.h>
-#import "Person.h"
-#import <objc/runtime.h>
-#import "Student.h"
-#import <malloc/malloc.h>
-#import "WGTargetProxy.h"
-#import "Person+PersonTest.h"
+
 #import "WGThread.h"
-#import "WGPermanentThreadOC.h"
-#import <pthread.h>
 
 @interface WGMainObjcVC()
-@property(nonatomic, strong) WGPermanentThreadOC *thread;
+@property(nonatomic, strong) WGThread *thread;
+
 @end
 
 
@@ -27,19 +21,35 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.view.backgroundColor = [UIColor whiteColor];
-    self.thread = [[WGPermanentThreadOC alloc]init];
-    [self.thread run];
-}
 
-
-- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+    self.thread = [[WGThread alloc]initWithTarget:self selector:@selector(execureTask) object:nil];
     
-    //__weak typeof(self) weakSelf = self;
-    [self.thread executeTask:^{
-        //[weakSelf XXX]; 如果访问self,就要使用弱引用
-        NSLog(@"-------%@",[NSThread currentThread]);
-    }];
+    [self.thread start];
 }
+
+-(void)execureTask {
+    NSLog(@"-------执行子线程任务----%@",[NSThread currentThread]);
+    
+    //保住线程的命
+//    [[NSRunLoop currentRunLoop] addPort:[[NSPort alloc]init] forMode:NSRunLoopCommonModes];
+//    [[NSRunLoop currentRunLoop] run];
+}
+
+-(void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+    NSLog(@"-----%@",self.thread);
+    //[self performSelector: @selector(test) onThread:self.thread withObject:nil waitUntilDone:NO];
+}
+
+-(void)test{
+    NSLog(@"----%s",__func__);
+}
+
+
+-(void)dealloc {
+    
+    NSLog(@"-------%s",__func__);
+}
+
 
 @end
 

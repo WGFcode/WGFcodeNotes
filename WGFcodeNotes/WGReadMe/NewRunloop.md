@@ -14,12 +14,23 @@
 * mode模式可以将不同的Sources/Timers/Observers隔离开来,这样相互之间都不会影响,并且当我们切换mode模式时,其他mode不会被影响,操作起来更加流程,只会专注与处理当前的模式mode
 
 ### 1. 什么是RunLoop
-#### RunLoop就是运行循环,在程序运行过程中循环做一些事情,做了哪些事情?应用范畴是?
-1. 定时器(NSTimer)、performSelector
+#### RunLoop就是运行循环,在程序运行过程中循环做一些事情,做了哪些事情?应用范畴是? 可以通过断点，控制台输入bt来查看调用栈
+1. 定时器(NSTimer)、performSelector:withObject:afterDelay:
+        
+        NSLog(@"------start");
+        [self performSelector:@selector(test) withObject:nil afterDelay:0];
+        NSLog(@"------end");
+        打印顺序：1.start--2.end--3.test任务 原因是：需要等到RunLoop在当次Loop到来时才会去处理
+
 2. GCD Async Main Queue
+
+        dispatch_async(dispatch_get_global_queue(0, 0), ^{
+            dispatch_async(dispatch_get_main_queue(), ^{
+            });
+        });
 3. 事件响应、手势识别、界面刷新
 4. 网络请求
-5. AutoreleasePool自定释放池
+5. AutoreleasePool自动释放池
 
 #### 如果没有RunLoop程序会立马退出; 如果有RunLoop,程序并不会马上退出,而是保持运行状态,RunLoop基本作用有
 1. 保持程序的持续运行
@@ -74,7 +85,7 @@
 * CFRunLoopModeRef代表RunLoop的运行模式
 * 一个RunLoop包含若干个Mode,每个Mode又包含若干个Sources0/Sources1/Timer/Observer
 * RunLoop启动时只能选择其中一个Mode,作为currentMode
-* 如果需要切换Mode,只能退出当前Loop,再选择一个Mode进入(这里的退出并不是退出RunLoop循环,而是在RunLoop循环中退出,所以不会导致程序退出)
+* 如果需要切换Mode,只能退出当前Loop,再选择一个Mode进入(这里的退出并不是退出RunLoop循环,而是在RunLoop循环中退出当前的这次循环,所以不会导致程序退出)
 * 不同组的Sources0/Sources1/Timer/Observer能分割开来,互不影响(主要就是提高交互,当滚动时在一个Mode中,专心处理滚动的事情就行了)
 * 如果Mode里没有任何Sources0/Sources1/Timer/Observer,RunLoop会立马退出
 * 常见的两种运行Mode: 
@@ -112,7 +123,7 @@
         
 #### RunLoop运行逻辑源码分析,可以通过项目中打断点,然后根据函数调用栈,在命令行中输入**bt**来查看,然后根据控制台日志内容去**Source/CFRunloopRef**中找到对应的入口
 
-#### ⚠️: RunLoop开始休眠时,会阻塞当前线程,但这种阻塞并不是一直在等待(并不是while循环),不会消耗CPU资源,而是RunLoop从用户态切换到了内核态(mach_msg函数),内核态是系统层API控制的,实际上RunLoop的休眠和唤醒就是RunLoop在用户态和内核态之间的切换
+#### ⚠️: RunLoop开始休眠时,会阻塞当前线程,但这种阻塞并不是一直在等待(并不是while循环),不会消耗CPU资源,而是RunLoop从用户态切换到了内核态(通过mach_msg函数),内核态是系统层API控制的,实际上RunLoop的休眠和唤醒就是RunLoop在用户态和内核态之间的切换
 
 ### 6.RunLoop运行状态 6 种及监听
 
@@ -130,9 +141,7 @@
         - (void)viewDidLoad {
             [super viewDidLoad];
             self.view.backgroundColor = [UIColor whiteColor];
-            /*
-             kCFRunLoopCommonModes: 默认包含 kCFRunLoopDefaultMode + UITrackingRunLoopMode
-             */
+            //kCFRunLoopCommonModes: 默认包含 kCFRunLoopDefaultMode + UITrackingRunLoopMode
             //1.创建observer
             CFRunLoopObserverRef observer = CFRunLoopObserverCreate(kCFAllocatorDefault, kCFRunLoopAllActivities, YES, 0, CFRunLoopObserverCallBack1, NULL);
             //1.1 创建observer的第二种方法: 将监听方法放到Block中去
