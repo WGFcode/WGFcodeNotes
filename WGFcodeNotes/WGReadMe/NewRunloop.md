@@ -202,13 +202,13 @@
         - (void)viewDidLoad {
             [super viewDidLoad];
             self.view.backgroundColor = [UIColor whiteColor];
-            //这种创建线程的方式会导致循环引用: VC->Thread(属性)  Thread->VC(initWithTarget:self)
+            //这种创建线程的方式+ NSRunLoop的run方法 会导致循环引用: VC->Thread(属性)  Thread->VC(initWithTarget:self)
             self.thread = [[WGThread alloc]initWithTarget:self selector:@selector(task) object:nil];
             [self.thread start];
         }
 
         -(void)tesk{
-            /* 保住线程:
+            /* 保住线程:  
                1.子线程中任务执行完成就会结束,线程就会销毁,所以要让子线程中一直有任务
                2.首先在子线程中添加任务到RunLoop,没有任务(Timers/Sources/Observers)RunLoop就会退出,线程就会销毁;
                3.运行RunLoop
@@ -217,7 +217,7 @@
             [[NSRunLoop currentRunLoop] run];
             NSLog(@"-----%s-----%@",__func__,[NSThread currentThread]);
         }
-#### 这种方式会导致线程和VC之间的循环引用, 因为initWithTarget:self线程中强引用了VC
+#### 这种方式虽然会保住线程不死，但是会导致线程和VC之间的循环引用, [[NSRunLoop currentRunLoop] run]方法没有任务时会一直让线程处于休眠状态，导致线程无法释放  而initWithTarget:self中线程又强引用了VC，导致VC也无法释放
 #### 案例2
         - (void)viewDidLoad {
             [super viewDidLoad];
@@ -289,7 +289,7 @@
             }];
             [self.thread start];
         }
-#### 调用runMode: beforeDate:方法后, 当任务执行完成后, 直接就打印了这个信息:-----end-----, 说明这种方式下,当任务执行完成后,RunLoop就直接退出了, 不能保活线程了
+#### 调用runMode: beforeDate:方法后, 当任务执行完成后, 直接就打印了这个信息:-----end-----, 说明这种方式下,当任务执行完成后,RunLoop就直接退出了, 不能保活线程了,即CFRunLoopStop方法会停止runMode这一次的循环
 
 #### 案例4
         @interface WGMainObjcVC()
@@ -425,3 +425,5 @@
 ### 8. 封装线程保活的工具类
 #### 有OC版本和C版本,详情参考WGCore/WGPermanentThreadOC|WGPermanentThreadC文件
 #### 线程保活一般用在,例如在一个VC页面中, 一个按钮去执行一个异步任务,另一个按钮也要执行一个异步任务,那么可以使用线程保活在一个线程中去执行,只要这些任务不是需要并发执行的就行,线程保活可以节省CPU资源,避免了线程频繁的开启和销毁
+
+#### 口述线程保活的过程：创建一个继承自NSObject的类，在初始化时通过block的方式创建线程，并在block中通过向RunLoop中添加NSPort端口并通过runMode: beforeDate:方法来保活线程，然后声明一个属性来控制线程何时销毁，注意的是销毁线程的方法要在当前即将销毁的子线程中去销毁，并且在销毁时将线程置为nil,主要就是为了防止在停掉RunLoop后，线程已经不能再用了，可能会再次调用一个不能用的线程去做事情，CFRunLoopStop()方法是不能停掉run方法开启的循环的，但是可以关闭runMode: beforeDate:方法开启的当次线程；其实如果我们通过C语言的CFRunLoopRunInMode方法开启RunLoop的话，就不需要额外声明一个属性和while循环来控制线程的销毁了，因为这个方法的第三个参数设置为false就可以保证Loop不会退出，并且CFRunLoopStop()方法也可以停止掉这个方法
