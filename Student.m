@@ -9,17 +9,12 @@
 #import "Student.h"
 
 @interface Student()
-{
-    int weight;
-}
 
 @end
 
 
 @implementation Student
 
--(void)test {
-    
-}
+
 
 @end
