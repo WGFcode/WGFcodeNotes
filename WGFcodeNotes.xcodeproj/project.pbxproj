@@ -55,6 +55,7 @@
 		543FF0B525CEEBFD006B72E6 /* WGPermanentThreadC.m in Sources */ = {isa = PBXBuildFile; fileRef = 543FF0B425CEEBFD006B72E6 /* WGPermanentThreadC.m */; };
 		545638D324B36CE5007D5447 /* HTTPTCPUDP.md in Resources */ = {isa = PBXBuildFile; fileRef = 545638D224B36CE5007D5447 /* HTTPTCPUDP.md */; };
 		5463C26424B0115D008F9C9A /* CoreAnimal.md in Resources */ = {isa = PBXBuildFile; fileRef = 5463C26324B0115D008F9C9A /* CoreAnimal.md */; };
+		5483CFEC25D3B95400613F40 /* NewRunTime.md in Resources */ = {isa = PBXBuildFile; fileRef = 5483CFEB25D3B95400613F40 /* NewRunTime.md */; };
 		548AC953242F4B3100EEE11C /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 548AC952242F4B3100EEE11C /* AppDelegate.swift */; };
 		548AC955242F4B3100EEE11C /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 548AC954242F4B3100EEE11C /* SceneDelegate.swift */; };
 		548AC957242F4B3100EEE11C /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 548AC956242F4B3100EEE11C /* ViewController.swift */; };
@@ -84,6 +85,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		5483CFF625D3C0B500613F40 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5483CFF125D3C0B500613F40 /* objc.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = D2AAC0630554660B00DB518D;
+			remoteInfo = objc;
+		};
 		548AC966242F4B3200EEE11C /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 548AC947242F4B3100EEE11C /* Project object */;
@@ -344,6 +352,121 @@
 		543FF0B425CEEBFD006B72E6 /* WGPermanentThreadC.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WGPermanentThreadC.m; sourceTree = "<group>"; };
 		545638D224B36CE5007D5447 /* HTTPTCPUDP.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = HTTPTCPUDP.md; sourceTree = "<group>"; };
 		5463C26324B0115D008F9C9A /* CoreAnimal.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = CoreAnimal.md; sourceTree = "<group>"; };
+		5483CFEB25D3B95400613F40 /* NewRunTime.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = NewRunTime.md; sourceTree = "<group>"; };
+		5483CFEE25D3C0B500613F40 /* interposable.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = interposable.txt; sourceTree = "<group>"; };
+		5483CFEF25D3C0B500613F40 /* APPLE_LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = APPLE_LICENSE; sourceTree = "<group>"; };
+		5483CFF025D3C0B500613F40 /* libobjc.order */ = {isa = PBXFileReference; lastKnownFileType = text; path = libobjc.order; sourceTree = "<group>"; };
+		5483CFF125D3C0B500613F40 /* objc.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = objc.xcodeproj; path = "../../../../IOS/RunTime源码/objc4-723/objc.xcodeproj"; sourceTree = "<group>"; };
+		5483CFF825D3C0B500613F40 /* ReleaseNotes.rtf */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; path = ReleaseNotes.rtf; sourceTree = "<group>"; };
+		5483CFF925D3C0B600613F40 /* unexported_symbols */ = {isa = PBXFileReference; lastKnownFileType = text; path = unexported_symbols; sourceTree = "<group>"; };
+		5483CFFA25D3C0B600613F40 /* version.rc */ = {isa = PBXFileReference; lastKnownFileType = text; path = version.rc; sourceTree = "<group>"; };
+		5483CFFC25D3C0B600613F40 /* objcrt.vcproj */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = objcrt.vcproj; sourceTree = "<group>"; };
+		5483CFFD25D3C0B600613F40 /* objc.suo */ = {isa = PBXFileReference; lastKnownFileType = file; path = objc.suo; sourceTree = "<group>"; };
+		5483CFFE25D3C0B600613F40 /* objc.vcproj */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = objc.vcproj; sourceTree = "<group>"; };
+		5483CFFF25D3C0B600613F40 /* version.bat */ = {isa = PBXFileReference; lastKnownFileType = text; path = version.bat; sourceTree = "<group>"; };
+		5483D00025D3C0B600613F40 /* objc.sln */ = {isa = PBXFileReference; lastKnownFileType = text; path = objc.sln; sourceTree = "<group>"; };
+		5483D00125D3C0B600613F40 /* prebuild.bat */ = {isa = PBXFileReference; lastKnownFileType = text; path = prebuild.bat; sourceTree = "<group>"; };
+		5483D00225D3C0B600613F40 /* markgc.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = markgc.cpp; sourceTree = "<group>"; };
+		5483D00425D3C0B700613F40 /* Protocol.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Protocol.h; sourceTree = "<group>"; };
+		5483D00525D3C0B700613F40 /* objc-file.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = "objc-file.mm"; sourceTree = "<group>"; };
+		5483D00625D3C0B700613F40 /* objc-errors.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = "objc-errors.mm"; sourceTree = "<group>"; };
+		5483D00725D3C0B700613F40 /* objc-config.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "objc-config.h"; sourceTree = "<group>"; };
+		5483D00825D3C0B700613F40 /* objc-private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "objc-private.h"; sourceTree = "<group>"; };
+		5483D00A25D3C0B700613F40 /* objc-msg-arm.s */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.asm; path = "objc-msg-arm.s"; sourceTree = "<group>"; };
+		5483D00B25D3C0B700613F40 /* objc-msg-simulator-i386.s */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.asm; path = "objc-msg-simulator-i386.s"; sourceTree = "<group>"; };
+		5483D00C25D3C0B700613F40 /* objc-msg-i386.s */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.asm; path = "objc-msg-i386.s"; sourceTree = "<group>"; };
+		5483D00D25D3C0B700613F40 /* objc-msg-x86_64.s */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.asm; path = "objc-msg-x86_64.s"; sourceTree = "<group>"; };
+		5483D00E25D3C0B700613F40 /* objc-msg-simulator-x86_64.s */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.asm; path = "objc-msg-simulator-x86_64.s"; sourceTree = "<group>"; };
+		5483D00F25D3C0B700613F40 /* objc-msg-win32.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "objc-msg-win32.m"; sourceTree = "<group>"; };
+		5483D01025D3C0B700613F40 /* objc-msg-arm64.s */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.asm; path = "objc-msg-arm64.s"; sourceTree = "<group>"; };
+		5483D01125D3C0B700613F40 /* llvm-DenseMapInfo.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "llvm-DenseMapInfo.h"; sourceTree = "<group>"; };
+		5483D01225D3C0B700613F40 /* objc-class.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = "objc-class.mm"; sourceTree = "<group>"; };
+		5483D01325D3C0B700613F40 /* a1a2-blocktramps-x86_64.s */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.asm; path = "a1a2-blocktramps-x86_64.s"; sourceTree = "<group>"; };
+		5483D01425D3C0B700613F40 /* objc-runtime-new.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = "objc-runtime-new.mm"; sourceTree = "<group>"; };
+		5483D01525D3C0B700613F40 /* objc-file-old.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = "objc-file-old.mm"; sourceTree = "<group>"; };
+		5483D01625D3C0B700613F40 /* a1a2-blocktramps-i386.s */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.asm; path = "a1a2-blocktramps-i386.s"; sourceTree = "<group>"; };
+		5483D01725D3C0B700613F40 /* objc-sel-table.s */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.asm; path = "objc-sel-table.s"; sourceTree = "<group>"; };
+		5483D01825D3C0B700613F40 /* objc-locks-new.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "objc-locks-new.h"; sourceTree = "<group>"; };
+		5483D01925D3C0B700613F40 /* objc-os.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "objc-os.h"; sourceTree = "<group>"; };
+		5483D01A25D3C0B700613F40 /* objc-exception.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "objc-exception.h"; sourceTree = "<group>"; };
+		5483D01B25D3C0B700613F40 /* NSObjCRuntime.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NSObjCRuntime.h; sourceTree = "<group>"; };
+		5483D01C25D3C0B700613F40 /* objc-cache-old.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "objc-cache-old.h"; sourceTree = "<group>"; };
+		5483D01D25D3C0B700613F40 /* a2a3-blocktramps-i386.s */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.asm; path = "a2a3-blocktramps-i386.s"; sourceTree = "<group>"; };
+		5483D01E25D3C0B700613F40 /* NSObject.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = NSObject.mm; sourceTree = "<group>"; };
+		5483D01F25D3C0B700613F40 /* objcrt.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = objcrt.h; sourceTree = "<group>"; };
+		5483D02025D3C0B700613F40 /* objc-references.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = "objc-references.mm"; sourceTree = "<group>"; };
+		5483D02125D3C0B700613F40 /* objc-sel-set.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = "objc-sel-set.mm"; sourceTree = "<group>"; };
+		5483D02225D3C0B700613F40 /* objc-sync.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "objc-sync.h"; sourceTree = "<group>"; };
+		5483D02325D3C0B700613F40 /* hashtable.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = hashtable.h; sourceTree = "<group>"; };
+		5483D02425D3C0B700613F40 /* objc-initialize.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = "objc-initialize.mm"; sourceTree = "<group>"; };
+		5483D02525D3C0B700613F40 /* a2a3-blocktramps-x86_64.s */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.asm; path = "a2a3-blocktramps-x86_64.s"; sourceTree = "<group>"; };
+		5483D02625D3C0B700613F40 /* objc-load.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = "objc-load.mm"; sourceTree = "<group>"; };
+		5483D02725D3C0B700613F40 /* objc-lockdebug.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "objc-lockdebug.h"; sourceTree = "<group>"; };
+		5483D02825D3C0B700613F40 /* objc-load.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "objc-load.h"; sourceTree = "<group>"; };
+		5483D02A25D3C0B700613F40 /* ObjectiveC.apinotes */ = {isa = PBXFileReference; lastKnownFileType = text.apinotes; path = ObjectiveC.apinotes; sourceTree = "<group>"; };
+		5483D02B25D3C0B700613F40 /* module.modulemap */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.module-map"; path = module.modulemap; sourceTree = "<group>"; };
+		5483D02C25D3C0B700613F40 /* llvm-type_traits.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "llvm-type_traits.h"; sourceTree = "<group>"; };
+		5483D02E25D3C0B700613F40 /* List.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = List.m; sourceTree = "<group>"; };
+		5483D02F25D3C0B700613F40 /* List.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = List.h; sourceTree = "<group>"; };
+		5483D03025D3C0B700613F40 /* objc-block-trampolines.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = "objc-block-trampolines.mm"; sourceTree = "<group>"; };
+		5483D03125D3C0B700613F40 /* objc-loadmethod.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = "objc-loadmethod.mm"; sourceTree = "<group>"; };
+		5483D03225D3C0B700613F40 /* objc-runtime.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = "objc-runtime.mm"; sourceTree = "<group>"; };
+		5483D03325D3C0B700613F40 /* objc-file.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "objc-file.h"; sourceTree = "<group>"; };
+		5483D03425D3C0B700613F40 /* objc-probes.d */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.dtrace; path = "objc-probes.d"; sourceTree = "<group>"; };
+		5483D03525D3C0B700613F40 /* objc-class-old.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = "objc-class-old.mm"; sourceTree = "<group>"; };
+		5483D03625D3C0B700613F40 /* message.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = message.h; sourceTree = "<group>"; };
+		5483D03725D3C0B700613F40 /* objc-cache.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "objc-cache.h"; sourceTree = "<group>"; };
+		5483D03825D3C0B700613F40 /* objc-weak.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = "objc-weak.mm"; sourceTree = "<group>"; };
+		5483D03925D3C0B700613F40 /* objc-env.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "objc-env.h"; sourceTree = "<group>"; };
+		5483D03A25D3C0B700613F40 /* maptable.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = maptable.mm; sourceTree = "<group>"; };
+		5483D03B25D3C0B700613F40 /* objc-file-old.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "objc-file-old.h"; sourceTree = "<group>"; };
+		5483D03C25D3C0B700613F40 /* objc.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = objc.h; sourceTree = "<group>"; };
+		5483D03D25D3C0B700613F40 /* objc-locks-old.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "objc-locks-old.h"; sourceTree = "<group>"; };
+		5483D03E25D3C0B700613F40 /* objc-auto.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = "objc-auto.mm"; sourceTree = "<group>"; };
+		5483D03F25D3C0B700613F40 /* objc-cache-old.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = "objc-cache-old.mm"; sourceTree = "<group>"; };
+		5483D04025D3C0B700613F40 /* objc-sel-set.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "objc-sel-set.h"; sourceTree = "<group>"; };
+		5483D04125D3C0B700613F40 /* llvm-MathExtras.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "llvm-MathExtras.h"; sourceTree = "<group>"; };
+		5483D04225D3C0B700613F40 /* objc-sel.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = "objc-sel.mm"; sourceTree = "<group>"; };
+		5483D04325D3C0B700613F40 /* runtime.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = runtime.h; sourceTree = "<group>"; };
+		5483D04425D3C0B700613F40 /* objc-gdb.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "objc-gdb.h"; sourceTree = "<group>"; };
+		5483D04525D3C0B700613F40 /* objc-class.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "objc-class.h"; sourceTree = "<group>"; };
+		5483D04625D3C0B700613F40 /* NSObject.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NSObject.h; sourceTree = "<group>"; };
+		5483D04725D3C0B700613F40 /* objc-internal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "objc-internal.h"; sourceTree = "<group>"; };
+		5483D04825D3C0B700613F40 /* objc-weak.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "objc-weak.h"; sourceTree = "<group>"; };
+		5483D04925D3C0B700613F40 /* Object.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = Object.mm; sourceTree = "<group>"; };
+		5483D04A25D3C0B700613F40 /* objc-sync.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = "objc-sync.mm"; sourceTree = "<group>"; };
+		5483D04B25D3C0B700613F40 /* maptable.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = maptable.h; sourceTree = "<group>"; };
+		5483D04C25D3C0B700613F40 /* objc-runtime-old.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "objc-runtime-old.h"; sourceTree = "<group>"; };
+		5483D04D25D3C0B700613F40 /* objc-exception.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = "objc-exception.mm"; sourceTree = "<group>"; };
+		5483D04E25D3C0B700613F40 /* objc-object.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "objc-object.h"; sourceTree = "<group>"; };
+		5483D04F25D3C0B700613F40 /* objc-layout.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = "objc-layout.mm"; sourceTree = "<group>"; };
+		5483D05025D3C0B700613F40 /* objc-initialize.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "objc-initialize.h"; sourceTree = "<group>"; };
+		5483D05125D3C0B700613F40 /* objc-runtime-old.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = "objc-runtime-old.mm"; sourceTree = "<group>"; };
+		5483D05225D3C0B700613F40 /* objc-abi.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "objc-abi.h"; sourceTree = "<group>"; };
+		5483D05325D3C0B700613F40 /* a1a2-blocktramps-arm64.s */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.asm; path = "a1a2-blocktramps-arm64.s"; sourceTree = "<group>"; };
+		5483D05425D3C0B700613F40 /* objc-os.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = "objc-os.mm"; sourceTree = "<group>"; };
+		5483D05525D3C0B700613F40 /* objc-accessors.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = "objc-accessors.mm"; sourceTree = "<group>"; };
+		5483D05625D3C0B700613F40 /* objcrt.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = objcrt.c; sourceTree = "<group>"; };
+		5483D05725D3C0B700613F40 /* objc-loadmethod.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "objc-loadmethod.h"; sourceTree = "<group>"; };
+		5483D05825D3C0B700613F40 /* Object.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Object.h; sourceTree = "<group>"; };
+		5483D05925D3C0B700613F40 /* hashtable2.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = hashtable2.mm; sourceTree = "<group>"; };
+		5483D05A25D3C0B700613F40 /* a2a3-blocktramps-arm.s */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.asm; path = "a2a3-blocktramps-arm.s"; sourceTree = "<group>"; };
+		5483D05B25D3C0B700613F40 /* objc-references.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "objc-references.h"; sourceTree = "<group>"; };
+		5483D05C25D3C0B700613F40 /* objc-sel-old.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = "objc-sel-old.mm"; sourceTree = "<group>"; };
+		5483D05D25D3C0B700613F40 /* objc-typeencoding.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = "objc-typeencoding.mm"; sourceTree = "<group>"; };
+		5483D05E25D3C0B700613F40 /* objc-opt.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = "objc-opt.mm"; sourceTree = "<group>"; };
+		5483D05F25D3C0B700613F40 /* objc-runtime-new.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "objc-runtime-new.h"; sourceTree = "<group>"; };
+		5483D06025D3C0B700613F40 /* objc-locks.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "objc-locks.h"; sourceTree = "<group>"; };
+		5483D06125D3C0B700613F40 /* objc-auto.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "objc-auto.h"; sourceTree = "<group>"; };
+		5483D06225D3C0B700613F40 /* objc-lockdebug.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = "objc-lockdebug.mm"; sourceTree = "<group>"; };
+		5483D06325D3C0B700613F40 /* llvm-DenseMap.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "llvm-DenseMap.h"; sourceTree = "<group>"; };
+		5483D06425D3C0B700613F40 /* objc-cache.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = "objc-cache.mm"; sourceTree = "<group>"; };
+		5483D06525D3C0B700613F40 /* a1a2-blocktramps-arm.s */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.asm; path = "a1a2-blocktramps-arm.s"; sourceTree = "<group>"; };
+		5483D06625D3C0B700613F40 /* llvm-AlignOf.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "llvm-AlignOf.h"; sourceTree = "<group>"; };
+		5483D06725D3C0B700613F40 /* objc-api.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "objc-api.h"; sourceTree = "<group>"; };
+		5483D06825D3C0B700613F40 /* hashtable2.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = hashtable2.h; sourceTree = "<group>"; };
+		5483D06925D3C0B700613F40 /* Protocol.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = Protocol.mm; sourceTree = "<group>"; };
+		5483D06A25D3C0B700613F40 /* objc-runtime.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "objc-runtime.h"; sourceTree = "<group>"; };
 		548AC94F242F4B3100EEE11C /* WGFcodeNotes.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WGFcodeNotes.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		548AC952242F4B3100EEE11C /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		548AC954242F4B3100EEE11C /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -488,6 +611,7 @@
 		5409CDD325CAEDE300E704CF /* SourceCode */ = {
 			isa = PBXGroup;
 			children = (
+				5483CFED25D3C09900613F40 /* Runtime */,
 				5409CDD425CAEE2D00E704CF /* CFRunLoopRef */,
 			);
 			path = SourceCode;
@@ -682,6 +806,175 @@
 			path = CoreAnimal;
 			sourceTree = "<group>";
 		};
+		5483CFED25D3C09900613F40 /* Runtime */ = {
+			isa = PBXGroup;
+			children = (
+				5483CFEF25D3C0B500613F40 /* APPLE_LICENSE */,
+				5483CFEE25D3C0B500613F40 /* interposable.txt */,
+				5483CFF025D3C0B500613F40 /* libobjc.order */,
+				5483D00225D3C0B600613F40 /* markgc.cpp */,
+				5483D00025D3C0B600613F40 /* objc.sln */,
+				5483CFFD25D3C0B600613F40 /* objc.suo */,
+				5483CFFE25D3C0B600613F40 /* objc.vcproj */,
+				5483CFF125D3C0B500613F40 /* objc.xcodeproj */,
+				5483CFFB25D3C0B600613F40 /* objcrt */,
+				5483D00125D3C0B600613F40 /* prebuild.bat */,
+				5483CFF825D3C0B500613F40 /* ReleaseNotes.rtf */,
+				5483D00325D3C0B700613F40 /* runtime */,
+				5483CFF925D3C0B600613F40 /* unexported_symbols */,
+				5483CFFF25D3C0B600613F40 /* version.bat */,
+				5483CFFA25D3C0B600613F40 /* version.rc */,
+			);
+			path = Runtime;
+			sourceTree = "<group>";
+		};
+		5483CFF225D3C0B500613F40 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				5483CFF725D3C0B500613F40 /* libobjc.A.dylib */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		5483CFFB25D3C0B600613F40 /* objcrt */ = {
+			isa = PBXGroup;
+			children = (
+				5483CFFC25D3C0B600613F40 /* objcrt.vcproj */,
+			);
+			path = objcrt;
+			sourceTree = "<group>";
+		};
+		5483D00325D3C0B700613F40 /* runtime */ = {
+			isa = PBXGroup;
+			children = (
+				5483D00425D3C0B700613F40 /* Protocol.h */,
+				5483D00525D3C0B700613F40 /* objc-file.mm */,
+				5483D00625D3C0B700613F40 /* objc-errors.mm */,
+				5483D00725D3C0B700613F40 /* objc-config.h */,
+				5483D00825D3C0B700613F40 /* objc-private.h */,
+				5483D00925D3C0B700613F40 /* Messengers.subproj */,
+				5483D01125D3C0B700613F40 /* llvm-DenseMapInfo.h */,
+				5483D01225D3C0B700613F40 /* objc-class.mm */,
+				5483D01325D3C0B700613F40 /* a1a2-blocktramps-x86_64.s */,
+				5483D01425D3C0B700613F40 /* objc-runtime-new.mm */,
+				5483D01525D3C0B700613F40 /* objc-file-old.mm */,
+				5483D01625D3C0B700613F40 /* a1a2-blocktramps-i386.s */,
+				5483D01725D3C0B700613F40 /* objc-sel-table.s */,
+				5483D01825D3C0B700613F40 /* objc-locks-new.h */,
+				5483D01925D3C0B700613F40 /* objc-os.h */,
+				5483D01A25D3C0B700613F40 /* objc-exception.h */,
+				5483D01B25D3C0B700613F40 /* NSObjCRuntime.h */,
+				5483D01C25D3C0B700613F40 /* objc-cache-old.h */,
+				5483D01D25D3C0B700613F40 /* a2a3-blocktramps-i386.s */,
+				5483D01E25D3C0B700613F40 /* NSObject.mm */,
+				5483D01F25D3C0B700613F40 /* objcrt.h */,
+				5483D02025D3C0B700613F40 /* objc-references.mm */,
+				5483D02125D3C0B700613F40 /* objc-sel-set.mm */,
+				5483D02225D3C0B700613F40 /* objc-sync.h */,
+				5483D02325D3C0B700613F40 /* hashtable.h */,
+				5483D02425D3C0B700613F40 /* objc-initialize.mm */,
+				5483D02525D3C0B700613F40 /* a2a3-blocktramps-x86_64.s */,
+				5483D02625D3C0B700613F40 /* objc-load.mm */,
+				5483D02725D3C0B700613F40 /* objc-lockdebug.h */,
+				5483D02825D3C0B700613F40 /* objc-load.h */,
+				5483D02925D3C0B700613F40 /* Module */,
+				5483D02C25D3C0B700613F40 /* llvm-type_traits.h */,
+				5483D02D25D3C0B700613F40 /* OldClasses.subproj */,
+				5483D03025D3C0B700613F40 /* objc-block-trampolines.mm */,
+				5483D03125D3C0B700613F40 /* objc-loadmethod.mm */,
+				5483D03225D3C0B700613F40 /* objc-runtime.mm */,
+				5483D03325D3C0B700613F40 /* objc-file.h */,
+				5483D03425D3C0B700613F40 /* objc-probes.d */,
+				5483D03525D3C0B700613F40 /* objc-class-old.mm */,
+				5483D03625D3C0B700613F40 /* message.h */,
+				5483D03725D3C0B700613F40 /* objc-cache.h */,
+				5483D03825D3C0B700613F40 /* objc-weak.mm */,
+				5483D03925D3C0B700613F40 /* objc-env.h */,
+				5483D03A25D3C0B700613F40 /* maptable.mm */,
+				5483D03B25D3C0B700613F40 /* objc-file-old.h */,
+				5483D03C25D3C0B700613F40 /* objc.h */,
+				5483D03D25D3C0B700613F40 /* objc-locks-old.h */,
+				5483D03E25D3C0B700613F40 /* objc-auto.mm */,
+				5483D03F25D3C0B700613F40 /* objc-cache-old.mm */,
+				5483D04025D3C0B700613F40 /* objc-sel-set.h */,
+				5483D04125D3C0B700613F40 /* llvm-MathExtras.h */,
+				5483D04225D3C0B700613F40 /* objc-sel.mm */,
+				5483D04325D3C0B700613F40 /* runtime.h */,
+				5483D04425D3C0B700613F40 /* objc-gdb.h */,
+				5483D04525D3C0B700613F40 /* objc-class.h */,
+				5483D04625D3C0B700613F40 /* NSObject.h */,
+				5483D04725D3C0B700613F40 /* objc-internal.h */,
+				5483D04825D3C0B700613F40 /* objc-weak.h */,
+				5483D04925D3C0B700613F40 /* Object.mm */,
+				5483D04A25D3C0B700613F40 /* objc-sync.mm */,
+				5483D04B25D3C0B700613F40 /* maptable.h */,
+				5483D04C25D3C0B700613F40 /* objc-runtime-old.h */,
+				5483D04D25D3C0B700613F40 /* objc-exception.mm */,
+				5483D04E25D3C0B700613F40 /* objc-object.h */,
+				5483D04F25D3C0B700613F40 /* objc-layout.mm */,
+				5483D05025D3C0B700613F40 /* objc-initialize.h */,
+				5483D05125D3C0B700613F40 /* objc-runtime-old.mm */,
+				5483D05225D3C0B700613F40 /* objc-abi.h */,
+				5483D05325D3C0B700613F40 /* a1a2-blocktramps-arm64.s */,
+				5483D05425D3C0B700613F40 /* objc-os.mm */,
+				5483D05525D3C0B700613F40 /* objc-accessors.mm */,
+				5483D05625D3C0B700613F40 /* objcrt.c */,
+				5483D05725D3C0B700613F40 /* objc-loadmethod.h */,
+				5483D05825D3C0B700613F40 /* Object.h */,
+				5483D05925D3C0B700613F40 /* hashtable2.mm */,
+				5483D05A25D3C0B700613F40 /* a2a3-blocktramps-arm.s */,
+				5483D05B25D3C0B700613F40 /* objc-references.h */,
+				5483D05C25D3C0B700613F40 /* objc-sel-old.mm */,
+				5483D05D25D3C0B700613F40 /* objc-typeencoding.mm */,
+				5483D05E25D3C0B700613F40 /* objc-opt.mm */,
+				5483D05F25D3C0B700613F40 /* objc-runtime-new.h */,
+				5483D06025D3C0B700613F40 /* objc-locks.h */,
+				5483D06125D3C0B700613F40 /* objc-auto.h */,
+				5483D06225D3C0B700613F40 /* objc-lockdebug.mm */,
+				5483D06325D3C0B700613F40 /* llvm-DenseMap.h */,
+				5483D06425D3C0B700613F40 /* objc-cache.mm */,
+				5483D06525D3C0B700613F40 /* a1a2-blocktramps-arm.s */,
+				5483D06625D3C0B700613F40 /* llvm-AlignOf.h */,
+				5483D06725D3C0B700613F40 /* objc-api.h */,
+				5483D06825D3C0B700613F40 /* hashtable2.h */,
+				5483D06925D3C0B700613F40 /* Protocol.mm */,
+				5483D06A25D3C0B700613F40 /* objc-runtime.h */,
+			);
+			path = runtime;
+			sourceTree = "<group>";
+		};
+		5483D00925D3C0B700613F40 /* Messengers.subproj */ = {
+			isa = PBXGroup;
+			children = (
+				5483D00A25D3C0B700613F40 /* objc-msg-arm.s */,
+				5483D00B25D3C0B700613F40 /* objc-msg-simulator-i386.s */,
+				5483D00C25D3C0B700613F40 /* objc-msg-i386.s */,
+				5483D00D25D3C0B700613F40 /* objc-msg-x86_64.s */,
+				5483D00E25D3C0B700613F40 /* objc-msg-simulator-x86_64.s */,
+				5483D00F25D3C0B700613F40 /* objc-msg-win32.m */,
+				5483D01025D3C0B700613F40 /* objc-msg-arm64.s */,
+			);
+			path = Messengers.subproj;
+			sourceTree = "<group>";
+		};
+		5483D02925D3C0B700613F40 /* Module */ = {
+			isa = PBXGroup;
+			children = (
+				5483D02A25D3C0B700613F40 /* ObjectiveC.apinotes */,
+				5483D02B25D3C0B700613F40 /* module.modulemap */,
+			);
+			path = Module;
+			sourceTree = "<group>";
+		};
+		5483D02D25D3C0B700613F40 /* OldClasses.subproj */ = {
+			isa = PBXGroup;
+			children = (
+				5483D02E25D3C0B700613F40 /* List.m */,
+				5483D02F25D3C0B700613F40 /* List.h */,
+			);
+			path = OldClasses.subproj;
+			sourceTree = "<group>";
+		};
 		548AC946242F4B3100EEE11C = {
 			isa = PBXGroup;
 			children = (
@@ -765,6 +1058,7 @@
 		548AC984242F4C9200EEE11C /* WGReadMe */ = {
 			isa = PBXGroup;
 			children = (
+				5483CFEB25D3B95400613F40 /* NewRunTime.md */,
 				548F332324F2B13E00AB3540 /* 属性修饰符.md */,
 				54330A4E25C1B40E00055C66 /* NewRunloop.md */,
 				542D3D822518E61300394130 /* 分类扩展关联对象.md */,
@@ -895,6 +1189,12 @@
 			mainGroup = 548AC946242F4B3100EEE11C;
 			productRefGroup = 548AC950242F4B3100EEE11C /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 5483CFF225D3C0B500613F40 /* Products */;
+					ProjectRef = 5483CFF125D3C0B500613F40 /* objc.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				548AC94E242F4B3100EEE11C /* WGFcodeNotes */,
@@ -903,6 +1203,16 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		5483CFF725D3C0B500613F40 /* libobjc.A.dylib */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.dylib";
+			path = libobjc.A.dylib;
+			remoteRef = 5483CFF625D3C0B500613F40 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		548AC94D242F4B3100EEE11C /* Resources */ = {
@@ -941,6 +1251,7 @@
 				30FD75FE2435C88B00431678 /* lock5.png in Resources */,
 				54DA257225B47ADC00E1B980 /* 性能优化.md in Resources */,
 				301CF1BF2452F1750024EC69 /* runLoop1.png in Resources */,
+				5483CFEC25D3B95400613F40 /* NewRunTime.md in Resources */,
 				30ECA52024580E9000E3D312 /* Response.md in Resources */,
 				548F332024F15E8F00AB3540 /* Memory.md in Resources */,
 				3027FD3A2512197500E512FE /* Swift内存对齐问题.md in Resources */,
