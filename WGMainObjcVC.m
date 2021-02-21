@@ -23,9 +23,12 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    NSLog(@"-----%s",@encode(int));
+    NSLog(@"-----%s",@encode(id));
+    NSLog(@"-----%s",@encode(SEL));
+    
 
-    NSLog(@"-----%@",NSStringFromClass([self class]));
-    NSLog(@"-----%@",NSStringFromClass([super class]));
+    
 }
 
 

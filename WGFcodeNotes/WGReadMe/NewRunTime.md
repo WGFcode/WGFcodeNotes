@@ -86,7 +86,8 @@
        day----->4个字节
     ---------0x000c
     
-### 2.  Class结构-源码解读(简化)
+### 2. 源码解读(简化)
+#### 2.1 Class结构
         struct objc_class {
             Class isa;
             Class superclass;
@@ -118,9 +119,9 @@
         method_t    method_t   method_t   method_t    ...
         
         struct method_t {
-            SEL name;
-            const char *types;
-            IMP imp;
+            SEL name;            
+            const char *types;   
+            IMP imp;             
         }
 #### class_rw_t里面的methods、properties、protocols是二维数组,是可读可写的,包含了类的初始内容、分类的内容,为什么要设计成二维数组? 原因就是可以动态往里面添加或删除方法,那么设计成一维数组不是一样可以吗?原因就是分类的方法都是独立的,不同的分类可能存放在数组的不同位置上,而一维数组操作不太方便; 
 #### 类的所有方法、协议、属性、成员变量等一开始都是放在class_ro_t结构体中的,程序运行起来后,会将分类的信息和类原来的信息(class_ro_t)进行合并在一起,存放到class_rw_t结构体中
@@ -153,11 +154,143 @@
 #### class_ro_t里面的baseMethodList、baseProtocols、ivars、baseProperties是一维数组,是只读的,包含了类的初始内容
 
 
+#### 2.2 method_t结构
+#### method_t是对方法/函数的封装
+    struct method_t {
+        SEL name;            //函数名(方法名)
+        const char *types;   //编码(返回值类型、参数类型)
+        IMP imp;             //指向函数的指针(函数地址)
+    }
+* IMP代表函数的具体实现
+* SEL代表方法/函数名,一般叫做选择器,底层结构跟char *类似
+1. 可以通过@selector()和sel_registerName()获得
+2. 可以通过sel_getName()和NSStringFromSelector()转成字符串
+3. 不同类中相同名字的方法,所对应的方法选择器是相同的
+* types包含了函数返回值、参数编码的字符串
+
+#### Type Encoding: iOS中提供了一个叫做@encode的指令,可以将具体的类型表示成字符串编码. 可以在苹果官网上搜索Type Encoding找到对应的表
+
+        - (void)viewDidLoad {
+            [super viewDidLoad];
+            NSLog(@"-----%s",@encode(int));
+            NSLog(@"-----%s",@encode(id));
+            NSLog(@"-----%s",@encode(SEL));
+        }
+        打印结果: -----i
+                -----@
+                -----:
+    
+    //这个方法的types是(i24@0:8i16f20)
+    // i: 返回值类型  @是第一个参数id类型就是消息接收者  :是SEL  i表示int类型 f表示float类型
+    // 24代表所有参数的字节数(id-8字节 SEL-8字节 int-4字节 float-4字节)
+    // @代表第一个参数id,0表示这个参数从哪里开始,8代表参数:(SEL)开始的字节数  16代表参数i开始的字节数 20代表f开始的字节数
+    -(int)test:(int)age height:(float)height;
+
+#### 2.3 cache_t方法缓存结构
+#### Class内部结构中有个方法缓存(cache_t),用**散列表**(也叫哈希表)来缓存曾经调用过的方法,可以提高方法的查找速度
+    struct objc_class {
+        Class isa;
+        Class superclass;
+        cache_t cache;          //方法缓存
+        class_data_bits_t bits; //用于获取具体的类信息
+    }
+    
+    struct cache_t {
+        struct bucket_t *_buckets;  //数组,其实就是个散列表,里面存放的是bucket_t
+        mask_t _mask;               //散列表长度-1(数组元素个数-1)
+        mask_t _occupied;           //已经缓存的方法数量
+    }
+    为什么_mask的长度是散列表长度-1? 因为如果等于散列表长度,而@selector(test)&_mask的值要小于等于散列表的下标
+    而最大的下标是散列表长度-1
+    
+    struct bucket_t {               //散列表
+        cache_key_t _key;           //SEL作为Key
+        IMP _imp;                   //函数的内存地址
+    }
+#### 再次调用[person test]方法时,先通过isa找到cache_t cache,然后在方法缓存中对比_key,如果_key相同,那么就返回函数地址imp,直接调用即可
+    例如: [person test]    //_key = @selector(test)  _imp = test的地址
+
+#### 2.3.1 cache_t方法缓存的存取过程: 散列表核心(f(key)==index)
+    数组下标index  元素    
+       0        NULL
+       1        NULL
+       2        NULL
+       3        bucket_t(_key,_imp)
+       4        ......
+#### 将方法放入缓存的过程: 
+1. 首先通过@selector(test) & _mask获取到数组下标index,然后将方法放入对应的下标中,其它没有元素的下标都是NULL,这种方式就是牺牲了内存空间,而换来了查找的高效率,即空间换时间   
+2. 如果发现& _mask后获取到的下标index中已经有元素,会将下标index-1进行存放,如果index-1也有元素了,继续让index-1,如果index减到0了,仍然没有地方村,那么就让下标等于_mask,继续进行找NULL地方存放
+3. 如果仍然没有找到NULL位置来存放,那么就进行扩容,扩容的容量是之前散列表长度的2倍,如果发生扩容,会将之前的散列表中的缓存内容全部清空,重新设置新的_mask
+    
+        数组下标index  元素    
+           0        bucket_t(_key,_imp)
+           1        bucket_t(_key,_imp)
+           2        bucket_t(_key,_imp)
+           3        bucket_t(_key,_imp)
+           4        ......
+#### 从方法缓存列表中查找方法过程: 
+1. 首先通过@selector(test) & _mask获取到数组下标,然后找到对应的下标元素,对比@selector(test)和元素中的_key是否相同,若相同,则取出对应的_imp,进行方法调用; 若不相同,则下标index-1,继续去判断index-1下标中的元素的_key是否相同,若仍然不相同,则继续让下标index-1去找; 若减到0了仍不相同,则让index等于_mask,即去找散列表中的最后一位元素继续进行对比
+
+#### 注意: 在arm64架构下index是-1进行操作的,如果是X86/arm/i386架构,则是i+1进行操作的
+
+#### 2.3.2 查找方法过程
+1. 首先通过isa指针找到方法缓存,如果方法缓存有就调用
+2. 若方法缓存中没有,则继续通过bits & FAST_DATA_MASK找到结构体class_rw_t,在结构体class_rw_t中的方法列表methods中继续查找,找到了就调用,并将该方法写入到方法缓存列表中
+3. 若方法列表中没有,则通过superClass找到父类的类对象,在父类的类对象的方法缓存中查找,若找到则调用,并且会将父类的类对象中的方法缓存列表中的方法写入到自己类的方法缓存列表中
+4. 若父类的方法缓存列表中没有,则继续找父类的类对象的结构体class_rw_t中的方法列表,若找到则调用,并且会将这个方法写入到自己类的方法缓存列表中
+5. 若在父类的方法列表中仍然没有,则继续通过superClass找到父类的父类的类对象继续查找,依次类推
+6. 如果仍然没有找到,并且也没有做其它处理,就走消息转发和动态方法解析渠道
+7. 如果这些都没有处理,则会报经典的错误: unrecognized selector sent to instance
 
 
+### 3 objc_msgSend函数
+#### OC中的方法调用,其实都是转换为objc_msgSend函数的调用,objc_msgSend(消息接收者,消息名称);objc_msgSend的执行流程可以分为三大阶段
+1. 消息发送阶段
+2. 动态方法解析
+3. 消息转发
 
+        //对象方法
+        Person *person = [[Person alloc]init];
+        [person test];
+        等价于
+        objc_msgSend(person,sel_registerName("test"))
+        
+        //类方法
+        [Person initialize];
+        等价于
+        objc_msgSend([Person class],sel_registerName("initialize"))
 
+### 3.1 消息发送阶段
+                                                
+    (1)receiver是否为nil---否--->(2)从receive Class的cache中查找方法---找到--->调用方法结束查询
+         是                         没有找到
+         退出         (3)从receive Class的class_rw_t中查找方法---找到--->调用方法结束查询
+                                      |                           并将方法缓存到receive的cache中
+                                      |
+                                   没有找到
+                         (4)从superClass的cache中查找方法---找到--->调用方法结束查询
+                                      |                       并将方法缓存到receive的cache中
+                                      |
+                                    没有找到
+                        (5)从superClass的class_rw_t中查找方法---找到--->调用方法结束查询
+                                      |                           并将方法缓存到receive的cache中
+                                      |
+                                    没有找到
+                            (6)上层是否还有superClass---否--->动态方法解析阶段
+                                      |
+                                      |
+                                      是
+                                继续(4)步骤
+                                    
+1. 如何从class_rw_t中查找方法: 已经排序的,二分查找;没有排序的,遍历查找
+2. receive通过isa指针找到receiveClass
+3. receiveClass通过superclass指针找到superClass
+                                      
+                                      
 
+### 3.2 动态方法解析阶段
+
+### 3.3 消息转发阶段
 
 
 
