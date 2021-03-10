@@ -282,13 +282,110 @@
                                       是
                                 继续(4)步骤
                                     
-1. 如何从class_rw_t中查找方法: 已经排序的,二分查找;没有排序的,遍历查找
+1. 如何从class_rw_t中查找方法: 已经排序的,二分查找(折半查找);没有排序的,遍历查找
 2. receive通过isa指针找到receiveClass
 3. receiveClass通过superclass指针找到superClass
                                       
-                                      
-
 ### 3.2 动态方法解析阶段
+#### 如果自己类和父类都没有找到方法,那么就会进入动态方法解析阶段
+                是否曾经有动态解析---> 是 ---> 消息转发
+                        | 否
+        调用+(BOOL)resolveInstanceMethod:(SEL)sel
+        或者+(BOOL)resolveClassMethod:(SEL)sel来动态解析方法
+                        |
+                  标记为已经动态解析
+                        |
+                      消息发送
+1. 开发者可以实现以下方法,来动态添加方法实现:
+
+        +resolveInstanceMethod  添加对象方法的实现
+        +resolveClassMethod   添加类方法的实现
+2. 动态解析过后,会重新走**消息发送**的流程,“从receiverClass的cache中查找方法”这一步开始执行
+#### 案例1: 对象方法
+    @interface Person : NSObject
+    -(void)test;
+    @end
+
+    #import "Person.h"
+    #import <objc/runtime.h>
+    @implementation Person
+    /*
+     typedef struct objc_method *Method;
+     objc_method其实等价于method_t结构体
+     struct method_t {
+                SEL name;
+                const char *types;
+                IMP imp;
+     };
+     */
+    -(void)otherTest{
+        NSLog(@"---%s---",__func__);
+    }
+    //对象方法
+    +(BOOL)resolveInstanceMethod:(SEL)sel {
+        if (sel == @selector(test)) {
+            //动态添加test对象方法的实现
+            //1. 获取其它方法:传self,因为是在类方法中,所以self代表类对象,而对象方法是添加到类对象中的
+            Method otherMethod = class_getInstanceMethod(self, @selector(otherTest));
+            //2.方法添加到什么上面? 肯定是添加到类对象中,而这个方法就是在类方法中,所以self就代表类对象
+            class_addMethod(self,
+                            sel,
+                            method_getImplementation(otherMethod),
+                            method_getTypeEncoding(otherMethod)
+                            );
+            //3.返回YES代表有动态添加方法,其实返回YES/NO都没关系,因为系统拿到这个返回值也不会做事情,只是打印
+            return YES;
+        }
+        return [super resolveInstanceMethod:sel];
+    }
+    @end
+
+    - (void)viewDidLoad {
+        [super viewDidLoad];
+        Person *person = [[Person alloc]init];
+        [person test];
+    }
+    打印结果: ----[Person otherTest]---
+#### 案例2: 类方法
+    @interface Person : NSObject
+    +(void)test;
+    @end
+
+    #import "Person.h"
+    #import <objc/runtime.h>
+
+    @implementation Person
+    +(void)otherTest{
+        NSLog(@"---%s---",__func__);
+    }
+    //类方法
+    +(BOOL)resolveClassMethod:(SEL)sel {
+        if (sel == @selector(test)) {
+            //获取类方法
+            Method otherMethod = class_getClassMethod(self, @selector(otherTest));
+            //将类方法添加到元类对象中, 类(self)的object_getClass就是元类对象
+            class_addMethod(object_getClass(self),
+                            sel,
+                            method_getImplementation(otherMethod),
+                            method_getTypeEncoding(otherMethod)
+                            );
+            return YES;
+        }
+        return [super resolveClassMethod:sel];
+    }
+
+    @end
+
+    - (void)viewDidLoad {
+        [super viewDidLoad];
+        [Person test];
+    }
+    打印结果: ---+[Person otherTest]---
+
+#### 分析,当在类和父类中都没有找到方法时(**消息发送阶段**),就会走**动态解析阶段**,如果在**动态解析阶段**也没有实现方法+resolveInstanceMethod
+或+resolveClassMethod方法,那么就会继续走**消息发送阶段**,并且会将这次的动态解析阶段标记为已经动态解析,显然这次的动态解析阶段什么也没有做,走完**消息发送阶段**后,发现仍然没有找到方法,那么就会来到**动态解析阶段**,发现已经动态解析过了,那么就会走**消息转发阶段**,如果实现了动态解析方法resolveInstanceMethod或resolveClassMethod方法,那么只要在对应动态方法解析的方法中添加方法的实现即可,然后标记为已动态解析,然后方法就会继续走**消息发送阶段**了,为什么又走消息发送阶段?因为在动态解析阶段已经在类对象中添加了方法实现,所以才会继续走**消息发送阶段**
+
+
 
 ### 3.3 消息转发阶段
 

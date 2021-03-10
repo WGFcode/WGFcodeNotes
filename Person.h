@@ -7,17 +7,14 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "Student.h"
+
 
 NS_ASSUME_NONNULL_BEGIN
 
 
 @interface Person : NSObject
 
-@property(nonatomic, strong) NSString *name;
-@property(nonatomic, assign) NSInteger age;
-
--(void)test;
++(void)test;
 @end
 
 

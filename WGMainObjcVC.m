@@ -23,13 +23,10 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    NSLog(@"-----%s",@encode(int));
-    NSLog(@"-----%s",@encode(id));
-    NSLog(@"-----%s",@encode(SEL));
-    
-
-    
+    [Person test];
 }
+
+
 
 
 @end
