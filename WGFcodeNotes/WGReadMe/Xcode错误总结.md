@@ -60,3 +60,23 @@ The iOS deployment target 'IPHONEOS_DEPLOYMENT_TARGET' is set to 8.0, but the ra
 4. 升级Xcode12后，真机运行没问题，运行到模拟器上是报错:Module “WGBaseTool”was created for incompatible target arm64-apple-ios10.0:,WGBaseTool是我自己创建的静态库
 #### 解决方法：选择调用端的target,注意是调用端,不是生成的framework端,之前我改了framework端还是报错浪费了时间.
 build Settings ->Excluded Architecture->debug 和 release ->Any ios simulator SDK 点击 + 加号,手动输入arm64 ,debug 和 release操作一样,都要修改,之后再运行模拟器编译就不报错了.
+
+5. 在OC的农信聚合小二中，运行项目到模拟器会发生如下错误
+
+        ld: building for iOS Simulator, but linking in dylib built for iOS, file '/Users/baicai/Desktop/WLKProject/NXYJHXEProject/Pods/NIMSDK_LITE/NIMSDK/NIMSDK.framework/NIMSDK' for architecture arm64
+        clang: error: linker command failed with exit code 1 (use -v to see invocation)
+#### 解决方案：在Build Settings -> Excluded Architectures中添加arm64,但是如果添加后在真机上运行就运行不了了，会提示如下信息，所以如果需要模拟器运行，我们可以添加，如果是真机运行就不要添加
+    NXYXE's architectures (armv7) include none that 武智功 can execute (arm64v8, arm64, armv8).
+
+6. 在家银小二项目中，如果连接iOS14.4跑代码没问题，但是一但断开直接运行在真机上会出现crash，但是在iOS12.2的设备上没问题，跑代码日子看了没问题，但是不连接代码，又看不到日志，所以采用将项目打包，导出dsym文件，然后利用Bugly生成符号表，真机运行就可以直接看到crash日志，同时也发现了Bugly是实时监控crash日志的，详细的日志信息如下：
+
+        #2 NSUnknownKeyException
+        [<AFHTTPSessionManager 0x280a3c000> setValue:forUndefinedKey:]: this class is not key value coding-compliant for the key Content-Type.
+        ZJKBank +[WGNetworkAPI requestWithFunCode:param:success:fail:] (WGNetworkAPI.m:)
+        解决方案： 找不到该key值
+        
+        被重点标记的行，可以发现crash发生在WGNetworkAPI.m文件的第111行代码
+        ZJKBank    +[WGNetworkAPI requestWithFunCode:param:success:fail:] (WGNetworkAPI.m:111)
+        ZJKBank    -[WGLoginVC login] (WGLoginVC.m:177)
+
+#### 解决方案： 将[[WGNetworkAPI manager] setValue:@"application/json" forKey:@"Content-Type"];去掉就可以了，
