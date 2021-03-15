@@ -388,18 +388,107 @@
 
 
 ### 3.3 消息转发阶段
+#### **消息发送阶段**和**动态解析阶段**都找不到方法或没有处理,就会进入**消息转发阶段**
 
+    (1)调用forwardingTargetForSelector方法---返回值为nil--->(2)objc_megSend(返回值,SEL)
+                            |
+                            |  返回值为nil
+            调用methodSignatureForSelector:方法---返回值为nil--->调用doesNotRecognizeSelector:方法
+             [作用是返回一个有用有效的方法签名]
+                            |
+                            | 返回值不为nil
+            再给最后一次机会去调用forwardInvocation:方法,来处理        
+                            
+#### 事例
 
+    @interface Person : NSObject
+    -(void)test;
+    @end
 
+    #import "Person.h"
+    #import "Student.h"
+    @implementation Person
+    ///1.方法一,消息转发:将消息转发给别人,将方法交给一个指定的对象去实现
+    //-(id)forwardingTargetForSelector:(SEL)aSelector {
+    //    if (aSelector == @selector(test)) {
+    //        //底层实际上是这么处理的:objc_msgSend([[Student alloc]init], aSelector)
+    //        return [[Student alloc]init];
+    //    }
+    //    return 0;
+    //}
 
+    /// 2.如果方法一没有实现(相当于返回nil),或者返回值为nil,就继续调用下面这个方法
+    - (NSMethodSignature *)methodSignatureForSelector:(SEL)aSelector {
+        //返回一个方法签名: 方法签名(返回值类型、参数类型)
+        if (aSelector == @selector(test)) {
+            //"v16@0:8": 代表-(void)test的方法签名
+            return [NSMethodSignature signatureWithObjCTypes:"v16@0:8"];
+            //方法签名也可以这样写,前提是知道要实现的对象,并且对象有这个方法(知道一下就可以了)
+            //return [[[Student alloc]init] methodSignatureForSelector:aSelector];
+            return 
+        }
+        return [super methodSignatureForSelector:aSelector];
+    }
 
+    //3.返回完方法签名后,会调用下面的方法,如果方法签名中返回nil,那么就不会调用下面这个方法
+    //NSInvocation封装了一个方法调用,包括:方法调用者、方法名、方法参数
+    -(void)forwardInvocation:(NSInvocation *)anInvocation {
+        //方法调用者:anInvocation.target
+        //方法名:anInvocation.selector
+        //方法参数: [anInvocation getArgument:NULL atIndex:0]
+        //(1)可以指定一个对象来执行
+        //anInvocation.target = [[Student alloc]init];
+        //[anInvocation invoke];
+        //上面的会报错,所以尽量用下面的方法来调用
+        [anInvocation invokeWithTarget:[[Student alloc]init]];
+    }
+    @end
 
+#### 详细刨析,如果我们仅仅是为了像案例中的一样,指定一个方法接收者,那么完全不用这么麻烦,直接在**动态方法解析阶段**直接指定一个方法接收者即可,为什么还要这么麻烦的进行**消息转发阶段**那?
+        #import "Person.h"
+        @implementation Person
 
+        /// 返回一个方法签名
+        - (NSMethodSignature *)methodSignatureForSelector:(SEL)aSelector {
+            if (aSelector == @selector(test)) {
+                return [NSMethodSignature signatureWithObjCTypes:"v16@0:8"];
+            }
+            return [super methodSignatureForSelector:aSelector];
+        }
 
+        /// 这里可以尽情的实现方法调用
+        -(void)forwardInvocation:(NSInvocation *)anInvocation {
+            //这里可以随便处理,如打印一个信息,或者什么都不写都可以
+            NSLog(@"我要尽情的处理");
+        }
+        @end
+#### 假如我们要调用的是方法-(void)test:(int)age;,我们想让参数+10,
 
+    @implementation Person
+    /// 返回一个方法签名
+    - (NSMethodSignature *)methodSignatureForSelector:(SEL)aSelector {
+        if (aSelector == @selector(test:)) {
+            return [NSMethodSignature signatureWithObjCTypes:"v20@0:8i16"];
+        }
+        return [super methodSignatureForSelector:aSelector];
+    }
 
+    /// 这里可以尽情的实现方法调用
+    -(void)forwardInvocation:(NSInvocation *)anInvocation {
+        //参数顺序: receiver、selector、other arguments
+        int age;
+        [anInvocation getArgument:&age atIndex:2];
+        //anInvocation还可以获取方法返回值: getReturnValue
+        NSLog(@"---%d",age+10);
+    }
+    @end
 
-
+    - (void)viewDidLoad {
+        [super viewDidLoad];
+        Person *person = [[Person alloc]init];
+        [person test:10];
+    }
+    打印结果:  ---20
 
 
 

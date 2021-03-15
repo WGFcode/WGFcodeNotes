@@ -7,38 +7,26 @@
 //
 
 #import "Person.h"
-#import <objc/runtime.h>
+#import "Student.h"
 
 @implementation Person
-/*
- typedef struct objc_method *Method;
- objc_method其实等价于method_t结构体
- struct method_t {
-            SEL name;
-            const char *types;
-            IMP imp;
- };
- */
 
-+(void)otherTest{
-    NSLog(@"---%s---",__func__);
+/// 返回一个方法签名
+- (NSMethodSignature *)methodSignatureForSelector:(SEL)aSelector {
+    if (aSelector == @selector(test:)) {
+        return [NSMethodSignature signatureWithObjCTypes:"v20@0:8i16"];
+        
+    }
+    return [super methodSignatureForSelector:aSelector];
 }
 
-
-//类方法
-+(BOOL)resolveClassMethod:(SEL)sel {
-    if (sel == @selector(test)) {
-        //获取类方法
-        Method otherMethod = class_getClassMethod(self, @selector(otherTest));
-        //将类方法添加到元类对象中, 类(self)的object_getClass就是元类对象
-        class_addMethod(object_getClass(self),
-                        sel,
-                        method_getImplementation(otherMethod),
-                        method_getTypeEncoding(otherMethod)
-                        );
-        return YES;
-    }
-    return [super resolveClassMethod:sel];
+/// 这里可以尽情的实现方法调用
+-(void)forwardInvocation:(NSInvocation *)anInvocation {
+    //参数顺序: receiver、selector、other arguments
+    int age;
+    [anInvocation getArgument:&age atIndex:2];
+    anInvocation getReturnValue:<#(nonnull void *)#>
+    NSLog(@"%d",age+10);
 }
 
 @end

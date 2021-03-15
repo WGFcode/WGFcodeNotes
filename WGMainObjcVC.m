@@ -23,7 +23,8 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    [Person test];
+    Person *person = [[Person alloc]init];
+    [person test:10];
 }
 
 

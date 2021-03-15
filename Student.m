@@ -8,13 +8,10 @@
 
 #import "Student.h"
 
-@interface Student()
-
-@end
-
-
 @implementation Student
 
-
+-(void)test {
+    NSLog(@"--%s",__func__);
+}
 
 @end

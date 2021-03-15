@@ -14,7 +14,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface Person : NSObject
 
-+(void)test;
+-(void)test:(int)age;
 @end
 
 
