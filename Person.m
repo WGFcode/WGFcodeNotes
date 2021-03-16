@@ -12,37 +12,21 @@
 
 
 @implementation Person
-/// 1. 消息发送阶段
-/// 2. 动态方法解析
-+(BOOL)resolveInstanceMethod:(SEL)sel {
-    return [super resolveInstanceMethod:sel];
-}
+/*
+ 1.@synthesize关键词是很早之前的写法,现在已经不需要再写这个关键词了,Xcode默认已经实现了,只要写
+ 上属性@property,就会自动生成成员变量和getter/setter方法的实现
+ 2.@synthesize age = _age; 为age属性生成_age的成员变量,并且自动生成getter/setter方法的实现,这里可以指定成员变量的
+ 名称,例如也可以这样写@synthesize age = _age1111;
+ */
+@synthesize age = _age;
 
-+(BOOL)resolveClassMethod:(SEL)sel {
-    return [super resolveClassMethod:sel];
-}
 
-/// 动态方法解析如果没有处理会进入消息转发阶段
-///3.消息转发阶段
-- (id)forwardingTargetForSelector:(SEL)aSelector {
-    if (aSelector == @selector(testInstanceMethod:)) {
-        //返回一个可以处理的事件的对象
-        //return [[Student alloc]init];
-        return nil;
-    }
-    return [super forwardingTargetForSelector:aSelector];
-}
-///4. 如果第三步返回的是nil,那么就继续看执行下面的方法
--(NSMethodSignature *)methodSignatureForSelector:(SEL)aSelector {
-    //返回一个方法签名： 方法签名其实包含了方法返回值类型，参数类型
-    //return [NSMethodSignature signatureWithObjCTypes:"v16@0:8"];
-    return [[[Student alloc]init] methodSignatureForSelector:aSelector];
-}
-//5.如果方法签名返回的有效，那么就会继续执行下面这一步
--(void)forwardInvocation:(NSInvocation *)anInvocation {
-    //[anInvocation invokeWithTarget:[[Student alloc]init]];
-    //NSLog(@"-------");
-}
+/*
+ 如果我们不希望Xcode自动帮我们生成属性的getter/setter方法的实现,可以这么写@dynamic age;
+ 提醒编译器不要自动生成getter/setter的实现,不要自动生成成员变量
+ 外部仍然可以调用setAge方法,因为@dynamic并步影响属性的getter/setter方法的声明
+ */
+@dynamic age;
 
 @end
 

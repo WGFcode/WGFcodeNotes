@@ -1,4 +1,16 @@
 ## Runtime
+### 面试题
+1. 将一下OC的消息机制
+* OC中的方法调用其实都是转成了objc_msgSend函数的调用,给receiver(方法调用者)发送一条消息(selector方法名)
+* objc_msgSend底层有3大阶段: 消息发送阶段(在当前类、父类中查找)、动态方法解析、消息转发阶段
+2. 消息转发机制流程
+* 讲解清楚调用的方法和顺序即可
+3. 什么是Runtime? 平时项目中有用过么?
+4. @dynamic作用
+* 告诉编译器不用自动生成getter/setter的实现,等到运行时再添加方法实现
+
+
+
 ### RunTime源码阅读可以通过全局搜索 WGRunTimeSourceCode 源码阅读 来快速查阅
 #### Objective-C是一门动态性比较强的编程语言,跟C、C++等语言有着很大的不同;C/C++语言流程是:编写代码->编译链接->运行,而OC可以办到在程序运行的过程中可以修改之前编译的东西.Objective-C的动态性是由RunTime API来支撑的,Runtime顾名思义就是运行时,RunTime API提供的接口基本都是C语言的,源码由C/C++/汇编语言编写
 
@@ -401,7 +413,7 @@
                             | 返回值不为nil
             再给最后一次机会去调用forwardInvocation:方法,来处理        
                             
-#### 事例
+#### 实例方法消息转发
 
     @interface Person : NSObject
     -(void)test;
@@ -493,10 +505,109 @@
         [person test:10];
     }
     打印结果:  ---20
+#### 类方法消息转发
 
+        @interface Student : NSObject
+        +(void)test;
+        @end
+
+        @implementation Student
+        +(void)test {
+            NSLog(@"---%s",__func__);
+        }
+        @end
+
+        @interface Person : NSObject
+        +(void)test;
+        @end
+
+        @implementation Person
+        //如果消息转发的是类方法,那么这个方法应该也是类方法,所以方法用+号,但是一般我们直接敲方法出来的都是实例方法,因为编译器对于类方法没有提示,所以我们需要根据方法类型来决定是用+还是-
+        +(id)forwardingTargetForSelector:(SEL)aSelector {
+            if (aSelector == @selector(test)) {
+                //因为转发的是类方法,所以消息的接收者应该是类对象
+                return [Student class];
+            }
+            return [super forwardingTargetForSelector:aSelector];
+        }
+        @end
+        
+        - (void)viewDidLoad {
+            [super viewDidLoad];
+            [Person test];
+        }
+        
+        打印结果: ---+[Student test]
+
+
+        @implementation Person
+        //如果消息转发的是类方法,那么这个方法应该也是类方法,所以方法用+号,但是一般我们直接敲方法出来的都是实例方法,
+        因为编译器对于类方法没有提示,所以我们需要根据方法类型来决定是用+还是-
+        //+(id)forwardingTargetForSelector:(SEL)aSelector {
+        //    if (aSelector == @selector(test)) {
+        //        //因为转发的是类方法,所以消息的接收者应该是类对象
+        //        return [Student class];
+        //    }
+        //    return [super forwardingTargetForSelector:aSelector];
+        //}
+
+        /// 如果上面的方法返回为nil或者没有处理,就会继续执行下面的方法, 记得也是类方法(+)
+        + (NSMethodSignature *)methodSignatureForSelector:(SEL)aSelector {
+            if (aSelector == @selector(test)) {
+                return [NSMethodSignature signatureWithObjCTypes:"v@:"];
+            }
+            return [super methodSignatureForSelector:aSelector];
+        }
+        // 这里也是个类方法
+        +(void)forwardInvocation:(NSInvocation *)anInvocation {
+            NSLog(@"123123123");
+        }
+        @end
+        
+        打印结果: 123123123
 #### 整个消息传递流程可以通过RunTime源码中objc-runtime-new.h文件中的_class_lookupMethodAndLoadCache3为入口进行查看
 
 
 
+### 4 @dynamic、@synthesize关键词
+        @interface Person : NSObject
+        /*
+         写上这么一个属性,编译器会自动帮我们
+         1.生成对应的getter/setter方法的声明
+         -(void)setAge:(int)age;
+         -(int)age;
+         
+         2._age成员变量
+         {
+            int _age;
+         }
+         
+         3. getter/setter方法的实现
+         -(void)setAge:(int)age {
+             _age = age;
+         }
+         -(int)age {
+             return _age;
+         }
+         */
+        @property(nonatomic, assign)int age;
+        @end
+        
+        @implementation Person
+        /*
+         1.@synthesize关键词是很早之前的写法,现在已经不需要再写这个关键词了,Xcode默认已经实现了,只要写
+         上属性@property,就会自动生成成员变量和getter/setter方法的实现
+         2.@synthesize age = _age; 为age属性生成_age的成员变量,并且自动生成getter/setter方法的实现,这里可以指定成员变量的
+         名称,例如也可以这样写@synthesize age = _age1111;
+         */
+        @synthesize age = _age;
 
-
+        /*
+         如果我们不希望Xcode自动帮我们生成属性的getter/setter方法的实现,可以这么写@dynamic age;
+         提醒编译器不要自动生成getter/setter的实现,不要自动生成成员变量
+         外部仍然可以调用setAge方法,因为@dynamic并步影响属性的getter/setter方法的声明
+         */
+        @dynamic age;
+        
+        @end
+### 5 super关键词
