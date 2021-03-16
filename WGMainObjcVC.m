@@ -24,9 +24,9 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     Person *person = [[Person alloc]init];
-    [person test:10];
+    [person testInstanceMethod:100];
+    //[Person testClassMethod:@"Zhang San"];
 }
-
 
 
 

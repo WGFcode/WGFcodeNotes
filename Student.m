@@ -10,8 +10,9 @@
 
 @implementation Student
 
--(void)test {
-    NSLog(@"--%s",__func__);
+
+-(void)testInstanceMethod:(int)ages {
+    NSLog(@"--%s,my age is:%d",__func__,ages);
 }
 
 @end

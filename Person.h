@@ -13,8 +13,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 
 @interface Person : NSObject
+-(int)testInstanceMethod:(int)age;
+//+(NSString *)testClassMethod:(NSString *)name;
 
--(void)test:(int)age;
 @end
 
 

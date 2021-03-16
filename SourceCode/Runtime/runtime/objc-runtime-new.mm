@@ -4568,6 +4568,7 @@ log_and_fill_cache(Class cls, IMP imp, SEL sel, id receiver, Class implementer)
 * This lookup avoids optimistic cache scan because the dispatcher 
 * already tried that.
 **********************************************************************/
+/// WGRunTimeSourceCode 源码阅读
 IMP _class_lookupMethodAndLoadCache3(id obj, SEL sel, Class cls)
 {
     return lookUpImpOrForward(cls, sel, obj, 
@@ -4587,6 +4588,7 @@ IMP _class_lookupMethodAndLoadCache3(id obj, SEL sel, Class cls)
 *   must be converted to _objc_msgForward or _objc_msgForward_stret.
 *   If you don't want forwarding at all, use lookUpImpOrNil() instead.
 **********************************************************************/
+/// WGRunTimeSourceCode 源码阅读
 IMP lookUpImpOrForward(Class cls, SEL sel, id inst, 
                        bool initialize, bool cache, bool resolver)
 {
@@ -4595,6 +4597,7 @@ IMP lookUpImpOrForward(Class cls, SEL sel, id inst,
 
     runtimeLock.assertUnlocked();
 
+    //外部参数已经设置为NO，所以这里不会再走这个方法体里面的代码了
     // Optimistic cache lookup
     if (cache) {
         imp = cache_getImp(cls, sel);
@@ -4639,11 +4642,13 @@ IMP lookUpImpOrForward(Class cls, SEL sel, id inst,
  retry:    
     runtimeLock.assertReading();
 
+    //  1.去该类的方法缓存列表中查找方法
     // Try this class's cache.
-
+    
     imp = cache_getImp(cls, sel);
     if (imp) goto done;
 
+    //  2.去该类的方法列表中查找方法
     // Try this class's method lists.
     {
         Method meth = getMethodNoSuper_nolock(cls, sel);
@@ -4654,6 +4659,7 @@ IMP lookUpImpOrForward(Class cls, SEL sel, id inst,
         }
     }
 
+    //  3.去该类的父类中的方法缓存列表和方法列表中查找
     // Try superclass caches and method lists.
     {
         unsigned attempts = unreasonableClassCount();
@@ -4691,7 +4697,11 @@ IMP lookUpImpOrForward(Class cls, SEL sel, id inst,
             }
         }
     }
-
+    /* 4.一旦上面还没有找到，就进入动态方法解析阶段，
+     首先判断是否曾经动态解析过，如果没有就继续，通过_class_resolveMethod方法动态添加方法实现，然后设置标记triedResolver为YES表示动态解析过，然后再次进入消息转发阶段，因为已经动态添加过方法了，所以消息发送阶段肯定有方法了
+     如果发现之前已经解析过，那么就不再进入动态解析阶段，直接进入到消息转发阶段了
+     如果是发现是第一次动态，但是在动态解析阶段没有添加方法实现，那么仍然会走消息发送阶段，然后发现没有，再来动态解析阶段，此时标记triedResolver为YES表示已经动态解析过了，就不会进入动态解析了，直接进入消息转发阶段了
+     */
     // No implementation found. Try method resolver once.
 
     if (resolver  &&  !triedResolver) {
@@ -4703,7 +4713,7 @@ IMP lookUpImpOrForward(Class cls, SEL sel, id inst,
         triedResolver = YES;
         goto retry;
     }
-
+    //5. 如果动态解析没有找到方法，就会走消息转发阶段
     // No implementation found, and method resolver didn't help. 
     // Use forwarding.
 

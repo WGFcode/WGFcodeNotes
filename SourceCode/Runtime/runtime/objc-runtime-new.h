@@ -48,7 +48,7 @@ public:
     void set(cache_key_t newKey, IMP newImp);
 };
 
-
+//MARK: 方法缓存cache_t
 struct cache_t {
     struct bucket_t *_buckets;
     mask_t _mask;
@@ -204,10 +204,11 @@ struct entsize_list_tt {
 };
 
 
+//MARK: 方法的底层结构method_t
 struct method_t {
-    SEL name;
-    const char *types;
-    IMP imp;
+    SEL name;               // 方法名|函数名
+    const char *types;      // 字符串编码（返回值类型、参数类型)
+    IMP imp;                // 指向函数的指针(函数地址)
 
     struct SortBySELAddress :
         public std::binary_function<const method_t&,
@@ -219,6 +220,7 @@ struct method_t {
     };
 };
 
+//MARK: 成员变量的底层结构ivar_t
 struct ivar_t {
 #if __x86_64__
     // *offset was originally 64-bit on some x86_64 platforms.
@@ -241,11 +243,13 @@ struct ivar_t {
     }
 };
 
+//MARK: 属性的底层结构property_t
 struct property_t {
-    const char *name;
+    const char *name;           //属性名称
     const char *attributes;
 };
 
+//MARK: 存放方法的一维数组method_list_t
 // Two bits of entsize are used for fixup markers.
 struct method_list_t : entsize_list_tt<method_t, method_list_t, 0x3> {
     bool isFixedUp() const;
@@ -259,12 +263,14 @@ struct method_list_t : entsize_list_tt<method_t, method_list_t, 0x3> {
     }
 };
 
+//MARK: 存放成员变量的一维数组ivar_list_t
 struct ivar_list_t : entsize_list_tt<ivar_t, ivar_list_t, 0> {
     bool containsIvar(Ivar ivar) const {
         return (ivar >= (Ivar)&*begin()  &&  ivar < (Ivar)&*end());
     }
 };
 
+//MARK: 存放属性的一维数组property_list_t
 struct property_list_t : entsize_list_tt<property_t, property_list_t, 0> {
 };
 
@@ -278,6 +284,7 @@ typedef uintptr_t protocol_ref_t;  // protocol_t *, but unremapped
 
 #define PROTOCOL_FIXED_UP_MASK (PROTOCOL_FIXED_UP_1 | PROTOCOL_FIXED_UP_2)
 
+//MARK: 遵守协议的底层结构protocol_t
 struct protocol_t : objc_object {
     const char *mangledName;
     struct protocol_list_t *protocols;
@@ -325,6 +332,7 @@ struct protocol_t : objc_object {
     }
 };
 
+//MARK: 存放协议的一维数组protocol_list_t
 struct protocol_list_t {
     // count is 64-bit by accident. 
     uintptr_t count;
@@ -525,23 +533,29 @@ struct locstamped_category_list_t {
 #endif
 
 
+/// WGRunTimeSourceCode 源码阅读
+/*
+ class_ro_t结构体中存放了当前类在编译期就已经确定的属性、方法以及遵循的协议
+ class_ro_t结构体中不包含category分类中的方法，分类中的方法是在运行时动态添加到class_rw_t结构体中的
+ class_ro_t结构体会在运行时通过RunTime添加到class_rw_t结构体中
+ */
 struct class_ro_t {
     uint32_t flags;
     uint32_t instanceStart;
-    uint32_t instanceSize;
+    uint32_t instanceSize;              //实例对象占用的内存空间
 #ifdef __LP64__
     uint32_t reserved;
 #endif
 
     const uint8_t * ivarLayout;
     
-    const char * name;
-    method_list_t * baseMethodList;
-    protocol_list_t * baseProtocols;
-    const ivar_list_t * ivars;
+    const char * name;                  //类名称
+    method_list_t * baseMethodList;     //方法列表 [method_t]一维数组
+    protocol_list_t * baseProtocols;    //协议列表 [protocol_t]一维数组
+    const ivar_list_t * ivars;          //成员变量列表 [ivar_t]一维数组
 
     const uint8_t * weakIvarLayout;
-    property_list_t *baseProperties;
+    property_list_t *baseProperties;    //属性列表 [property_t]一维数组
 
     method_list_t *baseMethods() const {
         return baseMethodList;
@@ -797,7 +811,11 @@ class protocol_array_t :
     }
 };
 
-
+/*
+ 1. class_rw_t结构体可读可写，OC对象的大部分信息都保存在这个结构体中
+ 2. class_rw_t结构体中包含：只读的结构体class_ro_t、方法列表、属性列表、协议列表
+ 3. class_ro_t结构体存放的是类初始化的信息
+ */
 struct class_rw_t {
     // Be warned that Symbolication knows the layout of this structure.
     uint32_t flags;
@@ -805,7 +823,7 @@ struct class_rw_t {
 
     const class_ro_t *ro;
 
-    method_array_t methods;
+    method_array_t methods;  //[[]]
     property_array_t properties;
     protocol_array_t protocols;
 
@@ -1061,6 +1079,13 @@ public:
 };
 
 
+/// WGRunTimeSourceCode 源码阅读
+/*
+ 1. 类对象底层也是一个继承自objc_object结构体的结构体objc_class
+ 2. 类对象中包含如下内容：isa指针、superclass、方法缓存列表、存放类信息的bits结构体；
+ 3. 可以通过bits获取到class_rw_t结构体
+ 4. class_rw_t结构体中存放有
+ */
 struct objc_class : objc_object {
     // Class ISA;
     Class superclass;

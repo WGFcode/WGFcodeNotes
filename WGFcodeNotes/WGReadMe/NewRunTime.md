@@ -1,4 +1,5 @@
 ## Runtime
+### RunTime源码阅读可以通过全局搜索 WGRunTimeSourceCode 源码阅读 来快速查阅
 #### Objective-C是一门动态性比较强的编程语言,跟C、C++等语言有着很大的不同;C/C++语言流程是:编写代码->编译链接->运行,而OC可以办到在程序运行的过程中可以修改之前编译的东西.Objective-C的动态性是由RunTime API来支撑的,Runtime顾名思义就是运行时,RunTime API提供的接口基本都是C语言的,源码由C/C++/汇编语言编写
 
 
@@ -385,6 +386,7 @@
 #### 分析,当在类和父类中都没有找到方法时(**消息发送阶段**),就会走**动态解析阶段**,如果在**动态解析阶段**也没有实现方法+resolveInstanceMethod
 或+resolveClassMethod方法,那么就会继续走**消息发送阶段**,并且会将这次的动态解析阶段标记为已经动态解析,显然这次的动态解析阶段什么也没有做,走完**消息发送阶段**后,发现仍然没有找到方法,那么就会来到**动态解析阶段**,发现已经动态解析过了,那么就会走**消息转发阶段**,如果实现了动态解析方法resolveInstanceMethod或resolveClassMethod方法,那么只要在对应动态方法解析的方法中添加方法的实现即可,然后标记为已动态解析,然后方法就会继续走**消息发送阶段**了,为什么又走消息发送阶段?因为在动态解析阶段已经在类对象中添加了方法实现,所以才会继续走**消息发送阶段**
 
+#### 注意⚠️：**动态解析阶段**添加的方法实现有如下要求：方法返回值类型可以不一样，方法参数名称可以不一样，但是方法参数的类型和参数的个数要一致并且要对应上
 
 
 ### 3.3 消息转发阶段
@@ -409,13 +411,15 @@
     #import "Student.h"
     @implementation Person
     ///1.方法一,消息转发:将消息转发给别人,将方法交给一个指定的对象去实现
-    //-(id)forwardingTargetForSelector:(SEL)aSelector {
-    //    if (aSelector == @selector(test)) {
-    //        //底层实际上是这么处理的:objc_msgSend([[Student alloc]init], aSelector)
-    //        return [[Student alloc]init];
-    //    }
-    //    return 0;
-    //}
+    -(id)forwardingTargetForSelector:(SEL)aSelector {
+        if (aSelector == @selector(test)) {
+            //底层实际上是这么处理的:objc_msgSend([[Student alloc]init], aSelector)
+            return [[Student alloc]init];
+        }
+        return 0;
+    }
+    
+    ⚠️：这里Student对象中的方法有如下要求：方法名必须和调用的方法名要一致，方法参数类型要一致,参数名称可以不一致；方法返回值类型可以不一致
 
     /// 2.如果方法一没有实现(相当于返回nil),或者返回值为nil,就继续调用下面这个方法
     - (NSMethodSignature *)methodSignatureForSelector:(SEL)aSelector {
@@ -490,7 +494,7 @@
     }
     打印结果:  ---20
 
-
+#### 整个消息传递流程可以通过RunTime源码中objc-runtime-new.h文件中的_class_lookupMethodAndLoadCache3为入口进行查看
 
 
 

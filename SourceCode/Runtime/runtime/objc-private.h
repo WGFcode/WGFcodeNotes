@@ -64,7 +64,8 @@ namespace {
 #   error bad config
 #endif
 
-
+/// WGRunTimeSourceCode 源码阅读
+/// isa采用了共用体的结构，利用位域技术来存储更多信息
 union isa_t 
 {
     isa_t() { }
@@ -94,6 +95,7 @@ union isa_t
         uintptr_t nonpointer        : 1;
         uintptr_t has_assoc         : 1;
         uintptr_t has_cxx_dtor      : 1;
+        //从二进制位的倒数第三位开始数，共计33位来表示类对象/元类对象的地址
         uintptr_t shiftcls          : 33; // MACH_VM_MAX_ADDRESS 0x1000000000
         uintptr_t magic             : 6;
         uintptr_t weakly_referenced : 1;
@@ -164,7 +166,12 @@ union isa_t
 
 };
 
-
+/// WGRunTimeSourceCode 源码阅读
+/*
+ OC对象的本质是一个objc_object的结构体，里面存放的是isa_t类型的指针
+ 在arm64架构之前,isa就是一个普通的指针,存储着Class、Meta_Class对象的内存地址,而从arm64位架构开始,对isa进行了优化,变成了一个共用体(union)结构,还使用位域来存储更多的信息
+ 如果我们想获取一个OC对象的类对象的地址，得通过 isa  & ISA_MASK 才能得到类对象的地址
+ */
 struct objc_object {
 private:
     isa_t isa;

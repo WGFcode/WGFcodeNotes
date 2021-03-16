@@ -227,7 +227,7 @@ static SyncData* id2data(id object, enum usage why)
             goto done;
         }
     }
-
+    //
     // malloc a new SyncData and add to list.
     // XXX calling malloc with a global lock held is bad practice,
     // might be worth releasing the lock, mallocing, and searching again.
