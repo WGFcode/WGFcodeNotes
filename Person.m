@@ -12,8 +12,11 @@
 
 
 @implementation Person
+@dynamic age;
+
 -(void)run {
     NSLog(@"----%s",__func__);
+    
 }
 @end
 

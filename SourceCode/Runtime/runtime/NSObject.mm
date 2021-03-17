@@ -140,16 +140,23 @@ typedef objc::DenseMap<DisguisedPtr<objc_object>,size_t,true> RefcountMap;
 enum HaveOld { DontHaveOld = false, DoHaveOld = true };
 enum HaveNew { DontHaveNew = false, DoHaveNew = true };
 
+/// WGRunTimeSourceCode 源码阅读
+//MARK: SideTable底层结构
 struct SideTable {
-    spinlock_t slock;
-    RefcountMap refcnts;
-    weak_table_t weak_table;
+    /*
+     自旋锁：忙等状态、比较消耗CPU资源、不能递归调用、如果短时间内可以获取到资源，则则使用自旋锁比互斥锁效率要高，因为少了互斥锁中的线程调度等操作
+     自旋锁比较适用于锁使用者保持锁时间比较短的情况。正是由于自旋锁使用者一般保持锁时间非常短,因此选择自旋而不是睡眠是非常必要的，自旋锁的效率远高于互斥锁。
+     */
+    spinlock_t slock;           //自旋锁：用于上锁/解锁SideTable
+    RefcountMap refcnts;        //OC对象引用计数Map（key为对象，value为引用计数）
+    weak_table_t weak_table;    //OC对象弱引用Map（）
 
-    SideTable() {
+    
+    SideTable() { //构造函数
         memset(&weak_table, 0, sizeof(weak_table));
     }
 
-    ~SideTable() {
+    ~SideTable() { //析构函数
         _objc_fatal("Do not delete SideTable.");
     }
 
@@ -220,6 +227,15 @@ static void SideTableInit() {
     new (SideTableBuf) StripedMap<SideTable>();
 }
 
+/// WGRunTimeSourceCode 源码阅读
+//MARK:SideTables结构
+/*
+ 1. SideTables与iOS内存管理息息相关
+ 2. SideTables实际的类型是存储SideTable的StripedMap，StripedMap里面定义了可以存储SideTable的最大数量StripeCount，最大数量是64个
+ 3. SideTables可以理解为全局的hash数组，里面存放的是SideTable元素，例如：数组[SideTable]
+ 4. SideTables的hash键值是一个对象obj的地址，对应的Value值就是SideTable,即一个对象对应一个SideTable；但是SideTable个数最多只有64个，
+ 所以一个SideTable中可以存放多个对象obj,即多个对象obj可以共用同一个SideTable
+ */
 static StripedMap<SideTable>& SideTables() {
     return *reinterpret_cast<StripedMap<SideTable>*>(SideTableBuf);
 }

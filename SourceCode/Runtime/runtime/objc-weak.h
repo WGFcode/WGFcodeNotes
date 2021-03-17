@@ -116,11 +116,16 @@ struct weak_entry_t {
  * The global weak references table. Stores object ids as keys,
  * and weak_entry_t structs as their values.
  */
+/// WGRunTimeSourceCode 源码阅读
+/*
+ 
+ */
+//MARK: 对象弱引用表的底层结构weak_table_t
 struct weak_table_t {
-    weak_entry_t *weak_entries;
-    size_t    num_entries;
-    uintptr_t mask;
-    uintptr_t max_hash_displacement;
+    weak_entry_t *weak_entries;         //hash数组
+    size_t    num_entries;              //hash数组的个数
+    uintptr_t mask;                     //hash数组长度-1，一般是做位运算定义的值
+    uintptr_t max_hash_displacement;    //hash冲突的最大次数
 };
 
 /// Adds an (object, weak pointer) pair to the weak table.

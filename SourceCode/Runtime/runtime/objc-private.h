@@ -858,6 +858,12 @@ class TimeLogger {
 // For example, this may be used as StripedMap<spinlock_t>
 // or as StripedMap<SomeStruct> where SomeStruct stores a spin lock.
 template<typename T>
+
+/// WGRunTimeSourceCode 源码阅读
+/*
+ 这里可以看出SideTables的长度为64，说明可以存放64个SideTable
+ */
+//MARK:SideTables结构实际的类型StripedMap，可以存放64个SideTable
 class StripedMap {
 
     enum { CacheLineSize = 64 };
