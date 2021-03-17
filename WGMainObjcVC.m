@@ -10,6 +10,7 @@
 #import <UIKit/UIKit.h>
 #import <objc/runtime.h>
 #import "Person.h"
+#import "Student.h"
 
 
 @interface WGMainObjcVC()
@@ -23,7 +24,9 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    [Person test];
+    
+    Student *student = [[Student alloc]init];
+    [student test];
 }
 
 

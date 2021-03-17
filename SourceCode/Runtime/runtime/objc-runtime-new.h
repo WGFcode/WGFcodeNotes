@@ -34,10 +34,11 @@ typedef uintptr_t cache_key_t;
 struct swift_class_t;
 
 
-struct bucket_t {
+//存放在方法缓存数组中的散列表
+struct bucket_t {  //散列表
 private:
-    cache_key_t _key;
-    IMP _imp;
+    cache_key_t _key;   //SEL作为Key
+    IMP _imp;           //函数的内存地址
 
 public:
     inline cache_key_t key() const { return _key; }
@@ -50,9 +51,9 @@ public:
 
 //MARK: 方法缓存cache_t
 struct cache_t {
-    struct bucket_t *_buckets;
-    mask_t _mask;
-    mask_t _occupied;
+    struct bucket_t *_buckets;  //数组,其实就是个散列表,里面存放的是bucket_t,数组[bucket_t]
+    mask_t _mask;               //散列表长度-1(数组元素个数-1)
+    mask_t _occupied;           //已经缓存的方法数量
 
 public:
     struct bucket_t *buckets();
@@ -535,10 +536,13 @@ struct locstamped_category_list_t {
 
 /// WGRunTimeSourceCode 源码阅读
 /*
- class_ro_t结构体中存放了当前类在编译期就已经确定的属性、方法以及遵循的协议
- class_ro_t结构体中不包含category分类中的方法，分类中的方法是在运行时动态添加到class_rw_t结构体中的
- class_ro_t结构体会在运行时通过RunTime添加到class_rw_t结构体中
+ 1. class_ro_t结构体中存放了当前类在编译期就已经确定的属性、方法以及遵循的协议
+ 2. class_ro_t结构体中不包含category分类中的方法，分类中的方法是在运行时动态添加到class_rw_t结构体中的
+ 3. class_ro_t结构体会在运行时通过RunTime添加到class_rw_t结构体中
+ 4. class_ro_t结构体中包含了方法列表、协议列表、成员变量列表、属性列表
+ 5. 成员变量在编译期已经确定了，不能再修改了，所以在运行时不能添加成员变量
  */
+//MARK: class_ro_t结构体
 struct class_ro_t {
     uint32_t flags;
     uint32_t instanceStart;
@@ -550,9 +554,9 @@ struct class_ro_t {
     const uint8_t * ivarLayout;
     
     const char * name;                  //类名称
-    method_list_t * baseMethodList;     //方法列表 [method_t]一维数组
-    protocol_list_t * baseProtocols;    //协议列表 [protocol_t]一维数组
-    const ivar_list_t * ivars;          //成员变量列表 [ivar_t]一维数组
+    method_list_t * baseMethodList;     //方法列表 一维数组[method_t]
+    protocol_list_t * baseProtocols;    //协议列表 一维数组[protocol_t]
+    const ivar_list_t * ivars;          //成员变量列表 一维数组[ivar_t]
 
     const uint8_t * weakIvarLayout;
     property_list_t *baseProperties;    //属性列表 [property_t]一维数组
@@ -579,7 +583,7 @@ struct class_ro_t {
 * count/begin/end iterate the underlying metadata elements
 **********************************************************************/
 template <typename Element, typename List>
-class list_array_tt {
+class list_array_tt { //  二维数组[[method_t]]
     struct array_t {
         uint32_t count;
         List* lists[0];
@@ -770,6 +774,7 @@ class list_array_tt {
 };
 
 
+/// MARK: 方法列表->二维数组[[method_t]]
 class method_array_t : 
     public list_array_tt<method_t, method_list_t> 
 {
@@ -787,7 +792,7 @@ class method_array_t :
     }
 };
 
-
+/// MARK: 属性列表->二维数组[[property_t]]
 class property_array_t : 
     public list_array_tt<property_t, property_list_t> 
 {
@@ -799,7 +804,7 @@ class property_array_t :
     }
 };
 
-
+/// MARK: 协议列表->二维数组[[protocol_t]]
 class protocol_array_t : 
     public list_array_tt<protocol_ref_t, protocol_list_t> 
 {
@@ -816,16 +821,17 @@ class protocol_array_t :
  2. class_rw_t结构体中包含：只读的结构体class_ro_t、方法列表、属性列表、协议列表
  3. class_ro_t结构体存放的是类初始化的信息
  */
+//MARK: class_rw_t结构体
 struct class_rw_t {
     // Be warned that Symbolication knows the layout of this structure.
     uint32_t flags;
     uint32_t version;
 
-    const class_ro_t *ro;
+    const class_ro_t *ro;           //存放在编译期就已经确定的类信息，不可修改
 
-    method_array_t methods;  //[[]]
-    property_array_t properties;
-    protocol_array_t protocols;
+    method_array_t methods;         //方法列表：二维数组 [[method_t]]
+    property_array_t properties;    //属性列表：二维数组 [[property_t]]
+    protocol_array_t protocols;     //协议列表: 二维数组[[protocol_t]]
 
     Class firstSubclass;
     Class nextSiblingClass;
@@ -1084,12 +1090,14 @@ public:
  1. 类对象底层也是一个继承自objc_object结构体的结构体objc_class
  2. 类对象中包含如下内容：isa指针、superclass、方法缓存列表、存放类信息的bits结构体；
  3. 可以通过bits获取到class_rw_t结构体
- 4. class_rw_t结构体中存放有
+ 4. class_rw_t结构体中存放有class_ro_t结构体、方法列表、属性列表、协议列表（都是二维数组）
+ 5. class_ro_t结构体中存放的是在程序编译期已经确定的类信息，包含：方法列表、属性列表、协议列表、成员变量列表（都是一维数组）
  */
+//MARK: 类对象结构体
 struct objc_class : objc_object {
     // Class ISA;
-    Class superclass;
-    cache_t cache;             // formerly cache pointer and vtable
+    Class superclass;          //执行父类对象
+    cache_t cache;             // formerly cache pointer and vtable 方法缓存，其实就是个数组或叫散列表
     class_data_bits_t bits;    // class_rw_t * plus custom rr/alloc flags
 
     class_rw_t *data() { 
@@ -1348,13 +1356,24 @@ struct swift_class_t : objc_class {
 };
 
 
+/*
+ 1. 分类中可以添加对象方法、类方法、属性、遵守协议等；分类是在运行时才去加载的
+ 2. 分类中可以添加属性，但是并不会自动生成属性对应的成员变量和setter/getter方法的实现，因为分类中没有存放成员变量的结构，
+ 所以分类只能添加属性不能添加成员变量
+ 3. 分类中的方法列表、属性列表、协议列表都是一维数组，
+ 4. 分类中的信息是如何添加到类信息中的？在运行时Runtime会通过内存移动和内存拷贝将分类的信息合并到类信息列表的前面，例如方法列表插入到
+ 类的方法列表的前面，属性协议都一样，都是添加到类信息中属性协议列表的前面，所以如果如果分类和对象中存在相同的方法,首先调用的是分类中的
+ 方法,因为查找方法最先调用的是类对象方法列表最前面出现的方法, 而方法列表中最前面的方法存放的是分类的方法, 即方法覆盖, 更严格的来说,
+ 并不是方法覆盖,而是优先调用了分类中的方法, 而原来类中的方法仍然存在类对象的方法列表中,只是分类中的方法调用的优先级更高
+ */
+//MARK: 分类底层结构category_t
 struct category_t {
-    const char *name;
-    classref_t cls;
-    struct method_list_t *instanceMethods;
-    struct method_list_t *classMethods;
-    struct protocol_list_t *protocols;
-    struct property_list_t *instanceProperties;
+    const char *name;                               //分类名称
+    classref_t cls;                                 //类对象
+    struct method_list_t *instanceMethods;          //对象方法列表 一维数组[method_t]
+    struct method_list_t *classMethods;             //类方法列表 一维数组[method_t]
+    struct protocol_list_t *protocols;              //协议列表 一维数组[method_t]
+    struct property_list_t *instanceProperties;     //属性列表 一维数组[property_t]
     // Fields below this point are not always present on disk.
     struct property_list_t *_classProperties;
 

@@ -30,6 +30,14 @@
 #ifndef OBJC_SUPER
 #define OBJC_SUPER
 
+/// WGRunTimeSourceCode 源码阅读
+/*
+ 简化版
+ struct objc_super {
+    id receiver;        //消息接收者
+    Class super_class;  //父类
+ }
+ */
 /// Specifies the superclass of an instance. 
 struct objc_super {
     /// Specifies an instance of a class.
@@ -99,6 +107,15 @@ objc_msgSend(id _Nullable self, SEL _Nonnull op, ...)
  * @see objc_msgSend
  */
 OBJC_EXPORT id _Nullable
+/// WGRunTimeSourceCode 源码阅读
+/*
+ struct objc_super {
+    id receiver;        //消息接收者
+    Class super_class;  //父类
+ }
+ objc_msgSendSuper({消息接收者，消息接收者的父类}, @selector())
+ 代表消息查找是从消息接收者的父类里面开始查找的
+ */
 objc_msgSendSuper(struct objc_super * _Nonnull super, SEL _Nonnull op, ...)
     OBJC_AVAILABLE(10.0, 2.0, 9.0, 1.0, 2.0);
 #endif

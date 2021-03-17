@@ -148,6 +148,7 @@
 		30A7DC822434A43E008DDCF9 /* lock2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = lock2.png; sourceTree = "<group>"; };
 		30BB26BA244BF62B00255288 /* NSNotification.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = NSNotification.md; sourceTree = "<group>"; };
 		30C1F2B72431F0C7003B30B3 /* face.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = face.md; sourceTree = "<group>"; };
+		30C4499B2601D90900485900 /* Student.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Student.cpp; sourceTree = "<group>"; };
 		30C7D40C2439C05000EA99C6 /* NSOperation.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = NSOperation.md; sourceTree = "<group>"; };
 		30D3DF70245E74790012F803 /* WGTestModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WGTestModel.h; sourceTree = "<group>"; };
 		30D3DF71245E74790012F803 /* WGTestModel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WGTestModel.m; sourceTree = "<group>"; };
@@ -984,6 +985,7 @@
 				543110AF251CD966007D0061 /* Student+WGStudent.h */,
 				542D3D90251A48F500394130 /* Student+StudentCategory.h */,
 				542D3D91251A48F500394130 /* Student+StudentCategory.m */,
+				30C4499B2601D90900485900 /* Student.cpp */,
 				542D3D8D251A48CC00394130 /* Student.h */,
 				542D3D8E251A48CC00394130 /* Student.m */,
 				548F332924F2B87300AB3540 /* Person.h */,
