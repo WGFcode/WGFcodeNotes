@@ -611,3 +611,111 @@
         
         @end
 ### 5 super关键词
+#### 案例代码
+    @interface Student : Person
+    @end
+    
+    @implementation Student
+    -(instancetype)init {
+        if (self = [super init]) {
+            NSLog(@"[self class] = %@",[self class]);           //Student
+            NSLog(@"[self superclass] = %@",[self superclass]); //Person
+            NSLog(@"------------------------------");
+            NSLog(@"[super class] = %@",[super class]);         //Student
+            NSLog(@"[super superclass] = %@",[super superclass]);//Person
+        }
+        return self;
+    }
+    @end
+
+    @interface Person : NSObject
+    @end
+
+    @implementation Person
+    @end
+    
+    - (void)viewDidLoad {
+        [super viewDidLoad];
+        Student *student = [[Student alloc]init];
+    }
+    
+    打印结果: [self class] = Student
+            [self superclass] = Person
+            ------------------------------
+            [super class] = Student
+            [super superclass] = Person
+
+#### 分析: 对于[self class]、[self superclass]我们很容易理解,打印结果就是Student、Person,但是[super class]、[super class],按照我们常规的理解,应该打印的是Person、NSObject,但结果很意外,跟我们常规理解的不一致,为什么?接下来我们通过事例来验证
+
+#### 在Person类中写上方法run,然后子类Student重写run方法,然后通过xcrun -sdk iphoneos clang -arch arm64 -rewrite-objc Student.m命令生成对应的C++文件(cpp文件)
+    @interface Person : NSObject
+    -(void)run;
+    @end
+    @implementation Person
+    -(void)run {
+        NSLog(@"----%s",__func__);
+    }
+    @end
+
+    @implementation Student
+    -(void)run {
+        [super run];
+    }
+    @end
+    
+    C++代码
+    static void _I_Student_run(Student * self, SEL _cmd) {
+        ((void (*)(__rw_objc_super *, SEL))(void *)objc_msgSendSuper)((__rw_objc_super){(id)self, (id)class_getSuperclass(objc_getClass("Student"))}, sel_registerName("run"));
+    }
+    C++代码简化版 __rw_objc_super、objc_msgSendSuper在Runtime源码中可以找到
+    static void _I_Student_run(Student * self, SEL _cmd) {
+        objc_msgSendSuper((__rw_objc_super){
+        (id)self, 
+        (id)class_getSuperclass(objc_getClass("Student")) //Student的父类Person类
+        }, sel_registerName("run"));
+    }
+    
+    struct __rw_objc_super { 
+        struct objc_object *object; 
+        struct objc_object *superClass; 
+        __rw_objc_super(struct objc_object *o, struct objc_object *s) : object(o), superClass(s) {} 
+    };
+    
+    //objc_super data structure, including the instance of the class that is to receive the
+    //message and the superclass at which to start searching for the method implementation.
+    //翻译过来就是objc_super是一个结构体,包含了一个消息接收者和消息接收者的父类,这个父类就是查找方法开始的地方
+    //简单说: 就是调用 [super 方法名],查看方法是从该类的父类开始查找的
+    objc_msgSendSuper(struct objc_super * _Nonnull super, SEL _Nonnull op, ...)
+        OBJC_AVAILABLE(10.0, 2.0, 9.0, 1.0, 2.0);
+    
+    struct objc_super {
+        id receiver;        //消息接收者
+        Class super_class;  //消息接收者的父类, 查找方法从这个类开始搜索
+    };
+    
+    class、superclass在Runtime中的源码
+    - (Class)class {
+        return object_getClass(self);
+    }
+    - (Class)superclass {
+        return [self class]->superclass;
+    }
+    
+#### 通过以上代码分析我们知道,在Student对象中调用[super class],消息接收者仍然是Student对象,而查找方法是从Student对象的父类Person中开始查找的,我们都知道class方法是在NSObject中的,所以最终查找到NSObject类中,而根据class方法的底层结果我们知道,class方法返回的内容和self(即消息接收者)有关,而消息接收者是Student对象,所以[super class]的结果就是Student,而[super superclass]的结果就是Person
+    -(instancetype)init {
+         if (self = [super init]) {
+            //下面的底层结构是: objc_msgSend(self,@selector(class))
+             NSLog(@"[self class] = %@",[self class]);           //Student
+             NSLog(@"[self superclass] = %@",[self superclass]); //Person
+             NSLog(@"------------------------------");
+             //下面的底层结构是: objc_msgSendSuper({self,[Person Class]},@selecot(class))
+             NSLog(@"[super class] = %@",[super class]);         //Student
+             NSLog(@"[super superclass] = %@",[super superclass]);//Person
+         }
+         return self;
+     }
+ #### 总结: [super message]的底层实现是: 1.消息接收者仍然是子类对象 2.从父类开始查找方法的实现
+
+### 6 消息转发机制用途,
+#### 利用消息转发机制,可以实现项目中永远不会出现因为unrecognized selector sent to instance而crash闪退
+

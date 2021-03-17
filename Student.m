@@ -19,16 +19,16 @@
  
  */
 
--(void)run {
-    [super run];
-    /*
-     [super run];底层分析
-    objc_msgSendSuper({self, class_getSuperclass(objc_getClass("Student")}, sel_registerName("run"));
-    objc_msgSendSuper({消息接收着，消息接收着父类},@selector(run));
-     消息接收着仍然是self,即当前的Student对象，只是方法查找是从Student的父类中开始查找的
-    */
-    NSLog(@"----------%s",__func__);
-}
+//-(void)run {
+//    [super run];
+//    /*
+//     [super run];底层分析
+//    objc_msgSendSuper({self, class_getSuperclass(objc_getClass("Student")}, sel_registerName("run"));
+//    objc_msgSendSuper({消息接收着，消息接收着父类},@selector(run));
+//     消息接收着仍然是self,即当前的Student对象，只是方法查找是从Student的父类中开始查找的
+//    */
+//    NSLog(@"----------%s",__func__);
+//}
 
 
 -(instancetype)init {
@@ -55,28 +55,4 @@
     }
     return self;
 }
-
-
-
-
-//1. 消息发送阶段如果没有找到方法，就走动态方法解析阶段
-//动态方法解析阶段，其实就是在这个阶段添加要实现的方法
--(void)otherTest{
-    NSLog(@"----%s",__func__);
-}
-//处理类方法
-+(BOOL)resolveClassMethod:(SEL)sel {
-    return [super resolveClassMethod:sel];
-}
-//处理对象方法
-+(BOOL)resolveInstanceMethod:(SEL)sel {
-    if (sel == @selector(test)) {
-        Method method = class_getInstanceMethod(self, @selector(otherTest));
-        class_addMethod(self, sel, method_getImplementation(method), method_getTypeEncoding(method));
-    }
-    return [super resolveInstanceMethod:sel];
-}
-
-
-//2. 如果动态解析阶段没有处理，就走消息转发阶段
 @end

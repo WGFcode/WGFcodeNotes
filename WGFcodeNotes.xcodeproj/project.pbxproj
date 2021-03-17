@@ -74,6 +74,7 @@
 		548F332024F15E8F00AB3540 /* Memory.md in Resources */ = {isa = PBXBuildFile; fileRef = 548F331F24F15E8F00AB3540 /* Memory.md */; };
 		548F332424F2B13E00AB3540 /* 属性修饰符.md in Resources */ = {isa = PBXBuildFile; fileRef = 548F332324F2B13E00AB3540 /* 属性修饰符.md */; };
 		548F332B24F2B87300AB3540 /* Person.m in Sources */ = {isa = PBXBuildFile; fileRef = 548F332A24F2B87300AB3540 /* Person.m */; };
+		54925265260254B90002CF1F /* NSObject+WGUnrecognizedMethodIntercept.m in Sources */ = {isa = PBXBuildFile; fileRef = 54925264260254B90002CF1F /* NSObject+WGUnrecognizedMethodIntercept.m */; };
 		54C118BE2584EF8B00B39379 /* LLVM.md in Resources */ = {isa = PBXBuildFile; fileRef = 54C118BD2584EF8B00B39379 /* LLVM.md */; };
 		54CBAE2824FFE4E500AEA0E5 /* iOS内存分区.md in Resources */ = {isa = PBXBuildFile; fileRef = 54CBAE2724FFE4E500AEA0E5 /* iOS内存分区.md */; };
 		54DA257025B3D77F00E1B980 /* Person+PersonTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 54DA256F25B3D77F00E1B980 /* Person+PersonTest.m */; };
@@ -493,6 +494,8 @@
 		548F332324F2B13E00AB3540 /* 属性修饰符.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "属性修饰符.md"; sourceTree = "<group>"; };
 		548F332924F2B87300AB3540 /* Person.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Person.h; sourceTree = "<group>"; };
 		548F332A24F2B87300AB3540 /* Person.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Person.m; sourceTree = "<group>"; };
+		54925263260254B90002CF1F /* NSObject+WGUnrecognizedMethodIntercept.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "NSObject+WGUnrecognizedMethodIntercept.h"; path = "WGFcodeNotes/WGCore/NSObject+WGUnrecognizedMethodIntercept.h"; sourceTree = SOURCE_ROOT; };
+		54925264260254B90002CF1F /* NSObject+WGUnrecognizedMethodIntercept.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = "NSObject+WGUnrecognizedMethodIntercept.m"; path = "WGFcodeNotes/WGCore/NSObject+WGUnrecognizedMethodIntercept.m"; sourceTree = SOURCE_ROOT; };
 		54C118BD2584EF8B00B39379 /* LLVM.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = LLVM.md; sourceTree = "<group>"; };
 		54CBAE2724FFE4E500AEA0E5 /* iOS内存分区.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "iOS内存分区.md"; sourceTree = "<group>"; };
 		54DA256E25B3D77F00E1B980 /* Person+PersonTest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Person+PersonTest.h"; sourceTree = "<group>"; };
@@ -536,6 +539,8 @@
 		3015810A2455778B00EC6001 /* WGCore */ = {
 			isa = PBXGroup;
 			children = (
+				54925263260254B90002CF1F /* NSObject+WGUnrecognizedMethodIntercept.h */,
+				54925264260254B90002CF1F /* NSObject+WGUnrecognizedMethodIntercept.m */,
 				30FCCF82256F8D9100AEC012 /* MJMemoryTool */,
 				3015810B245577A600EC6001 /* WGMonitorManage.h */,
 				3015810C245577A600EC6001 /* WGMonitorManage.m */,
@@ -1297,6 +1302,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				30313DC2253829F600941BE5 /* WGTargetProxy.m in Sources */,
+				54925265260254B90002CF1F /* NSObject+WGUnrecognizedMethodIntercept.m in Sources */,
 				548AC957242F4B3100EEE11C /* ViewController.swift in Sources */,
 				54E19661250E750B0064027B /* WGProxy.m in Sources */,
 				542D3D8F251A48CC00394130 /* Student.m in Sources */,

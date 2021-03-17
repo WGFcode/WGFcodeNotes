@@ -24,9 +24,7 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    
     Student *student = [[Student alloc]init];
-    [student test];
 }
 
 
