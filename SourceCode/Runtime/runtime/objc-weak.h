@@ -77,21 +77,31 @@ typedef DisguisedPtr<objc_object *> weak_referrer_t;
 // Therefore out_of_line_ness == 0b10 is used to mark the out-of-line state.
 #define REFERRERS_OUT_OF_LINE 2
 
-struct weak_entry_t {
-    DisguisedPtr<objc_object> referent;
-    union {
+/// WGRunTimeSourceCode 源码阅读
+/* union联合体特点
+ 1.联合体中可以定义多个成员，联合体的大小由最大的成员大小决定
+ 2.联合体的成员公用一个内存，一次只能使用一个成员
+ 3.对某一个成员赋值，会覆盖其他成员的值
+ 4.存储效率更高，可读性更强，可以提高代码的可读性，可以使用位运算提高数据的存储效率
+ */
+
+struct weak_entry_t { //对应关系是[referent weak指针的数组]
+    DisguisedPtr<objc_object> referent;   //对象地址
+    union { //联合体（共用体）共用体的所有成员占用同一段内存
         struct {
-            weak_referrer_t *referrers;
-            uintptr_t        out_of_line_ness : 2;
-            uintptr_t        num_refs : PTR_MINUS_2;
-            uintptr_t        mask;
-            uintptr_t        max_hash_displacement;
+            weak_referrer_t *referrers;  //指向 referent 对象的 weak 指针数组
+            uintptr_t        out_of_line_ness : 2;     //这里标记是否超过内联边界, 下面会提到
+            uintptr_t        num_refs : PTR_MINUS_2;   //数组中已占用的大小
+            uintptr_t        mask;          //数组下标最大值(数组大小 - 1)
+            uintptr_t        max_hash_displacement;  //最大哈希偏移值
         };
         struct {
             // out_of_line_ness field is low bits of inline_referrers[1]
+            //这是一个取名叫内联引用的数组，WEAK_INLINE_COUNT宏定义值为4
             weak_referrer_t  inline_referrers[WEAK_INLINE_COUNT];
         };
     };
+    //当指向这个对象的 weak 指针不超过 4 个, 则直接使用数组 inline_referrers, 省去了哈希操作的步骤, 如果 weak 指针个数超过了4个, 就要使用第一个结构体中的哈希表.
 
     bool out_of_line() {
         return (out_of_line_ness == REFERRERS_OUT_OF_LINE);
@@ -118,14 +128,16 @@ struct weak_entry_t {
  */
 /// WGRunTimeSourceCode 源码阅读
 /*
- 
+ weak_table 是一个哈希表的结构, 根据 weak 指针指向的对象的地址计算哈希值, 哈希值相同的对象按照下标 +1 的形式向后查找可用位置, 是典型的闭散列算法. 最大哈希偏移值即是所有对象中计算出的哈希值和实际插入位置的最大偏移量, 在查找时可以作为循环的上限.
+ 1. 通过对象的地址，可以找到weak_table_t结构中的weak_entry_t
+ 2. weak_entry_t 中保存了所有指向这个对象的 weak 指针.
  */
 //MARK: 对象弱引用表的底层结构weak_table_t
 struct weak_table_t {
     weak_entry_t *weak_entries;         //hash数组
     size_t    num_entries;              //hash数组的个数
     uintptr_t mask;                     //hash数组长度-1，一般是做位运算定义的值
-    uintptr_t max_hash_displacement;    //hash冲突的最大次数
+    uintptr_t max_hash_displacement;    //hash冲突的最大次数(最大哈希偏移值)
 };
 
 /// Adds an (object, weak pointer) pair to the weak table.
