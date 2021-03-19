@@ -716,6 +716,56 @@
      }
  #### 总结: [super message]的底层实现是: 1.消息接收者仍然是子类对象 2.从父类开始查找方法的实现
 
-### 6 消息转发机制用途,
-#### 利用消息转发机制,可以实现项目中永远不会出现因为unrecognized selector sent to instance而crash闪退
+### 6 isMemberOfClass、isKindOfClass
+#### 首先我们通过Runtime源码中的NSObject.mm文件可以看到关于这两个方法的底层实现代码如下
+    类方法：类的类对象(元类)是否等于指定的类对象(元类对象)
+    + (BOOL)isMemberOfClass:(Class)cls {
+        return object_getClass((id)self) == cls;
+    }
+    //实例方法：对象的类是否等于指定的类对象
+    - (BOOL)isMemberOfClass:(Class)cls {
+        return [self class] == cls;
+    }
+    //类方法：类的类对象(元类)是否等于指定的类对象(元类)或者是指定的类对象(元类)的子类
+    + (BOOL)isKindOfClass:(Class)cls {
+        for (Class tcls = object_getClass((id)self); tcls; tcls = tcls->superclass) {
+            if (tcls == cls) return YES;
+        }
+        return NO;
+    }
+    对象方法：对象的类对象是否是指定的类对象或者是指定的类对象的子类
+    - (BOOL)isKindOfClass:(Class)cls {
+        for (Class tcls = [self class]; tcls; tcls = tcls->superclass) {
+            if (tcls == cls) return YES;
+        }
+        return NO;
+    }
+    
+    Person *per = [[Person alloc]init];
+    NSLog(@"%d",[NSObject isKindOfClass:[NSObject class]]);     //1
+    NSLog(@"%d",[NSObject isMemberOfClass:[NSObject class]]);   //0
+    NSLog(@"-----");
+    NSLog(@"%d",[per isKindOfClass:[Person class]]);            //1
+    NSLog(@"%d",[per isMemberOfClass:[Person class]]);          //1
+    NSLog(@"-----");
+    NSLog(@"%d",[per isKindOfClass:[NSObject class]]);          //1
+    NSLog(@"%d",[per isMemberOfClass:[NSObject class]]);        //0
+    
+    打印结果： 1
+             0
+             -----
+             1
+             1
+             -----
+             1
+             0
+
+#### 两个方法都有对应的类方法和实例方法，结合底层源码总结如下
+* 如果是类方法
+1. isMemberOfClass: 类的类对象(元类对象)是否是指定的元类对象
+2. isKindOfClass: 类的类对象(元类对象)是否是指定的元类对象或者是指定的元类对象的子类
+3. 2中有个特例：NSObject的元类对象的superClass指向的是NSObject类对象
+* 如果是对象方法
+1. isMemberOfClass: 对象的类对象是否是指定的类对象
+2. isKindOfClass: 对象的类对象是否是指定的类对象或者指定的类对象的子类
 

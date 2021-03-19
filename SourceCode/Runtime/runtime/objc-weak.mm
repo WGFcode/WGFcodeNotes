@@ -283,6 +283,7 @@ static void weak_compact_maybe(weak_table_t *weak_table)
 /**
  * Remove entry from the zone's table of weak references.
  */
+//MARK: 将weak_entity_t从弱引用表weak_table中移除
 static void weak_entry_remove(weak_table_t *weak_table, weak_entry_t *entry)
 {
     // remove entry
@@ -344,6 +345,10 @@ weak_entry_for_referent(weak_table_t *weak_table, objc_object *referent)
  * @param referent The object.
  * @param referrer The weak reference.
  */
+/*
+ ⚠️
+ */
+//MARK：将旧的weak指针地址移除
 void
 weak_unregister_no_lock(weak_table_t *weak_table, id referent_id, 
                         id *referrer_id)
@@ -387,21 +392,27 @@ weak_unregister_no_lock(weak_table_t *weak_table, id referent_id,
  * @param referent The object pointed to by the weak reference.
  * @param referrer The weak pointer address.
  */
+//
+/*
+ ⚠️ 如果新对象不存在，则注册一个新的对象
+ 第一个参数：弱引用表  第二个参数：weak指针指向的对象  第三个参数weak指针
+ */
+//MARK：将新的weak指针地址添加到弱引用表中
 id 
 weak_register_no_lock(weak_table_t *weak_table, id referent_id, 
-                      id *referrer_id, bool crashIfDeallocating)
-{
+                      id *referrer_id, bool crashIfDeallocating) {
+    //⚠️被弱引用的对象
     objc_object *referent = (objc_object *)referent_id;
+    //⚠️__weak指针的地址
     objc_object **referrer = (objc_object **)referrer_id;
-
+    //⚠️如果referent为nil 或 referent 采用了TaggedPointer计数方式，直接返回，不做任何操作
     if (!referent  ||  referent->isTaggedPointer()) return referent_id;
 
     // ensure that the referenced object is viable
     bool deallocating;
-    if (!referent->ISA()->hasCustomRR()) {
+    if (!referent->ISA()->hasCustomRR()) {   //⚠️确保被引用的对象可用（没有在析构，同时应该支持weak引用）
         deallocating = referent->rootIsDeallocating();
-    }
-    else {
+    }else {
         BOOL (*allowsWeakReference)(objc_object *, SEL) = 
             (BOOL(*)(objc_object *, SEL))
             object_getMethodImplementation((id)referent, 
@@ -413,7 +424,7 @@ weak_register_no_lock(weak_table_t *weak_table, id referent_id,
             ! (*allowsWeakReference)(referent, SEL_allowsWeakReference);
     }
 
-    if (deallocating) {
+    if (deallocating) {  //⚠️正在析构的对象，不能够被弱引用
         if (crashIfDeallocating) {
             _objc_fatal("Cannot form weak reference to instance (%p) of "
                         "class %s. It is possible that this object was "
@@ -426,18 +437,16 @@ weak_register_no_lock(weak_table_t *weak_table, id referent_id,
 
     // now remember it and where it is being stored
     weak_entry_t *entry;
+    //⚠️在 weak_table中找到referent对应的weak_entry,并将referrer加入到weak_entry中
     if ((entry = weak_entry_for_referent(weak_table, referent))) {
         append_referrer(entry, referrer);
-    } 
-    else {
+    } else { //⚠️ 如果找不到，就新建一个
         weak_entry_t new_entry(referent, referrer);
         weak_grow_maybe(weak_table);
         weak_entry_insert(weak_table, &new_entry);
     }
-
     // Do not set *referrer. objc_storeWeak() requires that the 
     // value not change.
-
     return referent_id;
 }
 

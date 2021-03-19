@@ -6297,19 +6297,18 @@ object_copyFromZone(id oldObj, size_t extraBytes, void *zone)
 * Removes associative references.
 * Returns `obj`. Does nothing if `obj` is nil.
 **********************************************************************/
-void *objc_destructInstance(id obj) 
-{
+//⚠️dealloc流程中的第3⃣️步
+void *objc_destructInstance(id obj) {
     if (obj) {
         // Read all of the flags at once for performance.
-        bool cxx = obj->hasCxxDtor();
-        bool assoc = obj->hasAssociatedObjects();
+        bool cxx = obj->hasCxxDtor();                //是否有析构函数
+        bool assoc = obj->hasAssociatedObjects();    //是否有关联对象
 
         // This order is important.
-        if (cxx) object_cxxDestruct(obj);
-        if (assoc) _object_remove_assocations(obj);
+        if (cxx) object_cxxDestruct(obj);     //有析构函数就释放（清除成员变量）
+        if (assoc) _object_remove_assocations(obj); //有关联对象，就移除当前对象的关联对象。
         obj->clearDeallocating();
     }
-
     return obj;
 }
 
@@ -6319,6 +6318,7 @@ void *objc_destructInstance(id obj)
 * fixme
 * Locking: none
 **********************************************************************/
+//⚠️dealloc流程第2⃣️步
 id 
 object_dispose(id obj)
 {
