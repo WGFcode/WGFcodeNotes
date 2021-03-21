@@ -6,10 +6,16 @@
 2. 消息转发机制流程
 * 讲解清楚调用的方法和顺序即可
 3. 什么是Runtime? 平时项目中有用过么?
+* OC是一门动态性比较强的编程语言,允许很多操作推迟到程序运行时再调用
+* OC动态性就是由Runtime来支撑和实现的,Runtime是一套C语言的API,封装了很多动态性相关的函数
+* 平台编写的OC代码,底层都是转换成了Runtime API进行调用
+* 利用关联对象(AssociatedObject)给分类添加属性
+* 遍历类的所有成员变量(修改textField的占位文字颜色、字典转模型、自动归档解档)
+* 交换方法实现(交换系统的方法)
+* 利用消息转发机制解决方法找不到的异常问题
+* Runtime API中只要你用到的方法都可以大体说一下
 4. @dynamic作用
 * 告诉编译器不用自动生成getter/setter的实现,等到运行时再添加方法实现
-
-
 
 ### RunTime源码阅读可以通过全局搜索 WGRunTimeSourceCode 源码阅读 来快速查阅
 #### Objective-C是一门动态性比较强的编程语言,跟C、C++等语言有着很大的不同;C/C++语言流程是:编写代码->编译链接->运行,而OC可以办到在程序运行的过程中可以修改之前编译的东西.Objective-C的动态性是由RunTime API来支撑的,Runtime顾名思义就是运行时,RunTime API提供的接口基本都是C语言的,源码由C/C++/汇编语言编写
@@ -769,3 +775,439 @@
 1. isMemberOfClass: 对象的类对象是否是指定的类对象
 2. isKindOfClass: 对象的类对象是否是指定的类对象或者指定的类对象的子类
 
+### 7. 查看OC源码方式
+#### LLVM编译器会将: OC----->中间代码----->汇编----->机器代码,即OC在变成机器代码之前,会被LLVM编译器转换为中间代码(Intermediate Representation)
+1. 通过xcrun -sdk iphones clang -arch arm64 -rewrite-objc WGPerson.m将指定的OC文件转为cpp文件(c++语法)
+2. 通过Xcode打断点方式启动项目:Xcode顶部菜单栏Debug->Debug Workflow->Always Show Disassembly查看指定断点下OC代码的汇编代码
+3. 可以不启动项目情况下查看汇编代码:Xcode顶部菜单栏Produce->Perform Action->Assemble "WGPerson.m",可以将WGPerson.m生成汇编代码
+4. 可以使用clang -emit-llvm -S WGPerson.m,将指定OC文件生成中间代码,通过查看中间代码来解读源码
+#### 生成中间代码后的语法分析
+    @->代表全局变量   %->局部变量   i32->32位4字节的整数   align->对齐
+    load->读出      store->写入   label->代码标签       call->调用函数
+    icmp->两个整数值比较,返回布尔值
+    br->选择分支,根据条件来转向label,不根据条件跳转的话类似goto
+    alloca->在当前执行的函数的堆栈帧中分配内容,当该函数返回其调用者时,将自动释放内容
+    详细语法可参考:https://llvm.org/docs/LangRef.html
+#### ⚠️cpp文件(C语言)和我们OC代码更接近,更容易理解,其实底层转化的都应该是汇编代码,但汇编代码不容易看懂,所以我们通常情况下查看cpp文件即可
+
+### 8.Runtime在项目中的应用
+#### 平时我们在项目中用到Runtime的地方通常就是用Runtime提供的API,下面列举常用的函数
+### 8.1 类
+    1.动态创建一个类(参数:父类、类名、额外的内存空间)
+    Class objc_allocateClassPair(Class superclass, const char * name, size_t extraBytes)
+    2. 注册一个类(要在类注册之前添加成员变量,因为注册类就相当于添加了类的结构,如果类结构确定了,成员变量就无法添加了)
+    Void objc_registerClassPair(Class __unsafe_unretained cls)
+    3. 销毁一个类
+    Void objc_disposeClassPair(Class cls)
+    4. 获取isa指向的Class
+    Class object_getClass(id  obj)
+    5. 设置isa指向的Class
+    Class object_setClass(id obj, Class cls)
+    6. 判断一个OC对象是否为Class
+    Bool object_isClass(id  obj)
+    7. 判断一个Class是否为元类
+    Bool class_isMetaClass(Class cls)
+    8. 获取父类
+    Class class_getSuperclass(Class cls)
+    
+#### 事例代码
+    @interface Person : NSObject
+    -(void)run;
+    @end
+    @implementation Person
+    -(void)run {
+        NSLog(@"----%s",__func__);
+    }
+    @end
+    
+    @interface Car : NSObject
+    -(void)run;
+    @end
+    @implementation Car
+    -(void)run {
+        NSLog(@"----%s",__func__);
+    }
+    @end
+    
+    - (void)viewDidLoad {
+        [super viewDidLoad];
+        //1. 动态创建一个类(Pair是一对的意思,创建的是一个父类对象和类对象)
+        //(父类,类名,额外的内存大小)
+        Class newClass = objc_allocateClassPair([NSObject class], "Dog", 0);
+        //2. 注册这个类
+        objc_registerClassPair(newClass);
+        // 创建一个Dog对象
+        id dog = [[newClass alloc]init];
+        
+        Person *person = [[Person alloc]init];
+        [person run];
+        //4. 获取isa指向的Class(类对象,类对象,元类对象)
+        NSLog(@"%p---%p---%p",object_getClass(person),[Person class],object_getClass([Person class]));
+        //4. 打印结果:0x107422d78---0x107422d78---0x107422d50
+        
+        //5. 将person对象的isa指针设置为指向Car类对象;可以实现中途让对象调用其它类的同名的方法
+        object_setClass(person, [Car class]);
+        [person run];
+        //5. 打印结果:-----[Car run]
+        
+        //6. 判断一个OC对象是否为Class(元类对象也是特殊的类对象)
+        NSLog(@"%d---%d---%d",object_isClass(person),object_isClass([person class]),object_isClass(object_getClass([Person class])));
+        //6. 打印结果:0---1---1
+
+        //7. 判断一个Class是否为元类(参数必须传Class类型)
+        NSLog(@"%d---%d",class_isMetaClass([person class]),class_isMetaClass(object_getClass([Person class])));
+        //7. 打印结果:0---1
+        
+        //8. 获取父类(参数必须传Class类型)特例:NSObject元类对象的superClass指向NSOject类对象
+        NSLog(@"---%@---%@---%@",class_getSuperclass([person class]),
+              class_getSuperclass([Person class]),
+              class_getSuperclass(object_getClass([Person class])));
+        //8. 打印结果: ---NSObject---NSObject---NSObject
+    }
+    
+    void run(id self,SEL _cmd) {
+        NSLog(@"%@---%@",self, NSStringFromSelector(_cmd));
+    }
+    - (void)viewDidLoad {
+        [super viewDidLoad];
+        //1. 动态创建一个类(Pair是一对的意思,创建的是一个父类对象和类对象)
+        //(父类,类名,额外的内存大小一般写0即可)
+        Class newClass = objc_allocateClassPair([NSObject class], "Dog", 0);
+        //添加成员变量(类对象、成员变量名称、成员变量占用字节数、内存对其子节一般写1、成员变量类型的编码@encode)
+        //成员变量添加一定要在注册类之前
+        class_addIvar(newClass, "_age", 4, 1, @encode(int));
+        class_addIvar(newClass, "_weight", 4, 1, @encode(int));
+        //添加方法
+        class_addMethod(newClass, @selector(run), (IMP)run, "v@:");
+        
+        //2. 注册这个类(一旦注册完相当于类对象、元类对象的结构就创建好了)
+        objc_registerClassPair(newClass);
+        
+        // 创建一个Dog对象
+        id dog = [[newClass alloc]init];
+        //这里因为没有对应的getter/setter方法,所以只能通过KVC去设置访问
+        [dog setValue:@100 forKey:@"_age"];
+        [dog setValue:@200 forKey:@"_weight"];
+        NSLog(@"%@---%@",[dog valueForKey:@"_age"],[dog valueForKey:@"_weight"]);
+        //打印结果: 100---200
+        
+        //调用方法
+        [dog run];
+        //打印结果: <Dog: 0x600000ccc650>---run
+        
+        //3. 销毁不需要的类
+        objc_disposeClassPair(newClass);
+    }
+
+### 8.2 成员变量
+    1. 获取一个实例变量
+    Ivar class_getInstanceVariable(Class cls, const char * name)
+    2. 拷贝实例变量列表(最后需要用free释放)
+    Ivar * class_copyIvarList(Class cls, unsigned int * outCount)
+    3. 设置和获取成员变量的值
+    Void object_setIvar(id obj, Ivar ivar, id value)
+    id object_getIvar(id obj, Ivar ivar)
+    4. 动态添加成员变量(已经注册的类是不能动态添加成员变量的)
+    Bool class_addIvar(Class cls, const char * name, size_t size, uint8_t alignment, const char * types)
+    5. 获取成员变量的相关信息
+    const char *ivar_getName(Ivar v)
+    const char *ivar_getTypeEncoding(Ivar v)
+        
+#### 事例代码
+    @interface Person : NSObject
+    @property(nonatomic, assign)int age;
+    @property(nonatomic, copy)NSString *nameStr;
+    @end
+    
+    @implementation Person
+    @end
+    
+    - (void)viewDidLoad {
+        [super viewDidLoad];
+        //1. 获取一个实例/成员变量的描述信息
+        Ivar ageIvar = class_getInstanceVariable([Person class], "_age");
+        NSLog(@"---%s---%s",ivar_getName(ageIvar),ivar_getTypeEncoding(ageIvar));
+        //打印结果:---_age---i
+        //2. 设置和获取成员变量的值
+        Person *person = [[Person alloc]init];
+        object_setIvar(person, ageIvar, @10);
+        NSLog(@"---%d",person.age);
+        //打印结果: ----459048901 结果出乎意料了,因为我们的_age成员变量类型是int,但是我们传递的是NSNumber类型,所以这样会出问题,但可以这样设置,首先将int类型转为(void *)指针,指针变量就是存储值的,然后将指针转为id,再通过桥接即可
+        object_setIvar(person, ageIvar, (__brigde id)(void *)10);
+        
+        //正常情况下:
+        Ivar nameIvar = class_getInstanceVariable([Person class], "_nameStr");
+        object_setIvar(person, nameIvar, @"123");   //设置值
+        NSLog(@"---%@---%@",person.nameStr,object_getIvar(person, nameIvar)); //获取值
+        //打印结果:---123---123
+    }
+    
+    - (void)viewDidLoad {
+        [super viewDidLoad];
+        //1. 拷贝实例变量列表
+        unsigned int count;  //成员变量的数量
+        //C语言中:ivars其实就是个数组,指针可以当成数组来用的
+        Ivar *ivars = class_copyIvarList([Person class], &count);
+        for (int i = 0; i < count; i++) {
+            //取出i位置的成员变量
+            Ivar iva = ivars[i];
+            NSLog(@"---%s---%s",ivar_getName(iva),ivar_getTypeEncoding(iva));
+        }
+        //打印结果:---_age---i
+                 ---_nameStr---@"NSString"
+        //2. Runtime中用copy、create创建的都需要用free去销毁
+        free(ivars);
+    }
+#### 总结:一般用法是我们可以通过获取(窥探)系统类或第三方库的成员变量,来通过KVC来快速设置它的属性信息,如:[textField setValue:[UIColor redColor] forKeyPath:@"_placeholderLabel.textColor"];
+
+#### 我们还可以利用Runtime进行字典转模型的封装,创建一个NSObject的分类去实现,下面只是简单的提供了思路,真正需要封装考虑的东西还有很多(继承关系、数组属性等等)
+    @interface Person : NSObject
+    @property(nonatomic, assign)int age;
+    @property(nonatomic, copy)NSString *nameStr;
+    @property(nonatomic, assign)int weight;
+    @end
+
+    @implementation Person
+    @end
+
+    @interface NSObject (WGJson)
+    +(instancetype)WG_objectWithJson:(NSDictionary *)json;
+    @end
+
+    @implementation NSObject (WGJson)
+    +(instancetype)WG_objectWithJson:(NSDictionary *)json {
+        id obj = [[self alloc]init];
+        unsigned int count;  //成员变量的数量
+        Ivar *ivars = class_copyIvarList(self, &count);
+        for (int i = 0; i < count; i++) {
+            //取出i位置的成员变量
+            Ivar iva = ivars[i];
+            //C语言的成员变量字符串
+            const char *charName = ivar_getName(iva);
+            //C语言字符串转为OC语言
+            NSMutableString *name = [NSMutableString stringWithUTF8String:charName];
+            //将成员变量的_去除
+            [name deleteCharactersInRange:NSMakeRange(0, 1)];
+            //设置值
+            [obj setValue:json[name] forKey:name];
+        }
+        return obj;
+    }
+    @end
+
+### 8.3 属性
+    1. 获取一个属性
+    objc_property_t class_getProperty(Class cls, const char * name)
+    2. 拷贝属性列表(最后需要调用free释放)
+    objc_property_t * class_copyPropertyList(Class cls, unsigned int * outCount)
+    3. 动态添加属性
+    Bool class_addProperty(Class cls, const char *name, const objc_property_attribute_t *attributes, unsigned int attributeCount)
+    4. 动态替换属性
+    Void class_replaceProperty(Class cls, const char *name, const objc_property_attribute_t *attributes, unsigned int attributeCount)
+    5. 获取属性的一些信息
+    const char * property_getName(objc_property_t property);
+    const char * property_getAttributes(objc_property_t property)
+
+### 8.4 方法
+    1. 获得一个实例方法、类方法
+    Method class_getInstanceMethod(Class cls, SEL name)
+    Method class_getClassMethod(Class cls, SEL name)
+    2. 方法实现相关操作
+    IMP class_getMethodImplementation(Class cls, SEL name)
+    IMP method_setImplementation(Method m, IMP imp)
+    Void method_exchangeImplementations(Method m1, Method m2)
+    3. 拷贝方法列表(最后需要调用free释放)
+    Method *class_copyMethodList(Class cls, unsigned int *outCount)
+    4. 动态添加方法
+    BOOL class_addMethod(Class cls, SEL name, IMP imp, const char *types)
+    5. 动态替换方法
+    IMP class_replaceMethod(Class cls, SEL name, IMP imp, const char *types)
+    6. 获取方法的相关信息(带copy的需要调用free去释放)
+    SEL method_getName(Method m)
+    IMP method_getImplementation(Method m)
+    const char *method_getTypeEncoding(Method m)
+    unsigned int method_getNumberOfArguments(Method m)
+    char *method_copyReturnType(Method m)
+    char *method_copyArgumentType(Method m, unsigned int index)
+    7. 选择器相关
+    const char *sel_getName(SEL sel)
+    SEL sel_registerName(const char *str)
+    8. 用block作为方法实现
+    IMP imp_implementationWithBlock(id block)
+    id imp_getBlock(IMP anImp)
+    BOOL imp_removeBlock(IMP anImp)
+#### 事例代码
+    @interface Person : NSObject
+    -(void)run;
+    -(void)test;
+    @end
+
+    @implementation Person
+    -(void)run {
+        NSLog(@"---%s",__func__);
+    }
+    -(void)test {
+        NSLog(@"---%s",__func__);
+    }
+    @end
+
+    - (void)viewDidLoad {
+        [super viewDidLoad];
+        Person *person = [[Person alloc]init];
+        //1. 替换方法(若替换对象方法,则第一个参数传递类对象,若是类方法,则传递元类对象)
+        class_replaceMethod([Person class], @selector(run), (IMP)myRun, "v@:");
+        [person run];
+        //打印结果:---my Run
+        
+        //2. 用block作为方法实现
+        class_replaceMethod([Person class], @selector(run), imp_implementationWithBlock(^{
+            NSLog(@"this is block task");
+        }), "v@:");
+        [person run];
+        //打印结果: this is block task
+    }
+    
+    - (void)viewDidLoad {
+        [super viewDidLoad];
+        Person *person = [[Person alloc]init];
+        //1.交换方法
+        Method runMethod = class_getInstanceMethod([Person class], @selector(run));
+        Method testMethod = class_getInstanceMethod([Person class], @selector(test));
+        //交换的实际上是class_rw_t中method中的IMP,是不会去交换cache缓存列表中的method中的IMP的,因为这个方法
+        //一旦调用,就会清空cache缓存中的方法列表
+        method_exchangeImplementations(runMethod, testMethod);
+        //此时调用run方法调用的应该是test方法
+        [person run];
+        //打印结果: ----[Person test]
+    }
+#### 实际上上面交换自己类中的方法是无意义的,通常我们都是交换其它类的方法实现,
+#### 案例1: 例如我们拦截项目中所有按钮的点击事件(拦截其实就是hook方法)
+#### 我们知道按钮的点击事件首先调用的方法都是UIControl中的- (void)sendAction:(SEL)action to:(nullable id)target forEvent:(nullable UIEvent *)event;然后再去执行按钮的具体点击事件,所以我们只需要拦截到这个方法即可
+
+    - (void)viewDidLoad {
+        [super viewDidLoad];
+        self.view.backgroundColor = [UIColor whiteColor];
+        
+        UIButton *btn1 = [[UIButton alloc]initWithFrame:CGRectMake(100, 100, 80, 40)];
+        btn1.backgroundColor = [UIColor redColor];
+        [btn1 addTarget:self action:@selector(clickRedBtn:) forControlEvents:UIControlEventTouchUpInside];
+        
+        UIButton *btn2 = [[UIButton alloc]initWithFrame:CGRectMake(100, 200, 80, 40)];
+        btn2.backgroundColor = [UIColor yellowColor];
+        [btn2 addTarget:self action:@selector(clickYeallowBtn:) forControlEvents:UIControlEventTouchUpInside];
+        
+        UIButton *btn3 = [[UIButton alloc]initWithFrame:CGRectMake(100, 300, 80, 40)];
+        btn3.backgroundColor = [UIColor blueColor];
+        [btn3 addTarget:self action:@selector(clickBlueBtn:) forControlEvents:UIControlEventTouchUpInside];
+        [self.view addSubview:btn1];
+        [self.view addSubview:btn2];
+        [self.view addSubview:btn3];
+    }
+
+    -(void)clickRedBtn:(UIButton *)sender {
+        NSLog(@"点击了红色按钮");
+    }
+    -(void)clickYeallowBtn:(UIButton *)sender {
+        NSLog(@"点击了黄色按钮");
+    }
+    -(void)clickBlueBtn:(UIButton *)sender {
+        NSLog(@"点击了蓝色按钮");
+    }
+    @end
+    
+    //想拦截按钮的点击事件,就要创建UIControl的分类,来拦截到方法-(void)sendAction:(SEL)action to:(id)target forEvent:(UIEvent *)event
+    @interface UIControl (WGHookMethod)
+    @end
+    
+    #import "UIControl+WGHookMethod.h"
+    #import <objc/runtime.h>
+
+    @implementation UIControl (WGHookMethod)
+    +(void)load {
+        //系统方法
+        Method method1 = class_getInstanceMethod(self, @selector(sendAction:to:forEvent:));
+        //自定义方法
+        Method method2 = class_getInstanceMethod(self, @selector(WG_sendAction:to:forEvent:));
+        //交换方法
+        method_exchangeImplementations(method1, method2);
+    }
+    -(void)WG_sendAction:(SEL)action to:(id)target forEvent:(UIEvent *)event {
+        // 拦截到按钮的点击事件后,可以做自己想做的事情,但注意,一旦拦截到按钮点击事件后,按钮本身添加的事件就不会再次响应了
+        NSLog(@"self:%@---target:%@---selectorName:%@",self, target, NSStringFromSelector(action));
+        //如果我们在拦截到按钮事件后,处理完自己想处理的事,仍然想让按钮继续处理它的事件,那么可以这么做
+        //去调用WG_sendAction:to:forEvent:)方法即可,本来应该调用系统方法sendAction:to:forEvent:),但是因为已经方法交换了,所以调用WG_sendAction:to:forEvent:)方法最终才能去执行系统方法sendAction:to:forEvent:),
+        [self WG_sendAction:action to:target forEvent:event];
+    }
+    @end
+
+#### 案例2: 拦截数组添加元素的方法,来避免crash
+#### 我们知道数组中添加元素,如果添加的元素为nil,那么程序就会crash,如下
+    - (void)viewDidLoad {
+        [super viewDidLoad];
+        self.view.backgroundColor = [UIColor whiteColor];
+        NSString *name = nil;
+        NSMutableArray *muArr = [NSMutableArray array];
+        [muArr addObject:@"123"];
+        [muArr addObject:name];
+    }
+    程序crash: *** Terminating app due to uncaught exception 'NSInvalidArgumentException', reason: '*** -[__NSArrayM insertObject:atIndex:]: object cannot be nil'
+#### 从上面报错信息我们可以知道addObject方法底层调用的是insertObject:atIndex:方法,所以我们创建NSMutableArray的分类来拦截到这个方法,然后去判断添加的元素是否为nil,如果为nil就不要再调用添加的方法了,这样就可以避免程序crash
+    @interface NSMutableArray (WGHookMutableArray)
+    @end
+
+    #import "NSMutableArray+WGHookMutableArray.h"
+    #import <objc/runtime.h>
+
+    @implementation NSMutableArray (WGHookMutableArray)
+    +(void)load {
+        //这里不能填写self,因为NSString、NSArray、NSDictionary属于类簇,类簇的真实类型是其它类型
+        //Method method1 = class_getInstanceMethod(self, @selector(insertObject:atIndex:));
+        
+        Class cls = NSClassFromString(@"__NSArrayM");
+        Method method1 = class_getInstanceMethod(cls, @selector(insertObject:atIndex:));
+        Method method2 = class_getInstanceMethod(cls, @selector(WG_insertObject:atIndex:));
+        method_exchangeImplementations(method1, method2);
+    }
+    -(void)WG_insertObject:(id)anObject atIndex:(NSUInteger)index {
+        if (anObject == nil) { //如果添加的元素为nil,直接返回,不需要再去调用添加的方法了
+            return;
+        }
+        //如果不为nil,则可以继续进行添加元素的方法
+        [self WG_insertObject:anObject atIndex:index];
+    }
+    @end
+
+#### 案例3: 拦截字典添加元素的方法,来避免crash
+#### 字典中如果key为nil,则程序会crash
+    - (void)viewDidLoad {
+        [super viewDidLoad];
+        self.view.backgroundColor = [UIColor whiteColor];
+        NSString *obj = nil;
+        NSMutableDictionary *muDic = [NSMutableDictionary dictionary];
+        //下面代码等价于 [muDic setObject:@"zhangSan" forKey:@"name"];
+        muDic[@"name"] = @"zhangSan";
+        muDic[obj] = @"ceShi";
+    }
+    程序crash: *** Terminating app due to uncaught exception 'NSInvalidArgumentException', reason: '*** -[__NSDictionaryM setObject:forKeyedSubscript:]: key cannot be nil'
+#### 从上面报错信息我们可以知道setObject:forKey:;方法底层调用的是setObject:forKeyedSubscript:方法,所以我们创建NSMutableDictionary的分类来拦截到这个方法,然后去判断元素Key是否为nil,如果为nil就不要再调用添加的方法了,这样就可以避免程序crash
+    @interface NSMutableDictionary (WGHookMutableDictionary)
+    @end
+    
+    #import "NSMutableDictionary+WGHookMutableDictionary.h"
+    #import <objc/runtime.h>
+
+    @implementation NSMutableDictionary (WGHookMutableDictionary)
+    +(void)load {
+        Class cls = NSClassFromString(@"__NSDictionaryM");
+        Method method1 = class_getInstanceMethod(cls, @selector(setObject:forKeyedSubscript:));
+        Method method2 = class_getInstanceMethod(cls, @selector(WG_setObject:forKeyedSubscript:));
+        method_exchangeImplementations(method1, method2);
+    }
+    -(void)WG_setObject:(id)obj forKeyedSubscript:(id<NSCopying>)key {
+        if (key == nil) {
+            return;
+        }
+        [self WG_setObject:obj forKeyedSubscript:key];
+    }
+    @end
+#### ⚠️需要注意的是NSDictionary中有很多其它的类对象名称,所以后续一定要注意区分交换方法的方法是归属可变类型还是不可变类型,因为可变/不可变类型的类对象名称是不一样的

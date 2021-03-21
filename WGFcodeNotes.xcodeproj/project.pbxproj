@@ -43,6 +43,10 @@
 		5406AA77259A144D0053E251 /* iOS签名机制.md in Resources */ = {isa = PBXBuildFile; fileRef = 5406AA76259A144D0053E251 /* iOS签名机制.md */; };
 		540ED63C246990B600C6DAF7 /* KeyWord.md in Resources */ = {isa = PBXBuildFile; fileRef = 540ED63B246990B600C6DAF7 /* KeyWord.md */; };
 		5422AC59244F3E8E000CB747 /* block2.png in Resources */ = {isa = PBXBuildFile; fileRef = 5422AC58244F3E8E000CB747 /* block2.png */; };
+		542CD1DB26074284006A6D1D /* NSObject+WGJson.m in Sources */ = {isa = PBXBuildFile; fileRef = 542CD1DA26074284006A6D1D /* NSObject+WGJson.m */; };
+		542CD1E0260751E4006A6D1D /* UIControl+WGHookMethod.m in Sources */ = {isa = PBXBuildFile; fileRef = 542CD1DF260751E4006A6D1D /* UIControl+WGHookMethod.m */; };
+		542CD1E326075822006A6D1D /* NSMutableArray+WGHookMutableArray.m in Sources */ = {isa = PBXBuildFile; fileRef = 542CD1E226075822006A6D1D /* NSMutableArray+WGHookMutableArray.m */; };
+		542CD1E626075AE2006A6D1D /* NSMutableDictionary+WGHookMutableDictionary.m in Sources */ = {isa = PBXBuildFile; fileRef = 542CD1E526075AE2006A6D1D /* NSMutableDictionary+WGHookMutableDictionary.m */; };
 		542D3D832518E61300394130 /* 分类扩展关联对象.md in Resources */ = {isa = PBXBuildFile; fileRef = 542D3D822518E61300394130 /* 分类扩展关联对象.md */; };
 		542D3D8F251A48CC00394130 /* Student.m in Sources */ = {isa = PBXBuildFile; fileRef = 542D3D8E251A48CC00394130 /* Student.m */; };
 		542D3D92251A48F500394130 /* Student+StudentCategory.m in Sources */ = {isa = PBXBuildFile; fileRef = 542D3D91251A48F500394130 /* Student+StudentCategory.m */; };
@@ -53,6 +57,7 @@
 		543C213325485B44000212B6 /* NewBlock.md in Resources */ = {isa = PBXBuildFile; fileRef = 543C213225485B44000212B6 /* NewBlock.md */; };
 		543FF0B225CEDFA2006B72E6 /* WGPermanentThreadOC.m in Sources */ = {isa = PBXBuildFile; fileRef = 543FF0B125CEDFA2006B72E6 /* WGPermanentThreadOC.m */; };
 		543FF0B525CEEBFD006B72E6 /* WGPermanentThreadC.m in Sources */ = {isa = PBXBuildFile; fileRef = 543FF0B425CEEBFD006B72E6 /* WGPermanentThreadC.m */; };
+		544008892606DB1F00233364 /* Car.m in Sources */ = {isa = PBXBuildFile; fileRef = 544008882606DB1F00233364 /* Car.m */; };
 		545638D324B36CE5007D5447 /* HTTPTCPUDP.md in Resources */ = {isa = PBXBuildFile; fileRef = 545638D224B36CE5007D5447 /* HTTPTCPUDP.md */; };
 		5463C26424B0115D008F9C9A /* CoreAnimal.md in Resources */ = {isa = PBXBuildFile; fileRef = 5463C26324B0115D008F9C9A /* CoreAnimal.md */; };
 		5483CFEC25D3B95400613F40 /* NewRunTime.md in Resources */ = {isa = PBXBuildFile; fileRef = 5483CFEB25D3B95400613F40 /* NewRunTime.md */; };
@@ -335,6 +340,14 @@
 		5409CE7B25CAEE9800E704CF /* CFURL.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CFURL.h; sourceTree = "<group>"; };
 		540ED63B246990B600C6DAF7 /* KeyWord.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = KeyWord.md; sourceTree = "<group>"; };
 		5422AC58244F3E8E000CB747 /* block2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = block2.png; sourceTree = "<group>"; };
+		542CD1D926074284006A6D1D /* NSObject+WGJson.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSObject+WGJson.h"; sourceTree = "<group>"; };
+		542CD1DA26074284006A6D1D /* NSObject+WGJson.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSObject+WGJson.m"; sourceTree = "<group>"; };
+		542CD1DE260751E4006A6D1D /* UIControl+WGHookMethod.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UIControl+WGHookMethod.h"; sourceTree = "<group>"; };
+		542CD1DF260751E4006A6D1D /* UIControl+WGHookMethod.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "UIControl+WGHookMethod.m"; sourceTree = "<group>"; };
+		542CD1E126075822006A6D1D /* NSMutableArray+WGHookMutableArray.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSMutableArray+WGHookMutableArray.h"; sourceTree = "<group>"; };
+		542CD1E226075822006A6D1D /* NSMutableArray+WGHookMutableArray.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSMutableArray+WGHookMutableArray.m"; sourceTree = "<group>"; };
+		542CD1E426075AE2006A6D1D /* NSMutableDictionary+WGHookMutableDictionary.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSMutableDictionary+WGHookMutableDictionary.h"; sourceTree = "<group>"; };
+		542CD1E526075AE2006A6D1D /* NSMutableDictionary+WGHookMutableDictionary.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSMutableDictionary+WGHookMutableDictionary.m"; sourceTree = "<group>"; };
 		542D3D822518E61300394130 /* 分类扩展关联对象.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "分类扩展关联对象.md"; sourceTree = "<group>"; };
 		542D3D8D251A48CC00394130 /* Student.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Student.h; sourceTree = "<group>"; };
 		542D3D8E251A48CC00394130 /* Student.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Student.m; sourceTree = "<group>"; };
@@ -351,6 +364,8 @@
 		543FF0B125CEDFA2006B72E6 /* WGPermanentThreadOC.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WGPermanentThreadOC.m; sourceTree = "<group>"; };
 		543FF0B325CEEBFD006B72E6 /* WGPermanentThreadC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WGPermanentThreadC.h; sourceTree = "<group>"; };
 		543FF0B425CEEBFD006B72E6 /* WGPermanentThreadC.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WGPermanentThreadC.m; sourceTree = "<group>"; };
+		544008872606DB1F00233364 /* Car.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Car.h; sourceTree = "<group>"; };
+		544008882606DB1F00233364 /* Car.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Car.m; sourceTree = "<group>"; };
 		545638D224B36CE5007D5447 /* HTTPTCPUDP.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = HTTPTCPUDP.md; sourceTree = "<group>"; };
 		5463C26324B0115D008F9C9A /* CoreAnimal.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = CoreAnimal.md; sourceTree = "<group>"; };
 		5483CFEB25D3B95400613F40 /* NewRunTime.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = NewRunTime.md; sourceTree = "<group>"; };
@@ -979,6 +994,14 @@
 		548AC946242F4B3100EEE11C = {
 			isa = PBXGroup;
 			children = (
+				542CD1E426075AE2006A6D1D /* NSMutableDictionary+WGHookMutableDictionary.h */,
+				542CD1E526075AE2006A6D1D /* NSMutableDictionary+WGHookMutableDictionary.m */,
+				542CD1E126075822006A6D1D /* NSMutableArray+WGHookMutableArray.h */,
+				542CD1E226075822006A6D1D /* NSMutableArray+WGHookMutableArray.m */,
+				542CD1DE260751E4006A6D1D /* UIControl+WGHookMethod.h */,
+				542CD1DF260751E4006A6D1D /* UIControl+WGHookMethod.m */,
+				542CD1D926074284006A6D1D /* NSObject+WGJson.h */,
+				542CD1DA26074284006A6D1D /* NSObject+WGJson.m */,
 				5409CDD325CAEDE300E704CF /* SourceCode */,
 				30313DC0253829F600941BE5 /* WGTargetProxy.h */,
 				30313DC1253829F600941BE5 /* WGTargetProxy.m */,
@@ -990,6 +1013,8 @@
 				542D3D8E251A48CC00394130 /* Student.m */,
 				548F332924F2B87300AB3540 /* Person.h */,
 				548F332A24F2B87300AB3540 /* Person.m */,
+				544008872606DB1F00233364 /* Car.h */,
+				544008882606DB1F00233364 /* Car.m */,
 				54DA256E25B3D77F00E1B980 /* Person+PersonTest.h */,
 				54DA256F25B3D77F00E1B980 /* Person+PersonTest.m */,
 				30160A2724A75A970074FB82 /* BinaryTree.h */,
@@ -1299,6 +1324,7 @@
 				30313DC2253829F600941BE5 /* WGTargetProxy.m in Sources */,
 				548AC957242F4B3100EEE11C /* ViewController.swift in Sources */,
 				54E19661250E750B0064027B /* WGProxy.m in Sources */,
+				542CD1E326075822006A6D1D /* NSMutableArray+WGHookMutableArray.m in Sources */,
 				542D3D8F251A48CC00394130 /* Student.m in Sources */,
 				30160A2924A75A970074FB82 /* BinaryTree.m in Sources */,
 				54E1965B250A70A90064027B /* WGThread.m in Sources */,
@@ -1310,14 +1336,18 @@
 				54E1965E250A7BDC0064027B /* WGRunLoopSecondVC.m in Sources */,
 				30FCCF84256F8DB000AEC012 /* Mems.swift in Sources */,
 				3015810D245577A600EC6001 /* WGMonitorManage.m in Sources */,
+				542CD1E626075AE2006A6D1D /* NSMutableDictionary+WGHookMutableDictionary.m in Sources */,
+				542CD1E0260751E4006A6D1D /* UIControl+WGHookMethod.m in Sources */,
 				543FF0B225CEDFA2006B72E6 /* WGPermanentThreadOC.m in Sources */,
 				542D3D92251A48F500394130 /* Student+StudentCategory.m in Sources */,
+				544008892606DB1F00233364 /* Car.m in Sources */,
 				543FF0B525CEEBFD006B72E6 /* WGPermanentThreadC.m in Sources */,
 				301CF1BC2452BE310024EC69 /* WGFirstVC.m in Sources */,
 				5438813425445D6F00F5E4D1 /* WGGCDTimer.m in Sources */,
 				548AC953242F4B3100EEE11C /* AppDelegate.swift in Sources */,
 				548AC955242F4B3100EEE11C /* SceneDelegate.swift in Sources */,
 				30D3DF72245E74790012F803 /* WGTestModel.m in Sources */,
+				542CD1DB26074284006A6D1D /* NSObject+WGJson.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

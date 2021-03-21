@@ -10,9 +10,6 @@
 #import <objc/runtime.h>
 
 @implementation Student
--(void)dealloc {
-    [super dealloc];
-    NSLog(@"--------");
-}
+
 
 @end

@@ -2903,9 +2903,12 @@ method_setImplementation(Method m, IMP imp)
     return _method_setImplementation(Nil, m, imp);
 }
 
-
-void method_exchangeImplementations(Method m1, Method m2)
-{
+/*
+ 一旦调用下面的方法(方法交换),就会清空缓存列表中的方法列表 flushCaches(nil);
+ */
+/// WGRunTimeSourceCode 源码阅读
+//MARK:方法交换的底层源码
+void method_exchangeImplementations(Method m1, Method m2) {
     if (!m1  ||  !m2) return;
 
     rwlock_writer_t lock(runtimeLock);
