@@ -871,7 +871,8 @@ void _objc_atfork_child()
 * Bootstrap initialization. Registers our image notifier with dyld.
 * Called by libSystem BEFORE library initialization time
 **********************************************************************/
-
+/// WGRunTimeSourceCode 源码阅读
+//MARK:OC运行时机制开始的地方
 void _objc_init(void)
 {
     static bool initialized = false;
