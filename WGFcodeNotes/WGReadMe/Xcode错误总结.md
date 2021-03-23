@@ -80,3 +80,9 @@ build Settings ->Excluded Architecture->debug 和 release ->Any ios simulator SD
         ZJKBank    -[WGLoginVC login] (WGLoginVC.m:177)
 
 #### 解决方案： 将[[WGNetworkAPI manager] setValue:@"application/json" forKey:@"Content-Type"];去掉就可以了，
+
+7. 升级到Xcode12.3后，运行家银小二在模拟器上，报错：
+
+        ld: in /Users/baicai/Desktop/WLKProject/BankXE/BankXE/WGLib/Bugly.framework/Bugly(libBugly.a-arm64-master.o), building for iOS Simulator, but linking in object file built for iOS,
+        clang: error: linker command failed with exit code 1 (use -v to see invocation)
+#### 解决方法：1.Excluded Architecture 加上 arm64；2.Build Active Architecture Only 设置为 NO,设置可行 但打真机包的时候 Excluded Architecture 里的值要去掉
