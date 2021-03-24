@@ -366,9 +366,13 @@ void waitForInitializeToComplete(Class cls)
     asm("");
 }
 
-
-void callInitialize(Class cls)
-{
+/// WGRunTimeSourceCode 源码阅读
+/*
+ initialize方法底层是消息发送机制,所以如果类和分类中都有initialize方法,那么就会优先调用分类的方法,而类中的方法会被覆盖掉的,所以只会调用分类的方法
+ */
+//MARK:initialize方法的底层结构
+void callInitialize(Class cls) {
+    //objc_msgSend: 消息发送机制(通过isa指针找方法)
     ((void(*)(Class, SEL))objc_msgSend)(cls, SEL_initialize);
     asm("");
 }

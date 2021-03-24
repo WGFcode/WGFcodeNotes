@@ -181,6 +181,11 @@ void remove_category_from_loadable_list(Category cat)
 *
 * Called only by call_load_methods().
 **********************************************************************/
+/// WGRunTimeSourceCode 源码阅读
+/*
+ load方法调用是直接拿到load方法地址进行调用,而不是通过isa的消息发送机制进行调用
+ */
+//MARK:load方法的底层结构
 static void call_class_loads(void)
 {
     int i;
@@ -195,12 +200,14 @@ static void call_class_loads(void)
     // Call all +loads for the detached list.
     for (i = 0; i < used; i++) {
         Class cls = classes[i].cls;
+        //获取到load方法的内存地址
         load_method_t load_method = (load_method_t)classes[i].method;
         if (!cls) continue; 
 
         if (PrintLoading) {
             _objc_inform("LOAD: +[%s load]\n", cls->nameForLogging());
         }
+        //直接调用load方法
         (*load_method)(cls, SEL_load);
     }
     
@@ -334,6 +341,11 @@ static bool call_category_loads(void)
 * Locking: loadMethodLock must be held by the caller 
 *   All other locks must not be held.
 **********************************************************************/
+/// WGRunTimeSourceCode 源码阅读
+/*
+ ⚠️先调用类的load方法,再调用分类的load方法
+ */
+//MARK: load方法的调用入口
 void call_load_methods(void)
 {
     static bool loading = NO;
@@ -348,6 +360,7 @@ void call_load_methods(void)
     void *pool = objc_autoreleasePoolPush();
 
     do {
+        //⚠️ load方法调用:先调用类的load方法,然后再调用分类的load方法
         // 1. Repeatedly call class +loads until there aren't any more
         while (loadable_classes_used > 0) {
             call_class_loads();
