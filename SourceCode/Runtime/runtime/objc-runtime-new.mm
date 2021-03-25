@@ -618,6 +618,8 @@ prepareMethodLists(Class cls, method_list_t **addedLists, int addedCount,
 // Attach method lists and properties and protocols from categories to a class.
 // Assumes the categories in cats are all loaded and sorted by load order, 
 // oldest categories first.
+//⚠️：dyld加载第8⃣️步
+//MAARK:将分类信息添加都类信息结构中
 static void 
 attachCategories(Class cls, category_list *cats, bool flush_caches)
 {
@@ -660,7 +662,7 @@ attachCategories(Class cls, category_list *cats, bool flush_caches)
             protolists[protocount++] = protolist;
         }
     }
-
+    //⚠️获取到class_rw_t结构 将分类中方法/属性/协议信息添加到类信息结构中
     auto rw = cls->data();
 
     prepareMethodLists(cls, mlists, mcount, NO, fromBundle);
@@ -756,6 +758,7 @@ static void methodizeClass(Class cls)
 * Updates method caches for cls and its subclasses.
 * Locking: runtimeLock must be held by the caller
 **********************************************************************/
+//⚠️：dyld加载第7⃣️步
 static void remethodizeClass(Class cls)
 {
     category_list *cats;
@@ -771,7 +774,7 @@ static void remethodizeClass(Class cls)
             _objc_inform("CLASS: attaching categories to class '%s' %s", 
                          cls->nameForLogging(), isMeta ? "(meta)" : "");
         }
-        
+        //⚠️：将分类信息添加到类信息中
         attachCategories(cls, cats, true /*flush caches*/);        
         free(cats);
     }
@@ -2013,6 +2016,7 @@ void _objc_flush_caches(Class cls)
 *
 * Locking: write-locks runtimeLock
 **********************************************************************/
+//⚠️：dyld加载第2⃣️步
 void
 map_images(unsigned count, const char * const paths[],
            const struct mach_header * const mhdrs[])
@@ -2303,6 +2307,7 @@ readProtocol(protocol_t *newproto, Class protocol_class,
 *
 * Locking: runtimeLock acquired by map_images
 **********************************************************************/
+//⚠️：dyld加载第5⃣️步
 void _read_images(header_info **hList, uint32_t hCount, int totalClasses, int unoptimizedTotalClasses)
 {
     header_info *hi;
@@ -2598,6 +2603,7 @@ void _read_images(header_info **hList, uint32_t hCount, int totalClasses, int un
             {
                 addUnattachedCategoryForClass(cat, cls->ISA(), hi);
                 if (cls->ISA()->isRealized()) {
+                    //⚠️：dyld加载第6⃣️步
                     remethodizeClass(cls->ISA());
                 }
                 if (PrintConnecting) {

@@ -14,7 +14,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface Person : NSObject
 -(void)run;
--(void)test;
 @end
 
 

@@ -192,6 +192,18 @@ using namespace objc_references_support;
 
 spinlock_t AssociationsManagerLock;
 
+/// WGRunTimeSourceCode 源码阅读
+/*
+ ⚠️关联对象的管理对象，里面存放的是哈希表AssociationsHashMap，类似一个字典，以key-value形式存在
+ AssociationsHashMap结构: <disguised_ptr_t(被关联对象的地址), ObjectAssociationMap *(键值对)>
+ ObjectAssociationMap结构: <void *(被关联对象名字的指针), ObjcAssociation(包含关联对象值和协议的类实例)>
+ ObjcAssociation结构：
+ class ObjcAssociation {
+     uintptr_t _policy;
+     id _value;
+ }
+ */
+//MARK:关联对象的管理类
 class AssociationsManager {
     // associative references: object pointer -> PtrPtrHashMap.
     static AssociationsHashMap *_map;
@@ -268,6 +280,7 @@ struct ReleaseValue {
     }
 };
 
+//⚠️设置关联对象实现第2⃣️步
 void _object_set_associative_reference(id object, void *key, id value, uintptr_t policy) {
     // retain the new value (if any) outside the lock.
     ObjcAssociation old_association(0, nil);
@@ -313,6 +326,7 @@ void _object_set_associative_reference(id object, void *key, id value, uintptr_t
     if (old_association.hasValue()) ReleaseValue()(old_association);
 }
 
+//MARK:⚠️移除关联对象
 void _object_remove_assocations(id object) {
     vector< ObjcAssociation,ObjcAllocator<ObjcAssociation> > elements;
     {

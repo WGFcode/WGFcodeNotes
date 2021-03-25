@@ -22,6 +22,8 @@
 		3078C069251C366B00A73E54 /* 传值方式.md in Resources */ = {isa = PBXBuildFile; fileRef = 3078C068251C366B00A73E54 /* 传值方式.md */; };
 		307A0E7B24456BD3006E5429 /* RunLoop.md in Resources */ = {isa = PBXBuildFile; fileRef = 307A0E7A24456BD3006E5429 /* RunLoop.md */; };
 		307A0E7D24456BE4006E5429 /* RunTime.md in Resources */ = {isa = PBXBuildFile; fileRef = 307A0E7C24456BE4006E5429 /* RunTime.md */; };
+		30975813260C27D100709A73 /* Person+PersonTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 30975812260C27D100709A73 /* Person+PersonTest.m */; };
+		30975816260C2DF800709A73 /* Person+PersonAAAAA.m in Sources */ = {isa = PBXBuildFile; fileRef = 30975815260C2DF800709A73 /* Person+PersonAAAAA.m */; };
 		309F9D682435D98700FFB705 /* ThreadLock.md in Resources */ = {isa = PBXBuildFile; fileRef = 309F9D672435D98700FFB705 /* ThreadLock.md */; };
 		30A73F332447F14A00C86BB8 /* kvc1.png in Resources */ = {isa = PBXBuildFile; fileRef = 30A73F322447F14A00C86BB8 /* kvc1.png */; };
 		30A7DC8124348703008DDCF9 /* lock1.png in Resources */ = {isa = PBXBuildFile; fileRef = 30A7DC8024348703008DDCF9 /* lock1.png */; };
@@ -81,7 +83,6 @@
 		548F332B24F2B87300AB3540 /* Person.m in Sources */ = {isa = PBXBuildFile; fileRef = 548F332A24F2B87300AB3540 /* Person.m */; };
 		54C118BE2584EF8B00B39379 /* LLVM.md in Resources */ = {isa = PBXBuildFile; fileRef = 54C118BD2584EF8B00B39379 /* LLVM.md */; };
 		54CBAE2824FFE4E500AEA0E5 /* iOS内存分区.md in Resources */ = {isa = PBXBuildFile; fileRef = 54CBAE2724FFE4E500AEA0E5 /* iOS内存分区.md */; };
-		54DA257025B3D77F00E1B980 /* Person+PersonTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 54DA256F25B3D77F00E1B980 /* Person+PersonTest.m */; };
 		54DA257225B47ADC00E1B980 /* 性能优化.md in Resources */ = {isa = PBXBuildFile; fileRef = 54DA257125B47ADC00E1B980 /* 性能优化.md */; };
 		54E19658250909050064027B /* WGRunLoopVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 54E19657250909050064027B /* WGRunLoopVC.m */; };
 		54E1965B250A70A90064027B /* WGThread.m in Sources */ = {isa = PBXBuildFile; fileRef = 54E1965A250A70A90064027B /* WGThread.m */; };
@@ -147,6 +148,10 @@
 		307A0E7A24456BD3006E5429 /* RunLoop.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = RunLoop.md; sourceTree = "<group>"; };
 		307A0E7C24456BE4006E5429 /* RunTime.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = RunTime.md; sourceTree = "<group>"; };
 		307A0E7E24456BF8006E5429 /* Block.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Block.md; sourceTree = "<group>"; };
+		30975811260C27D100709A73 /* Person+PersonTest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Person+PersonTest.h"; sourceTree = "<group>"; };
+		30975812260C27D100709A73 /* Person+PersonTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Person+PersonTest.m"; sourceTree = "<group>"; };
+		30975814260C2DF800709A73 /* Person+PersonAAAAA.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Person+PersonAAAAA.h"; sourceTree = "<group>"; };
+		30975815260C2DF800709A73 /* Person+PersonAAAAA.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Person+PersonAAAAA.m"; sourceTree = "<group>"; };
 		309F9D672435D98700FFB705 /* ThreadLock.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = ThreadLock.md; sourceTree = "<group>"; };
 		30A73F322447F14A00C86BB8 /* kvc1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = kvc1.png; sourceTree = "<group>"; };
 		30A7DC8024348703008DDCF9 /* lock1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = lock1.png; sourceTree = "<group>"; };
@@ -510,8 +515,6 @@
 		548F332A24F2B87300AB3540 /* Person.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Person.m; sourceTree = "<group>"; };
 		54C118BD2584EF8B00B39379 /* LLVM.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = LLVM.md; sourceTree = "<group>"; };
 		54CBAE2724FFE4E500AEA0E5 /* iOS内存分区.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "iOS内存分区.md"; sourceTree = "<group>"; };
-		54DA256E25B3D77F00E1B980 /* Person+PersonTest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Person+PersonTest.h"; sourceTree = "<group>"; };
-		54DA256F25B3D77F00E1B980 /* Person+PersonTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Person+PersonTest.m"; sourceTree = "<group>"; };
 		54DA257125B47ADC00E1B980 /* 性能优化.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "性能优化.md"; sourceTree = "<group>"; };
 		54E19656250909050064027B /* WGRunLoopVC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WGRunLoopVC.h; sourceTree = "<group>"; };
 		54E19657250909050064027B /* WGRunLoopVC.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WGRunLoopVC.m; sourceTree = "<group>"; };
@@ -629,6 +632,10 @@
 			children = (
 				5483CFED25D3C09900613F40 /* Runtime */,
 				5409CDD425CAEE2D00E704CF /* CFRunLoopRef */,
+				30975811260C27D100709A73 /* Person+PersonTest.h */,
+				30975812260C27D100709A73 /* Person+PersonTest.m */,
+				30975814260C2DF800709A73 /* Person+PersonAAAAA.h */,
+				30975815260C2DF800709A73 /* Person+PersonAAAAA.m */,
 			);
 			path = SourceCode;
 			sourceTree = "<group>";
@@ -1015,8 +1022,6 @@
 				548F332A24F2B87300AB3540 /* Person.m */,
 				544008872606DB1F00233364 /* Car.h */,
 				544008882606DB1F00233364 /* Car.m */,
-				54DA256E25B3D77F00E1B980 /* Person+PersonTest.h */,
-				54DA256F25B3D77F00E1B980 /* Person+PersonTest.m */,
 				30160A2724A75A970074FB82 /* BinaryTree.h */,
 				30160A2824A75A970074FB82 /* BinaryTree.m */,
 				30D3DF70245E74790012F803 /* WGTestModel.h */,
@@ -1329,7 +1334,6 @@
 				30160A2924A75A970074FB82 /* BinaryTree.m in Sources */,
 				54E1965B250A70A90064027B /* WGThread.m in Sources */,
 				54E19658250909050064027B /* WGRunLoopVC.m in Sources */,
-				54DA257025B3D77F00E1B980 /* Person+PersonTest.m in Sources */,
 				548F332B24F2B87300AB3540 /* Person.m in Sources */,
 				548AC983242F4C7100EEE11C /* WGMainVC.swift in Sources */,
 				30FD75F824357E3800431678 /* WGMainObjcVC.m in Sources */,
@@ -1339,6 +1343,8 @@
 				542CD1E626075AE2006A6D1D /* NSMutableDictionary+WGHookMutableDictionary.m in Sources */,
 				542CD1E0260751E4006A6D1D /* UIControl+WGHookMethod.m in Sources */,
 				543FF0B225CEDFA2006B72E6 /* WGPermanentThreadOC.m in Sources */,
+				30975813260C27D100709A73 /* Person+PersonTest.m in Sources */,
+				30975816260C2DF800709A73 /* Person+PersonAAAAA.m in Sources */,
 				542D3D92251A48F500394130 /* Student+StudentCategory.m in Sources */,
 				544008892606DB1F00233364 /* Car.m in Sources */,
 				543FF0B525CEEBFD006B72E6 /* WGPermanentThreadC.m in Sources */,
@@ -1523,7 +1529,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 27V68Z7BA3;
+				DEVELOPMENT_TEAM = FC674Q65L8;
 				EXCLUDED_ARCHS = "";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1551,7 +1557,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 27V68Z7BA3;
+				DEVELOPMENT_TEAM = FC674Q65L8;
 				EXCLUDED_ARCHS = "";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1577,7 +1583,7 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 27V68Z7BA3;
+				DEVELOPMENT_TEAM = FC674Q65L8;
 				INFOPLIST_FILE = WGFcodeNotesTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.2;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1599,7 +1605,7 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 27V68Z7BA3;
+				DEVELOPMENT_TEAM = FC674Q65L8;
 				INFOPLIST_FILE = WGFcodeNotesTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.2;
 				LD_RUNPATH_SEARCH_PATHS = (

@@ -436,6 +436,7 @@ static bool shouldRejectGCImage(const headerType *mhdr)
 #include "objc-file-old.h"
 #endif
 
+//⚠️：dyld加载第3⃣️步
 void 
 map_images_nolock(unsigned mhCount, const char * const mhPaths[],
                   const struct mach_header * const mhdrs[])
@@ -574,6 +575,7 @@ map_images_nolock(unsigned mhCount, const char * const mhPaths[],
     }
 
     if (hCount > 0) {
+        //⚠️：dyld加载第4⃣️步
         _read_images(hList, hCount, totalClasses, unoptimizedTotalClasses);
     }
 
@@ -872,7 +874,7 @@ void _objc_atfork_child()
 * Called by libSystem BEFORE library initialization time
 **********************************************************************/
 /// WGRunTimeSourceCode 源码阅读
-//MARK:OC运行时机制开始的地方
+//MARK:运行时初始化开始的地方,通过dyld进行加载的
 void _objc_init(void)
 {
     static bool initialized = false;
@@ -885,7 +887,7 @@ void _objc_init(void)
     static_init();
     lock_init();
     exception_init();
-
+    //⚠️注册镜像 然后进入方法map_images
     _dyld_objc_notify_register(&map_images, load_images, unmap_image);
 }
 
