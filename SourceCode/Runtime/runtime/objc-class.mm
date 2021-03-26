@@ -188,6 +188,15 @@ OBJC_EXPORT id	(*_zoneCopy)(id, size_t, void *);
 * object_getClass.
 * Locking: None. If you add locking, tell gdb (rdar://7516456).
 **********************************************************************/
+/// WGRunTimeSourceCode 源码阅读
+/*
+ Person *obj = [[Person alloc]init];
+ 若obj是实例对象，则返回类对象；
+ 若obj是类对象，则返回元类对象
+ 若obj是元类对象，则返回NSObject的元类对象
+ 若obj是NSObject的元类对象，则返回的仍然是它本身，即NSObject元类对象的类对象指向它本身
+ */
+//MARK:获取obj的类对象
 Class object_getClass(id obj)
 {
     if (obj) return obj->getIsa();
@@ -198,6 +207,7 @@ Class object_getClass(id obj)
 /***********************************************************************
 * object_setClass.
 **********************************************************************/
+//⚠️设置isa指向的Class，可以重新指定isa指向其他对象
 Class object_setClass(id obj, Class cls)
 {
     if (!obj) return nil;
@@ -217,6 +227,7 @@ Class object_setClass(id obj, Class cls)
 /***********************************************************************
 * object_isClass.
 **********************************************************************/
+//⚠️判断一个OC对象是否为Class
 BOOL object_isClass(id obj)
 {
     if (!obj) return NO;
@@ -227,6 +238,7 @@ BOOL object_isClass(id obj)
 /***********************************************************************
 * object_getClassName.
 **********************************************************************/
+//⚠️：获取obj的类名
 const char *object_getClassName(id obj)
 {
     return class_getName(obj ? obj->getIsa() : nil);
@@ -236,6 +248,7 @@ const char *object_getClassName(id obj)
 /***********************************************************************
  * object_getMethodImplementation.
  **********************************************************************/
+//⚠️获取obj对象中方法名是name的IMP，即获取到一个方法的IMP
 IMP object_getMethodImplementation(id obj, SEL name)
 {
     Class cls = (obj ? obj->getIsa() : nil);
@@ -692,6 +705,7 @@ void _class_resolveMethod(Class cls, SEL sel, id inst)
 * class_getClassMethod.  Return the class method for the specified
 * class and selector.
 **********************************************************************/
+//⚠️获取一个方法的Method
 Method class_getClassMethod(Class cls, SEL sel)
 {
     if (!cls  ||  !sel) return nil;
@@ -817,7 +831,7 @@ IMP class_getMethodImplementation_stret(Class cls, SEL sel)
 * instrumentObjcMessageSends
 **********************************************************************/
 // Define this everywhere even if it isn't used to simplify fork() safety code.
-spinlock_t objcMsgLogLock;
+spinlock_t objcMsgLogLock;  
 
 #if !SUPPORT_MESSAGE_LOGGING
 

@@ -875,6 +875,7 @@ void _objc_atfork_child()
 **********************************************************************/
 /// WGRunTimeSourceCode 源码阅读
 //MARK:运行时初始化开始的地方,通过dyld进行加载的
+//⚠️：dyld加载第1⃣️步
 void _objc_init(void)
 {
     static bool initialized = false;

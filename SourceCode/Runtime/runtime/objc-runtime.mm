@@ -621,16 +621,18 @@ void objc_setEnumerationMutationHandler(void (*handler)(id)) {
 /**********************************************************************
 * Associative Reference Support
 **********************************************************************/
+/// WGRunTimeSourceCode 源码阅读
 
+//⚠️获取关联对象属性值第1⃣️步
+//MARK:获取关联对象属性的值
 id objc_getAssociatedObject(id object, const void *key) {
     return _object_get_associative_reference(object, (void *)key);
 }
 
-/// WGRunTimeSourceCode 源码阅读
-/*
- */
+//⚠️设置关联对象属性值第1⃣️步
 //MARK:关联对象底层结构
 void objc_setAssociatedObject(id object, const void *key, id value, objc_AssociationPolicy policy) {
+    //关联哪个对象(self)、关联值的key、关联的值是什么(name)、关联策略(name用的是copy修饰所以使用如下策略)
     _object_set_associative_reference(object, (void *)key, value, policy);
 }
 

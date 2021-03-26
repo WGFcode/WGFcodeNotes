@@ -65,14 +65,14 @@ namespace {
 #endif
 
 /// WGRunTimeSourceCode 源码阅读
-/// isa采用了共用体的结构，利用位域技术来存储更多信息
+//MARK:isa底层结构->采用了共用体的结构，利用位域技术来存储更多信息
 union isa_t 
 {
     isa_t() { }
     isa_t(uintptr_t value) : bits(value) { }
 
     Class cls;
-    uintptr_t bits;
+    uintptr_t bits;  //存放所有的数据
 
 #if SUPPORT_PACKED_ISA
 
@@ -91,17 +91,19 @@ union isa_t
 #   define ISA_MASK        0x0000000ffffffff8ULL
 #   define ISA_MAGIC_MASK  0x000003f000000001ULL
 #   define ISA_MAGIC_VALUE 0x000001a000000001ULL
-    struct {
+    struct {    //利用了位域技术,这个结构体纯粹就是为了增加可读性,其它没什么作用
+        //0:代表普通的isa指针(存储着class、Meta-class对象的内存地址) 1:优化过的isa指针,存储了更多的信息
         uintptr_t nonpointer        : 1;
-        uintptr_t has_assoc         : 1;
-        uintptr_t has_cxx_dtor      : 1;
-        //从二进制位的倒数第三位开始数，共计33位来表示类对象/元类对象的地址
+        uintptr_t has_assoc         : 1; //是否设置过关联对象,若没有,释放时更快
+        uintptr_t has_cxx_dtor      : 1; //是否有C++的析构函数(.cxx_destruct),若没有,释放时更快
+        //从二进制位的倒数第三位开始数，共计33位来表示Class、Meta-Class的内存地址
         uintptr_t shiftcls          : 33; // MACH_VM_MAX_ADDRESS 0x1000000000
-        uintptr_t magic             : 6;
-        uintptr_t weakly_referenced : 1;
-        uintptr_t deallocating      : 1;
+        uintptr_t magic             : 6;  //用于在调试时分辨对象是否未完成初始化
+        uintptr_t weakly_referenced : 1;  //是否有被弱引用指向过,若没有,释放时会更快
+        uintptr_t deallocating      : 1;  //对象是否正在释放
+        //引用计数器是否过大无法存储在isa中,如果是1,那么引用计数器就存储在一个叫SideTable的类的属性中
         uintptr_t has_sidetable_rc  : 1;
-        uintptr_t extra_rc          : 19;
+        uintptr_t extra_rc          : 19;  //里面存储的值是引用计数器减1
 #       define RC_ONE   (1ULL<<45)
 #       define RC_HALF  (1ULL<<18)
     };
@@ -170,15 +172,16 @@ union isa_t
 /*
  OC对象的本质是一个objc_object的结构体，里面存放的是isa_t类型的指针
  在arm64架构之前,isa就是一个普通的指针,存储着Class、Meta_Class对象的内存地址,而从arm64位架构开始,对isa进行了优化,变成了一个共用体(union)结构,还使用位域来存储更多的信息
- 如果我们想获取一个OC对象的类对象的地址，得通过 isa  & ISA_MASK 才能得到类对象的地址
+ 如果我们想获取一个OC对象的类对象的地址，得通过 isa  & ISA_MASK 才能得到类对象/元类对象的地址
  */
+//MARK:OC对象的底层结构
 struct objc_object {
 private:
     isa_t isa;
 
 public:
 
-    // ISA() assumes this is NOT a tagged pointer object
+    // ISA() assumes(假设) this is NOT a tagged pointer object
     Class ISA();
 
     // getIsa() allows this to be a tagged pointer object
@@ -205,11 +208,11 @@ public:
     bool isExtTaggedPointer();
     bool isClass();
 
-    // object may have associated objects?
+    // object may have associated objects? //关联对象相关
     bool hasAssociatedObjects();
     void setHasAssociatedObjects();
 
-    // object may be weakly referenced?
+    // object may be weakly referenced?  //若引用相关
     bool isWeaklyReferenced();
     void setWeaklyReferenced_nolock();
 

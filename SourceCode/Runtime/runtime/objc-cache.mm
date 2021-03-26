@@ -443,7 +443,7 @@ bool cache_t::canBeFreed()
     return !isConstantEmptyCache();
 }
 
-
+//MARK:重新分配新的缓存列表
 void cache_t::reallocate(mask_t oldCapacity, mask_t newCapacity)
 {
     bool freeOld = canBeFreed();
@@ -513,7 +513,7 @@ bucket_t * cache_t::find(cache_key_t k, id receiver)
     cache_t::bad_cache(receiver, (SEL)k, cls);
 }
 
-
+//扩容->扩容为原容量的2倍
 void cache_t::expand()
 {
     cacheUpdateLock.assertLocked();
@@ -529,33 +529,45 @@ void cache_t::expand()
 
     reallocate(oldCapacity, newCapacity);
 }
-
-
+/*
+ struct cache_t {
+     struct bucket_t *_buckets;  //数组,其实就是个散列表,里面存放的是bucket_t,数组[bucket_t]
+     mask_t _mask;               //散列表长度-1(数组元素个数-1)
+     mask_t _occupied;           //已经缓存的方法数量
+ }
+ struct bucket_t {  //散列表
+ private:
+     cache_key_t _key;   //SEL作为Key
+     IMP _imp;           //函数的内存地址
+ }
+ */
+//MARK:将方法添加到缓存列表第2⃣️步
 static void cache_fill_nolock(Class cls, SEL sel, IMP imp, id receiver)
 {
     cacheUpdateLock.assertLocked();
 
     // Never cache before +initialize is done
-    if (!cls->isInitialized()) return;
+    if (!cls->isInitialized()) return;  //⚠️若该类没有初始化，则不会有缓存，直接返回
 
     // Make sure the entry wasn't added to the cache by some other thread 
     // before we grabbed the cacheUpdateLock.
     if (cache_getImp(cls, sel)) return;
 
-    cache_t *cache = getCache(cls);
-    cache_key_t key = getKey(sel);
+    cache_t *cache = getCache(cls);  //⚠️获取cls类结构中的缓存列表
+    cache_key_t key = getKey(sel);   //将方法名称作为key
 
     // Use the cache as-is if it is less than 3/4 full
-    mask_t newOccupied = cache->occupied() + 1;
-    mask_t capacity = cache->capacity();
-    if (cache->isConstantEmptyCache()) {
+    mask_t newOccupied = cache->occupied() + 1; //⚠️缓存的方法数量的标识要+1，因为你要存放新的值
+    mask_t capacity = cache->capacity();        //⚠️获取散列表可以存储的容量值
+    if (cache->isConstantEmptyCache()) {        //⚠️若缓存列表是空的，则新建一个
         // Cache is read-only. Replace it.
         cache->reallocate(capacity, capacity ?: INIT_CACHE_SIZE);
     }
+    //⚠️在缓存列表中，如果所占用的方法个数<总容量的四分之三，则什么都不操作
     else if (newOccupied <= capacity / 4 * 3) {
         // Cache is less than 3/4 full. Use it as-is.
     }
-    else {
+    else { //⚠️若所占用的方法个数>总容量的四分之三，则进行扩容操作，扩容的容量是原容量的2倍
         // Cache is too full. Expand it.
         cache->expand();
     }
@@ -567,7 +579,8 @@ static void cache_fill_nolock(Class cls, SEL sel, IMP imp, id receiver)
     if (bucket->key() == 0) cache->incrementOccupied();
     bucket->set(key, imp);
 }
-
+/// WGRunTimeSourceCode 源码阅读
+//MARK:将方法添加到缓存列表第1⃣️步
 void cache_fill(Class cls, SEL sel, IMP imp, id receiver)
 {
 #if !DEBUG_TASK_THREADS

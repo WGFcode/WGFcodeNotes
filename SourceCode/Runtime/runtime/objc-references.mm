@@ -185,11 +185,11 @@ namespace objc_references_support {
 }
 
 using namespace objc_references_support;
-
+//AssociationsManager管理了一个锁、一张哈希表；创建实例对象时会获取到锁；懒加载方式创建哈希表
 // class AssociationsManager manages a lock / hash table singleton pair.
 // Allocating an instance acquires the lock, and calling its assocations()
 // method lazily allocates the hash table.
-
+//自旋锁：忙等状态、比较消耗CPU资源、不能递归调用、如果短时间内可以获取到资源，则使用自旋锁比互斥锁效率要高，因为少了互斥锁中的线程调度等操作
 spinlock_t AssociationsManagerLock;
 
 /// WGRunTimeSourceCode 源码阅读
@@ -203,7 +203,7 @@ spinlock_t AssociationsManagerLock;
      id _value;
  }
  */
-//MARK:关联对象的管理类
+//MARK:关联对象的管理类AssociationsManager
 class AssociationsManager {
     // associative references: object pointer -> PtrPtrHashMap.
     static AssociationsHashMap *_map;
@@ -231,6 +231,7 @@ enum {
     OBJC_ASSOCIATION_GETTER_AUTORELEASE = (2 << 8)
 }; 
 
+//⚠️获取关联对象属性值第2⃣️步
 id _object_get_associative_reference(id object, void *key) {
     id value = nil;
     uintptr_t policy = OBJC_ASSOCIATION_ASSIGN;
@@ -238,11 +239,14 @@ id _object_get_associative_reference(id object, void *key) {
         AssociationsManager manager;
         AssociationsHashMap &associations(manager.associations());
         disguised_ptr_t disguised_object = DISGUISE(object);
+        //⚠️通过关联对象object遍历AssociationsHashMap哈希表找到对应的ObjectAssociationMap哈希表
         AssociationsHashMap::iterator i = associations.find(disguised_object);
         if (i != associations.end()) {
+            //若找到ObjectAssociationMap哈希表，则再通过key遍历ObjectAssociationMap哈希表找到ObjcAssociation
             ObjectAssociationMap *refs = i->second;
             ObjectAssociationMap::iterator j = refs->find(key);
             if (j != refs->end()) {
+                //找到ObjcAssociation后将里面的value值返回
                 ObjcAssociation &entry = j->second;
                 value = entry.value();
                 policy = entry.policy();
@@ -258,6 +262,7 @@ id _object_get_associative_reference(id object, void *key) {
     return value;
 }
 
+//若关联对象的属性值也是个对象类型，就需要进行引用计数处理
 static id acquireValue(id value, uintptr_t policy) {
     switch (policy & 0xFF) {
     case OBJC_ASSOCIATION_SETTER_RETAIN:
@@ -279,8 +284,24 @@ struct ReleaseValue {
         releaseValue(association.value(), association.policy());
     }
 };
-
-//⚠️设置关联对象实现第2⃣️步
+/*
+ -----AssociationsManager-----
+   AssociationsHashMap *_map
+                         |
+         ---------AssociationsHashMap---------
+         disguised_ptr_t : ObjectAssociationMap ----------->
+         ...             : ...
+         对应object
+                                     |
+                         ---ObjectAssociationMap---
+                           void * : ObjcAssociation
+                           ...    : ...     |
+                           对应key
+                                 ------ObjcAssociation------
+                                     uintptr_t _policy   对应策略
+                                     id _value           对应Value
+ */
+//⚠️设置关联对象属性值第2⃣️步
 void _object_set_associative_reference(id object, void *key, id value, uintptr_t policy) {
     // retain the new value (if any) outside the lock.
     ObjcAssociation old_association(0, nil);
@@ -289,27 +310,34 @@ void _object_set_associative_reference(id object, void *key, id value, uintptr_t
         AssociationsManager manager;
         AssociationsHashMap &associations(manager.associations());
         disguised_ptr_t disguised_object = DISGUISE(object);
+        //如果new_value不为空，在AssociationsHashMap表中，以关联对象为key,查找对应的ObjectAssociationMap结构
         if (new_value) {
             // break any existing association.
             AssociationsHashMap::iterator i = associations.find(disguised_object);
             if (i != associations.end()) {
+                //若找到了ObjectAssociationMap结构，然后通过key，遍历查找对应的ObjcAssociation结构
                 // secondary table exists
                 ObjectAssociationMap *refs = i->second;
                 ObjectAssociationMap::iterator j = refs->find(key);
                 if (j != refs->end()) {
+                    //若找到了ObjcAssociation结构，则用新的value和policy替换掉原来的值，组成新的ObjcAssociation结构保存到ObjectAssociationMap哈希表中
                     old_association = j->second;
                     j->second = ObjcAssociation(policy, new_value);
                 } else {
+                    //若没有找到ObjcAssociation机构，则直接将value和policy保存到key映射的ObjectAssociationMap中
                     (*refs)[key] = ObjcAssociation(policy, new_value);
                 }
             } else {
+                //若在AssociationsHashMap哈希表中没有找到对应的ObjectAssociationMap，则新建一个ObjectAssociationMap对象，然后将new_value通过key的地址映射到ObjectAssociationMap哈希表中保存
                 // create the new association (first time).
                 ObjectAssociationMap *refs = new ObjectAssociationMap;
                 associations[disguised_object] = refs;
                 (*refs)[key] = ObjcAssociation(policy, new_value);
+                //设置改对象具有关联对象，方便后续对象dealloc时用于判断是否有关联对象，若有就销毁
                 object->setHasAssociatedObjects();
             }
         } else {
+            //若new_value(value, policy)为空，则通过关联对象为key遍历查找到对应的ObjectAssociationMap哈希表；然后再通过key遍历查找对应的ObjcAssociation，然后将里面的内容(value, policy)清空
             // setting the association to nil breaks the association.
             AssociationsHashMap::iterator i = associations.find(disguised_object);
             if (i !=  associations.end()) {
@@ -326,7 +354,7 @@ void _object_set_associative_reference(id object, void *key, id value, uintptr_t
     if (old_association.hasValue()) ReleaseValue()(old_association);
 }
 
-//MARK:⚠️移除关联对象
+//MARK:⚠️销毁关联对象
 void _object_remove_assocations(id object) {
     vector< ObjcAssociation,ObjcAllocator<ObjcAssociation> > elements;
     {
@@ -334,6 +362,7 @@ void _object_remove_assocations(id object) {
         AssociationsHashMap &associations(manager.associations());
         if (associations.size() == 0) return;
         disguised_ptr_t disguised_object = DISGUISE(object);
+        //根据对象disguised_object找到AssociationsHashMap哈希表中的ObjectAssociationMap哈希表，将其销毁
         AssociationsHashMap::iterator i = associations.find(disguised_object);
         if (i != associations.end()) {
             // copy all of the associations that need to be removed.

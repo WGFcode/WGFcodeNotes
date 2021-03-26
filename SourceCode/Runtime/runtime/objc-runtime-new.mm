@@ -2849,6 +2849,7 @@ method_getImplementation(Method m)
 * The method must already have been fixed-up.
 * Locking: none
 **********************************************************************/
+//MARK:获取Method方法的方法名SEL
 SEL 
 method_getName(Method m)
 {
@@ -2865,6 +2866,7 @@ method_getName(Method m)
 * The method must not be nil.
 * Locking: none
 **********************************************************************/
+//MARK:获取方法Method中的(参数、返回值)编码
 const char *
 method_getTypeEncoding(Method m)
 {
@@ -4578,6 +4580,8 @@ log_and_fill_cache(Class cls, IMP imp, SEL sel, id receiver, Class implementer)
 * already tried that.
 **********************************************************************/
 /// WGRunTimeSourceCode 源码阅读
+// （对象、方法名称、类对象）默认对象已经初始化、没有方法缓存列表、已经动态解析过了
+//MARK:查找方法流程第1⃣️步
 IMP _class_lookupMethodAndLoadCache3(id obj, SEL sel, Class cls)
 {
     return lookUpImpOrForward(cls, sel, obj, 
@@ -4598,6 +4602,7 @@ IMP _class_lookupMethodAndLoadCache3(id obj, SEL sel, Class cls)
 *   If you don't want forwarding at all, use lookUpImpOrNil() instead.
 **********************************************************************/
 /// WGRunTimeSourceCode 源码阅读
+//MARK:查找方法流程第2⃣️步
 IMP lookUpImpOrForward(Class cls, SEL sel, id inst, 
                        bool initialize, bool cache, bool resolver)
 {
@@ -4609,7 +4614,7 @@ IMP lookUpImpOrForward(Class cls, SEL sel, id inst,
     //外部参数已经设置为NO，所以这里不会再走这个方法体里面的代码了
     // Optimistic cache lookup
     if (cache) {
-        imp = cache_getImp(cls, sel);
+        imp = cache_getImp(cls, sel);  //从方法缓存列表中找方法的实现IMP
         if (imp) return imp;
     }
 
@@ -4651,13 +4656,13 @@ IMP lookUpImpOrForward(Class cls, SEL sel, id inst,
  retry:    
     runtimeLock.assertReading();
 
-    //  1.去该类的方法缓存列表中查找方法
+    //⚠️1.去该类的方法缓存列表中查找方法
     // Try this class's cache.
     
     imp = cache_getImp(cls, sel);
     if (imp) goto done;
 
-    //  2.去该类的方法列表中查找方法
+    //⚠️2.去该类的方法列表中查找方法
     // Try this class's method lists.
     {
         Method meth = getMethodNoSuper_nolock(cls, sel);
@@ -4668,7 +4673,7 @@ IMP lookUpImpOrForward(Class cls, SEL sel, id inst,
         }
     }
 
-    //  3.去该类的父类中的方法缓存列表和方法列表中查找
+    //⚠️3.去该类的父类中的方法缓存列表和方法列表中查找
     // Try superclass caches and method lists.
     {
         unsigned attempts = unreasonableClassCount();
@@ -4706,7 +4711,7 @@ IMP lookUpImpOrForward(Class cls, SEL sel, id inst,
             }
         }
     }
-    /* 4.一旦上面还没有找到，就进入动态方法解析阶段，
+    /* ⚠️4.一旦上面还没有找到，就进入动态方法解析阶段，
      首先判断是否曾经动态解析过，如果没有就继续，通过_class_resolveMethod方法动态添加方法实现，然后设置标记triedResolver为YES表示动态解析过，然后再次进入消息转发阶段，因为已经动态添加过方法了，所以消息发送阶段肯定有方法了
      如果发现之前已经解析过，那么就不再进入动态解析阶段，直接进入到消息转发阶段了
      如果是发现是第一次动态，但是在动态解析阶段没有添加方法实现，那么仍然会走消息发送阶段，然后发现没有，再来动态解析阶段，此时标记triedResolver为YES表示已经动态解析过了，就不会进入动态解析了，直接进入消息转发阶段了
@@ -5497,7 +5502,7 @@ addMethod(Class cls, SEL name, IMP imp, const char *types, bool replace)
     return result;
 }
 
-
+//MARK:添加方法的底层结构
 BOOL 
 class_addMethod(Class cls, SEL name, IMP imp, const char *types)
 {
@@ -5508,6 +5513,7 @@ class_addMethod(Class cls, SEL name, IMP imp, const char *types)
 }
 
 
+//MARK:交换方法的底层结构
 IMP 
 class_replaceMethod(Class cls, SEL name, IMP imp, const char *types)
 {
@@ -5523,6 +5529,7 @@ class_replaceMethod(Class cls, SEL name, IMP imp, const char *types)
 * Adds an ivar to a class.
 * Locking: acquires runtimeLock
 **********************************************************************/
+//MARK:添加成员变量的底层结构
 BOOL 
 class_addIvar(Class cls, const char *name, size_t size, 
               uint8_t alignment, const char *type)
@@ -5600,6 +5607,7 @@ class_addIvar(Class cls, const char *name, size_t size,
 * Adds a protocol to a class.
 * Locking: acquires runtimeLock
 **********************************************************************/
+//MARK:添加协议的底层结构
 BOOL class_addProtocol(Class cls, Protocol *protocol_gen)
 {
     protocol_t *protocol = newprotocol(protocol_gen);
@@ -5630,6 +5638,7 @@ BOOL class_addProtocol(Class cls, Protocol *protocol_gen)
 * Adds a property to a class.
 * Locking: acquires runtimeLock
 **********************************************************************/
+//MARK:添加属性的底层结构
 static bool 
 _class_addProperty(Class cls, const char *name, 
                    const objc_property_attribute_t *attrs, unsigned int count, 
@@ -6315,7 +6324,7 @@ void *objc_destructInstance(id obj) {
 
         // This order is important.
         if (cxx) object_cxxDestruct(obj);     //有析构函数就释放（清除成员变量）
-        if (assoc) _object_remove_assocations(obj); //有关联对象，就移除当前对象的关联对象。
+        if (assoc) _object_remove_assocations(obj); //销毁关联对象
         obj->clearDeallocating();
     }
     return obj;

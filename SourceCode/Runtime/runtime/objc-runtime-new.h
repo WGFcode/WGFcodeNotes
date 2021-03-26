@@ -49,7 +49,7 @@ public:
     void set(cache_key_t newKey, IMP newImp);
 };
 
-//MARK: 方法缓存cache_t
+//MARK: 方法缓存cache_t底层结构
 struct cache_t {
     struct bucket_t *_buckets;  //数组,其实就是个散列表,里面存放的是bucket_t,数组[bucket_t]
     mask_t _mask;               //散列表长度-1(数组元素个数-1)
@@ -1092,8 +1092,15 @@ public:
  3. 可以通过bits获取到class_rw_t结构体
  4. class_rw_t结构体中存放有class_ro_t结构体、方法列表、属性列表、协议列表（都是二维数组）
  5. class_ro_t结构体中存放的是在程序编译期已经确定的类信息，包含：方法列表、属性列表、协议列表、成员变量列表（都是一维数组）
+    类对象结构
+      isa
+    superclass
+  方法缓存列表cache------------>方法缓存列表结构cache_t
+  存放类信息的bits结构体      _buckets散列表[bucket_t]数组------------>bucket_t结构体
+                                   _mask                     _sel
+                                 _occupied                   _imp
  */
-//MARK: 类对象结构体
+//MARK: 类对象底层结构体
 struct objc_class : objc_object {
     // Class ISA;
     Class superclass;          //执行父类对象

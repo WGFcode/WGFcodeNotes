@@ -1,6 +1,6 @@
 ## Runtime
 ### 面试题
-1. 将一下OC的消息机制
+1. 讲一下OC的消息机制
 * OC中的方法调用其实都是转成了objc_msgSend函数的调用,给receiver(方法调用者)发送一条消息(selector方法名)
 * objc_msgSend底层有3大阶段: 消息发送阶段(在当前类、父类中查找)、动态方法解析、消息转发阶段
 2. 消息转发机制流程
@@ -18,7 +18,7 @@
 * 告诉编译器不用自动生成getter/setter的实现,等到运行时再添加方法实现
 
 ### RunTime源码阅读可以通过全局搜索 WGRunTimeSourceCode 源码阅读 来快速查阅
-#### Objective-C是一门动态性比较强的编程语言,跟C、C++等语言有着很大的不同;C/C++语言流程是:编写代码->编译链接->运行,而OC可以办到在程序运行的过程中可以修改之前编译的东西.Objective-C的动态性是由RunTime API来支撑的,Runtime顾名思义就是运行时,RunTime API提供的接口基本都是C语言的,源码由C/C++/汇编语言编写
+#### Objective-C是一门动态性比较强的编程语言,跟C、C++等语言有着很大的不同;C/C++语言流程是:编写代码->编译链接->运行,而OC可以做到在程序运行的过程中可以修改之前编译的东西.Objective-C的动态性是由RunTime API来支撑的,Runtime顾名思义就是运行时,RunTime API提供的接口基本都是C语言的,源码由C/C++/汇编语言编写
 
 
 ### 1. isa详解
@@ -121,9 +121,9 @@
             uint32_t flags;
             uint32_t version;
             const class_ro_t *ro;
-            method_array_t methods;       //方法列表(类+分类)、二维数组、可读可写
-            property_array_t properties;  //属性列表(类+分类)、二维数组、可读可写
-            protocol_array_t protocols;   //属性协议(类+分类)、二维数组、可读可写
+            method_array_t methods;       //方法列表(分类+类)、二维数组、可读可写
+            property_array_t properties;  //属性列表(分类+类)、二维数组、可读可写
+            protocol_array_t protocols;   //属性协议(分类+类)、二维数组、可读可写
             Class firstSubclass;
             Class nextSiblingClass;
             char *demangledName;
@@ -215,7 +215,7 @@
     }
     
     struct cache_t {
-        struct bucket_t *_buckets;  //数组,其实就是个散列表,里面存放的是bucket_t
+        struct bucket_t *_buckets;  //数组,其实就是个散列表,里面存放的是bucket_t，即[bucket_t]
         mask_t _mask;               //散列表长度-1(数组元素个数-1)
         mask_t _occupied;           //已经缓存的方法数量
     }
