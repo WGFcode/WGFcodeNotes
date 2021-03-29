@@ -105,8 +105,7 @@ static unsigned int cache_counts[16];
 static size_t cache_allocations;
 static size_t cache_collections;
 
-static void recordNewCache(mask_t capacity)
-{
+static void recordNewCache(mask_t capacity) {
     size_t bucket = log2u(capacity);
     if (bucket < countof(cache_counts)) {
         cache_counts[bucket]++;
@@ -114,8 +113,7 @@ static void recordNewCache(mask_t capacity)
     cache_allocations++;
 }
 
-static void recordDeadCache(mask_t capacity)
-{
+static void recordDeadCache(mask_t capacity){
     size_t bucket = log2u(capacity);
     if (bucket < countof(cache_counts)) {
         cache_counts[bucket]--;
@@ -164,6 +162,10 @@ static inline mask_t cache_next(mask_t i, mask_t mask) {
 // objc_msgSend has lots of registers available.
 // Cache scan decrements. No end marker needed.
 #define CACHE_END_MARKER 0
+/*
+例如第一次找到的下标是3，如果下标3没找到对应的IMP，那么就继续找下标为2的元素、下标为1的元素、小标为0的元素，如果下标为0仍然没有找到，就直接找到散列表的最后一位进行查找，即下标为散列表长度-1，继续进行查找
+ */
+//⚠️遍历散列表时寻找方法是按照小标递减(index-1)进行寻找的
 static inline mask_t cache_next(mask_t i, mask_t mask) {
     return i ? i-1 : mask;
 }
@@ -228,40 +230,44 @@ static inline mask_t cache_next(mask_t i, mask_t mask) {
 // Class points to cache. SEL is key. Cache buckets store SEL+IMP.
 // Caches are never built in the dyld shared cache.
 
-static inline mask_t cache_hash(cache_key_t key, mask_t mask) 
-{
+//⚠️将方法名@selector(name)作为key，然后与散列表的长度-1进行按位与&，然后获取到对应的小标
+static inline mask_t cache_hash(cache_key_t key, mask_t mask) {
     return (mask_t)(key & mask);
 }
-
-cache_t *getCache(Class cls) 
-{
+//⚠️通过cls对象获取到改对象结构里面的方法缓存列表
+cache_t *getCache(Class cls) {
     assert(cls);
     return &cls->cache;
 }
-
-cache_key_t getKey(SEL sel) 
-{
+/*
+ struct cache_t {
+     struct bucket_t *_buckets;  //数组,其实就是个散列表,里面存放的是bucket_t,数组[bucket_t]
+     mask_t _mask;               //散列表长度-1(数组元素个数-1)
+     mask_t _occupied;           //已经缓存的方法数量
+ }
+ struct bucket_t {  //散列表
+ private:
+     cache_key_t _key;   //SEL作为Key
+     IMP _imp;           //函数的内存地址
+ }
+ typedef uintptr_t cache_key_t; 能够存储指针的无符号整数类型，可以当成无符号int类型来看待即可
+ */
+//⚠️将方法名@selector转为散列表中的key
+cache_key_t getKey(SEL sel) {
     assert(sel);
     return (cache_key_t)sel;
 }
 
 #if __arm64__
-
-void bucket_t::set(cache_key_t newKey, IMP newImp)
-{
+void bucket_t::set(cache_key_t newKey, IMP newImp) {
     assert(_key == 0  ||  _key == newKey);
-
     // LDP/STP guarantees that all observers get 
     // either key/imp or newKey/newImp
     stp(newKey, newImp, this);
 }
-
 #else
-
-void bucket_t::set(cache_key_t newKey, IMP newImp)
-{
+void bucket_t::set(cache_key_t newKey, IMP newImp) {
     assert(_key == 0  ||  _key == newKey);
-
     // objc_msgSend uses key and imp with no locks.
     // It is safe for objc_msgSend to see new imp but NULL key
     // (It will get a cache miss but not dispatch to the wrong place.)
@@ -278,8 +284,7 @@ void bucket_t::set(cache_key_t newKey, IMP newImp)
 
 #endif
 
-void cache_t::setBucketsAndMask(struct bucket_t *newBuckets, mask_t newMask)
-{
+void cache_t::setBucketsAndMask(struct bucket_t *newBuckets, mask_t newMask) {
     // objc_msgSend uses mask and buckets with no locks.
     // It is safe for objc_msgSend to see new buckets but old mask.
     // (It will get a cache miss but not overrun the buckets' bounds).
@@ -300,55 +305,47 @@ void cache_t::setBucketsAndMask(struct bucket_t *newBuckets, mask_t newMask)
 }
 
 
-struct bucket_t *cache_t::buckets() 
-{
+struct bucket_t *cache_t::buckets() {
     return _buckets; 
 }
 
-mask_t cache_t::mask() 
-{
+//⚠️获取散列表的长度-1的值
+mask_t cache_t::mask() {
     return _mask; 
 }
 
-mask_t cache_t::occupied() 
-{
+//⚠️获取散列表中已经存放的方法个数
+mask_t cache_t::occupied() {
     return _occupied;
 }
-
-void cache_t::incrementOccupied() 
-{
+//⚠️散列表中已经存放的方法个数的值+1
+void cache_t::incrementOccupied() {
     _occupied++;
 }
-
-void cache_t::initializeToEmpty()
-{
+//⚠️初始化一个空的散列表
+void cache_t::initializeToEmpty() {
     bzero(this, sizeof(*this));
     _buckets = (bucket_t *)&_objc_empty_cache;
 }
-
-
-mask_t cache_t::capacity() 
-{
+//⚠️获取散列表的容量（可以存放多少个方法）
+mask_t cache_t::capacity() {
     return mask() ? mask()+1 : 0; 
 }
 
 
 #if CACHE_END_MARKER
 
-size_t cache_t::bytesForCapacity(uint32_t cap) 
-{
+size_t cache_t::bytesForCapacity(uint32_t cap) {
     // fixme put end marker inline when capacity+1 malloc is inefficient
     return sizeof(bucket_t) * (cap + 1);
 }
 
-bucket_t *cache_t::endMarker(struct bucket_t *b, uint32_t cap) 
-{
+bucket_t *cache_t::endMarker(struct bucket_t *b, uint32_t cap) {
     // bytesForCapacity() chooses whether the end marker is inline or not
     return (bucket_t *)((uintptr_t)b + bytesForCapacity(cap)) - 1;
 }
 
-bucket_t *allocateBuckets(mask_t newCapacity)
-{
+bucket_t *allocateBuckets(mask_t newCapacity) {
     // Allocate one extra bucket to mark the end of the list.
     // This can't overflow mask_t because newCapacity is a power of 2.
     // fixme instead put the end mark inline when +1 is malloc-inefficient
@@ -390,8 +387,7 @@ bucket_t *allocateBuckets(mask_t newCapacity)
 #endif
 
 
-bucket_t *emptyBucketsForCapacity(mask_t capacity, bool allocate = true)
-{
+bucket_t *emptyBucketsForCapacity(mask_t capacity, bool allocate = true){
     cacheUpdateLock.assertLocked();
 
     size_t bytes = cache_t::bytesForCapacity(capacity);
@@ -443,32 +439,9 @@ bool cache_t::canBeFreed()
     return !isConstantEmptyCache();
 }
 
-//MARK:重新分配新的缓存列表
-void cache_t::reallocate(mask_t oldCapacity, mask_t newCapacity)
-{
-    bool freeOld = canBeFreed();
-
-    bucket_t *oldBuckets = buckets();
-    bucket_t *newBuckets = allocateBuckets(newCapacity);
-
-    // Cache's old contents are not propagated. 
-    // This is thought to save cache memory at the cost of extra cache fills.
-    // fixme re-measure this
-
-    assert(newCapacity > 0);
-    assert((uintptr_t)(mask_t)(newCapacity-1) == newCapacity-1);
-
-    setBucketsAndMask(newBuckets, newCapacity - 1);
-    
-    if (freeOld) {
-        cache_collect_free(oldBuckets, oldCapacity);
-        cache_collect(false);
-    }
-}
 
 
-void cache_t::bad_cache(id receiver, SEL sel, Class isa)
-{
+void cache_t::bad_cache(id receiver, SEL sel, Class isa){
     // Log in separate steps in case the logging itself causes a crash.
     _objc_inform_now_and_on_crash
         ("Method cache corrupted. This may be a message to an "
@@ -494,41 +467,18 @@ void cache_t::bad_cache(id receiver, SEL sel, Class isa)
 }
 
 
-bucket_t * cache_t::find(cache_key_t k, id receiver)
-{
-    assert(k != 0);
-
-    bucket_t *b = buckets();
-    mask_t m = mask();
-    mask_t begin = cache_hash(k, m);
-    mask_t i = begin;
-    do {
-        if (b[i].key() == 0  ||  b[i].key() == k) {
-            return &b[i];
-        }
-    } while ((i = cache_next(i, m)) != begin);
-
-    // hack
-    Class cls = (Class)((uintptr_t)this - offsetof(objc_class, cache));
-    cache_t::bad_cache(receiver, (SEL)k, cls);
+/// WGRunTimeSourceCode 源码阅读
+//MARK:将方法添加到缓存列表第1⃣️步
+void cache_fill(Class cls, SEL sel, IMP imp, id receiver) {
+#if !DEBUG_TASK_THREADS
+    mutex_locker_t lock(cacheUpdateLock);
+    cache_fill_nolock(cls, sel, imp, receiver);
+#else
+    _collecting_in_critical();
+    return;
+#endif
 }
 
-//扩容->扩容为原容量的2倍
-void cache_t::expand()
-{
-    cacheUpdateLock.assertLocked();
-    
-    uint32_t oldCapacity = capacity();
-    uint32_t newCapacity = oldCapacity ? oldCapacity*2 : INIT_CACHE_SIZE;
-
-    if ((uint32_t)(mask_t)newCapacity != newCapacity) {
-        // mask overflow - can't grow further
-        // fixme this wastes one bit of mask
-        newCapacity = oldCapacity;
-    }
-
-    reallocate(oldCapacity, newCapacity);
-}
 /*
  struct cache_t {
      struct bucket_t *_buckets;  //数组,其实就是个散列表,里面存放的是bucket_t,数组[bucket_t]
@@ -542,9 +492,8 @@ void cache_t::expand()
  }
  */
 //MARK:将方法添加到缓存列表第2⃣️步
-static void cache_fill_nolock(Class cls, SEL sel, IMP imp, id receiver)
-{
-    cacheUpdateLock.assertLocked();
+static void cache_fill_nolock(Class cls, SEL sel, IMP imp, id receiver) {
+    cacheUpdateLock.assertLocked();     //mutex_t cacheUpdateLock; 互斥锁
 
     // Never cache before +initialize is done
     if (!cls->isInitialized()) return;  //⚠️若该类没有初始化，则不会有缓存，直接返回
@@ -554,7 +503,7 @@ static void cache_fill_nolock(Class cls, SEL sel, IMP imp, id receiver)
     if (cache_getImp(cls, sel)) return;
 
     cache_t *cache = getCache(cls);  //⚠️获取cls类结构中的缓存列表
-    cache_key_t key = getKey(sel);   //将方法名称作为key
+    cache_key_t key = getKey(sel);   //⚠️将方法名称作为key
 
     // Use the cache as-is if it is less than 3/4 full
     mask_t newOccupied = cache->occupied() + 1; //⚠️缓存的方法数量的标识要+1，因为你要存放新的值
@@ -562,12 +511,11 @@ static void cache_fill_nolock(Class cls, SEL sel, IMP imp, id receiver)
     if (cache->isConstantEmptyCache()) {        //⚠️若缓存列表是空的，则新建一个
         // Cache is read-only. Replace it.
         cache->reallocate(capacity, capacity ?: INIT_CACHE_SIZE);
-    }
-    //⚠️在缓存列表中，如果所占用的方法个数<总容量的四分之三，则什么都不操作
-    else if (newOccupied <= capacity / 4 * 3) {
+    }else if (newOccupied <= capacity / 4 * 3) {
+        //⚠️在缓存列表中，如果所占用的方法个数<总容量的四分之三，则什么都不操作
         // Cache is less than 3/4 full. Use it as-is.
-    }
-    else { //⚠️若所占用的方法个数>总容量的四分之三，则进行扩容操作，扩容的容量是原容量的2倍
+    }else {
+        //⚠️若所占用的方法个数>总容量的四分之三，则进行扩容操作，扩容的容量是原容量的2倍,并且清空之前散列表存储的内容
         // Cache is too full. Expand it.
         cache->expand();
     }
@@ -575,22 +523,72 @@ static void cache_fill_nolock(Class cls, SEL sel, IMP imp, id receiver)
     // Scan for the first unused slot and insert there.
     // There is guaranteed to be an empty slot because the 
     // minimum size is 4 and we resized at 3/4 full.
+    //通过方法名和方法接收着查找对应的散列表元素bucket_t,找到bucket_t才能去存储方法
     bucket_t *bucket = cache->find(key, receiver);
+    //如果找到的bucket_t的key没有值，说明是一个新的空间，然后将缓存列表中的方法的个数+1
     if (bucket->key() == 0) cache->incrementOccupied();
+    //然后将方法名key和方法实现的地址IMP存入到对应的bucket_t中
     bucket->set(key, imp);
 }
-/// WGRunTimeSourceCode 源码阅读
-//MARK:将方法添加到缓存列表第1⃣️步
-void cache_fill(Class cls, SEL sel, IMP imp, id receiver)
-{
-#if !DEBUG_TASK_THREADS
-    mutex_locker_t lock(cacheUpdateLock);
-    cache_fill_nolock(cls, sel, imp, receiver);
-#else
-    _collecting_in_critical();
-    return;
-#endif
+
+//MARK:扩容->扩容为原容量的2倍
+void cache_t::expand() {
+    cacheUpdateLock.assertLocked();
+    uint32_t oldCapacity = capacity();
+    uint32_t newCapacity = oldCapacity ? oldCapacity*2 : INIT_CACHE_SIZE;
+
+    if ((uint32_t)(mask_t)newCapacity != newCapacity) {
+        // mask overflow - can't grow further
+        // fixme this wastes one bit of mask
+        newCapacity = oldCapacity;
+    }
+    //重新分配新的散列表容量
+    reallocate(oldCapacity, newCapacity);
 }
+//MARK:重新分配新的散列表容量
+void cache_t::reallocate(mask_t oldCapacity, mask_t newCapacity) {
+    bool freeOld = canBeFreed();
+    bucket_t *oldBuckets = buckets();
+    //⚠️分配新的缓存列表
+    bucket_t *newBuckets = allocateBuckets(newCapacity);
+    // Cache's old contents are not propagated.
+    // This is thought to save cache memory at the cost of extra cache fills.
+    // fixme re-measure this
+
+    assert(newCapacity > 0);
+    assert((uintptr_t)(mask_t)(newCapacity-1) == newCapacity-1);
+
+    setBucketsAndMask(newBuckets, newCapacity - 1);
+    //⚠️将旧的缓存列表移除
+    if (freeOld) {
+        cache_collect_free(oldBuckets, oldCapacity);
+        cache_collect(false);
+    }
+}
+
+
+
+//MARK:从方法缓存列表中寻找方法
+bucket_t * cache_t::find(cache_key_t k, id receiver) {
+    assert(k != 0);
+    bucket_t *b = buckets();
+    mask_t m = mask();
+    //将方法名作为key,然后和散列表的长度进行哈希算法((key & mask))获取到散列表的下标
+    //然后遍历散列表，找到散列表中的方法实现IMP
+    mask_t begin = cache_hash(k, m);
+    mask_t i = begin;
+    do {  //通过下标遍历散列表，遍历的过程是下标进行递减进行遍历的
+        if (b[i].key() == 0  ||  b[i].key() == k) {
+            return &b[i];
+        }
+    } while ((i = cache_next(i, m)) != begin);
+
+    // hack
+    Class cls = (Class)((uintptr_t)this - offsetof(objc_class, cache));
+    cache_t::bad_cache(receiver, (SEL)k, cls);
+}
+
+
 
 
 // Reset this entire cache to the uncached lookup by reallocating it.
