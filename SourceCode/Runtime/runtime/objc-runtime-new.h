@@ -52,7 +52,7 @@ public:
 //MARK: 方法缓存cache_t底层结构
 struct cache_t {
     struct bucket_t *_buckets;  //数组,其实就是个散列表,里面存放的是bucket_t,数组[bucket_t]
-    mask_t _mask;               //散列表长度-1(数组元素个数-1)
+    mask_t _mask;               //散列表长度-1(数组个数-1)
     mask_t _occupied;           //已经缓存的方法数量
 
 public:

@@ -559,7 +559,7 @@ void cache_t::reallocate(mask_t oldCapacity, mask_t newCapacity) {
     assert((uintptr_t)(mask_t)(newCapacity-1) == newCapacity-1);
 
     setBucketsAndMask(newBuckets, newCapacity - 1);
-    //⚠️将旧的缓存列表移除
+    //⚠️将旧的缓存列表清空
     if (freeOld) {
         cache_collect_free(oldBuckets, oldCapacity);
         cache_collect(false);
@@ -578,6 +578,7 @@ bucket_t * cache_t::find(cache_key_t k, id receiver) {
     mask_t begin = cache_hash(k, m);
     mask_t i = begin;
     do {  //通过下标遍历散列表，遍历的过程是下标进行递减进行遍历的
+        //如果bucket_t中的key和外面的key(@selector(name))相同,则返回这个bucket_t
         if (b[i].key() == 0  ||  b[i].key() == k) {
             return &b[i];
         }
