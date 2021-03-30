@@ -4,14 +4,14 @@
 2. Runloop内部实现逻辑
 3. RunLoop和线程的关系
 4. timer和RunLoop关系
-* 从结构上来说,RunLoop中包含多个模式mode,每个模式mode下会有一个timer; 运行逻辑中,timer的处理是在RunLoop中执行的
+* 从结构上来说,RunLoop中包含多个模式mode,每个模式mode下会有一个timer; 运行逻辑来说,timer的处理是在RunLoop中执行的
 5. 程序中添加每3秒响应一次的NSTimer,当拖动tableview时,timer可能无法响应怎么解决?
 6. runloop是怎么响应用户操作的,具体流程是什么样的?
 * 用户点击屏幕后,首先是Sources1捕获到了该事件,Sources1会将该事件包装到EventQueue事件队列中,交给Sources0处理,即Sources1负责捕获,Sources0来处理
 7. 说说RunLoop的几种状态
 * 6种状态: 进入Loop、退出Loop、即将处理Timers、即将处理Sources、即将开始休眠、从休眠中唤醒
 8. RunLoop的mode作用是什么
-* mode模式可以将不同的Sources/Timers/Observers隔离开来,这样相互之间都不会影响,并且当我们切换mode模式时,其他mode不会被影响,操作起来更加流程,只会专注与处理当前的模式mode
+* mode模式可以将不同的Sources/Timers/Observers隔离开来,这样相互之间都不会影响,并且当我们切换mode模式时,其他mode不会被影响,操作起来更加流程,只会专注于处理当前的模式mode
 
 ### 1. 什么是RunLoop
 #### RunLoop就是运行循环,在程序运行过程中循环做一些事情,做了哪些事情?应用范畴是? 可以通过断点，控制台输入bt来查看调用栈
@@ -36,7 +36,7 @@
 1. 保持程序的持续运行
 2. 处理APP中的各种事件(比如触摸事件、定时器事件)
 3. 节省CPU资源,提高程序性能: 该做事时做事,该休息时休息
-4. RunLoop其实内部很像是个do-while循环
+4. RunLoop其实内部类似个do-while循环
 
 ### 2. RunLoop对象
 #### iOS中有2套API来访问和使用RunLoop,NSRunLoop和CFRunLoopRef都代表着RunLoop对象
@@ -276,7 +276,7 @@
             [self performSelector:@selector(stop) onThread:self.thread withObject:nil waitUntilDone:NO];
             NSLog(@"-----%s",__func__);
         }
-#### NSRunLoop中的run方法是无法停止的,它专门用于开启一个用不销毁的线程
+#### NSRunLoop中的run方法是无法停止的,它专门用于开启一个永不销毁的线程
 #### CFRunLoopStop方法并没用停止掉RunLoop,因为[[NSRunLoop currentRunLoop] run];方法底层是无限循环调用了runMode: beforeDate:方法,而CFRunLoopStop方法只是停掉了当前循环中的Loop,并没用停掉整个循环,其实它也无法停掉这个无限循环. 所以我们就更换run而是用runMode: beforeDate:方法
         - (void)viewDidLoad {
             [super viewDidLoad];
