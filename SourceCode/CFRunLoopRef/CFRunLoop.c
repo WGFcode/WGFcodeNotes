@@ -519,38 +519,6 @@ static CFTypeID __kCFRunLoopSourceTypeID = _kCFRuntimeNotATypeID;
 static CFTypeID __kCFRunLoopObserverTypeID = _kCFRuntimeNotATypeID;
 static CFTypeID __kCFRunLoopTimerTypeID = _kCFRuntimeNotATypeID;
 
-typedef struct __CFRunLoopMode *CFRunLoopModeRef;
-
-struct __CFRunLoopMode {
-    CFRuntimeBase _base;
-    pthread_mutex_t _lock;	/* must have the run loop locked before locking this */
-    CFStringRef _name;
-    Boolean _stopped;
-    char _padding[3];
-    CFMutableSetRef _sources0;
-    CFMutableSetRef _sources1;
-    CFMutableArrayRef _observers;
-    CFMutableArrayRef _timers;
-    CFMutableDictionaryRef _portToV1SourceMap;
-    __CFPortSet _portSet;
-    CFIndex _observerMask;
-#if USE_DISPATCH_SOURCE_FOR_TIMERS
-    dispatch_source_t _timerSource;
-    dispatch_queue_t _queue;
-    Boolean _timerFired; // set to true by the source when a timer has fired
-    Boolean _dispatchTimerArmed;
-#endif
-#if USE_MK_TIMER_TOO
-    mach_port_t _timerPort;
-    Boolean _mkTimerArmed;
-#endif
-#if DEPLOYMENT_TARGET_WINDOWS
-    DWORD _msgQMask;
-    void (*_msgPump)(void);
-#endif
-    uint64_t _timerSoftDeadline; /* TSR */
-    uint64_t _timerHardDeadline; /* TSR */
-};
 
 CF_INLINE void __CFRunLoopModeLock(CFRunLoopModeRef rlm) {
     pthread_mutex_lock(&(rlm->_lock));
@@ -634,17 +602,26 @@ typedef struct _per_run_data {
     uint32_t ignoreWakeUps;
 } _per_run_data;
 
+/// WGRunTimeSourceCode 源码阅读
+/*
+ 线程和RunLoop是一一对应的关系，一个RunLoop对应一个线程或者说一个线程对应一个RunLoop
+ 一个RunLoop中包含若干个运行模式mode
+ 一个运行模式mode中包含了_sources0、_sources1、_observers、_timers
+ */
+//MARK:RunLoop底层结构
 struct __CFRunLoop {
     CFRuntimeBase _base;
-    pthread_mutex_t _lock;			/* locked for accessing mode list */
+    pthread_mutex_t _lock;			/* locked for accessing mode list */  //⚠️互斥锁
     __CFPort _wakeUpPort;			// used for CFRunLoopWakeUp 
     Boolean _unused;
     volatile _per_run_data *_perRunData;              // reset for runs of the run loop
-    pthread_t _pthread;
+    pthread_t _pthread;             //⚠️线程（一个线程对应一个RunLoop）
     uint32_t _winthread;
     CFMutableSetRef _commonModes;
     CFMutableSetRef _commonModeItems;
-    CFRunLoopModeRef _currentMode;
+    CFRunLoopModeRef _currentMode;          //当前的运行模式
+
+    //(无序)集合,存放的是CFRunLoopModeRef类型，即一个RunLoop中包含若干个mode（运行模式）
     CFMutableSetRef _modes;
     struct _block_item *_blocks_head;
     struct _block_item *_blocks_tail;
@@ -652,6 +629,48 @@ struct __CFRunLoop {
     CFAbsoluteTime _sleepTime;
     CFTypeRef _counterpart;
 };
+
+
+
+//MARK:一个运行模式mode中包含的内容
+typedef struct __CFRunLoopMode *CFRunLoopModeRef;
+struct __CFRunLoopMode {
+    CFRuntimeBase _base;
+    pthread_mutex_t _lock;    /* must have the run loop locked before locking this */
+    CFStringRef _name;
+    Boolean _stopped;
+    char _padding[3];
+    CFMutableSetRef _sources0;    //触摸事件处理、performSelector: onThread:
+    CFMutableSetRef _sources1;  //基于Port(端口)的线程间通信、系统事件捕捉(点击屏幕,先通过Sources1捕捉点击事件,然后交给Sources0去处理)
+    CFMutableArrayRef _observers; //用于监听RunLoop的状态、UI刷新(BeforeWaiting)、Autorelease pool(自动释放池)
+    CFMutableArrayRef _timers;    //NSTimer、performSelector: withObject: afterDelay:
+    CFMutableDictionaryRef _portToV1SourceMap;
+    __CFPortSet _portSet;
+    CFIndex _observerMask;
+#if USE_DISPATCH_SOURCE_FOR_TIMERS
+    dispatch_source_t _timerSource;
+    dispatch_queue_t _queue;
+    Boolean _timerFired; // set to true by the source when a timer has fired
+    Boolean _dispatchTimerArmed;
+#endif
+#if USE_MK_TIMER_TOO
+    mach_port_t _timerPort;
+    Boolean _mkTimerArmed;
+#endif
+#if DEPLOYMENT_TARGET_WINDOWS
+    DWORD _msgQMask;
+    void (*_msgPump)(void);
+#endif
+    uint64_t _timerSoftDeadline; /* TSR */
+    uint64_t _timerHardDeadline; /* TSR */
+};
+
+//MARK: 常见的运行模式
+//App的默认Mode,通常主线程是在这个Mode下运行的
+CONST_STRING_DECL(kCFRunLoopDefaultMode, "kCFRunLoopDefaultMode")
+//界面跟踪Mode,用于scrollView追踪触摸滑动,保证界面滚动不受其他Mode影响
+CONST_STRING_DECL(kCFRunLoopCommonModes, "kCFRunLoopCommonModes")
+
 
 /* Bit 0 of the base reserved bits is used for stopped state */
 /* Bit 1 of the base reserved bits is used for sleeping state */
@@ -1112,8 +1131,7 @@ CF_INLINE void __CFRunLoopTimerFireTSRUnlock(void) {
 
 /* CFRunLoop */
 
-CONST_STRING_DECL(kCFRunLoopDefaultMode, "kCFRunLoopDefaultMode")
-CONST_STRING_DECL(kCFRunLoopCommonModes, "kCFRunLoopCommonModes")
+
 
 // call with rl and rlm locked
 static CFRunLoopSourceRef __CFRunLoopModeFindSourceForMachPort(CFRunLoopRef rl, CFRunLoopModeRef rlm, __CFPort port) {	/* DOES CALLOUT */

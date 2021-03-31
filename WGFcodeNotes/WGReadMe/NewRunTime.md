@@ -592,12 +592,10 @@
          1.生成对应的getter/setter方法的声明
          -(void)setAge:(int)age;
          -(int)age;
-         
          2._age成员变量
          {
             int _age;
          }
-         
          3. getter/setter方法的实现
          -(void)setAge:(int)age {
              _age = age;
@@ -619,9 +617,9 @@
         @synthesize age = _age;
 
         /*
-         如果我们不希望Xcode自动帮我们生成属性的getter/setter方法的实现,可以这么写@dynamic age;
-         提醒编译器不要自动生成getter/setter的实现,不要自动生成成员变量
-         外部仍然可以调用setAge方法,因为@dynamic并步影响属性的getter/setter方法的声明
+         如果我们不希望Xcode自动帮我们生成属性的getter/setter方法的实现和对应的成员变量,可以这么写@dynamic age;
+         提醒编译器不要自动生成getter/setter的实现、不要自动生成对应的成员变量
+         外部仍然可以调用setAge方法,因为@dynamic并不影响属性的getter/setter方法的声明
          */
         @dynamic age;
         
@@ -734,7 +732,7 @@
 
 ### 6 isMemberOfClass、isKindOfClass
 #### 首先我们通过Runtime源码中的NSObject.mm文件可以看到关于这两个方法的底层实现代码如下
-    类方法：类的类对象(元类)是否等于指定的类对象(元类对象)
+    类方法：类的类对象(元类)是否等于指定的类对象(元类对象)【类的元类是否等于指定的元类对象】
     + (BOOL)isMemberOfClass:(Class)cls {
         return object_getClass((id)self) == cls;
     }
@@ -742,7 +740,7 @@
     - (BOOL)isMemberOfClass:(Class)cls {
         return [self class] == cls;
     }
-    //类方法：类的类对象(元类)是否等于指定的类对象(元类)或者是指定的类对象(元类)的子类
+    //类方法：类的类对象(元类)是否等于指定的类对象(元类)或者是指定的类对象(元类)的子类【类的元类是否等于指定的元类对象或者是指定元类对象的子类】
     + (BOOL)isKindOfClass:(Class)cls {
         for (Class tcls = object_getClass((id)self); tcls; tcls = tcls->superclass) {
             if (tcls == cls) return YES;
@@ -968,7 +966,7 @@
         //2. Runtime中用copy、create创建的都需要用free去销毁
         free(ivars);
     }
-#### 总结:一般用法是我们可以通过获取(窥探)系统类或第三方库的成员变量,来通过KVC来快速设置它的属性信息,如:[textField setValue:[UIColor redColor] forKeyPath:@"_placeholderLabel.textColor"];
+#### 总结:一般用法是我们可以通过获取(窥探)系统类或第三方库的成员变量,通过KVC来快速设置它的属性信息,如:[textField setValue:[UIColor redColor] forKeyPath:@"_placeholderLabel.textColor"];
 
 #### 我们还可以利用Runtime进行字典转模型的封装,创建一个NSObject的分类去实现,下面只是简单的提供了思路,真正需要封装考虑的东西还有很多(继承关系、数组属性等等)
     @interface Person : NSObject
