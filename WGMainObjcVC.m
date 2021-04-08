@@ -28,9 +28,10 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.view.backgroundColor = [UIColor whiteColor];
-    Person *p = [[Person alloc]init];
-    [p run];
-    NSLog(@"1");
+    int a = 10;
+    int b = 20;
+    NSNumber *num = [NSNumber numberWithInt:1];
+    
 }
 
 @end
