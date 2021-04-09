@@ -10,7 +10,6 @@
 		300845CB24456B2800055737 /* KVC.md in Resources */ = {isa = PBXBuildFile; fileRef = 300845CA24456B1700055737 /* KVC.md */; };
 		300845CC24456B3A00055737 /* NSOperation.md in Resources */ = {isa = PBXBuildFile; fileRef = 30C7D40C2439C05000EA99C6 /* NSOperation.md */; };
 		3015810D245577A600EC6001 /* WGMonitorManage.m in Sources */ = {isa = PBXBuildFile; fileRef = 3015810C245577A600EC6001 /* WGMonitorManage.m */; };
-		30160A2624A748870074FB82 /* BinaryTree.md in Resources */ = {isa = PBXBuildFile; fileRef = 30160A2524A748870074FB82 /* BinaryTree.md */; };
 		30160A2924A75A970074FB82 /* BinaryTree.m in Sources */ = {isa = PBXBuildFile; fileRef = 30160A2824A75A970074FB82 /* BinaryTree.m */; };
 		30179F9A24401E8000EED9BD /* Note.md in Resources */ = {isa = PBXBuildFile; fileRef = 30179F9924401E8000EED9BD /* Note.md */; };
 		301CF1BC2452BE310024EC69 /* WGFirstVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 301CF1BB2452BE310024EC69 /* WGFirstVC.m */; };
@@ -34,7 +33,7 @@
 		30DD858B244F00C100897144 /* block.jpeg in Resources */ = {isa = PBXBuildFile; fileRef = 30DD858A244F00C100897144 /* block.jpeg */; };
 		30ECA52024580E9000E3D312 /* Response.md in Resources */ = {isa = PBXBuildFile; fileRef = 30ECA51F24580E9000E3D312 /* Response.md */; };
 		30F7186C24F7AB020025AD98 /* 设计模式.md in Resources */ = {isa = PBXBuildFile; fileRef = 30F7186B24F7AB020025AD98 /* 设计模式.md */; };
-		30F8F49E243F142900968177 /* Summary.md in Resources */ = {isa = PBXBuildFile; fileRef = 30F8F49D243F142900968177 /* Summary.md */; };
+		30F8F49E243F142900968177 /* ThreadSummary.md in Resources */ = {isa = PBXBuildFile; fileRef = 30F8F49D243F142900968177 /* ThreadSummary.md */; };
 		30FCCF84256F8DB000AEC012 /* Mems.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30FCCF83256F8DB000AEC012 /* Mems.swift */; };
 		30FD75F824357E3800431678 /* WGMainObjcVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 30FD75F724357E3800431678 /* WGMainObjcVC.m */; };
 		30FD75FA24358F1E00431678 /* lock3.png in Resources */ = {isa = PBXBuildFile; fileRef = 30FD75F924358F1E00431678 /* lock3.png */; };
@@ -133,7 +132,6 @@
 		300845CD24456B4C00055737 /* KVO.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = KVO.md; sourceTree = "<group>"; };
 		3015810B245577A600EC6001 /* WGMonitorManage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WGMonitorManage.h; sourceTree = "<group>"; };
 		3015810C245577A600EC6001 /* WGMonitorManage.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WGMonitorManage.m; sourceTree = "<group>"; };
-		30160A2524A748870074FB82 /* BinaryTree.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = BinaryTree.md; sourceTree = "<group>"; };
 		30160A2724A75A970074FB82 /* BinaryTree.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BinaryTree.h; sourceTree = "<group>"; };
 		30160A2824A75A970074FB82 /* BinaryTree.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BinaryTree.m; sourceTree = "<group>"; };
 		30179F9924401E8000EED9BD /* Note.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Note.md; sourceTree = "<group>"; };
@@ -166,7 +164,7 @@
 		30DD858A244F00C100897144 /* block.jpeg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = block.jpeg; sourceTree = "<group>"; };
 		30ECA51F24580E9000E3D312 /* Response.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Response.md; sourceTree = "<group>"; };
 		30F7186B24F7AB020025AD98 /* 设计模式.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "设计模式.md"; sourceTree = "<group>"; };
-		30F8F49D243F142900968177 /* Summary.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Summary.md; sourceTree = "<group>"; };
+		30F8F49D243F142900968177 /* ThreadSummary.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = ThreadSummary.md; sourceTree = "<group>"; };
 		30FCCF83256F8DB000AEC012 /* Mems.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Mems.swift; sourceTree = "<group>"; };
 		30FD75F524357E3800431678 /* WGFcodeNotes-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "WGFcodeNotes-Bridging-Header.h"; sourceTree = "<group>"; };
 		30FD75F624357E3800431678 /* WGMainObjcVC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WGMainObjcVC.h; sourceTree = "<group>"; };
@@ -609,18 +607,6 @@
 			path = MJMemoryTool;
 			sourceTree = "<group>";
 		};
-		30FD75FF2435CD1200431678 /* 多线程 */ = {
-			isa = PBXGroup;
-			children = (
-				3066E0EF2435DD48004C71F7 /* GCD.md */,
-				30FD76002435CD3100431678 /* NSThread.md */,
-				309F9D672435D98700FFB705 /* ThreadLock.md */,
-				30C7D40C2439C05000EA99C6 /* NSOperation.md */,
-				30F8F49D243F142900968177 /* Summary.md */,
-			);
-			path = "多线程";
-			sourceTree = "<group>";
-		};
 		30FD94D1243DDDD000EAFAA3 /* ErrorCollect */ = {
 			isa = PBXGroup;
 			children = (
@@ -821,14 +807,6 @@
 				5409CE1825CAEE8D00E704CF /* plconvert.c */,
 			);
 			path = Examples;
-			sourceTree = "<group>";
-		};
-		5463C26224B01092008F9C9A /* CoreAnimal */ = {
-			isa = PBXGroup;
-			children = (
-				5463C26324B0115D008F9C9A /* CoreAnimal.md */,
-			);
-			path = CoreAnimal;
 			sourceTree = "<group>";
 		};
 		5483CFED25D3C09900613F40 /* Runtime */ = {
@@ -1092,42 +1070,45 @@
 		548AC984242F4C9200EEE11C /* WGReadMe */ = {
 			isa = PBXGroup;
 			children = (
-				5405874A2614AEEA0047AD5E /* 逆向工程.md */,
-				5483CFEB25D3B95400613F40 /* NewRunTime.md */,
+				548AC988242F4CAD00EEE11C /* KeyWords.md */,
 				548F332324F2B13E00AB3540 /* 属性修饰符.md */,
-				54330A4E25C1B40E00055C66 /* NewRunloop.md */,
-				542D3D822518E61300394130 /* 分类扩展关联对象.md */,
-				30F7186B24F7AB020025AD98 /* 设计模式.md */,
-				548F331F24F15E8F00AB3540 /* Memory.md */,
-				5463C26224B01092008F9C9A /* CoreAnimal */,
-				30BB26BA244BF62B00255288 /* NSNotification.md */,
-				307A0E7E24456BF8006E5429 /* Block.md */,
 				300845CA24456B1700055737 /* KVC.md */,
 				300845CD24456B4C00055737 /* KVO.md */,
-				307A0E7C24456BE4006E5429 /* RunTime.md */,
-				307A0E7A24456BD3006E5429 /* RunLoop.md */,
-				30FD75FF2435CD1200431678 /* 多线程 */,
-				548AC989242F4CAD00EEE11C /* Carthage.md */,
-				548AC98A242F4CAD00EEE11C /* Framework.md */,
-				548AC986242F4CAD00EEE11C /* git.md */,
-				548AC988242F4CAD00EEE11C /* KeyWords.md */,
-				548AC987242F4CAD00EEE11C /* PackageIpaWithShell.md */,
-				548AC985242F4CAD00EEE11C /* WG.sh */,
-				30C1F2B72431F0C7003B30B3 /* face.md */,
+				30BB26BA244BF62B00255288 /* NSNotification.md */,
+				307A0E7E24456BF8006E5429 /* Block.md */,
+				543C213225485B44000212B6 /* NewBlock.md */,
 				30ECA51F24580E9000E3D312 /* Response.md */,
-				30160A2524A748870074FB82 /* BinaryTree.md */,
-				540ED63B246990B600C6DAF7 /* KeyWord.md */,
-				545638D224B36CE5007D5447 /* HTTPTCPUDP.md */,
-				54347D3124F69F1C006EE9F2 /* 数据结构.md */,
+				5463C26324B0115D008F9C9A /* CoreAnimal.md */,
+				30FD76002435CD3100431678 /* NSThread.md */,
+				3066E0EF2435DD48004C71F7 /* GCD.md */,
+				30C7D40C2439C05000EA99C6 /* NSOperation.md */,
+				309F9D672435D98700FFB705 /* ThreadLock.md */,
+				30F8F49D243F142900968177 /* ThreadSummary.md */,
+				548F331F24F15E8F00AB3540 /* Memory.md */,
+				543110B32530A23D007D0061 /* OC对象的本质.md */,
+				542D3D822518E61300394130 /* 分类扩展关联对象.md */,
+				307A0E7C24456BE4006E5429 /* RunTime.md */,
+				5483CFEB25D3B95400613F40 /* NewRunTime.md */,
+				307A0E7A24456BD3006E5429 /* RunLoop.md */,
+				54330A4E25C1B40E00055C66 /* NewRunloop.md */,
 				54CBAE2724FFE4E500AEA0E5 /* iOS内存分区.md */,
 				3027FD392512197500E512FE /* Swift内存对齐问题.md */,
-				543110B32530A23D007D0061 /* OC对象的本质.md */,
-				3078C068251C366B00A73E54 /* 传值方式.md */,
-				303D7ABB2539731F00EB6052 /* Xcode错误总结.md */,
-				543C213225485B44000212B6 /* NewBlock.md */,
-				54C118BD2584EF8B00B39379 /* LLVM.md */,
 				5406AA76259A144D0053E251 /* iOS签名机制.md */,
+				548AC986242F4CAD00EEE11C /* git.md */,
+				548AC989242F4CAD00EEE11C /* Carthage.md */,
+				548AC98A242F4CAD00EEE11C /* Framework.md */,
 				54DA257125B47ADC00E1B980 /* 性能优化.md */,
+				30F7186B24F7AB020025AD98 /* 设计模式.md */,
+				54347D3124F69F1C006EE9F2 /* 数据结构.md */,
+				54C118BD2584EF8B00B39379 /* LLVM.md */,
+				545638D224B36CE5007D5447 /* HTTPTCPUDP.md */,
+				303D7ABB2539731F00EB6052 /* Xcode错误总结.md */,
+				30C1F2B72431F0C7003B30B3 /* face.md */,
+				5405874A2614AEEA0047AD5E /* 逆向工程.md */,
+				540ED63B246990B600C6DAF7 /* KeyWord.md */,
+				3078C068251C366B00A73E54 /* 传值方式.md */,
+				548AC987242F4CAD00EEE11C /* PackageIpaWithShell.md */,
+				548AC985242F4CAD00EEE11C /* WG.sh */,
 			);
 			path = WGReadMe;
 			sourceTree = "<group>";
@@ -1256,7 +1237,6 @@
 			files = (
 				303D7ABC2539731F00EB6052 /* Xcode错误总结.md in Resources */,
 				30A7DC832434A43E008DDCF9 /* lock2.png in Resources */,
-				30160A2624A748870074FB82 /* BinaryTree.md in Resources */,
 				548AC98C242F4CAD00EEE11C /* git.md in Resources */,
 				30A73F332447F14A00C86BB8 /* kvc1.png in Resources */,
 				54330A4F25C1B40E00055C66 /* NewRunloop.md in Resources */,
@@ -1283,7 +1263,7 @@
 				30F7186C24F7AB020025AD98 /* 设计模式.md in Resources */,
 				54347D3224F69F1C006EE9F2 /* 数据结构.md in Resources */,
 				300845CB24456B2800055737 /* KVC.md in Resources */,
-				30F8F49E243F142900968177 /* Summary.md in Resources */,
+				30F8F49E243F142900968177 /* ThreadSummary.md in Resources */,
 				30FD75FE2435C88B00431678 /* lock5.png in Resources */,
 				54DA257225B47ADC00E1B980 /* 性能优化.md in Resources */,
 				301CF1BF2452F1750024EC69 /* runLoop1.png in Resources */,
