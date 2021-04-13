@@ -9,29 +9,44 @@
 #import "WGMainObjcVC.h"
 #import <UIKit/UIKit.h>
 #import <objc/runtime.h>
-#import "Person.h"
 #import "Student.h"
 #import "Car.h"
 #import "message.h"
 
 
 @interface WGMainObjcVC()
-@property(nonatomic, strong) NSString *nameStrong;
-@property(nonatomic, copy) NSString *nameCopy;
+@property(nonatomic, assign) int totalTicket;  //总票数
 @end
 
-
 @implementation WGMainObjcVC
-
 
 
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.view.backgroundColor = [UIColor whiteColor];
-    int a = 10;
-    int b = 20;
-    NSNumber *num = [NSNumber numberWithInt:1];
+    //总票数10张
+    _totalTicket = 10;
     
+    //线程1 卖5张
+    dispatch_async(dispatch_get_global_queue(0, 0), ^{
+        for (int i = 0; i < 5; i++) {
+            [self sealTicket];
+        }
+    });
+    //线程1 卖5张
+    dispatch_async(dispatch_get_global_queue(0, 0), ^{
+        for (int i = 0; i < 5; i++) {
+            [self sealTicket];
+        }
+    });
+}
+
+
+-(void)sealTicket {
+    @synchronized (self) {
+        _totalTicket -= 1;
+        NSLog(@"当前剩余票数:%d",_totalTicket);
+    }
 }
 
 @end

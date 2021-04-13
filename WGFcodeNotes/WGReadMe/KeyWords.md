@@ -1,81 +1,241 @@
-#  iOS开发中常用关键字
-## extern
-### extern:声明外部全局变量或者常量,一般只能用于声明,不能用于实现.开发中经常使用的场景是在管理全局变量的类中使用,例如统一管理通知名称
-### 在.h文件中声明
-#### 全局变量 `extern NSString *name`  
-#### 全局常量 `extern NSString * const name` 
-### 在.m文件中实现
-#### 全局变量 `NSString *name = @"张三"`  
-#### 全局常量 `extern NSString * const name`  
+##  iOS开发中常用关键字
+### 1.extern
+#### extern,翻译过来是“外面的、外部的”，作用就是声明外部全局变量或常量；需要注意extern只能声明，不能用于实现；开发中我们通常会单独创建一个类来管理一些全局的变量或常量，例如管理通过通知名称
+
+    /*
+     extern都是写在.h文件中，声明全局变量或常量；这里仅仅是声明，实现是在.m文件中
+     如果这里只声明，而在.m文件中没有实现，外部如果使用的话编译会报错
+     */
+    extern NSString *name1;         //声明全局变量-外部可以修改
+    extern NSString *const name2;   //声明全局常量-外部不能修改
+
+    @interface Person : NSObject
+    @end
+    
+    
+    #import "Person.h"
+    /*
+     extern声明全局变量或常量的实现，必须实现，否则外部使用时，编译期会报错
+     */
+    NSString *name1 = @"zhangsan";
+    NSString *const name2 = @"lisi";
+
+    @implementation Person
+    @end
 
 
-## `static`静态的意思
-### 1修饰局部变量: 保证局部变量只会被初始化一次,在程序运行过程中,只会分配一次内存,生命周期类似全局变量,但作用域不变
-### 例子如下
-` -(void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
-          int i = 0;   //打印结果都是1 每次点击后i都被初始化为0
-          static int i = 0;  //打印结果1 2 3 4 5 ...i只会被初始化一次
-          i ++;
-         NSLog(@"------%d----",i);
- }`
- ### 2.修饰全局变量: 全局变量的作用域仅限于当前文件内部，即当前文件内部才能访问该全局变量
- ### 3.修饰函数:被修饰的函数被称为静态函数，使得外部文件无法访问这个函数，仅本文件可以访问
+    #import "WGMainObjcVC.h"
+
+    @implementation WGMainObjcVC
+    - (void)viewDidLoad {
+        [super viewDidLoad];
+        NSLog(@"修改前--全局变量name1:%@",name1);  //
+        name1 = @"zhangsan11111";
+        NSLog(@"修改后--全局变量name1:%@",name1);
+        NSLog(@"修改前--全局常量name2:%@",name2);
+        //name2 = @"lisi"; 编译器会报错:Cannot assign to variable 'name2' with const-qualified type 'NSString *const  _Nonnull __strong'
+    }
+    @end
+    
+    打印结果: 修改前--全局变量name1:zhangsan
+            修改后--全局变量name1:zhangsan11111
+            修改前--全局常量name2:lisi
+#### 使用场景：我们在WGMainObjcVC文件中想要访问Person文件的全局变量/常量，而不需要导入Person的头文件就可以访问，只需要Person的.h文件中的全局变量/常量用extern修饰即可
+#### 分析，extern用来修饰全局变量或常量，一般在.h文件中声明，因为extern仅仅负责声明，而实现部分是需要我们在.m文件中实现的，如果不实现,外部使用变量/常量时会报错的;extern作用是用来获取全局变量或常量的，而不能用于定义变量；
+
+
+### 2.static
+#### static,翻译过来是“静态的”意思，static可以用来修饰局部变量、全局变量；被static修饰的变量统称为**静态变量**；
+* 生命周期: 这个变量能存活多久，它所占用的内存什么时候分配，什么时候收回
+* 作用域：说白了就是这个变量在什么区域是可见的，可以拿来用的。
+* 局部变量： 在函数或者说代码块内部声明的变量叫局部变量，局部变量存储在栈区，它的生命周期和作用域都是整个代码块
+
+1. static修饰局部变量
+* 修饰的局部变量只会初始化一次
+* 局部变量在程序中只有一份内存
+* 不会改变局部变量的作用域，仅仅改变了局部变量的生命周期(只有程序结束，这个局部变量才会销毁)
+* 保证局部变量只会被初始化一次,在程序运行过程中,只会分配一次内存,生命周期类似全局变量,但作用域不变
+
+        - (void)viewDidLoad {
+            [super viewDidLoad];
+            [self test];
+            [self test];
+            NSLog(@"-----------");
+            [self test1];
+            [self test1];
+        }
+
+        -(void)test {
+            /* 局部变量
+             作用域: test函数内，出了test函数就不能再被访问了
+             声明周期: 和test函数声明周期一样，调用完test函数后就被销毁了
+             */
+            int num = 10;
+            num = num + 1;
+            NSLog(@"test: 当前的num值为:%d",num);
+        }
+        -(void)test1 {
+            /* 被static修饰的局部变量-静态局部变量
+             作用域: test1函数内，出了test1函数就不能再被访问了
+             生命周期: test1函数执行结束后，该变量的生命周期仍然不会被销毁，它的生命周期是直到程序运行结束后才会被系统销毁
+             内存中只会存在一份，第一次调用后num=11，再次调用后num值仍然是11，然后执行num = num + 1后就变成12了
+             */
+            static int num = 10;
+            num = num + 1;
+            NSLog(@"test1: 当前的num值为:%d",num);
+        }
+        打印结果: test: 当前的num值为:11
+                test: 当前的num值为:11
+                -----------
+                test1: 当前的num值为:11
+                test1: 当前的num值为:12
+                
+
+2. static修饰全局变量
+* 将全局变量的作用域限制在当前文件中，在其它文件中无法访问
+* 全局变量的作用域仅限于当前文件内部，即当前文件内部才能访问该全局变量
+
+4. 修饰函数
+* 被修饰的函数被称为静态函数，使得外部文件无法访问这个函数，仅本文件可以访问
+
+5. static修饰全局变量和修饰局部变量共同点
+* 被static修饰后，无论全局变量还是局部变量，都会存储在全局数据区(全局变量原本都存储在全局数据区，即使不加static)
+* 全局数据区的数据在程序启动时就被初始化，一直到程序运行结束后才会被系统回收内存
+* 全局数据区的数据只会被初始化一次，以后只能改变其值，不能再被初始化
+
+6. static作用
+* 隐藏: 程序有多个文件时，将全局变量或函数的作用范围限制在当前文件，对其他文件隐藏。
+* 保持变量内容的持久化: 将局部变量存储到全局数据区，使它不会随着函数调用结束而被销毁。
+
  
- 
- 
-## const
-### const是常量的意思,用来修饰它右边的基本变量或者指针变量,被修饰的变量是只读的,不能被修改;
-`NSString * const name = @"张三"` const修饰的是name,所有name是只读的不能被修改的
-`int const *a`                  *a只读,a变量
-`int * const a`                *a变量 ,a只读
-`const int * const a`    a和*a都只读
-`int const * const a`    a和*a都只读
-经常用来定义全局只读变量
-`NSString * const name = "张三"` 
-static修饰后全局变量只能在所在的文件中访问
-`static NSString * const name = "张三"`
+### 3.const
+#### const，翻译过来是“常量”的意思，const用来修饰它右边的基本变量或指针变量，被const修饰的变量是不被允许修改变量值的
+* const修饰的变量是针对它右边的变量的，即const右边的变量值不能被修改
+* const修饰的变量是在**编译阶段**进行编译检查的
+* const修饰的变量仅在编译阶段初始化一次，存储在**常量区**，直到程序运行结束后由系统回收
+
+        const修饰变量的右边都不能被修改
+        1. const修饰基本数据类型变量
+        const int age1 = 10;                        //age1不能被修改
+        int const age2 = 20;                        //age2不能被修改
+        
+        2. const修饰指针类型变量
+        const NSString *name1 = @"zhangsan1";       //*name1不能被修改，name1可以被修改
+        NSString const *name2 = @"zhangsan2";       //*name2不能被修改，name2可以被修改
+        NSString *const name3 = @"zhangsan3";       //name3不能被修改，*name3可以被修改
+
+        3. const嵌套使用
+        const NSString *const name4 = @"zhangsan4";  //name4和*name4都不能被修改
+        
+        //name3 = @"lisi";  编译器会报错->Cannot assign to variable 'name3' with const-qualified type 'NSString *const __strong'
+
+#### const使用场景
+* 一般是联合static和const使用，来定义一个只能在当前文件中访问的、不能被修改的变量；类似#define定义，不过优点就在于这种方式可以指定变量类型，而#define不能
+
+        static NSString *const name = @"zhangsan";
+        @implementation WGMainObjcVC
+        - (void)viewDidLoad {
+            [super viewDidLoad];
+        }
+        @end
+#### const和宏(#define)区别
+* 编译时刻不同：宏是预编译(编译之前处理)； const是编译阶段
+* 编译检查: 宏不做检查、不会报编译错误、只是替换；const会编译检查、会报编译错误
+* 宏优点就是可以定义函数、方法；const不能
+* 宏缺点: 大量使用宏，会造成编译时间太长，每次都需要重新替换
+
+### 4 考点
+#### 项目中定义常量的方法有哪些？
+1. 使用static和const定义全局静态变量(其实就是常量),只能在当前文件中使用
+
+        static NSString *const name = @"zhangsan";
+2. 使用extern和const,定义一个全局变量(其实就是常量),多个文件都可以访问,而且不需要导入对应的头文件都可以访问
+
+        extern NSString *const name;
+        @interface Person : NSObject
+        @end
+
+        #import "Person.h"
+        NSString *const name = @"zhangsan";
+        @implementation Person
+        @end
+3. 使用宏#define定义(切记后面不能添加分号;,否则编译器会报错)
+
+        #define WGName @"张三"
+    
+### 5. @dynamic、@synthesize
+#### iOS 6 之后 LLVM 编译器引入property autosynthesis，即属性自动合成，下面定义的属性会自定生成成员变量_name、getter/setter方法声明、getter/setter方法实现
+        @interface WGMainObjcVC : UIViewController
+        @property(nonatomic, copy) NSString *name;
+        @end
+        
+        @implementation WGMainObjcVC
+        @dynamic name;   
+        - (void)viewDidLoad {
+            [super viewDidLoad];
+            self.view.backgroundColor = [UIColor whiteColor];
+            self.name = @"zhangsan";
+        }
+        @end
+#### @dynamic name; 告诉编译器，不要自动生成对应属性name的getter/setter方法实现，方法实现需要我们程序员自己实现，如果我们没有实现，那么在访问属性过程中程序就会crash
+        @interface WGMainObjcVC : UIViewController
+        @property(nonatomic, copy) NSString *name;
+        @end
+
+        @implementation WGMainObjcVC
+        //这句代码也可以不写，默认生成成员变量的名称是_name
+        @synthesize name = AAA;  
+        - (void)viewDidLoad {
+            [super viewDidLoad];
+            self.view.backgroundColor = [UIColor whiteColor];
+            self.name = @"zhangsan";
+        }
+        @end
+#### @synthesize name = AAA; 告诉编译期生成成员变量的名称为AAA,即在iOS6之后，@synthesize作用就是给成员变量起别名；@dynamic和@synthesize都没有写时，@property默认是@synthesize XXX = _XXX，@synthesize表示如果我们没有手动实现setter/getter方法，编译器会自动加上这两个方法，如果我们手动实现了setter/getter，那么系统就不会再自动生成setter/getter方法了
 
 
-## 注意
-### 1.在多个文件中,经常需要使用同一个常量,有三种方法可以实现
-#### (1)使用static和const,在多个文件中都定义一个静态全局的常量
-#### (2)使用extern和const,定义一份全局变量,多个文件共用
-#### (3)使用define宏进行定义
-### 2.const和宏的区别
-`编译时刻:宏是预编译（编译之前处理），const是编译阶段。`
-`编译检查:宏不做检查，不会报编译错误，只是替换，const会编译检查，会报编译错误。`
-`宏的好处:宏能定义一些函数，方法。 const不能。`
-`宏的坏处:使用大量宏，容易造成编译时间久，每次都需要重新替换。`
-1.extern: (外面的、外部的)声明外部全局变量，只能用于声明，不能用于实现
-extern NSString * const XXX: 声明一个全局常量，需要在.m文件中实现
-2.const: (常量)被const修饰的变量是只读的（变量－>只读变量）
-const只修饰右边的变量
-3.static修饰局部变量,让变量只初始化一次，一份内存；
--(void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
-int i = 0  声明一个局部变量
-i ++;
-NSLog(@"----%ld----",i)
-}
-打印结果:都是1,每次点击之后，出了方法体，i变量被回收，每次进来后，i都又被初始化为0
--(void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
-static int i = 0
-i ++;
-NSLog(@"----%ld----",i)
-}
-打印结果:1 2 3 4 5... 被static修饰的局部变量，只会被初始化一次，声明周期和程序一样，但作用域不变
-static修饰全局变量,让外界文件无法访问
-static 类型 变量名 = 初始化值
-static 修饰的变量只作用于它声明所在的.m文件中，static修改的变量必须放在@implementation外面或方法中，它只在程序启动初始化一次。
-开发中static与const的联合使用 定义一个只能在当前文件访问的全局常量
-static 类型 const 常量名 = 初始化值
-开发中extern与const的联合使用 定义一个整个项目都能访问的全局常量
-创建.h和.m文件在.h文件中声明,在.m文件中赋值
-4.静态变量：当我们希望一个变量的作用域不仅仅是作用域某个类的某个对象，而是作用域整个类的时候，这时候就可以使用静态变量，静态变量是指用static修饰的变量。
-静态变量只能作用于.m文件，放在@implementation外面或方法中，只在程序启动初始化一次
-5.全局变量: extern修饰的变量，是一个全局变量。
-extern NSString * LMJName = @"XXX";
-此时全局变量只能被初始化一次，即变成了全局常量
-extern NSString * const LMJName = @"iOS开发者公会;
-6.静态常量: const修改的变量是不可变的
-*/
-//声明一个外部的全部常量(外部不能修改): extern 类型 const 常量名
+### 6. synchronized
+#### synchronized是递归锁，使用该关键字，可以将一段代码限制在一个线程内使用，其它线程想要访问，就必须等上一个线程访问完后才能访问，即保证了线程安全
+        @interface WGMainObjcVC()
+        @property(nonatomic, assign) int totalTicket;  //总票数
+        @end
+        @implementation WGMainObjcVC
+        - (void)viewDidLoad {
+            [super viewDidLoad];
+            _totalTicket = 10;
+            //线程1 卖5张
+            dispatch_async(dispatch_get_global_queue(0, 0), ^{
+                for (int i = 0; i < 5; i++) {
+                    [self sealTicket];
+                }
+            });
+            //线程1 卖5张
+            dispatch_async(dispatch_get_global_queue(0, 0), ^{
+                for (int i = 0; i < 5; i++) {
+                    [self sealTicket];
+                }
+            });
+        }
+
+        -(void)sealTicket {
+            _totalTicket -= 1;
+            NSLog(@"当前剩余票数:%d",_totalTicket);
+        }
+        @end
+        打印结果: 当前剩余票数:8
+                当前剩余票数:9
+                当前剩余票数:7
+                当前剩余票数:7
+                当前剩余票数:6
+                当前剩余票数:5
+                当前剩余票数:4
+                当前剩余票数:3
+                当前剩余票数:2
+                当前剩余票数:1
+#### 当多个线程同时去访问资源(_totalTicket变量)时，会导致资源数据错乱，为了保证同一时间只有一个线程访问资源，我们可以使用关键字synchronized来达到这个要求
+        -(void)sealTicket {
+            @synchronized (self) { //会对传入的对象分配一个递归锁
+                _totalTicket -= 1;
+                NSLog(@"当前剩余票数:%d",_totalTicket);
+            }
+        }
