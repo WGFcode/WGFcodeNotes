@@ -74,3 +74,7 @@
 ### [swift/OC关键字-待续](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGReadMe/KeyWord.md)
 
 ### [传值方式-待续](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGReadMe/传值方式.md)
+
+### [Swift基础语法](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGReadMe/Swift基础语法.md)
+
+
