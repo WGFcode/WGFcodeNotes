@@ -27,6 +27,7 @@
 		30A73F332447F14A00C86BB8 /* kvc1.png in Resources */ = {isa = PBXBuildFile; fileRef = 30A73F322447F14A00C86BB8 /* kvc1.png */; };
 		30A7DC8124348703008DDCF9 /* lock1.png in Resources */ = {isa = PBXBuildFile; fileRef = 30A7DC8024348703008DDCF9 /* lock1.png */; };
 		30A7DC832434A43E008DDCF9 /* lock2.png in Resources */ = {isa = PBXBuildFile; fileRef = 30A7DC822434A43E008DDCF9 /* lock2.png */; };
+		30AACDD9262D7FC500132AF5 /* Swift对象本质.md in Resources */ = {isa = PBXBuildFile; fileRef = 30AACDD8262D7FC500132AF5 /* Swift对象本质.md */; };
 		30BB26BB244BF62B00255288 /* NSNotification.md in Resources */ = {isa = PBXBuildFile; fileRef = 30BB26BA244BF62B00255288 /* NSNotification.md */; };
 		30C1F2B82431F0C7003B30B3 /* face.md in Resources */ = {isa = PBXBuildFile; fileRef = 30C1F2B72431F0C7003B30B3 /* face.md */; };
 		30D3DF72245E74790012F803 /* WGTestModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 30D3DF71245E74790012F803 /* WGTestModel.m */; };
@@ -156,6 +157,7 @@
 		30A73F322447F14A00C86BB8 /* kvc1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = kvc1.png; sourceTree = "<group>"; };
 		30A7DC8024348703008DDCF9 /* lock1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = lock1.png; sourceTree = "<group>"; };
 		30A7DC822434A43E008DDCF9 /* lock2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = lock2.png; sourceTree = "<group>"; };
+		30AACDD8262D7FC500132AF5 /* Swift对象本质.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Swift对象本质.md"; sourceTree = "<group>"; };
 		30BB26BA244BF62B00255288 /* NSNotification.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = NSNotification.md; sourceTree = "<group>"; };
 		30C1F2B72431F0C7003B30B3 /* face.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = face.md; sourceTree = "<group>"; };
 		30C4499B2601D90900485900 /* Student.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Student.cpp; sourceTree = "<group>"; };
@@ -1073,6 +1075,7 @@
 			isa = PBXGroup;
 			children = (
 				30D5D08C2627CD1700F5A4EF /* Swift基础语法.md */,
+				30AACDD8262D7FC500132AF5 /* Swift对象本质.md */,
 				548AC988242F4CAD00EEE11C /* KeyWords.md */,
 				548F332324F2B13E00AB3540 /* 属性修饰符.md */,
 				300845CA24456B1700055737 /* KVC.md */,
@@ -1282,6 +1285,7 @@
 				542D3D832518E61300394130 /* 分类扩展关联对象.md in Resources */,
 				548AC95C242F4B3200EEE11C /* Assets.xcassets in Resources */,
 				309F9D682435D98700FFB705 /* ThreadLock.md in Resources */,
+				30AACDD9262D7FC500132AF5 /* Swift对象本质.md in Resources */,
 				548F332424F2B13E00AB3540 /* 属性修饰符.md in Resources */,
 				300845CC24456B3A00055737 /* NSOperation.md in Resources */,
 				30179F9A24401E8000EED9BD /* Note.md in Resources */,

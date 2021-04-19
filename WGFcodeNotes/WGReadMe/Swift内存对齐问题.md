@@ -1,76 +1,98 @@
 ## swift内存对齐
-### 1. swift中各种数据类型占用的内存空间大小
-        let BoolValue: Bool = true
-        let Boolsize = MemoryLayout.size(ofValue: BoolValue)
-        let BoolaligSize = MemoryLayout.alignment(ofValue: BoolValue)
-        
-        let IntValue: Int = 1
-        let IntSize = MemoryLayout.size(ofValue: IntValue)
-        let IntaligSize = MemoryLayout.alignment(ofValue: IntValue)
-        
-        let Int32Value: Int = 1
-        let Int32Size = MemoryLayout.size(ofValue: Int32Value)
-        let Int32aligSize = MemoryLayout.alignment(ofValue: Int32Value)
-        
-        let Int64Value: Int = 1
-        let Int64Size = MemoryLayout.size(ofValue: Int64Value)
-        let Int64aligSize = MemoryLayout.alignment(ofValue: Int64Value)
-        
-        let FloatValue: Float = 0.2
-        let FloatSize = MemoryLayout.size(ofValue: FloatValue)
-        let FloataligSize = MemoryLayout.alignment(ofValue: FloatValue)
-        
-        let DoubleValue: Double = 0.2
-        let DoubleSize = MemoryLayout.size(ofValue: DoubleValue)
-        let DoublealigSize = MemoryLayout.alignment(ofValue: DoubleValue)
-        
-        let CFFloatValue: CGFloat = 0.2
-        let CFFloatSize = MemoryLayout.size(ofValue: CFFloatValue)
-        let CGFloataligSize = MemoryLayout.alignment(ofValue: CFFloatValue)
-        
-        let NSIntegerValue: NSInteger = 1
-        let NSIntegerSize = MemoryLayout.size(ofValue: NSIntegerValue)
-        let NSIntegeraligSize = MemoryLayout.alignment(ofValue: NSIntegerValue)
-        
-        let StringValue: String = "1231234123123"
-        let StringSize = MemoryLayout.size(ofValue: StringValue)
-        let StringaligSize = MemoryLayout.alignment(ofValue: StringValue)
-        
-        let CharacterValue = Character("*")
-        let CharacterSize = MemoryLayout.size(ofValue: CharacterValue)
-        let CharacteraligSize = MemoryLayout.alignment(ofValue: CharacterValue)
-        
-        let ArrValue = ["1","2"]
-        let ArrSize = MemoryLayout.size(ofValue: ArrValue)
-        let ArraligSize = MemoryLayout.alignment(ofValue: ArrValue)
-        
-        let DicValue = ["key": "value"]
-        let DicSize = MemoryLayout.size(ofValue: DicValue)
-        let DicaligSize = MemoryLayout.alignment(ofValue: DicValue)
-        
-        let objcSize = MemoryLayout.size(ofValue: self)
-        let objcaligSize = MemoryLayout.alignment(ofValue: self)
-        
-        NSLog("\n Boolsize:-------\(Boolsize)字节---内存对齐字节数:\(BoolaligSize),\n IntSize:-------\(IntSize)字节---内存对齐字节数:\(IntaligSize), \n Int32Size:-------\(Int32Size)字节---内存对齐字节数:\(Int32aligSize), \n Int64Size:-------\(Int64Size)字节---内存对齐字节数:\(Int64aligSize), \n FloatSize:-------\(FloatSize)字节---内存对齐字节数:\(FloataligSize), \n DoubleSize:-------\(DoubleSize)字节---内存对齐字节数:\(DoublealigSize), \n CFFloatSize:-------\(CFFloatSize)字节---内存对齐字节数:\(CGFloataligSize), \n NSIntegerSize:-------\(NSIntegerSize)字节---内存对齐字节数:\(NSIntegeraligSize), \n StringSize:-------\(StringSize)字节---内存对齐字节数:\(StringaligSize), \n CharacterSize:-------\(CharacterSize)字节---内存对齐字节数:\(CharacteraligSize), \n ArrSize:-------\(ArrSize)字节---内存对齐字节数:\(ArraligSize), \n DicSize:-------\(DicSize)字节---内存对齐字节数:\(DicaligSize), \n 对象的内存空间:-------\(objcSize)字节---内存对齐字节数:\(objcaligSize)")
 
-        打印结果：Boolsize:-------1字节---内存对齐字节数:1,
-                IntSize:-------8字节---内存对齐字节数:8, 
-                Int32Size:-------8字节---内存对齐字节数:8, 
-                Int64Size:-------8字节---内存对齐字节数:8, 
-                FloatSize:-------4字节---内存对齐字节数:4, 
-                DoubleSize:-------8字节---内存对齐字节数:8, 
-                CFFloatSize:-------8字节---内存对齐字节数:8, 
-                NSIntegerSize:-------8字节---内存对齐字节数:8, 
-                StringSize:-------16字节---内存对齐字节数:8, 
-                CharacterSize:-------16字节---内存对齐字节数:8, 
-                ArrSize:-------8字节---内存对齐字节数:8, 
-                DicSize:-------8字节---内存对齐字节数:8, 
-                对象的内存空间:-------8字节---内存对齐字节数:8
-#### 总结：内存对齐字节数是什么意思：就是每次在内存中可以排序的最大位置， 比如Bool的内存对齐字节数是1，那么在内存中位置就是 0 1 2 3..., Float的内存对齐字节数是4，那么就是0-4存放一个Float类型数据，5-8存放一个Float类型数据，4位为一组内存来存放的，
-#### 2.为什么要内存对齐？ 
+
+### 1. MemoryLayout工具类
+#### swift3.0之后swift推出了一个工具类MemoryLayout，用来计算数据占用内存的大小,该工具类主要有3个比较重要的属性且返回值都是int类型
+        1. 一个 T 数据类型实例占用连续内存字节的大小（实际占用内存的字节数）
+        MemoryLayout.size(ofValue: T)  
+        2. 数据类型 T 的内存对齐原则（内存对齐的字节数）
+        MemoryLayout.alignment(ofValue: T)
+        3. 在一个 T 类型的数组中，其中任意一个元素从开始地址到结束地址所占用的连续内存字节的大小就是stride（系统分配的字节数）
+        MemoryLayout.stride(ofValue: T)
+          
+       
+           stride
+        |-------------|
+        [___元素T1___  ___元素T2___  ___元素T3___  ___元素T4___  ___元素T5___  ]
+        |-----------|
+            size
+        数组中有5个T类型元素，虽然每个T元素的大小为size个字节，但是因为需要内存对齐的限制，每个T类型元素实际消耗的内存空间为stride个字节，而 stride-size个字节则为每个元素因为内存对齐而浪费的内存空间,所以可以把stride理解为系统为类型T分配的内存
+
+#### MemoryLayout工具类简单总结
+1. 实际占用的内存大小: MemoryLayout.size(ofValue:)  
+2. 系统分配的内存大小: MemoryLayout.stride(ofValue:) 
+3. 内存对齐大小: MemoryLayout.alignment(ofValue:) 
+4. ⚠️类对象的size、stride、alignment都是8个字节，因为class是对象类型数据,使用MemoryLayout对class类型计算其内存结果实际上是对其class类型的引用指针进行操作，所以不建议利用MemoryLayout工具对类对象进行内存分析
+#### 什么是内存对齐？
+#### 计算机内存空间是按照byte字节进行划分的，从理论上讲似乎对任何类型的变量的访问可以从任何地址开始，但实际情况是在访问特定类型变量的时候经常在特定的内存地址访问，这就需要各种类型数据按照一定的规则在空间上排列，而不是顺序的一个接一个的排放，这就是对齐。比如Bool的内存对齐字节数是1，那么在内存中位置就是 0 1 2 3...,Float的内存对齐字节数是4，那么就是0-4存放一个Float类型数据，5-8存放一个Float类型数据，4位为一组内存来存放的
+
+#### 为什么要内存对齐？
 1. 平台原因(移植原因)：并不是所有的硬件平台都能访问任意地址上的任意数据的；某些硬件平台只能在某些地址处取某些特定类型的数据，否则抛出硬件异常。
 2. 性能原因：数据结构(尤其是栈)应该尽可能地在自然边界上对齐。原因在于为了访问未对齐的内存，处理器需要作两次内存访问；而对齐的内存访问仅需要一次访问。
-#### 总结： 简单理解就是为了适应硬件和和提高软件的性能问题
+3. 简单理解就是为了适应硬件和和提高软件的性能问题
+
+
+### 2. swift中各数据类型占用的内存空间分析
+        类型      占用内存大小      系统分配内存大小        内存对齐原则      
+        Bool         1                1                  1
+        Int          8                8                  8
+        Int32        4                4                  4
+        Int64        8                8                  8
+        NSInteger    8                8                  8
+        Float        4                4                  4
+        CGFloat      8                8                  8
+        Double       8                8                  8
+        String       16               16                 8
+        Character    16               16                 8
+        Array        8                8                  8
+        Dictionary   0                8                  8
+        Set          8                8                  8
+#### ⚠️Dictionary是因为创建的空字典导致的所以占用内存大小为0字节，如果创建一个有元素的字典，则占用的内存大小为8字节
+
+
+### 3. 内存对齐之class类
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #### 3. 内存对齐之枚举
         // 没有原始值
