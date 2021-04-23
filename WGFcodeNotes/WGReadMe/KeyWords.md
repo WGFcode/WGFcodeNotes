@@ -1,4 +1,4 @@
-##  iOS开发中常用关键字
+##  iOS开发中常用关键字(含swift)
 ### 1.extern
 #### extern,翻译过来是“外面的、外部的”，作用就是声明外部全局变量或常量；需要注意extern只能声明，不能用于实现；开发中我们通常会单独创建一个类来管理一些全局的变量或常量，例如管理通过通知名称
 
@@ -237,5 +237,59 @@
             @synchronized (self) { //会对传入的对象分配一个递归锁
                 _totalTicket -= 1;
                 NSLog(@"当前剩余票数:%d",_totalTicket);
+            }
+        }
+
+## swift中关键词
+### 1. fallthrough
+#### fallthrough贯穿，主要用在switch条件语句中，Swift中的switch不会从上一个case分支落入到下一个 case 分支中；fallthrough 语句让 case 之后的语句会按顺序继续运行，且不论条件是否满足都会执行
+
+        var score = 70                          var score = 70
+        switch score {                          switch score {
+        case 0...60:                            case 0...60:
+            print("成绩不及格")                       print("成绩不及格")
+        case 61...70:                           case 61...70:
+            print("成绩良好")                         print("成绩良好")
+        default:                                     fallthrough
+            print("成绩优秀")                     case 31...60: 
+        }                                            print("成绩不及格")
+                                                     fallthrough
+                                                default:
+                                                    print("成绩优秀") 
+                                                }                    
+
+        打印结果: 成绩良好                         打印结果: 成绩良好
+                                                        成绩不及格
+                                                        成绩优秀
+### 2. typealias 
+#### 给已有类型重新定义名称，方便代码阅读
+    typealias Location = CGPoint
+
+### 3. associatedtype
+#### associatedtype关联类型，关联类型为协议中的某个类型提供了一个占位名，其代表的实际类型在协议被遵守时才会被指定
+    protocol WGOneProtocol : class {
+        //设置关联类型
+        associatedtype GenderType
+        var sex: GenderType {get}  //性别
+    }
+
+    class Student : WGOneProtocol{
+        //实现协议中的属性 必须通过typealias指定类型
+        typealias GenderType = Bool
+        var sex: GenderType = false 
+    }
+
+    class Animal : WGOneProtocol {
+        //实现协议中的属性 必须通过typealias指定类型
+        typealias GenderType = Int
+        var sex: GenderType = 0
+    }
+### 4. mutating
+#### mutating关键字指的是可变即可修改。用在结构体struct和枚举enum中,虽然结构体和枚举可以定义自己的方法，但是默认情况下，实例方法中是不可以修改值类型的属性的。为了能够在实例方法中修改属性值，可以在方法定义前添加关键字mutating。
+        struct MyStruct {
+            var name = ""
+            var age = 0
+            mutating func testFunc() {
+                age = 18
             }
         }
