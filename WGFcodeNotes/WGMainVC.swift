@@ -10,11 +10,15 @@ import Foundation
 import UIKit
 
 
-struct MyStruct {
-    var name = ""
-    var age = 0
-    mutating func testFunc() {
-        age = 18
+class WGMyClass {
+    func testFunc(){
+        NSLog("WGMyClass->testFunc")
+    }
+}
+
+struct WGMyStruct {
+    func testFunc() {
+        NSLog("WGMyStruct->testFunc")
     }
 }
 
@@ -25,10 +29,12 @@ public class WGMainVC : UIViewController {
     public override func viewDidLoad() {
         super.viewDidLoad()
         self.view.backgroundColor = UIColor.white
-        var my = MyStruct()
-        my.name = "zhangsan"
-        my.name = "lisi"
-        my.testFunc()
+        let cls = WGMyClass()
+        cls.testFunc()
+        
+        let str = WGMyStruct()
+        str.testFunc()
+        
     }
 }
 

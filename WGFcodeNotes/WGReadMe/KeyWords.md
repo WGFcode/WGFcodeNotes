@@ -293,3 +293,76 @@
                 age = 18
             }
         }
+### 5. final
+#### final关键字可以在class、func和var前修饰,表示 不可重写，可以将类或者类中的部分实现保护起来,从而避免子类破坏
+        class WGMyClass {
+            final var name = ""
+            final func testFunc(){
+                NSLog("WGMyClass->testFunc")
+            }
+        }
+        
+        
+        
+        
+        
+### 6. static
+#### static关键字声明静态变量或者函数，它保证在对应的作用域当中只有一份, 同时也不需要依赖实例化,用static关键字指定的方法是类方法，他是不能被子类重写的
+
+
+### 7. lazy
+#### lazy修饰的变量, 只有在第一次被调用的时候才会去初始化值(懒加载),提高程序的性能
+
+
+### 8. convenience
+#### 使用convenience修饰的构造函数叫做便利构造函数,便利构造函数通常用在对系统的类进行构造函数的扩充时使用。
+1. 便利构造函数通常都是写在extension里面
+2. 便利函数init前面需要加载convenience
+3. 在便利构造函数中需要明确的调用self.init()
+
+### 9. deinit
+#### deinit属于析构函数,当对象结束其生命周期时,系统自动执行析构函数。和OC中的dealloc 一样的,我们通常在deinit函数中进行一些资源释放和通知移除等
+1. 对象销毁
+2. KVO移除
+3. 移除通知
+4. NSTimer销毁
+
+
+### 10. willSet、didset
+#### 在Swift语言中用了willSet和didSet这两个特性来监视属性的除初始化之外的属性值变化
+
+### 11 @objc、@objcMembers
+#### @objc修饰符的根本目的是用来暴露接口给Objective-C的运行时(类、协议、属性、方法等)；添加@objc修饰并不意味着这个方法或属性会采用Objective-C的方式变成动态派发，swift仍可能会将其优化为静态调用；
+1. selector调用的方法前需要加@objc，目的是允许函数在“运行时”通过oc消息机制调用
+2. 协议的方法可选时，协议和可选方法前要用@objc声明
+3. 用weak修饰协议时，协议前面要用@objc声明
+4. 类前加上 @objcMembers，那么它及其子类、扩展里的方法都会隐式的加上 @objc
+5. 扩展前加上 @objc，那么里面的方法都会隐式加上 @objc
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
