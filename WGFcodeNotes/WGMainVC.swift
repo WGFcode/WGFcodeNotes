@@ -11,6 +11,7 @@ import UIKit
 
 
 class WGMyClass {
+    var name = ""
     func testFunc(){
         NSLog("WGMyClass->testFunc")
     }
@@ -29,12 +30,8 @@ public class WGMainVC : UIViewController {
     public override func viewDidLoad() {
         super.viewDidLoad()
         self.view.backgroundColor = UIColor.white
-        let cls = WGMyClass()
-        cls.testFunc()
-        
-        let str = WGMyStruct()
-        str.testFunc()
-        
+        var cls = WGMyClass()
+        NSLog("\(Mems.ptr(ofVal: &cls))")
     }
 }
 
