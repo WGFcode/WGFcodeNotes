@@ -525,6 +525,11 @@ struct TargetMetadataBounds {
 };
 using MetadataBounds = TargetMetadataBounds<InProcess>;
 
+// WGSwift底层源码
+/*
+ 
+ */
+//⚠️所有类型元数据的通用结构。HeapObject中的元数据类型HeapMetaDeta(别名TargetHeapMetadata)继承自TargetMetadata
 /// The common structure of all type metadata.
 template <typename Runtime>
 struct TargetMetadata {
@@ -547,13 +552,16 @@ protected:
 private:
   /// The kind. Only valid for non-class metadata; getKind() must be used to get
   /// the kind value.
+  /// ⚠️TargetMetadata唯一的成员变量，记录着metadata的实际类型
   StoredPointer Kind;
 public:
   /// Get the metadata kind.
+    
+  /// ⚠️若kind > 0x7FF(LastEnumeratedMetadataKind) 则kind为MetadataKind::Class，否则返回MetadataKind(kind)
   MetadataKind getKind() const {
     return getEnumeratedMetadataKind(Kind);
   }
-  
+
   /// Set the metadata kind.
   void setKind(MetadataKind kind) {
     Kind = static_cast<StoredPointer>(kind);
@@ -706,6 +714,7 @@ public:
 
   /// Get the class object for this type if it has one, or return null if the
   /// type is not a class (or not a class with a class object).
+  /// ⚠️ 通过去匹配kind，返回值是TargetClassMetadata类型，如果有则获取它的类对象，若类型不是class,则返回nil
   const TargetClassMetadata<Runtime> *getClassObject() const;
 
   /// Retrieve the generic arguments of this type, if it has any.
@@ -1003,11 +1012,13 @@ using ClassMetadataBounds =
 
 /// The portion of a class metadata object that is compatible with
 /// all classes, even non-Swift ones.
+//WGSwift 底层源码
+//⚠️TargetAnyClassMetadata底层结构完整版
 template <typename Runtime>
 struct TargetAnyClassMetadata : public TargetHeapMetadata<Runtime> {
   using StoredPointer = typename Runtime::StoredPointer;
   using StoredSize = typename Runtime::StoredSize;
-
+//⚠️ 在swift中，如果没有明确声明父类的类，则会隐式地继承自 SwiftObject，当SWIFT_OBJC_INTEROP为true时才会声明为SwiftObject
 #if SWIFT_OBJC_INTEROP
   constexpr TargetAnyClassMetadata(TargetAnyClassMetadata<Runtime> *isa,
                                    TargetClassMetadata<Runtime> *superclass)
@@ -1076,18 +1087,21 @@ using AnyClassMetadata =
 using ClassIVarDestroyer =
   SWIFT_CC(swift) void(SWIFT_CONTEXT HeapObject *);
 
+/// 所有类元数据的结构。 该结构直接嵌入在类的堆元数据结构中，因此，如果没有ABI中断，就无法扩展。
 /// The structure of all class metadata.  This structure is embedded
 /// directly within the class's heap metadata structure and therefore
 /// cannot be extended without an ABI break.
-///
+/// 请注意，此类型的布局与Objective-C类的布局兼容。
 /// Note that the layout of this type is compatible with the layout of
 /// an Objective-C class.
+// WGSwift底层源码
+// ⚠️TargetClassMetadata底层结构，继承自TargetAnyClassMetadata
 template <typename Runtime>
 struct TargetClassMetadata : public TargetAnyClassMetadata<Runtime> {
   using StoredPointer = typename Runtime::StoredPointer;
   using StoredSize = typename Runtime::StoredSize;
-
-  TargetClassMetadata() = default;
+    
+  TargetClassMetadata() = default;   //初始化
   constexpr TargetClassMetadata(const TargetAnyClassMetadata<Runtime> &base,
              ClassFlags flags,
              ClassIVarDestroyer *ivarDestroyer,
@@ -1105,28 +1119,28 @@ struct TargetClassMetadata : public TargetAnyClassMetadata<Runtime> {
   // Be careful when accessing them.
 
   /// Swift-specific class flags.
-  ClassFlags Flags;
+  ClassFlags Flags;  //swift特有的标记
 
   /// The address point of instances of this type.
-  uint32_t InstanceAddressPoint;
+  uint32_t InstanceAddressPoint;  //实例对象的地址（首地址）
 
   /// The required size of instances of this type.
   /// 'InstanceAddressPoint' bytes go before the address point;
   /// 'InstanceSize - InstanceAddressPoint' bytes go after it.
-  uint32_t InstanceSize;
+  uint32_t InstanceSize;   //实例对象内存大小
 
   /// The alignment mask of the address point of instances of this type.
-  uint16_t InstanceAlignMask;
+  uint16_t InstanceAlignMask;  //实例对象内存对齐字节大小
 
   /// Reserved for runtime use.
-  uint16_t Reserved;
+  uint16_t Reserved;  //运行时保留字段
 
   /// The total size of the class object, including prefix and suffix
   /// extents.
-  uint32_t ClassSize;
+  uint32_t ClassSize;  //类的内存大小
 
   /// The offset of the address point within the class object.
-  uint32_t ClassAddressPoint;
+  uint32_t ClassAddressPoint;  //类的内存首地址
 
   // Description is by far the most likely field for a client to try
   // to access directly, so we force access to go through accessors.

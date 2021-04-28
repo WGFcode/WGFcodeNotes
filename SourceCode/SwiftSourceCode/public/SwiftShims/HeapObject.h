@@ -59,7 +59,7 @@ typedef struct HeapObject HeapObject;
  */
 struct HeapObject {
   /// This is always a valid pointer to a metadata object.
-  HeapMetadata const *__ptrauth_objc_isa_pointer metadata;  //指向元数据的指针-8字节
+  HeapMetadata const *__ptrauth_objc_isa_pointer metadata;  //指向元数据的指针-8字节(可以理解为OC中类对象和元类对象)
   SWIFT_HEAPOBJECT_NON_OBJC_MEMBERS;                        //引用计数-8字节
 
 #ifndef __swift__
@@ -153,21 +153,113 @@ enum class MetadataKind : uint32_t {
 
 //⚠️第4⃣️步 TargetMetadata简化版
 /*
- 
+ 通过kind我们获取到元类对象的类型，
+ 若是swift类则类对象是TargetClassMetadata；
+ 若是ObjCClassWrapper类型，则类对象是TargetObjCClassWrapperMetadata，继承自TargetMetadata
  */
 struct TargetMetadata {
-    ......
     StoredPointer Kind;  //⚠️kind属性，就是之前传入的Inprocess，主要用于区分是哪种类型的元数据
-    ......
+    public:
+  /// Get the metadata kind.
+  /// ⚠️若kind > 0x7FF(LastEnumeratedMetadataKind) 则kind为MetadataKind::Class，否则返回MetadataKind(kind)
+    MetadataKind getKind() const {
+        return getEnumeratedMetadataKind(Kind);
+    }
+    
     /// Get the class object for this type if it has one, or return null if the
     /// type is not a class (or not a class with a class object).
-    const TargetClassMetadata<Runtime> *getClassObject() const; //⚠️在该方法中去匹配kind返回值是TargetClassMetadata类型
+    /// ⚠️ 通过去匹配kind，返回值是TargetClassMetadata类型，如果有则获取它的类对象，若类型不是class,则返回nil
+    const TargetClassMetadata<Runtime> *getClassObject() const;
+}
+
+
+// 获取类对象的方法
+using ClassMetadata = TargetClassMetadata<InProcess>;
+template<> inline const ClassMetadata *
+Metadata::getClassObject() const {
+  switch (getKind()) {
+  case MetadataKind::Class: {  //swift类也是一个类对象，返回类对象类型是ClassMetadata(TargetClassMetadata)
+    // Native Swift class metadata is also the class object.
+    return static_cast<const ClassMetadata *>(this);
+  }
+  case MetadataKind::ObjCClassWrapper: {
+    //若是ObjCClassWrapper类型，则返回类对象类型是ObjCClassWrapperMetadata(TargetObjCClassWrapperMetadata)
+    // Objective-C class objects are referenced by their Swift metadata wrapper.
+    auto wrapper = static_cast<const ObjCClassWrapperMetadata *>(this);
+    return wrapper->Class;
+  }
+  // Other kinds of types don't have class objects.
+  default:
+    return nullptr;
+  }
+}
+
+using ObjCClassWrapperMetadata = TargetObjCClassWrapperMetadata<InProcess>;
+template <typename Runtime>
+struct TargetObjCClassWrapperMetadata : public TargetMetadata<Runtime> {
+  ConstTargetMetadataPointer<Runtime, TargetClassMetadata> Class;
+  static bool classof(const TargetMetadata<Runtime> *metadata) {
+    return metadata->getKind() == MetadataKind::ObjCClassWrapper;
+  }
+};
+
+
+//⚠️第5⃣️步 TargetClassMetadata简化版
+/* WGSwift底层源码
+    ⚠️TargetClassMetadata底层结构，继承关系如下 TargetClassMetadata : TargetAnyClassMetadata : TargetHeapMetadata
+ */
+/// 所有类元数据的结构。 该结构直接嵌入在类的堆元数据结构中，因此，如果没有ABI中断，就无法扩展。
+/// The structure of all class metadata.  This structure is embedded
+/// directly within the class's heap metadata structure and therefore
+/// cannot be extended without an ABI break.
+/// 请注意，此类型的布局与Objective-C类的布局兼容。
+/// Note that the layout of this type is compatible with the layout of
+/// an Objective-C class.
+//
+template <typename Runtime>
+struct TargetClassMetadata : public TargetAnyClassMetadata<Runtime> {
+  using StoredPointer = typename Runtime::StoredPointer;
+  using StoredSize = typename Runtime::StoredSize;
+  TargetClassMetadata() = default;   //初始化
+  constexpr TargetClassMetadata(const TargetAnyClassMetadata<Runtime> &base,
+             ClassFlags flags,
+             ClassIVarDestroyer *ivarDestroyer,
+             StoredPointer size, StoredPointer addressPoint,
+             StoredPointer alignMask,
+             StoredPointer classSize, StoredPointer classAddressPoint)
+    : TargetAnyClassMetadata<Runtime>(base),
+      Flags(flags), InstanceAddressPoint(addressPoint),
+      InstanceSize(size), InstanceAlignMask(alignMask),
+      Reserved(0), ClassSize(classSize), ClassAddressPoint(classAddressPoint),
+      Description(nullptr), IVarDestroyer(ivarDestroyer) {}
+
+  // The remaining fields are valid only when isTypeMetadata(). 其余的字段只有在isTypeMetadata()为true是有效
+  // The Objective-C runtime knows the offsets to some of these fields. Objective-C运行时知道其中某些字段的偏移量。
+  // Be careful when accessing them. 访问它们时要小心
+  ClassFlags Flags;  //Swift-specific class flags. swift特有的标记
+  uint32_t InstanceAddressPoint;  //The address point of instances of this type. 实例对象的地址（首地址）
+  uint32_t InstanceSize;   //The required size of instances of this type.实例对象内存大小
+  uint16_t InstanceAlignMask;  //The alignment mask of the address point of instances of this type 实例对象内存对齐字节大小
+  uint16_t Reserved;   //Reserved for runtime use.  运行时保留字段
+  /// The total size of the class object, including prefix and suffix extents.
+  uint32_t ClassSize;  //类的内存大小
+  uint32_t ClassAddressPoint;  //The offset of the address point within the class object.类的内存首地址
 }
 
 
 
-
-
+//⚠️第6⃣️步 TargetAnyClassMetadata简化版
+/*
+ ⚠️ 在swift中，如果没有明确声明父类的类，则会隐式地继承自 SwiftObject，当SWIFT_OBJC_INTEROP为true时才会声明为SwiftObject
+ */
+template <typename Runtime>
+struct TargetAnyClassMetadata : public TargetHeapMetadata<Runtime> {
+    //The metadata for the superclass.  This is null for the root class.
+    Superclass;
+    //缓存数据用于某些动态查找。 它归运行时所有，通常需要与Objective-C的使用进行互操作。
+    TargetPointer<Runtime, void> CacheData[2];
+    StoredSize Data;
+};
 
 
 

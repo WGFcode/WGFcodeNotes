@@ -34,7 +34,7 @@ struct InProcess;
 
 template <typename Runtime> struct TargetMetadata;
 using Metadata = TargetMetadata<InProcess>;
-  
+ 
 template <typename Runtime> struct TargetHeapMetadata;
 using HeapMetadata = TargetHeapMetadata<InProcess>;
 
