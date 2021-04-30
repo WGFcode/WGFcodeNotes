@@ -30,8 +30,11 @@ public class WGMainVC : UIViewController {
     public override func viewDidLoad() {
         super.viewDidLoad()
         self.view.backgroundColor = UIColor.white
-        var cls = WGMyClass()
-        NSLog("\(Mems.ptr(ofVal: &cls))")
+        let myClass = WGMyClass()
+        myClass.testFunc()
+        
+        let mystruct = WGMyStruct()
+        mystruct.testFunc()
     }
 }
 

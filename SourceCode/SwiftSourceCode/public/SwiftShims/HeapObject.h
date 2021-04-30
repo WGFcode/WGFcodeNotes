@@ -262,6 +262,24 @@ struct TargetAnyClassMetadata : public TargetHeapMetadata<Runtime> {
 };
 
 
+/*
+ 1.swift类对象的底层是个HeapObject结构体，该结构体中包含了两个成员，一个是指向元数据的指针，占用8个字节，一个是引用计数，占用8个字节
+ 2.元数据类型是HeapMetadata，它的别名是TargetHeapMetadata类型，继承关系是： TargetHeapMetadata : TargetMetadata
+ 3.TargetMetadata结构体中只有一个kind成员，用来表示该元数据是哪种类型
+ 4.若元数据类型kind是MetadataKind::Class:即纯swift类，则元类对象类型就是TargetClassMetadata，
+ 继承关系是: TargetClassMetadata : TargetAnyClassMetadata : TargetHeapMetadata
+ */
+
+
+
+
+
+
+
+
+
+
+
 
 #ifdef __cplusplus
 extern "C" {
