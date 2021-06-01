@@ -285,7 +285,7 @@
         var sex: GenderType = 0
     }
 ### 4. mutating
-#### mutating关键字指的是可变即可修改。用在结构体struct和枚举enum中,虽然结构体和枚举可以定义自己的方法，但是默认情况下，实例方法中是不可以修改值类型的属性的。为了能够在实例方法中修改属性值，可以在方法定义前添加关键字mutating。
+#### mutating关键字指的是可变即可修改。用在结构体struct和枚举enum中,虽然结构体和枚举可以定义自己的方法，但是默认情况下，实例方法中是不可以修改值类型的属性的。为了能够在实例方法中修改属性值，可以在方法定义前添加关键字mutating。本质上mutating这个关键字就做了一件事情，默认给结构体LGStack添加了一个intou关键字，这个inout关键字传递的过程中传递的就是所谓的引用
         struct MyStruct {
             var name = ""
             var age = 0
@@ -293,7 +293,18 @@
                 age = 18
             }
         }
-### 5. final
+        public override func viewDidLoad() {
+            super.viewDidLoad()
+
+            //这里必须是var修饰，否则编译器会报错
+            var a = MyStruct()
+            a.testFunc()
+            NSLog("age:\(a.age)")
+        }
+        打印结果: age:18
+        
+#### 默认情况下,不能在实例方法中修改值类型的属性.若在实例方法中使用 mutating关键字,不仅可以在实例方法中修改值类型的属性,而且会在方法实现结束时将其写回到原始结构.
+### 5. final 
 #### final关键字可以在class、func和var前修饰,表示 不可重写，可以将类或者类中的部分实现保护起来,从而避免子类破坏
         class WGMyClass {
             final var name = ""
@@ -340,12 +351,50 @@
 5. 扩展前加上 @objc，那么里面的方法都会隐式加上 @objc
 
 
+### 12 defer
+#### defer 语句块中的代码, 会在当前作用域结束前调用, 常用场景如异常退出后, 关闭数据库连接
+    public override func viewDidLoad() {
+        super.viewDidLoad()
+        NSLog("1111")
+        defer {
+            NSLog("------")
+        }
+        NSLog("2222")
+    }
+    
+    打印结果: 1111
+             2222
+             ------
+#### 如果有多个 defer, 那么后加入的先执行
+        public override func viewDidLoad() {
+            super.viewDidLoad()
+            NSLog("1111")
+            defer {
+                NSLog("2222------")
+            }
+            defer {
+                NSLog("3333------")
+            }
+            defer {
+                NSLog("4444------")
+            }
+            NSLog("5555")
+        }
+        打印结果: 1111
+                        5555
+                        4444------
+                        3333------
+                        2222------
 
+### 13 inout
+#### inout 输入输出参数: 用inout定义的一个输入输出参数，可以在函数内部修改外部实参的值
+1. 可变参数不能标记为inout
+2. inout参数不能有默认值
+3. inout参数的本质是地址传递(引用传递)
+4. inout参数只能传入可以被多次赋值的
 
-
-
-
-
+### 14. throws 和 rethrows 
+#### throws 用在函数上, 表示这个函数会抛出错误； rethrows 与 throws 类似, 不过只适用于参数中有函数, 且函数会抛出异常的情况, rethrows可以用throws 替换, 反过来不行
 
 
 

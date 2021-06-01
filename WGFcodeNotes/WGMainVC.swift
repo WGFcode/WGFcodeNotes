@@ -10,33 +10,33 @@ import Foundation
 import UIKit
 
 
-class WGMyClass {
+
+
+struct MyStruct {
     var name = ""
-    func testFunc(){
-        NSLog("WGMyClass->testFunc")
-    }
-}
-
-struct WGMyStruct {
-    func testFunc() {
-        NSLog("WGMyStruct->testFunc")
+    var age = 0
+    mutating func testFunc() {
+        age = 18
     }
 }
 
 
-typealias Location = CGPoint
 public class WGMainVC : UIViewController {
     
     public override func viewDidLoad() {
         super.viewDidLoad()
-        self.view.backgroundColor = UIColor.white
-        let myClass = WGMyClass()
-        myClass.testFunc()
-        
-        let mystruct = WGMyStruct()
-        mystruct.testFunc()
+
+        //这里必须是var修饰，否则编译器会报错
+        var a = MyStruct()
+        a.testFunc()
+        NSLog("age:\(a.age)")
+        age:18
     }
+    
+
 }
+
+
 
 
 

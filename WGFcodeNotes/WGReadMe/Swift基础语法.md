@@ -598,6 +598,10 @@
 
 
 
+### 8. swift中KVC
+#### swift中使用KVC必须满足如下两个条件
+1. 必须继承自NSObject，KVC方法都放在NSObject的扩展中
+2. 属性前必须添加@objc修饰符
 
 
 

@@ -133,16 +133,6 @@ Debug Workflow
 * final关键字。final修饰的方法和属性,也不会写入vtable中，子类不可重写，只可以调用，调用方式是直接调用;
 * dynamic关键字。标记为dynamic的变量/函数会隐式的加上@objc关键字，它会使用OC的runtime机制,Swift 为了追求性能，Swift 类型的成员或者方法在编译时就已经决定，而运行时便不再需要经过一次查找,想要实现OC的方法交换或者kvo都需要要添加dynamic关键字
 
-
-
-
-
-
-
-
-
-
-
         声明位置        @Objc    dynamic    调用方式
         Struct          否        否        直接调用
         Class           否        否       V-Table 调用
