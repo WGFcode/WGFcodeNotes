@@ -10,43 +10,25 @@
 #import <UIKit/UIKit.h>
 #import <objc/runtime.h>
 #import "Student.h"
-#import "Car.h"
-#import "message.h"
 
 
-@interface WGMainObjcVC()
-@property(nonatomic, assign) int totalTicket;  //总票数
-@end
 
 @implementation WGMainObjcVC
-
 
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.view.backgroundColor = [UIColor whiteColor];
-    //总票数10张
-    _totalTicket = 10;
+    Student *s = [[Student alloc]init];
+    s->age = 8;
+    s->sex = YES;
     
-    //线程1 卖5张
-    dispatch_async(dispatch_get_global_queue(0, 0), ^{
-        for (int i = 0; i < 5; i++) {
-            [self sealTicket];
-        }
-    });
-    //线程1 卖5张
-    dispatch_async(dispatch_get_global_queue(0, 0), ^{
-        for (int i = 0; i < 5; i++) {
-            [self sealTicket];
-        }
-    });
-}
-
-
--(void)sealTicket {
-    @synchronized (self) {
-        _totalTicket -= 1;
-        NSLog(@"当前剩余票数:%d",_totalTicket);
-    }
+    NSLog(@"---%ld",class_getInstanceSize([s class]));
+    //0x0000000282d451f0
+    // A1 7B 4B 02 A1 01 00 00 04 00 00 00 00 00 00 00
+    
+    //0x0000000282ba5050
+    //C9 7B C7 04    A1 01 00 00     08 00 00 00     00 00 00 00  60 50 6B 25 5F 26 00 00
+    //C9 BB 74 04    A1 01 00 00     08 00 00 00     01 00 00 00
 }
 
 @end

@@ -11,7 +11,11 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface Student : Person
-
+{
+    @public
+    int age;
+    BOOL sex;
+}
 @end
 
 NS_ASSUME_NONNULL_END

@@ -26,11 +26,6 @@ public class WGMainVC : UIViewController {
     public override func viewDidLoad() {
         super.viewDidLoad()
 
-        //这里必须是var修饰，否则编译器会报错
-        var a = MyStruct()
-        a.testFunc()
-        NSLog("age:\(a.age)")
-        age:18
     }
     
 
