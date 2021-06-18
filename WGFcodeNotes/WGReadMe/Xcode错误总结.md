@@ -86,3 +86,15 @@ build Settings ->Excluded Architecture->debug 和 release ->Any ios simulator SD
         ld: in /Users/baicai/Desktop/WLKProject/BankXE/BankXE/WGLib/Bugly.framework/Bugly(libBugly.a-arm64-master.o), building for iOS Simulator, but linking in object file built for iOS,
         clang: error: linker command failed with exit code 1 (use -v to see invocation)
 #### 解决方法：1.Excluded Architecture 加上 arm64；2.Build Active Architecture Only 设置为 NO,设置可行 但打真机包的时候 Excluded Architecture 里的值要去掉
+
+8. 将模拟器和真机的SDK合并后，导入到项目中，发生如下错误
+     Building for iOS,but the linked and embedded framework "WGBaseTool.framework" was build for iOS + iOS Simulator
+#### 解决方法：
+1. 在File -> Project Settings -> Build System 设置为 Legacy Build System
+2. Frameworks, Libraries,and Embedded Content 将对应的framework设置为Do not Embed即可
+#### ⚠️静态库一般都不需要嵌入和签名，所以选择Do Not Embed,动态库一般都需要Embed，如果动态库需要签名，则选择Embed & Sign；若不需要签名，则选择Embed Without Signing
+
+
+8. 真机运行项目没问题，模拟器上运行项目报错: dyld: dyld_sim cannot be loaded in a restricted process
+(lldb) 
+#### 解决方法: Build Settings -> Other Linker Flags 删除-Wl,-sectcreate,__RESTRICT,__restrict,/dev/null 就可以在模拟器上运行了

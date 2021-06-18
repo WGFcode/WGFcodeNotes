@@ -17,6 +17,7 @@
 		3027FD3A2512197500E512FE /* Swift内存对齐问题.md in Resources */ = {isa = PBXBuildFile; fileRef = 3027FD392512197500E512FE /* Swift内存对齐问题.md */; };
 		30313DC2253829F600941BE5 /* WGTargetProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 30313DC1253829F600941BE5 /* WGTargetProxy.m */; };
 		303D7ABC2539731F00EB6052 /* Xcode错误总结.md in Resources */ = {isa = PBXBuildFile; fileRef = 303D7ABB2539731F00EB6052 /* Xcode错误总结.md */; };
+		304011B026734C0B00845393 /* WGTestKVCEntity.m in Sources */ = {isa = PBXBuildFile; fileRef = 304011AF26734C0B00845393 /* WGTestKVCEntity.m */; };
 		305188F7265661DA00923282 /* 冷知识.md in Resources */ = {isa = PBXBuildFile; fileRef = 305188F6265661DA00923282 /* 冷知识.md */; };
 		3066E0F02435DD48004C71F7 /* GCD.md in Resources */ = {isa = PBXBuildFile; fileRef = 3066E0EF2435DD48004C71F7 /* GCD.md */; };
 		3078C069251C366B00A73E54 /* 传值方式.md in Resources */ = {isa = PBXBuildFile; fileRef = 3078C068251C366B00A73E54 /* 传值方式.md */; };
@@ -146,6 +147,8 @@
 		30313DC0253829F600941BE5 /* WGTargetProxy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WGTargetProxy.h; sourceTree = "<group>"; };
 		30313DC1253829F600941BE5 /* WGTargetProxy.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WGTargetProxy.m; sourceTree = "<group>"; };
 		303D7ABB2539731F00EB6052 /* Xcode错误总结.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Xcode错误总结.md"; sourceTree = "<group>"; };
+		304011AE26734C0B00845393 /* WGTestKVCEntity.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WGTestKVCEntity.h; sourceTree = "<group>"; };
+		304011AF26734C0B00845393 /* WGTestKVCEntity.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WGTestKVCEntity.m; sourceTree = "<group>"; };
 		305188F6265661DA00923282 /* 冷知识.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = "冷知识.md"; sourceTree = "<group>"; };
 		3066E0EF2435DD48004C71F7 /* GCD.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = GCD.md; sourceTree = "<group>"; };
 		307005CB2637ACD400E1DF19 /* CompatibilityOverride.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CompatibilityOverride.h; sourceTree = "<group>"; };
@@ -3970,6 +3973,8 @@
 		548AC946242F4B3100EEE11C = {
 			isa = PBXGroup;
 			children = (
+				304011AE26734C0B00845393 /* WGTestKVCEntity.h */,
+				304011AF26734C0B00845393 /* WGTestKVCEntity.m */,
 				542CD1E426075AE2006A6D1D /* NSMutableDictionary+WGHookMutableDictionary.h */,
 				542CD1E526075AE2006A6D1D /* NSMutableDictionary+WGHookMutableDictionary.m */,
 				542CD1E126075822006A6D1D /* NSMutableArray+WGHookMutableArray.h */,
@@ -4061,8 +4066,8 @@
 				305188F6265661DA00923282 /* 冷知识.md */,
 				30D5D08C2627CD1700F5A4EF /* Swift基础语法.md */,
 				30AACDD8262D7FC500132AF5 /* Swift对象本质.md */,
-				548AC988242F4CAD00EEE11C /* KeyWords.md */,
 				548F332324F2B13E00AB3540 /* 属性修饰符.md */,
+				548AC988242F4CAD00EEE11C /* KeyWords.md */,
 				300845CA24456B1700055737 /* KVC.md */,
 				300845CD24456B4C00055737 /* KVO.md */,
 				30BB26BA244BF62B00255288 /* NSNotification.md */,
@@ -4316,6 +4321,7 @@
 				54E19658250909050064027B /* WGRunLoopVC.m in Sources */,
 				548F332B24F2B87300AB3540 /* Person.m in Sources */,
 				548AC983242F4C7100EEE11C /* WGMainVC.swift in Sources */,
+				304011B026734C0B00845393 /* WGTestKVCEntity.m in Sources */,
 				30FD75F824357E3800431678 /* WGMainObjcVC.m in Sources */,
 				54E1965E250A7BDC0064027B /* WGRunLoopSecondVC.m in Sources */,
 				30FCCF84256F8DB000AEC012 /* Mems.swift in Sources */,

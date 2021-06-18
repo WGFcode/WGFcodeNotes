@@ -10,16 +10,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@protocol WGCustomProtocol <NSObject>
-
--(void)eat:(NSString *)foodName;
-@end
-
-
-
 @interface WGFirstVC : UIViewController
 
-@property(nonatomic, weak) id<WGCustomProtocol> delegate;
 
 @end
 

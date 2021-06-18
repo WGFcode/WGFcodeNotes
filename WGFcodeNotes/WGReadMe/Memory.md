@@ -1,7 +1,7 @@
 ### 内存管理
 ### 1.面试题
 #### 1.1. 使用CADisplayLink、NSTimer有什么注意点
-    #### CADisplayLink、NSTimer会对targe产生强引用，如果target又对它们产生强引用，那么就会发生循环引用
+#### CADisplayLink、NSTimer会对targe产生强引用，如果target又对它们产生强引用，那么就会发生循环引用
     @interface WGMainObjcVC()
     @property(nonatomic, strong) CADisplayLink *link;
     @property(nonatomic, strong) NSTimer *timer;

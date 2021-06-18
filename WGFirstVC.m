@@ -8,33 +8,38 @@
 
 #import "WGFirstVC.h"
 #import "WGMainObjcVC.h"
+#import "WGTargetProxy.h"
 
-
-@interface WGFirstVC ()
+@interface WGFirstVC()
+@property(nonatomic, strong) CADisplayLink *link;
+@property(nonatomic, strong) NSTimer *timer;
 
 @end
 
 @implementation WGFirstVC
 
-
 - (void)viewDidLoad {
     [super viewDidLoad];
-    self.view.backgroundColor = [UIColor whiteColor];
-    // Do any additional setup after loading the view.
+    self.view.backgroundColor = UIColor.lightGrayColor;
+    
+//    self.timer = [NSTimer timerWithTimeInterval:1 target:self selector:@selector(test) userInfo:nil repeats:YES];
+//    [[NSRunLoop currentRunLoop] addTimer:self.timer forMode:NSRunLoopCommonModes];
+    
+    //self.timer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(test) userInfo:nil repeats:YES];
+    
+    self.timer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:[WGTargetProxy proxyWithTarget:self] selector:@selector(test) userInfo:nil repeats:YES];
+
 }
 
 -(void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
-    [self.navigationController pushViewController:[[WGMainObjcVC alloc] init] animated:YES];
+   // [self.timer invalidate];
 }
 
-/*
-#pragma mark - Navigation
-
-// In a storyboard-based application, you will often want to do a little preparation before navigation
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
-    // Get the new view controller using [segue destinationViewController].
-    // Pass the selected object to the new view controller.
+-(void)dealloc {
+    NSLog(@"---%s",__func__);
 }
-*/
 
+-(void)test{
+    NSLog(@"-----%s-----",__func__);
+}
 @end

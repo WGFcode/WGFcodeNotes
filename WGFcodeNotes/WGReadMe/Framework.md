@@ -37,6 +37,16 @@
 #### 3)找到(真机)XXXSDK.framework，将其XXXSDK文件替换成新合并后的XXXSDK文件，然后将(模拟器)XXXSDK.framework/Modules/XXXSDK.swiftmodule文件下的内容全部拷贝到(真机)XXXSDK.framework下对应的XXXSDK.swiftmodule文件中，重新组成新的(真机)(XXXSDK.framework)
 #### 4)将组成新的framework导入到主工程中，并在swift工程的桥接文件中引入自定义的静态库 例: #import <XXXSDK/XXXSDK.h>
 
+#### 合并过程可能会出现类似如下错误：....../Products/Release-iphonesimulator/SwiftMQTT.framework/SwiftMQTT have the same architectures (arm64) and can't be in the same fat output file
+#### 原因就是XCode12之前：
+* 编译模拟器静态库支持i386 x86_64两架构
+* 编译真机静态库支持armv7 arm64两架构
+#### XCode12编译的模拟器静态库也支持了arm64，导致出现真机库和模拟器库不能合并的问题。
+#### 解决方法
+1. 如果手里有静态库工程，在静态库工程中Build Settings -> Excluded Architectures -> Release -> Any iOS Simulator SDK 添加arm64就可以了
+2. 如果手里只有.a或framework文件，使用lipo remove命令将模拟器库的arm64架构移除: lipo xxx.a -remove arm64 -output xxx.a
+
+
 ### 方式二:
 
 #### 1.在framework工程中，TARGET -> Build Phases -> + -> New Run Script Phase,添加脚本如下
@@ -127,3 +137,58 @@
 
 ## 静态库的使用
 #### 1.静态库导入项目中，项目打包上线时，是不会显示静态库的
+
+
+#### 2. 一个framework如何区分是动态库还是动态库?
+    例如WGBaseTool.framework和Alamofire.framework
+    打开终端输入: file xxx/xxx/WGBaseTool.framework/WGBaseTool 
+    //静态库
+    /Users/baicai/Desktop/WLKProject/WLKOrder/WLKOrder/WLKLib/WGBaseTool.framework/WGBaseTool: Mach-O universal binary with 4 architectures: [arm_v7:current ar archive] [i386:current ar archive] [x86_64:current ar archive] [arm64:current ar archive]
+    /Users/baicai/Desktop/WLKProject/WLKOrder/WLKOrder/WLKLib/WGBaseTool.framework/WGBaseTool (for architecture armv7):    current ar archive
+    /Users/baicai/Desktop/WLKProject/WLKOrder/WLKOrder/WLKLib/WGBaseTool.framework/WGBaseTool (for architecture i386):    current ar archive
+    /Users/baicai/Desktop/WLKProject/WLKOrder/WLKOrder/WLKLib/WGBaseTool.framework/WGBaseTool (for architecture x86_64):    current ar archive
+    /Users/baicai/Desktop/WLKProject/WLKOrder/WLKOrder/WLKLib/WGBaseTool.framework/WGBaseTool (for architecture arm64):    current ar archive
+    
+    //动态库
+    /Users/baicai/Library/Developer/Xcode/DerivedData/Alamofire-belqpwecoaawcubpenaiytdogpll/Build/Products/Debug-iphoneos/Alamofire.framework/Alamofire: Mach-O 64-bit dynamically linked shared library arm64
+#### 若出现的都是 archive 则为静态库；若出现dynamically则为动态库
+
+#####  1.MQTT集成过程的坑
+#### 项目采用的是swift，所以到https://github.com/aciidb0mb3r/SwiftMQTT去下载(手动集成)，打开demo,demo中包含了SwiftMQTT.framework工程，这个工程是动态库的，然后就是运行在模拟器和真机上在framework工程下的Product找到对应的真机framework和模拟器framework，然后利用lipo进行真机和模拟器SDK的合并，导入到项目中，发现运行报错，暂时没能解决
+#### 更换思路，将SwiftMQTT.framework工程设置为静态库，然后利用lipo进行合并真机和模拟器的framework，导入到项目中，最终成功在模拟器和真机上运行
+
+#### 如果不想用framework，就直接将framework工程下的用到的代码拷贝到项目中也是可以的
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

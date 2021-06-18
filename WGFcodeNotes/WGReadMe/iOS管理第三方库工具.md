@@ -137,4 +137,5 @@
     <unknown>:0: error: module compiled with Swift 5.3.2 cannot be imported by the Swift 5.4 compiler: /Users/baicai/Desktop/WLKProject/NXYMerchantsProject/NXY/WGLib/WGCustomSDK/WGBaseTool.framework/Modules/WGBaseTool.swiftmodule/arm64-apple-ios.swiftmodule
 #### 原因是WGBaseTool是我自定义的framework，所以也要对WGBaseTool所在的项目用Xcode12.5进行运行编译然后再合并模拟器和真机下的framework，然后保存在WLKProject/WLK/WGBaseTool/WGBaseTool/BaseFramework文件夹下
 #### 合并真机SDK的流程如下：先选择WGBaseTool，然后分别选择真机和模拟器，在Xcode->WGBaseTool->Products下
-Show in Finder，然后将真机和模拟器的WGBaseTool.framework保存下来，利用lipo -create 真机SDK 模拟器SDK /Users/baicai/Desktop/111111/WGBaseTool，将生成的WGBaseTool保存到桌面的111111文件夹下，然后将真机SDK中的WGBaseTool用111111文件下的WGBaseTool文件进行替换，将模拟器中的Modules/WGBaseTool.swiftmodule中内容拷贝到真机对应的Modules/WGBaseTool.swiftmodule文件中，但是模拟器中的Modules/WGBaseTool.swiftmodule/Project文件可以不用拷贝，然后直接将合并完成的真机SDK保存到WLKProject/WLK/WGBaseTool/WGBaseTool/BaseFramework文件夹下供其他项目使用
+Show in Finder，然后将真机和模拟器的WGBaseTool.framework保存下来，利用lipo -create 真机SDK 模拟器SDK -output /Users/baicai/Desktop/111111/WGBaseTool，将生成的WGBaseTool保存到桌面的111111文件夹下，然后将真机SDK中的WGBaseTool用111111文件下的WGBaseTool文件进行替换，将模拟器中的Modules/WGBaseTool.swiftmodule中内容拷贝到真机对应的Modules/WGBaseTool.swiftmodule文件中，但是模拟器中的Modules/WGBaseTool.swiftmodule/Project文件可以不用拷贝，然后直接将合并完成的真机SDK保存到WLKProject/WLK/WGBaseTool/WGBaseTool/BaseFramework文件夹下供其他项目使用
+

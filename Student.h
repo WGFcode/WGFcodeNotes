@@ -16,6 +16,7 @@ NS_ASSUME_NONNULL_BEGIN
     int age;
     BOOL sex;
 }
+@property(nonatomic, assign) int weight;
 @end
 
 NS_ASSUME_NONNULL_END
