@@ -136,7 +136,7 @@
     -(void)viewWillDisappear:(BOOL)animated {
         [[NSNotificationCenter defaultCenter] removeObserver:self name:@"customStr" object:nil];
     }
-    #### 分析:通过验证，在通知名称一致的情况下，object参数的设置与是否能接收到通知有如下情况
+#### 分析:通过验证，在通知名称一致的情况下，object参数的设置与是否能接收到通知有如下情况
     * 当post中的object为nil,add中的object为nil，可以接收到通知
     * 当post中的object为nil,add中的object不为nil，接收不到通知
     * 当post中的object不为nil,add中的object为nil，可以接收到通知

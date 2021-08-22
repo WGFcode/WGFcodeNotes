@@ -26,7 +26,8 @@
 
     @interface NSObject(NSKeyValueObserverRegistration)
     添加观察者
-    - (void)addObserver:(NSObject *)observer forKeyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options context:(nullable void *)context;
+    - (void)addObserver:(NSObject *)observer forKeyPath:(NSString *)keyPath  
+    options:(NSKeyValueObservingOptions)options context:(nullable void *)context;
     删除观察者
     - (void)removeObserver:(NSObject *)observer forKeyPath:(NSString *)keyPath   
     context:(nullable void *)context;
@@ -82,7 +83,8 @@
         self.name = @"zhangsan";
     }
 
-    -(void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey,id> *)change context:(void *)context {
+    -(void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object  
+    change:(NSDictionary<NSKeyValueChangeKey,id> *)change context:(void *)context {
         NSString *newName = [change objectForKey:NSKeyValueChangeNewKey];
         NSLog(@"\nkeyPath:%@\nobject:%@\nchange:%@\ncontext:%@\nnewName:%@\n",  
         keyPath,object,change,context,newName);
@@ -419,7 +421,8 @@
         //属性初始化
         self.mutableArr = [NSMutableArray array];
         //添加观察
-        [self addObserver:self forKeyPath:@"mutableArr" options:NSKeyValueObservingOptionOld | NSKeyValueObservingOptionNew context:nil];
+        [self addObserver:self forKeyPath:@"mutableArr" options:NSKeyValueObservingOptionOld |  
+        NSKeyValueObservingOptionNew context:nil];
 
         UIButton *addBtn = [[UIButton alloc]initWithFrame:CGRectMake(100, 120, 100, 30)];
         addBtn.backgroundColor = [UIColor yellowColor];
@@ -457,7 +460,8 @@
         [self didChangeValueForKey:@"mutableArr"];
     }
 
-    -(void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey,id> *)change context:(void *)context {
+    -(void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object  
+    change:(NSDictionary<NSKeyValueChangeKey,id> *)change context:(void *)context {
         NSArray *newArr = [change objectForKey:NSKeyValueChangeNewKey];
         NSArray *oldArr = [change objectForKey:NSKeyValueChangeOldKey];
         NSLog(@"\nkeyPath:%@\nobject:%@\nchange:%@\ncontext:%@\nnewArr:%@\noldArr:%@\n",  
@@ -577,8 +581,10 @@
               animal1,[animal1 class],object_getClassName(animal1),  
               animal2,[animal2 class],object_getClassName(animal2));
         //我们给animal1对象添加观察者
-        [animal1 addObserver:self forKeyPath:@"animalName" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:nil];
-        NSLog(@"\n添加观察者后\nanimal1对象:%@\nanimal1类对象:%@\nanimal1的类名称:%s\n animal2对象:%@\nanimal2类对象:%@\nanimal2的类名称:%s",
+        [animal1 addObserver:self forKeyPath:@"animalName" options:NSKeyValueObservingOptionNew  
+        | NSKeyValueObservingOptionOld context:nil];
+        NSLog(@"\n添加观察者后\nanimal1对象:%@\nanimal1类对象:%@\nanimal1的类名称:%s\n  
+        animal2对象:%@\nanimal2类对象:%@\nanimal2的类名称:%s",  
               animal1,[animal1 class],object_getClassName(animal1),
               animal2,[animal2 class],object_getClassName(animal2));
         animal1.animalName = @"dog";
