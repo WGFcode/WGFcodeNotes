@@ -1,4 +1,4 @@
-##  iOS开发中常用关键字
+##  iOS开发中常用关键字(含swift)
 ### 1.extern
 #### extern,翻译过来是“外面的、外部的”，作用就是声明外部全局变量或常量；需要注意extern只能声明，不能用于实现；开发中我们通常会单独创建一个类来管理一些全局的变量或常量，例如管理通过通知名称
 
@@ -240,3 +240,179 @@
                 NSLog(@"当前剩余票数:%d",_totalTicket);
             }
         }
+
+## swift中关键词
+### 1. fallthrough
+#### fallthrough贯穿，主要用在switch条件语句中，Swift中的switch不会从上一个case分支落入到下一个 case 分支中；fallthrough 语句让 case 之后的语句会按顺序继续运行，且不论条件是否满足都会执行
+
+        var score = 70                          var score = 70
+        switch score {                          switch score {
+        case 0...60:                            case 0...60:
+            print("成绩不及格")                       print("成绩不及格")
+        case 61...70:                           case 61...70:
+            print("成绩良好")                         print("成绩良好")
+        default:                                     fallthrough
+            print("成绩优秀")                     case 31...60: 
+        }                                            print("成绩不及格")
+                                                     fallthrough
+                                                default:
+                                                    print("成绩优秀") 
+                                                }                    
+
+        打印结果: 成绩良好                         打印结果: 成绩良好
+                                                        成绩不及格
+                                                        成绩优秀
+### 2. typealias 
+#### 给已有类型重新定义名称，方便代码阅读
+    typealias Location = CGPoint
+
+### 3. associatedtype
+#### associatedtype关联类型，关联类型为协议中的某个类型提供了一个占位名，其代表的实际类型在协议被遵守时才会被指定
+    protocol WGOneProtocol : class {
+        //设置关联类型
+        associatedtype GenderType
+        var sex: GenderType {get}  //性别
+    }
+
+    class Student : WGOneProtocol{
+        //实现协议中的属性 必须通过typealias指定类型
+        typealias GenderType = Bool
+        var sex: GenderType = false 
+    }
+
+    class Animal : WGOneProtocol {
+        //实现协议中的属性 必须通过typealias指定类型
+        typealias GenderType = Int
+        var sex: GenderType = 0
+    }
+### 4. mutating
+#### mutating关键字指的是可变即可修改。用在结构体struct和枚举enum中,虽然结构体和枚举可以定义自己的方法，但是默认情况下，实例方法中是不可以修改值类型的属性的。为了能够在实例方法中修改属性值，可以在方法定义前添加关键字mutating。本质上mutating这个关键字就做了一件事情，默认给结构体LGStack添加了一个intou关键字，这个inout关键字传递的过程中传递的就是所谓的引用
+        struct MyStruct {
+            var name = ""
+            var age = 0
+            mutating func testFunc() {
+                age = 18
+            }
+        }
+        public override func viewDidLoad() {
+            super.viewDidLoad()
+
+            //这里必须是var修饰，否则编译器会报错
+            var a = MyStruct()
+            a.testFunc()
+            NSLog("age:\(a.age)")
+        }
+        打印结果: age:18
+        
+#### 默认情况下,不能在实例方法中修改值类型的属性.若在实例方法中使用 mutating关键字,不仅可以在实例方法中修改值类型的属性,而且会在方法实现结束时将其写回到原始结构.
+### 5. final 
+#### final关键字可以在class、func和var前修饰,表示 不可重写，可以将类或者类中的部分实现保护起来,从而避免子类破坏
+        class WGMyClass {
+            final var name = ""
+            final func testFunc(){
+                NSLog("WGMyClass->testFunc")
+            }
+        }
+        
+        
+        
+        
+        
+### 6. static
+#### static关键字声明静态变量或者函数，它保证在对应的作用域当中只有一份, 同时也不需要依赖实例化,用static关键字指定的方法是类方法，他是不能被子类重写的
+
+
+### 7. lazy
+#### lazy修饰的变量, 只有在第一次被调用的时候才会去初始化值(懒加载),提高程序的性能
+
+
+### 8. convenience
+#### 使用convenience修饰的构造函数叫做便利构造函数,便利构造函数通常用在对系统的类进行构造函数的扩充时使用。
+1. 便利构造函数通常都是写在extension里面
+2. 便利函数init前面需要加载convenience
+3. 在便利构造函数中需要明确的调用self.init()
+
+### 9. deinit
+#### deinit属于析构函数,当对象结束其生命周期时,系统自动执行析构函数。和OC中的dealloc 一样的,我们通常在deinit函数中进行一些资源释放和通知移除等
+1. 对象销毁
+2. KVO移除
+3. 移除通知
+4. NSTimer销毁
+
+
+### 10. willSet、didset
+#### 在Swift语言中用了willSet和didSet这两个特性来监视属性的除初始化之外的属性值变化
+
+### 11 @objc、@objcMembers
+#### @objc修饰符的根本目的是用来暴露接口给Objective-C的运行时(类、协议、属性、方法等)；添加@objc修饰并不意味着这个方法或属性会采用Objective-C的方式变成动态派发，swift仍可能会将其优化为静态调用；
+1. selector调用的方法前需要加@objc，目的是允许函数在“运行时”通过oc消息机制调用
+2. 协议的方法可选时，协议和可选方法前要用@objc声明
+3. 用weak修饰协议时，协议前面要用@objc声明
+4. 类前加上 @objcMembers，那么它及其子类、扩展里的方法都会隐式的加上 @objc
+5. 扩展前加上 @objc，那么里面的方法都会隐式加上 @objc
+
+
+### 12 defer
+#### defer 语句块中的代码, 会在当前作用域结束前调用, 常用场景如异常退出后, 关闭数据库连接
+    public override func viewDidLoad() {
+        super.viewDidLoad()
+        NSLog("1111")
+        defer {
+            NSLog("------")
+        }
+        NSLog("2222")
+    }
+    
+    打印结果: 1111
+             2222
+             ------
+#### 如果有多个 defer, 那么后加入的先执行
+        public override func viewDidLoad() {
+            super.viewDidLoad()
+            NSLog("1111")
+            defer {
+                NSLog("2222------")
+            }
+            defer {
+                NSLog("3333------")
+            }
+            defer {
+                NSLog("4444------")
+            }
+            NSLog("5555")
+        }
+        打印结果: 1111
+                        5555
+                        4444------
+                        3333------
+                        2222------
+
+### 13 inout
+#### inout 输入输出参数: 用inout定义的一个输入输出参数，可以在函数内部修改外部实参的值
+1. 可变参数不能标记为inout
+2. inout参数不能有默认值
+3. inout参数的本质是地址传递(引用传递)
+4. inout参数只能传入可以被多次赋值的
+
+### 14. throws 和 rethrows 
+#### throws 用在函数上, 表示这个函数会抛出错误； rethrows 与 throws 类似, 不过只适用于参数中有函数, 且函数会抛出异常的情况, rethrows可以用throws 替换, 反过来不行
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

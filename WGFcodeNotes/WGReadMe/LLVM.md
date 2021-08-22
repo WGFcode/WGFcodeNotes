@@ -58,3 +58,32 @@
 #### 2. 学习LLVM能干什么事情? 比如编译器插件
 
 
+#### 7. swift和OC中利用LLVM研究底层源码
+1. swfit使用前端编译器swiftc，降级编译成IR，再通过后端编译器LLVM生成.o可执行文件
+2. OC使用前端编译器Clang编译出IR，再通过后端编译器LLVM生成.o可执行文件
+
+#### swift编译过程
+
+    swift源码--->Parse--->AST--->Sema--->SILGen--->SIL--->IRGen--->IR--->LLVM--->*.o文件
+1. Parse解析：swift源码通过词法分析、语法分析生成AST抽象语法树：xcrun swiftc -dump-ast main.swift
+2. SILGen:生成swift中间语言，要在此阶段之后获得未优化的 SIL代码：xcrun swiftc -emit-silgen main.swift
+3. SIL优化：对生成的SIL执行一些性能优化获取到SIL文件(类似OC探索中的cpp文件)：xcrun swiftc -emit-sil main.swift
+4. IRGen: 通过IRGen生成IR：xcrun swiftc -emit-ir main.swift
+5. 最终生成二进制代码
+
+
+#### swiftc编译器
+    swiftc -h                         :查看swiftc有哪些命令
+    swiftc -dump-ast main.swift       :语法和类型检查，打印AST语法树
+    swiftc -dump-parse main.swift     :语法检查，打印AST语法树
+    swiftc -emit-ir  main.swift       :展示IR中间代码
+    swiftc -emit-sil  main.swift      :展示标准的SIL文件
+    swiftc -emit-silgen main.swift    :展示原始SIL文件
+    swiftc -parse main.swift          :解析文件
+    swiftc -print-ast main.swift      :解析文件并打印（漂亮/简洁的）语法树
+    swiftc -emit-sil main.swift > ./main.sil     :生成标准的SIL文件到指定的目录下
+#### SIL文件中可能会混写一些数字字母的字符串(类似@$s4main6personAA7TeacherCvp),我们可以通过xcrun命令还原混写后的字符串
+
+    localhost:test1111111 baicai$ xcrun swift-demangle s4main6personAA7TeacherCvp
+    $s4main6personAA7TeacherCvp ---> main.person : main.Teacher
+    localhost:test1111111 baicai$ 
