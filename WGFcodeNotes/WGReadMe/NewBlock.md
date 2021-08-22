@@ -14,7 +14,8 @@
 #### 通过xcrun -sdk iphoneos clang -arch arm64 -rewrite-objc main.m 生成C++文件
         int main(int argc, const char * argv[]) {
             /* @autoreleasepool */ { __AtAutoreleasePool __autoreleasepool; 
-                void (*block)(void) = ((void (*)())&__main_block_impl_0((void *)__main_block_func_0, &__main_block_desc_0_DATA));
+                void (*block)(void) = ((void (*)())&__main_block_impl_0((void *)__main_block_func_0,   
+                &__main_block_desc_0_DATA));
                 ((void (*)(__block_impl *))((__block_impl *)block)->FuncPtr)((__block_impl *)block);
             }
             return 0;

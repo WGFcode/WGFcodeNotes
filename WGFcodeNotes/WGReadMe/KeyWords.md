@@ -33,7 +33,8 @@
         name1 = @"zhangsan11111";
         NSLog(@"修改后--全局变量name1:%@",name1);
         NSLog(@"修改前--全局常量name2:%@",name2);
-        //name2 = @"lisi"; 编译器会报错:Cannot assign to variable 'name2' with const-qualified type 'NSString *const  _Nonnull __strong'
+        //name2 = @"lisi"; 编译器会报错:Cannot assign to variable 'name2' with const-qualified   
+        type 'NSString *const  _Nonnull __strong'
     }
     @end
     
