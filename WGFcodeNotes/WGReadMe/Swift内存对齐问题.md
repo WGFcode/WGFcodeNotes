@@ -16,7 +16,9 @@
         [___元素T1___  ___元素T2___  ___元素T3___  ___元素T4___  ___元素T5___  ]
         |-----------|
             size
-        数组中有5个T类型元素，虽然每个T元素的大小为size个字节，但是因为需要内存对齐的限制，每个T类型元素实际消耗的内存空间为stride个字节，而 stride-size个字节则为每个元素因为内存对齐而浪费的内存空间,所以可以把stride理解为系统为类型T分配的内存
+        数组中有5个T类型元素，虽然每个T元素的大小为size个字节，但是因为需要内存对齐的限制，每个T类型元素实际消耗的内存
+        空间为stride个字节，而 stride-size个字节则为每个元素因为内存对齐而浪费的内存空间,所以可以
+        把stride理解为系统为类型T分配的内存
 
 #### MemoryLayout工具类简单总结
 1. 实际占用的内存大小: MemoryLayout.size(ofValue:)  
@@ -60,36 +62,40 @@
 
 #### 3.1 无关联值枚举
 
-        //无类型枚举(无原始值枚举)             //有类型枚举(有原始值枚举)
-        enum DirectionEnumNoType {         enum DirectionEnum : String {
-            case left                           case left
-            case right                          case right
-            case top                            case top
-            case bottom                         case bottom
-        }                                  }
+    //无类型枚举(无原始值枚举)             //有类型枚举(有原始值枚举)
+    enum DirectionEnumNoType {         enum DirectionEnum : String {
+        case left                           case left
+        case right                          case right
+        case top                            case top
+        case bottom                         case bottom
+    }                                  }
 
-        public override func viewDidLoad() {
-            super.viewDidLoad()
-            //无原始值(无类型)枚举-没有rawValue方法(rawValue方法是获取枚举的原始值的)
-            let leftNoType = DirectionEnumNoType.left
-            NSLog("\n无类型枚举: \n实际占用内存大小:\(MemoryLayout.size(ofValue: leftNoType))\n 系统分配内存大小:\(MemoryLayout.stride(ofValue: leftNoType))\n 内存对齐大小:\(MemoryLayout.alignment(ofValue: leftNoType))")
-            
-            //有原始值(有类型)枚举-有rawValue方法
-            let left = DirectionEnum.left
-            NSLog("\n有类型枚举: \n实际占用内存大小:\(MemoryLayout.size(ofValue: left))\n 系统分配内存大小:\(MemoryLayout.stride(ofValue: left))\n 内存对齐大小:\(MemoryLayout.alignment(ofValue: left))")
-            
-            //若没有对枚举成员赋原始值，则有如下规则:枚举类型是String->原始值为枚举成员的字符 类型是Int->原始值是从0开始依次递增
-            NSLog("有类型枚举原始值:\(left.rawValue)")
-        }
-        打印结果: 无类型枚举: 
-                    实际占用内存大小:1
-                    系统分配内存大小:1
-                    内存对齐大小:1
-                有类型枚举: 
-                    实际占用内存大小:1
-                    系统分配内存大小:1
-                    内存对齐大小:1
-                有类型枚举原始值:left
+    public override func viewDidLoad() {
+        super.viewDidLoad()
+        //无原始值(无类型)枚举-没有rawValue方法(rawValue方法是获取枚举的原始值的)
+        let leftNoType = DirectionEnumNoType.left
+        NSLog("\n无类型枚举: \n实际占用内存大小:\(MemoryLayout.size(ofValue: leftNoType))\n
+        系统分配内存大小:\(MemoryLayout.stride(ofValue: leftNoType))\n 
+        内存对齐大小:\(MemoryLayout.alignment(ofValue: leftNoType))")
+        
+        //有原始值(有类型)枚举-有rawValue方法
+        let left = DirectionEnum.left
+        NSLog("\n有类型枚举: \n实际占用内存大小:\(MemoryLayout.size(ofValue: left))\n
+        系统分配内存大小:\(MemoryLayout.stride(ofValue: left))\n 
+        内存对齐大小:\(MemoryLayout.alignment(ofValue: left))")
+        
+        //若没有对枚举成员赋原始值，则有如下规则:枚举类型是String->原始值为枚举成员的字符 类型是Int->原始值是从0开始依次递增
+        NSLog("有类型枚举原始值:\(left.rawValue)")
+    }
+    打印结果: 无类型枚举: 
+                实际占用内存大小:1
+                系统分配内存大小:1
+                内存对齐大小:1
+            有类型枚举: 
+                实际占用内存大小:1
+                系统分配内存大小:1
+                内存对齐大小:1
+            有类型枚举原始值:left
 #### swift无关联值枚(有原始值-有类型枚举和无原始值-无类型枚举)总结
 1. 无关联值的枚举，占用的内存空间都是1字节，不受原始值类型的影响
 2. 若枚举没有定义枚举类型 (无原始值)，就没有rawValue方法，rawValue方法是用来获取原始值的
@@ -134,7 +140,9 @@
         }
         
         var left = DirectionEnum.left
-        NSLog("实际占用内存大小:\(MemoryLayout.size(ofValue: left))\n 系统分配内存大小:\(MemoryLayout.stride(ofValue: left))\n 内存对齐大小:\(MemoryLayout.alignment(ofValue: left))")
+        NSLog("实际占用内存大小:\(MemoryLayout.size(ofValue: left))\n 
+        系统分配内存大小:\(MemoryLayout.stride(ofValue: left))\n 
+        内存对齐大小:\(MemoryLayout.alignment(ofValue: left))")
         打印结果: 实际占用内存大小:0
                 系统分配内存大小:1
                 内存对齐大小:1
@@ -173,16 +181,20 @@
 1. 关联值枚举的内存对齐大小：各个枚举项中关联值类型最大的内存对齐字节数作为枚举的内存对齐字节数
 
         { case left(String,Bool,Bool) case right(Float,Bool) case bottom } 
-        string内存对齐8字节/Bool内存对齐1字节/Float内存对齐4个字节  取最大的String类型的对齐字节数作为内存对齐数，即该枚举内存对齐8字节
+        string内存对齐8字节/Bool内存对齐1字节/Float内存对齐4个字节  
+        取最大的String类型的对齐字节数作为内存对齐数，即该枚举内存对齐8字节
 2. 关联值枚举实际占用内存大小: 每个枚举项所占用内存=该枚举项关联值类型所占用内存的和，然后比较各个枚举项，取最大的内存(+1或不加)作为枚举实际占用的内存大小
 
         { case left(String,Bool,Bool) case right(Float,Bool) case bottom } 
-        letf: 实际占用16+1+1=18  right:实际占用4+1=5  bottom=0  取最大的枚举项所占用的内存作为枚举实际占用内存大小，即该枚举实际占用18个字节
-        这里不加1的原因是left(String,Bool,Bool)中，第18个字节既可以保存Bool类型,也可以用来标示属于哪个枚举项，所以没必要再占据一个字节来存储标识
+        letf: 实际占用16+1+1=18  right:实际占用4+1=5  bottom=0  
+        取最大的枚举项所占用的内存作为枚举实际占用内存大小，即该枚举实际占用18个字节
+        这里不加1的原因是left(String,Bool,Bool)中，第18个字节既可以保存Bool类型,也可以用来标示属于哪个枚举项，
+        所以没必要再占据一个字节来存储标识
 3. 关联值枚举系统分配的内存大小: 根据实际占用内存大小和内存对齐字节数来判断的，
 
         { case left(String,Bool,Bool) case right(Float,Bool) case bottom } 
-        实际占用18个字节，由于内存对齐是8个字节，所以系统要分配8的倍数的字节数且要大于实际占用的18字节，所以系统分配24个字节
+        实际占用18个字节，由于内存对齐是8个字节，所以系统要分配8的倍数的字节数且要大于实际占用的18字节，
+        所以系统分配24个字节
 
 #### 关联值枚举的实际内存大小=所有项中占用内存最大项的内存值+1字节(标识枚举属于哪个项),这里需要注意的就是+1字节(标识枚举属于哪个项)有些情况下是不需要+的，这个需要看情况而定，接下来我们来验证
 
@@ -236,10 +248,10 @@
 1. 系统分配内存大小 = sex(8字节) + name(16字节) + height(8字节)
 2. 实际占用字节: 
 
-        sex分配了8个字节，只用了1个字节来保存sex,按道理应该还剩7字节可以保存数据，但是接下来要保存的是name，占16个字节，由于内存对齐是8字节
-        所以剩下的7字节其实是不能用的，但是仍然要归sex占用的内存，所以sex实际占用8字节；
-        name占16字节，所以实际占用就是16字节
-        height占4字节，由于内存对齐系统分配了8字节，只是前4个字节得到了利用，所以height实际占用的就是4个字节
+        sex分配了8个字节，只用了1个字节来保存sex,按道理应该还剩7字节可以保存数据，但是接下来要保存的是name，占16个字节，
+        由于内存对齐是8字节所以剩下的7字节其实是不能用的，但是仍然要归sex占用的内存，
+        所以sex实际占用8字节；name占16字节，所以实际占用就是16字节,height占4字节，
+        由于内存对齐系统分配了8字节，只是前4个字节得到了利用，所以height实际占用的就是4个字节
         综上该结构体实际占用的内存大小 = sex(8字节) + name(16字节) + height(4字节) = 28字节
         
         
@@ -255,8 +267,9 @@
 
         name占16字节，所以实际占用就是16字节
         sex占1字节，但是由于内存对齐8字节，所以系统分配8字节来存储，
-        接下来要存储height,height占4个字节，而上一个系统为sex属性分配的8字节还有7个字节没有用到，所以可以放在系统为sex分配的8个字节的后4个字节进行存储
-        综上该结构体实际占用的内存大小 = name(16字节) + 8字节(前4字节存储sex，后4字节存储height) = 24
+        接下来要存储height,height占4个字节，而上一个系统为sex属性分配的8字节还有7个字节没有用到，所以可以放在系统
+        为sex分配的8个字节的后4个字节进行存储综上该结构体实际
+        占用的内存大小 = name(16字节) + 8字节(前4字节存储sex，后4字节存储height) = 24
         
         
         struct DirectionStruct {
@@ -269,11 +282,11 @@
 1. 系统分配内存大小 = height(8字节) + name(16字节) + sex(8字节) = 32字节
     2. 实际占用字节: 
 
-            height占4字节，由于内存对齐系统分配8字节，前4个字节用来存储height,还剩4个字节留给接下来要存储的属性
-            name占16字节，由于系统为height分配8字节还剩余4字节，加之内存对齐是8字节所以不够name存储，所以系统重新分配16字节来存储name
-            到这里我们知道height虽然还剩余4字节，但是无法存储name，所以height实际占用就是8个字节，name实际占用就是16字节
-            sex占用1字节，系统分配8字节，但是实际占用就是1字节
-            综上该结构体实际占用的内存大小 = height(8字节) + name(16字节) + sex(1字节) = 25字节
+        height占4字节，由于内存对齐系统分配8字节，前4个字节用来存储height,还剩4个字节留给接下来要存储的属性
+        name占16字节，由于系统为height分配8字节还剩余4字节，加之内存对齐是8字节所以不够name存储，
+        所以系统重新分配16字节来存储name到这里我们知道height虽然还剩余4字节，但是无法存储name，
+        所以height实际占用就是8个字节，name实际占用就是16字节,sex占用1字节，系统分配8字节，但是实际占用就是1字节
+        综上该结构体实际占用的内存大小 = height(8字节) + name(16字节) + sex(1字节) = 25字节
 
 
         struct DirectionStruct {   
@@ -282,7 +295,10 @@
             var height = 4   
         }
         var stru = DirectionStruct()
-        NSLog("实际占用内存大小:\(MemoryLayout.size(ofValue: stru))\n 系统分配内存大小:\(MemoryLayout.stride(ofValue: stru))\n 内存对齐大小:\(MemoryLayout.alignment(ofValue: stru))")
+        NSLog("实际占用内存大小:\(MemoryLayout.size(ofValue: stru))\n 
+        系统分配内存大小:\(MemoryLayout.stride(ofValue: stru))\n 
+        内存对齐大小:\(MemoryLayout.alignment(ofValue: stru))")
+        
         let ssss = UnsafePointer(&stru)
         NSLog("结构体stru的内存地址:\(Mems.ptr(ofVal: &stru))")
         
@@ -299,211 +315,3 @@
 3. swift结构体中实际分配的内存大小要根据成员变量占用内存的大小 + 内存对齐字节数 来综合判断
 4. swift结构体中成员变量的顺序会影响结构体占用内存的情况，为了减少内存空间的占用，需要自己认证研判视情况而定
 5. struct 是值类型，一个没有引用类型的 Struct 临时变量都是在栈上存储的：
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-            
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

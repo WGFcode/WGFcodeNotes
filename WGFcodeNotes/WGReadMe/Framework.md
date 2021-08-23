@@ -143,14 +143,25 @@
     例如WGBaseTool.framework和Alamofire.framework
     打开终端输入: file xxx/xxx/WGBaseTool.framework/WGBaseTool 
     //静态库
-    /Users/baicai/Desktop/WLKProject/WLKOrder/WLKOrder/WLKLib/WGBaseTool.framework/WGBaseTool: Mach-O universal binary with 4 architectures: [arm_v7:current ar archive] [i386:current ar archive] [x86_64:current ar archive] [arm64:current ar archive]
-    /Users/baicai/Desktop/WLKProject/WLKOrder/WLKOrder/WLKLib/WGBaseTool.framework/WGBaseTool (for architecture armv7):    current ar archive
-    /Users/baicai/Desktop/WLKProject/WLKOrder/WLKOrder/WLKLib/WGBaseTool.framework/WGBaseTool (for architecture i386):    current ar archive
-    /Users/baicai/Desktop/WLKProject/WLKOrder/WLKOrder/WLKLib/WGBaseTool.framework/WGBaseTool (for architecture x86_64):    current ar archive
-    /Users/baicai/Desktop/WLKProject/WLKOrder/WLKOrder/WLKLib/WGBaseTool.framework/WGBaseTool (for architecture arm64):    current ar archive
+    /Users/baicai/Desktop/WLKProject/WLKOrder/WLKOrder/WLKLib/WGBaseTool.framework/WGBaseTool: 
+    Mach-O universal binary with 4 architectures: [arm_v7:current ar archive] [i386:current ar 
+    archive] [x86_64:current ar archive] [arm64:current ar archive]
+    
+    /Users/baicai/Desktop/WLKProject/WLKOrder/WLKOrder/WLKLib/WGBaseTool.framework/WGBaseTool 
+    (for architecture armv7):    current ar archive
+    
+    /Users/baicai/Desktop/WLKProject/WLKOrder/WLKOrder/WLKLib/WGBaseTool.framework/WGBaseTool 
+    (for architecture i386):    current ar archive
+    
+    /Users/baicai/Desktop/WLKProject/WLKOrder/WLKOrder/WLKLib/WGBaseTool.framework/WGBaseTool 
+    (for architecture x86_64):    current ar archive
+    
+    /Users/baicai/Desktop/WLKProject/WLKOrder/WLKOrder/WLKLib/WGBaseTool.framework/WGBaseTool 
+    (for architecture arm64):    current ar archive
     
     //动态库
-    /Users/baicai/Library/Developer/Xcode/DerivedData/Alamofire-belqpwecoaawcubpenaiytdogpll/Build/Products/Debug-iphoneos/Alamofire.framework/Alamofire: Mach-O 64-bit dynamically linked shared library arm64
+    /Users/baicai/Library/Developer/Xcode/DerivedData/Alamofire-belqpwecoaawcubpenaiytdogpll/Build/Products/
+    Debug-iphoneos/Alamofire.framework/Alamofire: Mach-O 64-bit dynamically linked shared library arm64
 #### 若出现的都是 archive 则为静态库；若出现dynamically则为动态库
 
 #####  1.MQTT集成过程的坑

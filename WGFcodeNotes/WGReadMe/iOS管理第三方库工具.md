@@ -23,23 +23,6 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 ##  Carthage使用心得
 ## 1.安装
 ### 安装的前提是你本机已经安装好了`homebrew`,我们使用`brew`来进行安装
@@ -98,7 +81,8 @@
         the inconvenience!
         Warning: carthage 0.36.0 already installed
 ### 按照提示我们执行git -C /usr/local/Homebrew/Library/Taps/homebrew/homebrew-core fetch --unshallow命令
-        fatal: unable to access 'https://github.com/Homebrew/homebrew-core/': LibreSSL SSL_connect: SSL_ERROR_SYSCALL in connection to github.com:443 
+        fatal: unable to access 'https://github.com/Homebrew/homebrew-core/': LibreSSL SSL_connect: 
+        SSL_ERROR_SYSCALL in connection to github.com:443 
 ### 若遇到上面问题时，我们要打开手机热点，用电脑连接手机热点去更新下载最新的版本，然后继续执行git -C /usr/local/Homebrew/Library/Taps/homebrew/homebrew-core fetch --unshallow命令,遇到下面打印表示执行成功
         homebrew-core fetch --unshallow
         remote: Enumerating objects: 594107, done.
@@ -115,8 +99,11 @@
 ### 7.2 Xcode从Xcode12.1升级到Xcode12.3后，当更新第三方版本库时，执行carthage update --platform iOS，会遇到如下问题
         *** Cloning lottie-ios
         *** Cloning Kingfisher
-        A shell task (/usr/bin/env git clone --bare --quiet https://github.com/onevcat/Kingfisher.git /Users/baicai/Library/Caches/org.carthage.CarthageKit/dependencies/Kingfisher) failed with exit code 128:
-        fatal: unable to access 'https://github.com/onevcat/Kingfisher.git/': LibreSSL SSL_connect: SSL_ERROR_SYSCALL in connection to github.com:443 
+        A shell task (/usr/bin/env git clone --bare --quiet https://github.com/onevcat/Kingfisher.git
+        /Users/baicai/Library/Caches/org.carthage.CarthageKit/dependencies/Kingfisher) failed with 
+        exit code 128:
+        fatal: unable to access 'https://github.com/onevcat/Kingfisher.git/': LibreSSL SSL_connect: 
+        SSL_ERROR_SYSCALL in connection to github.com:443 
 
 ### 暂时总结为就是访问GitHub上的第三方时的网络问题
 
@@ -128,13 +115,19 @@
 ### 当我们采用.xcframework格式后，模拟器运行没有问题，但是真机运行会报错
     dyld: launch, loading dependent libraries
     DYLD_LIBRARY_PATH=/usr/lib/system/introspection
-    DYLD_INSERT_LIBRARIES=/Developer/usr/lib/libBacktraceRecording.dylib:/Developer/usr/lib/libMainThreadChecker.dylib:/Developer/Library/PrivateFrameworks/DTDDISupport.framework/libViewDebuggerSupport.dylib
+    DYLD_INSERT_LIBRARIES=/Developer/usr/lib/libBacktraceRecording.dylib:/Developer/usr/lib/
+    libMainThreadChecker.dylib:/Developer/Library/PrivateFrameworks/DTDDISupport.framework/
+    libViewDebuggerSupport.dylib
 ### 解决方法就是在General->Frameworks、Libraries、and Embedded Content中将导入的第三方库后面的选项都选择为Embed&Sign选项即可
 
 ### 7.4 升级Xcode12.5 后报错，先到https://swift.org/download/#releases下载swift5.4的toolchain包，运行项目报如下错误
-      module compiled with Swift 5.3.2 cannot be imported by the Swift 5.4 compiler: /Users/baicai/Library/Developer/Xcode/DerivedData/NXY-bdiioyaaxczbxlgusvqtvlkagrqv/Build/Products/Debug-iphoneos/SnapKit.framework/Modules/SnapKit.swiftmodule/arm64-apple-ios.swiftmodule
+      module compiled with Swift 5.3.2 cannot be imported by the Swift 5.4 compiler:  
+      /Users/baicai/Library/Developer/Xcode/DerivedData/NXY-bdiioyaaxczbxlgusvqtvlkagrqv/Build/Products/  
+      Debug-iphoneos/SnapKit.framework/Modules/SnapKit.swiftmodule/arm64-apple-ios.swiftmodule
 ### 解决方法就是更新第三方库： carthage update --platform iOS --use-xcframeworks，这个过程比较扯淡，老是访问失败，只能慢慢尝试，多运行几次了，或者利用carthage update SnapKit --platform iOS --use-xcframeworks一个库一个库的更新接口，但是更新完成后运行项目又报如下错误
-    <unknown>:0: error: module compiled with Swift 5.3.2 cannot be imported by the Swift 5.4 compiler: /Users/baicai/Desktop/WLKProject/NXYMerchantsProject/NXY/WGLib/WGCustomSDK/WGBaseTool.framework/Modules/WGBaseTool.swiftmodule/arm64-apple-ios.swiftmodule
+    <unknown>:0: error: module compiled with Swift 5.3.2 cannot be imported by the Swift 5.4 compiler:  
+    /Users/baicai/Desktop/WLKProject/NXYMerchantsProject/NXY/WGLib/WGCustomSDK/WGBaseTool.framework  
+    /Modules/WGBaseTool.swiftmodule/arm64-apple-ios.swiftmodule
 #### 原因是WGBaseTool是我自定义的framework，所以也要对WGBaseTool所在的项目用Xcode12.5进行运行编译然后再合并模拟器和真机下的framework，然后保存在WLKProject/WLK/WGBaseTool/WGBaseTool/BaseFramework文件夹下
 #### 合并真机SDK的流程如下：先选择WGBaseTool，然后分别选择真机和模拟器，在Xcode->WGBaseTool->Products下
 Show in Finder，然后将真机和模拟器的WGBaseTool.framework保存下来，利用lipo -create 真机SDK 模拟器SDK -output /Users/baicai/Desktop/111111/WGBaseTool，将生成的WGBaseTool保存到桌面的111111文件夹下，然后将真机SDK中的WGBaseTool用111111文件下的WGBaseTool文件进行替换，将模拟器中的Modules/WGBaseTool.swiftmodule中内容拷贝到真机对应的Modules/WGBaseTool.swiftmodule文件中，但是模拟器中的Modules/WGBaseTool.swiftmodule/Project文件可以不用拷贝，然后直接将合并完成的真机SDK保存到WLKProject/WLK/WGBaseTool/WGBaseTool/BaseFramework文件夹下供其他项目使用

@@ -27,8 +27,9 @@
       git add -u         :提交部分变化(被修改、被删除的文件，不包括新文件)到暂存区
     2.git diff --cached   :查看暂存区和工作区的区别(查看修改内容)
       git diff --cached 文件1路径 :查看文件1的暂存区与工作区的区别
-    3.git reset head 文件1路径 :将添加到暂存区的文件1回退到工作区，注意文件1中的修改代码在工作区还存在，只是文件1不在暂存区了，如果想丢弃工作区文件1的修改，继续使用git checkout -- 文件1路径即可
-     git reset head  :将添加到暂存区的全部文件回退到工作区，代码依然存在工作区，只是不再添加到暂存区了
+    3.git reset head 文件1路径  :将添加到暂存区的文件1回退到工作区，注意文件1中的修改代码在工作区还存在，  
+    只是文件1不在暂存区了，如果想丢弃工作区文件1的修改，继续使用git checkout -- 文件1路径即可
+    git reset head  :将添加到暂存区的全部文件回退到工作区，代码依然存在工作区，只是不再添加到暂存区了
 #本地仓库(已经执行了git commit命令)
 
      1.即git add . 又git commit -m ""  此时代码已经添加到了本地仓库，但是并没有添加到远程仓库
@@ -55,13 +56,13 @@
        将add UIButton版本回退到add ViewController View is Red Color的版本，
        此时工作区的代码都显示成了add ViewController View is Red Color版本时候的代码。
        如果想重新回到 add UIButton的版本，使用git reflog 
-               localhost:WGGitLearnProject wubaicai$ git reflog
-               9695437 (HEAD -> master) HEAD@{0}: reset: moving to 96954374b3e342c0c00e92648ed197015a5178d7
-               f190044 HEAD@{1}: reset: moving to f190044a70110480d940d012ddd70f8c03854e2a
-               f190044 HEAD@{2}: commit: add UIButton
-               9695437 (HEAD -> master) HEAD@{3}: commit: add ViewController View is Red Color
-               cbb928c (origin/master) HEAD@{4}: commit (initial): Location new project push to github
-               localhost:WGGitLearnProject wubaicai$ git reset --hard f190044
+       localhost:WGGitLearnProject wubaicai$ git reflog
+       9695437 (HEAD -> master) HEAD@{0}: reset: moving to 96954374b3e342c0c00e92648ed197015a5178d7
+       f190044 HEAD@{1}: reset: moving to f190044a70110480d940d012ddd70f8c03854e2a
+       f190044 HEAD@{2}: commit: add UIButton
+       9695437 (HEAD -> master) HEAD@{3}: commit: add ViewController View is Red Color
+       cbb928c (origin/master) HEAD@{4}: commit (initial): Location new project push to github
+       localhost:WGGitLearnProject wubaicai$ git reset --hard f190044
 
 
 #添加忽略项目部分文件改变的配置文件
@@ -76,8 +77,13 @@
     (2)git rm --cached .DS_Store  git rm --cached *.xcuserstate移除忽略这两个文件
     (3)然后git add .  git commit -m "更新gitignore"  git pull  git push
     (4)思考：为什么先git pull 再git push，这样仓库的代码会覆盖我本地代码呀！！！
-       在多人开发中，pull是为了本地commit和远程commit进行对比，如果有冲突，git会把这个冲突标记出来，这个时候需要先和最近一次push代码的人协商，解决冲突，然后在push，如果没有冲突git就直接将pull下来的代码和本地进行合并了，不会覆盖代码
-       代码覆盖或者丢失：小白和小黑本地都是刚pull下来的代码，然后小白本地修改了代码，并且push到了远程(push1-push2),这时候小黑本地也修改了代码，但是没有commit,直接pull了小白的代码(push1-push2)到本地，此刻小黑的本地代码已经到push2了，然后小黑继续修改，如果修改了小白写过的代码文件white1，然后进行了commit&push到远程仓库push3,那么小白之前提交的white1文件就会被覆盖，所以多人开发一定要先commit,然后再pull,最后再push
+       在多人开发中，pull是为了本地commit和远程commit进行对比，如果有冲突，git会把这个冲突标记出来，  
+       这个时候需要先和最近一次push代码的人协商，解决冲突，然后在push，如果没有冲突git就直接将pull下来  
+       的代码和本地进行合并了，不会覆盖代码
+       代码覆盖或者丢失：小白和小黑本地都是刚pull下来的代码，然后小白本地修改了代码，并且push到了远程  
+       (push1-push2),这时候小黑本地也修改了代码，但是没有commit,直接pull了小白的代码(push1-push2)到本地，  
+       此刻小黑的本地代码已经到push2了，然后小黑继续修改，如果修改了小白写过的代码文件white1，然后进行了commit&push  
+       到远程仓库push3,那么小白之前提交的white1文件就会被覆盖，所以多人开发一定要先commit,然后再pull,最后再push
 
 #其它命令行分析
 
@@ -101,7 +107,8 @@
     
 #多任务多分支协作
         
-    当当前项目并没有完成，但需要去做开发新的需求的时候。或者当前master指定的是线上的版本，需要做新的需求的时候，但在做新需求的过程中，可能线上会出现BUG需要修复的时候，这种情况需要进行分支管理
+    当当前项目并没有完成，但需要去做开发新的需求的时候。或者当前master指定的是线上的版本，需要做新的需求  
+    的时候，但在做新需求的过程中，可能线上会出现BUG需要修复的时候，这种情况需要进行分支管理
     1.git branch 分支名称1branch1        :创建分支branch1
     2.git checkout 分支名称1             :切换到分支branch1
     3.在branch1分支上进行开发，但可能分支任务需要好几天完成，但每天都要提交代码到远程仓库
@@ -148,7 +155,7 @@
     3. git stash list  //查看我们临时保存的本地代码的列表
     //执行成功后: stash@{0}: WIP on master: 44c18d1 runtime
     //如果我们发现有多个类似 stash@{0} stash@{1} stash@{2} stash@{X}时,说明我们临时保存了多次本地代码,可以通过
-    //git stash show stash@{0} 来查看某次暂存的内容是什么
+    git stash show stash@{0} 来查看某次暂存的内容是什么
     4.git stash apply stash@{0}   //将我们pull之前暂存的本地代码修改内容恢复到当前工作区
     5.此时我们本地代码也已经恢复到我们pull之前的状态了,可以通过git status命令来查看是否是之前的状态
     6.但是如果遇到冲突的话,重新去打开工程的话,就打不开了,会提示说让去解决冲突
@@ -156,19 +163,19 @@
     
 
 ### 2. 本地只有一个master分支，然后想撤销对上一次push到远程仓库的提交，即回退到指定的commitId
-        localhost:NXYMerchantsProject baicai$ git log
-        commit 98d79a2b006375c6d0e3af140355dc8bbcd96905 (HEAD -> master, origin/master, origin/HEAD, checkWeekPwd)
-        Author: baiaicaiai <wugong@buybal.com>
-        Date:   Tue Jul 28 17:37:18 2020 +0800
-            NXYS 2.3.2
-        commit eb2cb5e27f0285e031828e79bb2249f4fb88a56e
-        Author: baiaicaiai <wugong@buybal.com>
-        Date:   Mon Jul 27 15:15:54 2020 +0800
-            YKYG 2.2.3
-        commit 6a76e3b3f2bc9def0dd2988095cdd9f9dc375acb
-        Author: baiaicaiai <wugong@buybal.com>
-        Date:   Fri Jul 24 16:46:06 2020 +0800
-            2.3.1 1.1Version
+    localhost:NXYMerchantsProject baicai$ git log
+    commit 98d79a2b006375c6d0e3af140355dc8bbcd96905 (HEAD->master,origin/master,origin/HEAD,checkWeekPwd)
+    Author: baiaicaiai <wugong@buybal.com>
+    Date:   Tue Jul 28 17:37:18 2020 +0800
+        NXYS 2.3.2
+    commit eb2cb5e27f0285e031828e79bb2249f4fb88a56e
+    Author: baiaicaiai <wugong@buybal.com>
+    Date:   Mon Jul 27 15:15:54 2020 +0800
+        YKYG 2.2.3
+    commit 6a76e3b3f2bc9def0dd2988095cdd9f9dc375acb
+    Author: baiaicaiai <wugong@buybal.com>
+    Date:   Fri Jul 24 16:46:06 2020 +0800
+        2.3.1 1.1Version
 #### 假如想回退到commitID: eb2cb5e27f0285e031828e79bb2249f4fb88a56e(YKYG 2.2.3),但是又可能这个最新的提交可能还会有用处，那么就先创建并切换一个新的分支（这样我们就将之前master分支代码copy到新的分支上了，以后要是需要的话可以从这个分支上取或者看就行了），然后提交到远程仓库，然后再切换到master分支，将master分支上的代码回滚到指定的commitID上，然后再提交到远程仓库就行了，提交过程会有错误提示，需要特别注意，这个地方需要强制更新到远程仓库，具体代码如下：
       git checkout -b checkWeekPwd  //创建并切换到新的分支上
       git push  //提交到远程仓库
@@ -187,40 +194,41 @@
       
     
 ### 3. master主分支可能因为某些原因导致版本太低，需要将分支A作为新的master分支，那么就需要将master的本地和远程仓库中master都删除，然后再切换到新创建的master分支，再推送到远程仓库即可
-        1.git checkout A        删除master分支前要先切换到分支A上
-        2. git branch -D master  删除本地的master分支（如果用-d会提示删除不成功，需要-D来强制删除）
-        3. git push origin -d master  //删除远程仓库的master分支，这里会报错
-            error: src refspec master does not match any
-            error: failed to push some refs to 'http://192.168.1.242/iOS/default/WLK.git'
-        4.原因是我们使用GitLab代码管理默认的保护分支是master分支，所以需要更改GitLab的设置，具体如下。
-            选择远程仓库 -> 最左边Setting -> Repository -> Default Branch ->选择指定的分支为master分支
-        继续 git push origin -d master 
-        报错：remote: GitLab: You can only delete protected branches using the web interface.
-            To http://192.168.1.242/iOS/default/WLK.git
-            ! [remote rejected] master (pre-receive hook declined)
-            error: failed to push some refs to 'http://192.168.1.242/iOS/default/WLK.git'
-        原因：master分支是受保护的分支，所以需要在 Setting -> Repository -> Protected Branches中设置不受保护,同时也可以设置操作的权限Maintainers/Developers
+    1.git checkout A        删除master分支前要先切换到分支A上
+    2. git branch -D master  删除本地的master分支（如果用-d会提示删除不成功，需要-D来强制删除）
+    3. git push origin -d master  //删除远程仓库的master分支，这里会报错
+        error: src refspec master does not match any
+        error: failed to push some refs to 'http://192.168.1.242/iOS/default/WLK.git'
+    4.原因是我们使用GitLab代码管理默认的保护分支是master分支，所以需要更改GitLab的设置，具体如下。  
+        选择远程仓库 -> 最左边Setting -> Repository -> Default Branch ->选择指定的分支为master分支
+    继续 git push origin -d master 
+    报错：remote: GitLab: You can only delete protected branches using the web interface.  
+        To http://192.168.1.242/iOS/default/WLK.git
+        ! [remote rejected] master (pre-receive hook declined)
+        error: failed to push some refs to 'http://192.168.1.242/iOS/default/WLK.git'
+    原因：master分支是受保护的分支，所以需要在 Setting -> Repository -> Protected  
+    Branches中设置不受保护,同时也可以设置操作的权限Maintainers/Developers
         
-        继续 git push origin -d master 
-            To http://192.168.1.242/iOS/default/WLK.git
-            - [deleted]         master
-        删除成功
-        5.在本地创建新的分支并取名为master分支
-        git checkout -b master   在本地创建master分支并切换到master分支
-        6. 将本地master分支推送到远程仓库
-        git push origin master:master
-        6.在GitLab中继续将master分支作为受保护的分支和默认的主分支即可
+    继续 git push origin -d master 
+        To http://192.168.1.242/iOS/default/WLK.git
+        - [deleted]         master
+    删除成功
+    5.在本地创建新的分支并取名为master分支
+    git checkout -b master   在本地创建master分支并切换到master分支
+    6. 将本地master分支推送到远程仓库
+    git push origin master:master
+    6.在GitLab中继续将master分支作为受保护的分支和默认的主分支即可
 
 ### 4. 远程仓库上的project忘了先做git pull，直接用之前的project版本的代码进行编写，突然想起忘了pull了，然后想用git pull来更新本地代码，结果报错，即新修改的代码，会被git服务器上的代码覆盖掉。由于我不想新修改的代码被覆盖，所以需要先保护现场：
-        error: Your local changes to the following files would be overwritten by merge:
-            WGFcodeNotes.xcodeproj/project.pbxproj
-        Please commit your changes or stash them before you merge.
+    error: Your local changes to the following files would be overwritten by merge:
+        WGFcodeNotes.xcodeproj/project.pbxproj
+    Please commit your changes or stash them before you merge.
 
-        解决方法
-        1. git stash（储存现场）
-        2. git pull origin master（拉取远程的master）
-        3. git stash pop（恢复现场）
-        4. 解决冲突
+    解决方法
+    1. git stash（储存现场）
+    2. git pull origin master（拉取远程的master）
+    3. git stash pop（恢复现场）
+    4. 解决冲突
         
 #### 5. 删除分支
 #### 删除分支A，要先切换到其他分支，然后在执行如下命令
