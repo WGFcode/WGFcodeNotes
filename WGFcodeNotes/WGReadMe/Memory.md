@@ -16,10 +16,11 @@
         //[self.link addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSDefaultRunLoopMode];
         
         //开启定时器方式一
-        //self.timer = [NSTimer timerWithTimeInterval:1.0 target:self selector:@selector(test) userInfo:nil repeats:YES];
+        //self.timer=[NSTimer timerWithTimeInterval:1.0 target:self selector:@selector(test) userInfo:nil repeats:YES];
         //[[NSRunLoop currentRunLoop] addTimer:self.timer forMode:NSDefaultRunLoopMode];
         //开启定时器方式二
-        self.timer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(test) userInfo:nil repeats:YES];
+        self.timer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(test)  
+        userInfo:nil repeats:YES];
     }
 
     -(void)test {
@@ -36,74 +37,78 @@
              ......
 #### 即使页面销毁了，定时器中的任务仍然会调用，因为self强引用了CADisplayLink/NSTimer,而CADisplayLink/NSTimer又强引用了target:self,导致了循环引用。
 #### 解决方案一： 利用Block的方式创建定时器，然后通过__weak弱引用来解决循环引用问题
-        //这种创建定时器的方式利用__weak不能解决循环引用问题
-        //因为无论target:的参数传递self还是weakSelf，都是传递个指针给target,
-        //而NStimer/CADisplayLink内部都会对传递进来的target参数进行强引用的，__weak是用来解决Block循环引用的。
-        __weak typeof(self) weakSelf = self;
-        self.timer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:weakSelf selector:@selector(test) userInfo:nil repeats:YES];
-        
-        //利用Block方式创建定时器，利用__weak是可以解决循环引用问题的
-        __weak typeof(self) weakSelf = self;
-        //NSTimer强引用者Block，而Block对self是弱引用的，所以可以解决循环引用问题
-        self.timer = [NSTimer scheduledTimerWithTimeInterval:1.0 repeats:YES block:^(NSTimer * _Nonnull timer) {
-            [weakSelf test];
-        }];
+    //这种创建定时器的方式利用__weak不能解决循环引用问题
+    //因为无论target:的参数传递self还是weakSelf，都是传递个指针给target,
+    //而NStimer/CADisplayLink内部都会对传递进来的target参数进行强引用的，__weak是用来解决Block循环引用的。
+    __weak typeof(self) weakSelf = self;
+    self.timer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:weakSelf selector:@selector(test)  
+    userInfo:nil repeats:YES];
+    
+    //利用Block方式创建定时器，利用__weak是可以解决循环引用问题的
+    __weak typeof(self) weakSelf = self;
+    //NSTimer强引用者Block，而Block对self是弱引用的，所以可以解决循环引用问题
+    self.timer=[NSTimer scheduledTimerWithTimeInterval:1.0 repeats:YES block:^(NSTimer * _Nonnull timer){
+        [weakSelf test];
+    }];
 #### 解决方案二：新建一个对象(让对象来弱引用self)，作为NSTimer/CADisplayLink的target参数，那么这个对象就要实现定时器的任务，为了让self实现定时器任务，在这个对象内部进行消息转发，将消息转发给self来解决循环引用问题
-        //WGTargetProxy.h文件
-        @interface WGTargetProxy : NSObject
-        @property(nonatomic, weak) id target;
-        +(instancetype)proxyWithTarget:(id)target;
-        @end
-        
-        //WGTargetProxy.m文件
-        @implementation WGTargetProxy
-        +(instancetype)proxyWithTarget:(id)target {
-            WGTargetProxy *proxy = [[WGTargetProxy alloc]init];
-            proxy.target = target;
-            return proxy;
-        }
-        //转发消息给target
-        - (id)forwardingTargetForSelector:(SEL)aSelector {
-            return self.target;
-        }
-        @end
-        
-        //利用添加的对象来作为target,target对self进行弱引用，然后在添加的对象中，对方法进行消息转发，转发给self
-        self.timer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:[WGTargetProxy proxyWithTarget:self] selector:@selector(test) userInfo:nil repeats:YES];
+    //WGTargetProxy.h文件
+    @interface WGTargetProxy : NSObject
+    @property(nonatomic, weak) id target;
+    +(instancetype)proxyWithTarget:(id)target;
+    @end
+    
+    //WGTargetProxy.m文件
+    @implementation WGTargetProxy
+    +(instancetype)proxyWithTarget:(id)target {
+        WGTargetProxy *proxy = [[WGTargetProxy alloc]init];
+        proxy.target = target;
+        return proxy;
+    }
+    //转发消息给target
+    - (id)forwardingTargetForSelector:(SEL)aSelector {
+        return self.target;
+    }
+    @end
+    
+    //利用添加的对象来作为target,target对self进行弱引用，然后在添加的对象中，对方法进行消息转发，转发给self
+    self.timer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:[WGTargetProxy proxyWithTarget:self]  
+    selector:@selector(test) userInfo:nil repeats:YES];
     
 #### 解决方案三: 创建一个继承自NSProxy的类，然后直接进行消息转发.NSProxy类似于NSObject，是基类，主要用来做消息转发。效率高，因为它不是继承自NSObject的，所以当调用一个不存在的方法时，避免了去父类中查找的过程，而是直接进行消息转发
-        //WGTargetProxy.h文件
-        @interface WGTargetProxy : NSProxy
-        @property(nonatomic, weak) id target;
-        +(instancetype)proxyWithTarget:(id)target;
-        @end
-    
-        //WGTargetProxy.m文件
-        @implementation WGTargetProxy
-        +(instancetype)proxyWithTarget:(id)target {
-            //继承自NSProxy类的对象没有init方法
-            WGTargetProxy *proxy = [WGTargetProxy alloc];
-            proxy.target = target;
-            return proxy;
-        }
-        - (void)forwardInvocation:(NSInvocation *)invocation {
-            [invocation invokeWithTarget:self.target];
-        }
-        -(NSMethodSignature *)methodSignatureForSelector:(SEL)sel {
-             return [self.target methodSignatureForSelector:sel];
-        }
-        @end
-    
-        self.timer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:[WGTargetProxy proxyWithTarget:self] selector:@selector(test) userInfo:nil repeats:YES];
+    //WGTargetProxy.h文件
+    @interface WGTargetProxy : NSProxy
+    @property(nonatomic, weak) id target;
+    +(instancetype)proxyWithTarget:(id)target;
+    @end
+
+    //WGTargetProxy.m文件
+    @implementation WGTargetProxy
+    +(instancetype)proxyWithTarget:(id)target {
+        //继承自NSProxy类的对象没有init方法
+        WGTargetProxy *proxy = [WGTargetProxy alloc];
+        proxy.target = target;
+        return proxy;
+    }
+    - (void)forwardInvocation:(NSInvocation *)invocation {
+        [invocation invokeWithTarget:self.target];
+    }
+    -(NSMethodSignature *)methodSignatureForSelector:(SEL)sel {
+         return [self.target methodSignatureForSelector:sel];
+    }
+    @end
+
+    self.timer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:[WGTargetProxy proxyWithTarget:self]  
+    selector:@selector(test) userInfo:nil repeats:YES];
 #### ⚠️知识点：如果是继承自NSProxy的对象，如果调用这个对象的isKindOfClass,那么就是会进入消息转发，会让这个对象的target去执行。例如：
-        //继承自NSProxy
-        WGTargetProxy *proxy1 = [WGTargetProxy1 proxyWithTarget:self];
-        //继承自NSObject
-        WGTargetProxy *proxy2 = [WGTargetProxy2 proxyWithTarget:self];
-        NSLog(@"继承自NSProxy---%d\n 继承自NSObject---%d\n",[proxy1 isKindOfClass:[self class]],[proxy2 isKindOfClass:[self class]]);
-    
-        打印结果：继承自NSProxy---1
-                继承自NSObject---0
+    //继承自NSProxy
+    WGTargetProxy *proxy1 = [WGTargetProxy1 proxyWithTarget:self];
+    //继承自NSObject
+    WGTargetProxy *proxy2 = [WGTargetProxy2 proxyWithTarget:self];
+    NSLog(@"继承自NSProxy---%d\n 继承自NSObject---%d\n",  
+    [proxy1 isKindOfClass:[self class]],[proxy2 isKindOfClass:[self class]]);
+
+    打印结果：继承自NSProxy---1
+            继承自NSObject---0
     
 #### 1.2 NSTimer为什么不准时？有什么方法来保证定时器的准时哪？
 #### 因为NSTimer是依赖于RunLoop的，如果RunLoop的任务过重，即NSTimer事件需要等待RunLoop处理其他的事情，处理完了才会来处理NSTimer事件，所以才会导致NSTimer不准时。想保证定时器任务的准时，可以使用GCD定时器，因为GCD定时器是不依赖Runloop的，它是直接和系统内核挂钩的
@@ -121,17 +126,21 @@
         //创建队列:主队列就是在主线程下，非主队列都是在子线程中
         dispatch_queue_t queue = dispatch_get_main_queue();
         //1. 创建定时器
-            参数1：源的类型 参数2/参数3: 直接传递0即可 参数4:设置定时器运行的队列
+            参数1：源的类型 
+            参数2/参数3: 直接传递0即可 
+            参数4:设置定时器运行的队列
         self.timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, queue);
         //2. 设置时间
-            参数1: 设置哪个定时器  参数2: 开始时间，必须是dispatch_time(参数1,开始的时间) NSEC_PER_SEC：纳秒
-            参数3: 间隔多长时间执行一次定时器任务  参数4: 误差，设置为0即可
+            参数1: 设置哪个定时器  
+            参数2: 开始时间，必须是dispatch_time(参数1,开始的时间) NSEC_PER_SEC：纳秒
+            参数3: 间隔多长时间执行一次定时器任务  
+            参数4: 误差，设置为0即可
         NSTimeInterval start = 3.0;
         NSTimeInterval interval = 1.0;
-        dispatch_source_set_timer(self.timer,
-                                  dispatch_time(DISPATCH_TIME_NOW, start * NSEC_PER_SEC),
-                                  interval * NSEC_PER_SEC,
-                                  0);
+        dispatch_source_set_timer(self.timer,  
+                        dispatch_time(DISPATCH_TIME_NOW, start * NSEC_PER_SEC),
+                        interval * NSEC_PER_SEC,
+                        0);
         //3. 设置定时器回调方法
         dispatch_source_set_event_handler(self.timer, ^{
             NSLog(@"1111--current Threaad:%@",[NSThread currentThread]);
@@ -150,10 +159,10 @@
     @end
     
     打印结果: 16:00:23.706883+0800 -------begin-------
-            16:00:26.708723+0800  1111--current Threaad:<NSThread: 0x2825a20c0>{number = 1, name = main}
-            16:00:27.708869+0800  1111--current Threaad:<NSThread: 0x2825a20c0>{number = 1, name = main}
-            16:00:28.708798+0800  1111--current Threaad:<NSThread: 0x2825a20c0>{number = 1, name = main}
-            16:00:29.708184+0800  1111--current Threaad:<NSThread: 0x2825a20c0>{number = 1, name = main}
+    16:00:26.708723+0800  1111--current Threaad:<NSThread: 0x2825a20c0>{number = 1, name = main}
+    16:00:27.708869+0800  1111--current Threaad:<NSThread: 0x2825a20c0>{number = 1, name = main}
+    16:00:28.708798+0800  1111--current Threaad:<NSThread: 0x2825a20c0>{number = 1, name = main}
+    16:00:29.708184+0800  1111--current Threaad:<NSThread: 0x2825a20c0>{number = 1, name = main}
     当页面返回时，定时器打印任务结束
 #### 分析：我们通过GCD创建的定时器，是不依赖于RunLoop的，所以它的定时时间是准确的，那么如果我们在页面中添加个滚动视图去触摸滚动时，定时器任务是不会停止的，因为GCD创建的定时器和RunLoop没有任何关系，不会存在像NSTimer运行在RunLoopMode导致的实效问题；GCD创建的定时器不存在循环引用的问题，因为GCD内部已经做了处理了。GCD创建的定时器既可以同步执行也可以异步执行
 
@@ -186,7 +195,7 @@
         NSNumber *number = @10; 
 
         //没有使用 Tagged Pointer技术前
-        0x10010101                       内存地址: 0x10010101
+        0x10010101                     内存地址: 0x10010101
         number       ------------->    NSNumber对象
                                        存储值10
         //使用 Tagged Pointer技术后
@@ -197,46 +206,46 @@
 
         
 #### 2.2.1 有关Tagged Pointer面试题
-        // 下面两种方式会出现什么问题
+    // 下面两种方式会出现什么问题
+    dispatch_queue_t queue = dispatch_get_global_queue(0, 0);
+    for (int i = 0; i < 1000; i++) {
+        dispatch_async(queue, ^{
+            self.name = [NSString stringWithFormat:@"abcdefghijk"];
+        });
+    }
+
+    dispatch_queue_t queue = dispatch_get_global_queue(0, 0);
+    for (int i = 0; i < 1000; i++) {
+        dispatch_async(queue, ^{
+            self.name = [NSString stringWithFormat:@"abc"];
+        });
+    }
+
+
+    @interface WGMainObjcVC()
+    @property(nonatomic, copy) NSString *name;
+    @end
+
+    @implementation WGMainObjcVC
+    - (void)viewDidLoad {
+        [super viewDidLoad];
+
         dispatch_queue_t queue = dispatch_get_global_queue(0, 0);
         for (int i = 0; i < 1000; i++) {
             dispatch_async(queue, ^{
                 self.name = [NSString stringWithFormat:@"abcdefghijk"];
             });
         }
-
-        dispatch_queue_t queue = dispatch_get_global_queue(0, 0);
-        for (int i = 0; i < 1000; i++) {
-            dispatch_async(queue, ^{
-                self.name = [NSString stringWithFormat:@"abc"];
-            });
-        }
-
-
-        @interface WGMainObjcVC()
-        @property(nonatomic, copy) NSString *name;
-        @end
-
-        @implementation WGMainObjcVC
-        - (void)viewDidLoad {
-            [super viewDidLoad];
-
-            dispatch_queue_t queue = dispatch_get_global_queue(0, 0);
-            for (int i = 0; i < 1000; i++) {
-                dispatch_async(queue, ^{
-                    self.name = [NSString stringWithFormat:@"abcdefghijk"];
-                });
-            }
-        }
-        运行直接报错: Thread 4: EXC_BAD_INSTRUCTION (code=EXC_I386_INVOP, subcode=0x0)
+    }
+    运行直接报错: Thread 4: EXC_BAD_INSTRUCTION (code=EXC_I386_INVOP, subcode=0x0)
 #### 分析, 我们知道self.name实际上调用的是name属性的setter方法,ARC环境下,是系统帮我们添加了release/retain操作,实际在MRC环境下setter方法的伪代码如下, 案例中是多个线程中调用name属性的setter方法,那么就存在同一时间多个线程调用[_name release]方法,即_name可能会被释放多次,所以就会到导致错误(坏内存访问),而无论修饰符是strong还是copy,都会执行[_name release]这句代码,
-        -(void)setName:(NSString *)name {
-            if (_name != name) {  //如果传进来的属性值和之前不一样,就先将旧值release,然后在赋值
-                [_name release];
-                _name = [name retain];   //name属性修饰符是strong
-                //_name = [name copy];   //name属性修饰符是copy
-            }
+    -(void)setName:(NSString *)name {
+        if (_name != name) {  //如果传进来的属性值和之前不一样,就先将旧值release,然后在赋值
+            [_name release];
+            _name = [name retain];   //name属性修饰符是strong
+            //_name = [name copy];   //name属性修饰符是copy
         }
+    }
 #### 解决方案: 
 * 方案一: 将修饰name属性的nonatomic非原子属性改为atomic原子属性,这样在setter方法时就会有加锁解锁,就可以保证线程访问安全,即同一时间只有一个线程访问. (不推荐)如果其他地方也调用了self.name,而加锁解锁会消耗性能,所以不推荐使用
 * 方案二: 直接在对name属性赋值的前后进行加锁/解锁操作即可
@@ -258,26 +267,26 @@
         
 #### 2.3 Tagged Pointer源码分析
 
-        objc_release(id obj){
-            if (!obj) return;
-            //在realse销毁对象时,如果对象是TaggedPointer直接返回,不做销毁操作,因为它并不是一个OC对象
-            if (obj->isTaggedPointer()) return;  
-            return obj->release();
-        }
-        
-        objc_object::isTaggedPointer() {
-            return _objc_isTaggedPointer(this);
-        }
-        
-        #if OBJC_MSB_TAGGED_POINTERS   //iOS开发,将1向左移63位(指针的最高有效位是1,就是TaggedPointer)
-        #define _OBJC_TAG_MASK (1UL<<63)  
-        #else  //Mac开发(指针的最低有效位是1,就是TaggedPointer)
-        #define _OBJC_TAG_MASK 1UL
-        
-        //如果 指针&_OBJC_TAG_MASK = _OBJC_TAG_MASK 就是TaggedPointer
-        _objc_isTaggedPointer(const void * _Nullable ptr) {
-            return ((uintptr_t)ptr & _OBJC_TAG_MASK) == _OBJC_TAG_MASK;
-        }
+    objc_release(id obj){
+        if (!obj) return;
+        //在realse销毁对象时,如果对象是TaggedPointer直接返回,不做销毁操作,因为它并不是一个OC对象
+        if (obj->isTaggedPointer()) return;  
+        return obj->release();
+    }
+    
+    objc_object::isTaggedPointer() {
+        return _objc_isTaggedPointer(this);
+    }
+    
+    #if OBJC_MSB_TAGGED_POINTERS   //iOS开发,将1向左移63位(指针的最高有效位是1,就是TaggedPointer)
+    #define _OBJC_TAG_MASK (1UL<<63)  
+    #else  //Mac开发(指针的最低有效位是1,就是TaggedPointer)
+    #define _OBJC_TAG_MASK 1UL
+    
+    //如果 指针&_OBJC_TAG_MASK = _OBJC_TAG_MASK 就是TaggedPointer
+    _objc_isTaggedPointer(const void * _Nullable ptr) {
+        return ((uintptr_t)ptr & _OBJC_TAG_MASK) == _OBJC_TAG_MASK;
+    }
         
 ### 3. OC对象内存管理
 #### 3.1 在iOS中,利用**引用计数**来管理OC对象中的内存;
@@ -319,36 +328,36 @@
                 -----[WGPerson dealloc]
 #### 3.2 在OC中各个对象之间是有联系的(WGPerson对象拥有WGDog狗对象),所以涉及到MRC下内存管理方法总结,一般在MRC下我们写setter方法和销毁对象方法是这样的
 
-        @interface WGPerson : NSObject
-        {
-            WGDog *_dog;
-        }
-        -(void)setDog:(WGDog *)dog;
-        -(WGDog *)dog;
-        @end
+    @interface WGPerson : NSObject
+    {
+        WGDog *_dog;
+    }
+    -(void)setDog:(WGDog *)dog;
+    -(WGDog *)dog;
+    @end
 
-        @implementation WGPerson
-        //MRC下,判断不是同一个对象,先对原来的对象进行release,然后再对传进来的对象进行retain
-        -(void)setDog:(WGDog *)dog {
-            if (_dog != dog) {
-                [_dog release];
-                _dog = [dog retain];
-            }
-        }
-        -(WGDog *)dog {
-            return _dog;
-        }
-
-        -(void)dealloc {
+    @implementation WGPerson
+    //MRC下,判断不是同一个对象,先对原来的对象进行release,然后再对传进来的对象进行retain
+    -(void)setDog:(WGDog *)dog {
+        if (_dog != dog) {
             [_dog release];
-            _dog = nil;
-            //上面两行代码也可以换成下面的,调用的是setDog方法
-            self.dog = nil
-            //父类的dealloc放到最后
-            [super dealloc];
-            NSLog(@"----%s",__func__);
+            _dog = [dog retain];
         }
-        @end
+    }
+    -(WGDog *)dog {
+        return _dog;
+    }
+
+    -(void)dealloc {
+        [_dog release];
+        _dog = nil;
+        //上面两行代码也可以换成下面的,调用的是setDog方法
+        self.dog = nil
+        //父类的dealloc放到最后
+        [super dealloc];
+        NSLog(@"----%s",__func__);
+    }
+    @end
 
 #### 3.3 在MRC环境下,   @synthesize 属性 = _属性名称; 会自动生成成员变量和属性的setter/getter实现
     @interface WGPerson : NSObject
@@ -388,21 +397,21 @@
 2. mutableCopy: 可变拷贝, 产生可变副本;
 
 #### 3.4.1 在MRC环境下,当我们通过alloc、new、copy、mutableCopy等方法产生的对象,我们需要负责释放的,如下
-        //通过这种方式创建的字符串,在MRC下,系统已经帮我们自动插入了autorelease,所以不需要我们再手动调用releas方法了
-        //注意:这里如果写的字符串值比较小,就会用到TaggedPointer计数,那么它的引用计数值会是-1,不利于我们观察对象的引用计数
-        //NSString *str0 = [NSString stringWithFormat:@"123sdfasdfsfsf"];
-        NSString *str1 = [[NSString alloc]initWithFormat:@"123sdfasdfsfsf"];
-        NSString *str2 = [str1 copy];
-        NSMutableString *str3 = [str1 mutableCopy];
+    //通过这种方式创建的字符串,在MRC下,系统已经帮我们自动插入了autorelease,所以不需要我们再手动调用releas方法了
+    //注意:这里如果写的字符串值比较小,就会用到TaggedPointer计数,那么它的引用计数值会是-1,不利于我们观察对象的引用计数
+    //NSString *str0 = [NSString stringWithFormat:@"123sdfasdfsfsf"];
+    NSString *str1 = [[NSString alloc]initWithFormat:@"123sdfasdfsfsf"];
+    NSString *str2 = [str1 copy];
+    NSMutableString *str3 = [str1 mutableCopy];
 
-        NSLog(@"\nstr1:%p\nstr2:%p\n:str3:%p\n",str1,str2,str3);
-        [str3 release];
-        [str2 release];
-        [str1 release];
+    NSLog(@"\nstr1:%p\nstr2:%p\n:str3:%p\n",str1,str2,str3);
+    [str3 release];
+    [str2 release];
+    [str1 release];
 
-        打印结果: str1:0x102045a90
-                str2:0x102045a90
-                :str3:0x102046150
+    打印结果: str1:0x102045a90
+            str2:0x102045a90
+            :str3:0x102046150
 #### 分析,为什么str1和str2的地址值是一样的? copy不是产生了副本对象吗? 原因就是源对象str1是不可变的,而通过copy后产生的副本对象也是不可变的,根据拷贝的准则: 修改源对象/副本对象不影响副本对象/源对象, 因为源对象本身就是不可变的,所以根本无法修改,为了节省空间,所以系统将str2的指针也指向了str1指针所指向的内容, 如果此时对str1或者str2赋新的值,那么它们的地址就会变成不一样的,因为拷贝的准则,所以系统会为str1和str2分配不同的地址空间
 
 
@@ -415,7 +424,8 @@
         NSString *str2 = [str1 copy];                    //浅拷贝,没有产生新的对象
         NSMutableString *str3 = [str1 mutableCopy];      //深拷贝,产生新的对象
 
-        //str1引用计数1   str2和str1指向同一个对象,所以此时的[str1 copy]就相当于[str1 retain],使引用计数+1  str3引用计数1
+        //str1引用计数1;str2和str1指向同一个对象,所以此时的[str1 copy]就相当于[str1 retain],使引用计数+1;
+        //str3引用计数1
 
         //源对象可变
         NSMutableString *str1 = [[NSMutableString alloc]initWithFormat:@"123"];
@@ -510,119 +520,123 @@
         }
         
 #### 找到retainCount方法,我们详细看下引用计数是如何获取的
-        - (NSUInteger)retainCount {
-            return ((id)self)->rootRetainCount();
-        }
-        
-        objc_object::rootRetainCount() {
-            //判断是否是TaggedPointer,如果是直接返回(之前验证过,如果是TaggedPointer,那么引用计数就是-1)
-            if (isTaggedPointer()) return (uintptr_t)this;  
-            sidetable_lock();
-            isa_t bits = LoadExclusive(&isa.bits);
-            ClearExclusive(&isa.bits);
-            if (bits.nonpointer) {      //优化过的isa指针
-                uintptr_t rc = 1 + bits.extra_rc;
-                if (bits.has_sidetable_rc) {  //如果引用计数不是存储在isa中,而是存储在sideTable结构中
-                    rc += sidetable_getExtraRC_nolock();
-                }
-                sidetable_unlock();
-                return rc;
+    - (NSUInteger)retainCount {
+        return ((id)self)->rootRetainCount();
+    }
+    
+    objc_object::rootRetainCount() {
+        //判断是否是TaggedPointer,如果是直接返回(之前验证过,如果是TaggedPointer,那么引用计数就是-1)
+        if (isTaggedPointer()) return (uintptr_t)this;  
+        sidetable_lock();
+        isa_t bits = LoadExclusive(&isa.bits);
+        ClearExclusive(&isa.bits);
+        if (bits.nonpointer) {    //优化过的isa指针
+            uintptr_t rc = 1 + bits.extra_rc;
+            if (bits.has_sidetable_rc) {//如果引用计数不是存储在isa中,而是存储在sideTable结构中
+                rc += sidetable_getExtraRC_nolock();
             }
             sidetable_unlock();
-            return sidetable_retainCount();
+            return rc;
         }
-        
-        objc_object::sidetable_getExtraRC_nolock() {
-            assert(isa.nonpointer);
-            //通过key获取到一个value(对象的地址作为Key)
-            SideTable& table = SideTables()[this];  
-            // 将对象的地址this传给散列表,获取到对象对应的引用计数,然后返回
-            RefcountMap::iterator it = table.refcnts.find(this);
-            if (it == table.refcnts.end()) return 0;
-            else return it->second >> SIDE_TABLE_RC_SHIFT;
-        }
+        sidetable_unlock();
+        return sidetable_retainCount();
+    }
+    
+    objc_object::sidetable_getExtraRC_nolock() {
+        assert(isa.nonpointer);
+        //通过key获取到一个value(对象的地址作为Key)
+        SideTable& table = SideTables()[this];  
+        // 将对象的地址this传给散列表,获取到对象对应的引用计数,然后返回
+        RefcountMap::iterator it = table.refcnts.find(this);
+        if (it == table.refcnts.end()) return 0;
+        else return it->second >> SIDE_TABLE_RC_SHIFT;
+    }
 #### 查看release方法源码
-        -(void) release {
-            _objc_rootRelease(self);
-        }
+    -(void) release {
+        _objc_rootRelease(self);
+    }
 
-        _objc_rootRelease(id obj) {
-            assert(obj);
-            obj->rootRelease();
-        }
+    _objc_rootRelease(id obj) {
+        assert(obj);
+        obj->rootRelease();
+    }
 
-        objc_object::rootRelease() {
-            return rootRelease(true, false);
-        }
+    objc_object::rootRelease() {
+        return rootRelease(true, false);
+    }
 
-        objc_object::rootRelease(bool performDealloc, bool handleUnderflow) { //简化后的
-            if (isTaggedPointer()) return false;
-            bool sideTableLocked = false;
-                if (slowpath(!newisa.nonpointer)) {  //如果不是优化过的isa指针,那么就从sideTable里找
-                    ClearExclusive(&isa.bits);
-                    if (sideTableLocked) sidetable_unlock();
-                    return sidetable_release(performDealloc);
-                }
-        }
+    //简化后的
+    objc_object::rootRelease(bool performDealloc, bool handleUnderflow) {
+        if (isTaggedPointer()) return false;
+        bool sideTableLocked = false;
+            if (slowpath(!newisa.nonpointer)) {//如果不是优化过的isa指针,那么就从sideTable里找
+                ClearExclusive(&isa.bits);
+                if (sideTableLocked) sidetable_unlock();
+                return sidetable_release(performDealloc);
+            }
+    }
         
-        objc_object::sidetable_release(bool performDealloc) {
-            //以对象的地址为key,从SideTables散列表中找到一个value
-            SideTable& table = SideTables()[this];
-            bool do_dealloc = false;
-            table.lock();
-            RefcountMap::iterator it = table.refcnts.find(this);
-            if (it == table.refcnts.end()) {
-                do_dealloc = true;
-                table.refcnts[this] = SIDE_TABLE_DEALLOCATING;
-            } else if (it->second < SIDE_TABLE_DEALLOCATING) {
-                // SIDE_TABLE_WEAKLY_REFERENCED may be set. Don't change it.
-                do_dealloc = true;
-                it->second |= SIDE_TABLE_DEALLOCATING;
-            } else if (! (it->second & SIDE_TABLE_RC_PINNED)) {
-                it->second -= SIDE_TABLE_RC_ONE;    //减操作
-            }
-            table.unlock();
-            //一旦上面引用计数-1,就有可能会减为0,所以就需要判断是否需要dealloc,如果需要,就通过objc_msgSend发送dealloc消息
-            if (do_dealloc  &&  performDealloc) {
-                ((void(*)(objc_object *, SEL))objc_msgSend)(this, SEL_dealloc);
-            }
-            return do_dealloc;
+    objc_object::sidetable_release(bool performDealloc) {
+        //以对象的地址为key,从SideTables散列表中找到一个value
+        SideTable& table = SideTables()[this];
+        bool do_dealloc = false;
+        table.lock();
+        RefcountMap::iterator it = table.refcnts.find(this);
+        if (it == table.refcnts.end()) {
+            do_dealloc = true;
+            table.refcnts[this] = SIDE_TABLE_DEALLOCATING;
+        } else if (it->second < SIDE_TABLE_DEALLOCATING) {
+            // SIDE_TABLE_WEAKLY_REFERENCED may be set. Don't change it.
+            do_dealloc = true;
+            it->second |= SIDE_TABLE_DEALLOCATING;
+        } else if (! (it->second & SIDE_TABLE_RC_PINNED)) {
+            it->second -= SIDE_TABLE_RC_ONE;    //减操作
         }
+        table.unlock();
+        //一旦上面引用计数-1,就有可能会减为0,所以就需要判断是否需要dealloc,如果需要,  
+        就通过objc_msgSend发送dealloc消息
+        if (do_dealloc  &&  performDealloc) {
+            ((void(*)(objc_object *, SEL))objc_msgSend)(this, SEL_dealloc);
+        }
+        return do_dealloc;
+    }
 #### 查看retain方法源码
-        -(id) retain {
-            return _objc_rootRetain(self);
-        }
+    -(id) retain {
+        return _objc_rootRetain(self);
+    }
 
-        _objc_rootRetain(id obj){
-            assert(obj);
-            return obj->rootRetain();
-        }
+    _objc_rootRetain(id obj){
+        assert(obj);
+        return obj->rootRetain();
+    }
 
-        objc_object::rootRetain() {
-            return rootRetain(false, false);
-        }
-
-        objc_object::rootRetain(bool tryRetain, bool handleOverflow) { //简化后的
-            if (isTaggedPointer()) return (id)this;
-                if (slowpath(!newisa.nonpointer)) {  //如果不是优化过的isa指针,那么就从sideTable里找
-                    ClearExclusive(&isa.bits);
-                    if (!tryRetain && sideTableLocked) sidetable_unlock();
-                    if (tryRetain) return sidetable_tryRetain() ? (id)this : nil;
-                    else return sidetable_retain();
-                }
-        }
+    objc_object::rootRetain() {
+        return rootRetain(false, false);
+    }
         
-        objc_object::sidetable_retain()
-            //以对象的地址为key,从SideTables散列表中找到一个value
-            SideTable& table = SideTables()[this];
-            table.lock();
-            size_t& refcntStorage = table.refcnts[this];
-            if (! (refcntStorage & SIDE_TABLE_RC_PINNED)) {
-                refcntStorage += SIDE_TABLE_RC_ONE;   //加操作
+    //简化后的
+    objc_object::rootRetain(bool tryRetain, bool handleOverflow) { 
+        if (isTaggedPointer()) return (id)this;
+            //如果不是优化过的isa指针,那么就从sideTable里找
+            if (slowpath(!newisa.nonpointer)) {  
+                ClearExclusive(&isa.bits);
+                if (!tryRetain && sideTableLocked) sidetable_unlock();
+                if (tryRetain) return sidetable_tryRetain() ? (id)this : nil;
+                else return sidetable_retain();
             }
-            table.unlock();
-            return (id)this;
+    }
+    
+    objc_object::sidetable_retain()
+        //以对象的地址为key,从SideTables散列表中找到一个value
+        SideTable& table = SideTables()[this];
+        table.lock();
+        size_t& refcntStorage = table.refcnts[this];
+        if (! (refcntStorage & SIDE_TABLE_RC_PINNED)) {
+            refcntStorage += SIDE_TABLE_RC_ONE;   //加操作
         }
+        table.unlock();
+        return (id)this;
+    }
 #### 3.6 weak指针的实现原理
         @implementation Person
         -(void)dealloc {
@@ -642,113 +656,115 @@
                 -[Person dealloc]---
                 end
 #### 一旦出了{},person对象就会被销毁
-        - (void)viewDidLoad {
-            [super viewDidLoad];
-            __strong Person *person1;    //__strong可以不写,因为默认都是强引用
-            __weak Person *person2;
-            __unsafe_unretained Person *person3;
-            NSLog(@"begin");
-            {
-                Person *person = [[Person alloc]init];
-                //1. person1是强引用,所以出了{},person对象并不会销毁,而是在viewDidLoad方法执行结束后销毁
-                //所以打印结果是: begin  -->   end   --> -[Person dealloc]---
-                //person1 = person;
-                
-                //2. person2是弱引用,所以出了{},person对象就销毁了
-                //所以打印结果是: begin  -->   -[Person dealloc]---   -->   end
-                //person2 = person;
-                
-                //3. person3也是弱引用,所以出了{},person对象就销毁了
-                //所以打印结果是: begin  -->   -[Person dealloc]---   -->   end
-                person3 = person;
-                
-                //4.__weak和__unsafe_unretained都是弱指针,区别就是__weak弱引用在对象销毁时,会对对象自动置为nil; 而__unsafe_unretained弱引用在对象销毁时,不会对对象自动置为nil,会出现野指针问题,即虽然对象销毁了,但是它的内存仍然存在,如果继续访问该对象,会导致坏内存访问
-            }
-            NSLog(@"end");
+    - (void)viewDidLoad {
+        [super viewDidLoad];
+        __strong Person *person1;    //__strong可以不写,因为默认都是强引用
+        __weak Person *person2;
+        __unsafe_unretained Person *person3;
+        NSLog(@"begin");
+        {
+            Person *person = [[Person alloc]init];
+            //1. person1是强引用,所以出了{},person对象并不会销毁,而是在viewDidLoad方法执行结束后销毁
+            //所以打印结果是: begin  -->   end   --> -[Person dealloc]---
+            //person1 = person;
+            
+            //2. person2是弱引用,所以出了{},person对象就销毁了
+            //所以打印结果是: begin  -->   -[Person dealloc]---   -->   end
+            //person2 = person;
+            
+            //3. person3也是弱引用,所以出了{},person对象就销毁了
+            //所以打印结果是: begin  -->   -[Person dealloc]---   -->   end
+            person3 = person;
+            
+            //4.__weak和__unsafe_unretained都是弱指针,区别就是__weak弱引用在对象销毁时,会对对象自动置为nil;  
+            而__unsafe_unretained弱引用在对象销毁时,不会对对象自动置为nil,会出现野指针问题,即虽然对象销毁了,  
+            但是它的内存仍然存在,如果继续访问该对象,会导致坏内存访问
         }
+        NSLog(@"end");
+    }
 #### 要想知道weak的原理,即对象销毁后,系统是如何对销毁的对象自动置为nil的,我们需要查看dealloc方法源码
-        - (void)dealloc {
-            _objc_rootDealloc(self);
-        }
+    - (void)dealloc {
+        _objc_rootDealloc(self);
+    }
 
-        _objc_rootDealloc(id obj) {
-            assert(obj);
-            obj->rootDealloc();
-        }
+    _objc_rootDealloc(id obj) {
+        assert(obj);
+        obj->rootDealloc();
+    }
 
-        objc_object::rootDealloc() {
-            if (isTaggedPointer()) return;  // fixme necessary?
-            if (fastpath(isa.nonpointer  &&             //是否是优化过的isa指针
-                         !isa.weakly_referenced  &&     //是否有弱引用表(取反)
-                         !isa.has_assoc  &&             //是否有关联对象(取反)
-                         !isa.has_cxx_dtor  &&          //是否有C++的析构函数(取反)
-                         !isa.has_sidetable_rc)) {      //是否有sideTable(取反)
-                assert(!sidetable_present());
-                free(this);  //如果上面条件成立,直接释放,不需要其他查询,释放效率会更快
-            } else {
-                object_dispose((id)this);
-            }
-        }
-        
-        object_dispose(id obj) {
-            if (!obj) return nil;
-            objc_destructInstance(obj);    
-            free(obj);   //释放对象前,先去忙其他事情(objc_destructInstance方法)
-            return nil;
-        }
-        
-        void *objc_destructInstance(id obj) {
-            if (obj) {
-                // Read all of the flags at once for performance.
-                bool cxx = obj->hasCxxDtor();
-                bool assoc = obj->hasAssociatedObjects();
-                // This order is important.
-                if (cxx) object_cxxDestruct(obj);            //清除成员变量
-                if (assoc) _object_remove_assocations(obj);  //移除关联对象
-                obj->clearDeallocating();                    //将指向当前对象的弱指针置为nil
-            }
-            return obj;
-        }
-        
-        objc_object::clearDeallocating() {
-            //是否是优化过的isa指针,如果不是(就是普通的isa指针),直接调用sidetable_clearDeallocating方法
-            if (slowpath(!isa.nonpointer)) {  
-                // Slow path for raw pointer isa.
-                sidetable_clearDeallocating();
-            } else if (slowpath(isa.weakly_referenced  ||  isa.has_sidetable_rc)) {  
-                //判断是否有弱引用表
-                // Slow path for non-pointer isa with weak refs and/or side table data.
-                clearDeallocating_slow();
-            }
+    objc_object::rootDealloc() {
+        if (isTaggedPointer()) return;  // fixme necessary?
+        if (fastpath(isa.nonpointer  &&             //是否是优化过的isa指针
+                     !isa.weakly_referenced  &&     //是否有弱引用表(取反)
+                     !isa.has_assoc  &&             //是否有关联对象(取反)
+                     !isa.has_cxx_dtor  &&          //是否有C++的析构函数(取反)
+                     !isa.has_sidetable_rc)) {      //是否有sideTable(取反)
             assert(!sidetable_present());
+            free(this);  //如果上面条件成立,直接释放,不需要其他查询,释放效率会更快
+        } else {
+            object_dispose((id)this);
         }
+    }
         
-        objc_object::clearDeallocating_slow(){
-            //弱引用表也是一个散列表, 将对象的地址作为key,找到对应的value值,
-            SideTable& table = SideTables()[this];
-            table.lock();
-            if (isa.weakly_referenced) {  //如果是弱引用表
-                weak_clear_no_lock(&table.weak_table, (id)this);
-            }
-            if (isa.has_sidetable_rc) {
-                table.refcnts.erase(this);
-            }
-            table.unlock();
+    object_dispose(id obj) {
+        if (!obj) return nil;
+        objc_destructInstance(obj);    
+        free(obj);   //释放对象前,先去忙其他事情(objc_destructInstance方法)
+        return nil;
+    }
+    
+    void *objc_destructInstance(id obj) {
+        if (obj) {
+            // Read all of the flags at once for performance.
+            bool cxx = obj->hasCxxDtor();
+            bool assoc = obj->hasAssociatedObjects();
+            // This order is important.
+            if (cxx) object_cxxDestruct(obj);            //清除成员变量
+            if (assoc) _object_remove_assocations(obj);  //移除关联对象
+            obj->clearDeallocating();                    //将指向当前对象的弱指针置为nil
         }
+        return obj;
+    }
         
-        weak_clear_no_lock(weak_table_t *weak_table, id referent_id)  {
-            objc_object *referent = (objc_object *)referent_id;
-            //根据对象的地址(key)找出对应的东西weak_entry_t
-            weak_entry_t *entry = weak_entry_for_referent(weak_table, referent);
-            ......
-            //将找到的东西weak_entry_t从表中移除
-            weak_entry_remove(weak_table, entry);
+    objc_object::clearDeallocating() {
+        //是否是优化过的isa指针,如果不是(就是普通的isa指针),直接调用sidetable_clearDeallocating方法
+        if (slowpath(!isa.nonpointer)) {  
+            // Slow path for raw pointer isa.
+            sidetable_clearDeallocating();
+        } else if (slowpath(isa.weakly_referenced  ||  isa.has_sidetable_rc)) {  
+            //判断是否有弱引用表
+            // Slow path for non-pointer isa with weak refs and/or side table data.
+            clearDeallocating_slow();
         }
+        assert(!sidetable_present());
+    }
         
-        weak_entry_for_referent(weak_table_t *weak_table, objc_object *referent) {
-            //将弱引用对象的地址 & weak_table->mask = 索引 (哈希表操作)
-            size_t begin = hash_pointer(referent) & weak_table->mask;
+    objc_object::clearDeallocating_slow(){
+        //弱引用表也是一个散列表, 将对象的地址作为key,找到对应的value值,
+        SideTable& table = SideTables()[this];
+        table.lock();
+        if (isa.weakly_referenced) {  //如果是弱引用表
+            weak_clear_no_lock(&table.weak_table, (id)this);
         }
+        if (isa.has_sidetable_rc) {
+            table.refcnts.erase(this);
+        }
+        table.unlock();
+    }
+        
+    weak_clear_no_lock(weak_table_t *weak_table, id referent_id)  {
+        objc_object *referent = (objc_object *)referent_id;
+        //根据对象的地址(key)找出对应的东西weak_entry_t
+        weak_entry_t *entry = weak_entry_for_referent(weak_table, referent);
+        ......
+        //将找到的东西weak_entry_t从表中移除
+        weak_entry_remove(weak_table, entry);
+    }
+    
+    weak_entry_for_referent(weak_table_t *weak_table, objc_object *referent) {
+        //将弱引用对象的地址 & weak_table->mask = 索引 (哈希表操作)
+        size_t begin = hash_pointer(referent) & weak_table->mask;
+    }
 #### 总结: weak实现原理:将弱引用指针存到哈希表中,当弱引用对象销毁时,取出当前对象对应的弱引用表,将弱引用表中存储的弱引用都清楚掉并且置为nil
 
 #### 3.7 ARC帮我们做了什么
@@ -759,43 +775,48 @@
 
 #### 3.8 autorelease原理
 #### 在MRC环境下,我们探究下源码
-        int main(int argc, const char * argv[]) {
-            @autoreleasepool {
-                WGPerson *p = [[[WGPerson alloc]init] autorelease];
-            }
-            return 0;
+    int main(int argc, const char * argv[]) {
+        @autoreleasepool {
+            WGPerson *p = [[[WGPerson alloc]init] autorelease];
         }
+        return 0;
+    }
 
-        转为C++代码
-        int main(int argc, const char * argv[]) {
-            /* @autoreleasepool */ { __AtAutoreleasePool __autoreleasepool; 
-                WGPerson *p = ((WGPerson *(*)(id, SEL))(void *)objc_msgSend)((id)((WGPerson *(*)(id, SEL))(void *)objc_msgSend)((id)((WGPerson *(*)(id, SEL))(void *)objc_msgSend)((id)objc_getClass("WGPerson"), sel_registerName("alloc")), sel_registerName("init")), sel_registerName("autorelease"));
-            }
-            return 0;
+    转为C++代码
+    int main(int argc, const char * argv[]) {
+        /* @autoreleasepool */ { __AtAutoreleasePool __autoreleasepool; 
+            WGPerson *p = ((WGPerson *(*)(id, SEL))(void *)objc_msgSend)((id)  
+            ((WGPerson *(*)(id, SEL))(void *)objc_msgSend)  
+            ((id)((WGPerson *(*)(id, SEL))(void *)objc_msgSend)
+            ((id)objc_getClass("WGPerson"),  
+            sel_registerName("alloc")), sel_registerName("init")), 
+            sel_registerName("autorelease"));
         }
-        简化为
-        {   
-            __AtAutoreleasePool __autoreleasepool; 
-            WGPerson *p = [[[WGPerson alloc]init] autorelease];
-        }
+        return 0;
+    }
+    简化为
+    {   
+        __AtAutoreleasePool __autoreleasepool; 
+        WGPerson *p = [[[WGPerson alloc]init] autorelease];
+    }
 #### 找到对应的结构体
-        struct __AtAutoreleasePool {
-            //C++构造函数,在创建结构体时调用
-            __AtAutoreleasePool() { 
-                atautoreleasepoolobj = objc_autoreleasePoolPush();
-            }
-            //C++析造函数,在结构体销毁时调用
-            ~__AtAutoreleasePool() {
-                objc_autoreleasePoolPop(atautoreleasepoolobj);
-            }
-            void * atautoreleasepoolobj;
-        };
-        
-        {   
-            //定义了局部变量,就会创建结构体__AtAutoreleasePool,所以会调用对应的构造函数,调用objc_autoreleasePoolPush
-            __AtAutoreleasePool __autoreleasepool;   
-            WGPerson *p = [[[WGPerson alloc]init] autorelease];
-        }//当出了{}大括号,局部变量会销毁,所以调用析构函数,调用objc_autoreleasePoolPop方法
+    struct __AtAutoreleasePool {
+        //C++构造函数,在创建结构体时调用
+        __AtAutoreleasePool() { 
+            atautoreleasepoolobj = objc_autoreleasePoolPush();
+        }
+        //C++析造函数,在结构体销毁时调用
+        ~__AtAutoreleasePool() {
+            objc_autoreleasePoolPop(atautoreleasepoolobj);
+        }
+        void * atautoreleasepoolobj;
+    };
+    
+    {   
+    //定义了局部变量,就会创建结构体__AtAutoreleasePool,所以会调用对应的构造函数,调用objc_autoreleasePoolPush  
+        __AtAutoreleasePool __autoreleasepool;   
+        WGPerson *p = [[[WGPerson alloc]init] autorelease];
+    }//当出了{}大括号,局部变量会销毁,所以调用析构函数,调用objc_autoreleasePoolPop方法
 #### 分析, 一旦调用autorelease,会生成对应的结构体,刚开始时调用objc_autoreleasePoolPush方法,当结束时调用objc_autoreleasePoolPop方法,接下来我们通过RunTime源码来探究这两个方法及它的底层结构
 
         
@@ -810,13 +831,18 @@
             return AutoreleasePoolPage::push();
         }
         
-        
-        class AutoreleasePoolPage  {  //简化后的
+        //简化后的
+        class AutoreleasePoolPage  {  
             magic_t const magic;
-            id *next;   //存放 下一个能存放autorelease对象 的地址
+            //存放 下一个能存放autorelease对象 的地址
+            id *next;
+            
             pthread_t const thread;
-            AutoreleasePoolPage * const parent;  //存放上一个AutoreleasePoolPage对象的地址,如果是第一个对象,则为nil
-            AutoreleasePoolPage *child;  //存放下一AutoreleasePoolPage对象的地址,如果是最后一个对象,则为nil
+            //存放上一个AutoreleasePoolPage对象的地址,如果是第一个对象,则为nil
+            AutoreleasePoolPage * const parent;
+            
+            //存放下一AutoreleasePoolPage对象的地址,如果是最后一个对象,则为nil
+            AutoreleasePoolPage *child;  
             uint32_t const depth;
             uint32_t hiwat;
         }
@@ -860,57 +886,64 @@
         }
         
 #### 3.8.3 利用**extern void _objc_autoreleasePoolPrint(void)**函数可以查看自动释放池的情况
-        int main(int argc, const char * argv[]) {
+    int main(int argc, const char * argv[]) {
+        @autoreleasepool {
+            WGPerson *p1 = [[[WGPerson alloc]init] autorelease];
+            WGPerson *p2 = [[[WGPerson alloc]init] autorelease];
+            //_objc_autoreleasePoolPrint();
             @autoreleasepool {
-                WGPerson *p1 = [[[WGPerson alloc]init] autorelease];
-                WGPerson *p2 = [[[WGPerson alloc]init] autorelease];
+                for (int i = 0; i < 500; i++) {
+                    WGPerson *p3 = [[[WGPerson alloc]init] autorelease];
+                }
                 //_objc_autoreleasePoolPrint();
                 @autoreleasepool {
-                    for (int i = 0; i < 500; i++) {
-                        WGPerson *p3 = [[[WGPerson alloc]init] autorelease];
-                    }
-                    //_objc_autoreleasePoolPrint();
-                    @autoreleasepool {
-                        WGPerson *p4 = [[[WGPerson alloc]init] autorelease];
-                        WGPerson *p5 = [[[WGPerson alloc]init] autorelease];
-                    }
-                    _objc_autoreleasePoolPrint();
+                    WGPerson *p4 = [[[WGPerson alloc]init] autorelease];
+                    WGPerson *p5 = [[[WGPerson alloc]init] autorelease];
                 }
+                _objc_autoreleasePoolPrint();
             }
-            return 0;
         }
+        return 0;
+    }
         
-        打印内存: objc[68116]: ##############
-                objc[68116]: AUTORELEASE POOLS for thread 0x1000aa5c0
-                objc[68116]: 4 releases pending.
-                objc[68116]: [0x101006000]  ................  PAGE  (hot) (cold)  //cold冷,存满的page
-                objc[68116]: [0x101006038]  ################  POOL 0x101006038
-                objc[68116]: [0x101006040]       0x100539370  WGPerson
-                objc[68116]: [0x101006048]       0x100539180  WGPerson
-                objc[68116]: [0x101006050]  ################  POOL 0x101006050
-                objc[68116]: ##############
-                Program ended with exit code: 0
+    打印内存: objc[68116]: ##############
+    objc[68116]: AUTORELEASE POOLS for thread 0x1000aa5c0
+    objc[68116]: 4 releases pending.
+    objc[68116]: [0x101006000]  ................  PAGE  (hot) (cold) //cold冷,存满的page
+    objc[68116]: [0x101006038]  ################  POOL 0x101006038
+    objc[68116]: [0x101006040]       0x100539370  WGPerson
+    objc[68116]: [0x101006048]       0x100539180  WGPerson
+    objc[68116]: [0x101006050]  ################  POOL 0x101006050
+    objc[68116]: ##############
+    Program ended with exit code: 0
 #### 分析:  PAGE  (full) (cold): cold冷,表示存满的page; PAGE (hot):hot热,表示当前使用的page
 
 #### 3.9 autorelease对象在什么时候释放
-        - (void)viewDidLoad {
-            [super viewDidLoad];
-            NSLog(@"%@",[NSRunLoop currentRunLoop]);
-        }
-        
-        "<CFRunLoopObserver 0x600000538be0 [0x7fff80617cb0]>{valid = Yes, activities = 0x1, repeats = Yes, order = -2147483647, callout = _wrapRunLoopWithAutoreleasePoolHandler (0x7fff4808bf54), context = <CFArray 0x600003a50810 [0x7fff80617cb0]>{type = mutable-small, count = 1, values = (\n\t0 : <0x7fbdb8803040>\n)}}",
-        "<CFRunLoopObserver 0x600000538c80 [0x7fff80617cb0]>{valid = Yes, activities = 0xa0, repeats = Yes, order = 2147483647, callout = _wrapRunLoopWithAutoreleasePoolHandler (0x7fff4808bf54), context = <CFArray 0x600003a50810 [0x7fff80617cb0]>{type = mutable-small, count = 1, values = (\n\t0 : <0x7fbdb8803040>\n)}}"
-        
-        //RunLoop的状态
-        typedef CF_OPTIONS(CFOptionFlags, CFRunLoopActivity) {
-           kCFRunLoopEntry = (1UL << 0),                即将进入RunLoop (十进制1)
-           kCFRunLoopBeforeTimers = (1UL << 1),         即将处理Timers (十进制2)
-           kCFRunLoopBeforeSources = (1UL << 2),        即将处理Sources (十进制4)
-           kCFRunLoopBeforeWaiting = (1UL << 5),        即将进入休眠 (十进制32)
-           kCFRunLoopAfterWaiting = (1UL << 6),         刚从休眠中唤醒 (十进制64)
-           kCFRunLoopExit = (1UL << 7),                 即将推出RunLoop (十进制128)
-           kCFRunLoopAllActivities = 0x0FFFFFFFU
-       };
+    - (void)viewDidLoad {
+        [super viewDidLoad];
+        NSLog(@"%@",[NSRunLoop currentRunLoop]);
+    }
+    
+    "<CFRunLoopObserver 0x600000538be0 [0x7fff80617cb0]>{valid = Yes, activities = 0x1,  
+    repeats = Yes, order = -2147483647, callout = _wrapRunLoopWithAutoreleasePoolHandler (0x7fff4808bf54),  
+    context = <CFArray 0x600003a50810 [0x7fff80617cb0]>{type = mutable-small, count = 1,  
+    values = (\n\t0 : <0x7fbdb8803040>\n)}}",
+    
+    "<CFRunLoopObserver 0x600000538c80 [0x7fff80617cb0]>{valid = Yes, activities = 0xa0,  
+    repeats = Yes, order = 2147483647, callout = _wrapRunLoopWithAutoreleasePoolHandler (0x7fff4808bf54),  
+    context = <CFArray 0x600003a50810 [0x7fff80617cb0]>{type = mutable-small, count = 1,  
+    values = (\n\t0 : <0x7fbdb8803040>\n)}}"
+    
+    //RunLoop的状态
+    typedef CF_OPTIONS(CFOptionFlags, CFRunLoopActivity) {
+       kCFRunLoopEntry = (1UL << 0),                即将进入RunLoop (十进制1)
+       kCFRunLoopBeforeTimers = (1UL << 1),         即将处理Timers (十进制2)
+       kCFRunLoopBeforeSources = (1UL << 2),        即将处理Sources (十进制4)
+       kCFRunLoopBeforeWaiting = (1UL << 5),        即将进入休眠 (十进制32)
+       kCFRunLoopAfterWaiting = (1UL << 6),         刚从休眠中唤醒 (十进制64)
+       kCFRunLoopExit = (1UL << 7),                 即将推出RunLoop (十进制128)
+       kCFRunLoopAllActivities = 0x0FFFFFFFU
+    };
 #### 在打印信息中,我们可以发现有两个_wrapRunLoopWithAutoreleasePoolHandler函数,这两个函数和自动释放池有关. 这两个函数中分别对应的有activities = 0x1(十进制1) 和 activities = 0xa0(十进制160),这代表监听的RunLoop的状态,activities = 0x1监听的是即将进入RunLoop的状态kCFRunLoopEntry,activities = 0xa0(十进制160)监听的是kCFRunLoopBeforeWaiting-32(休眠之前)和kCFRunLoopExit-128(退出)
 
 #### 总结
@@ -920,7 +953,7 @@
 
         kCFRunLoopBeforeWaiting事件(RunLoop进入休眠前),会调用objc_autoreleasePoolPop()、objc_autoreleasePoolPush()
         kCFRunLoopExit事件(RunLoop即将退出),会调用objc_autoreleasePoolPop()方法
-        4.autorelease对象可能是在某次RunLoop循环中,RunLoop休眠之前调用的release方法进行销毁的
+4. autorelease对象可能是在某次RunLoop循环中,RunLoop休眠之前调用的release方法进行销毁的
 
 #### 3.10 方法里有局部对象,出了方法会立刻释放吗?
 #### 这个问题应该是考察ARC环境下的,主要就是看下ARC帮我们做了什么,是自动调用了autorelease方法(出了方法体可能还不会销毁,而是等到RunLoop循环中,休眠之前才进行销毁)还是调用了release方法(出了方法立刻释放)
@@ -962,17 +995,17 @@
 
 #### 1.2 AutoreleasePoolPage中的parent、child指针分别指向上一个和下一个page,当前page的空间被占满(每个AutorelePoolPage的大小为4096字节)时，就会新建一个AutorelePoolPage对象并连接到链表中，后来的 Autorelease对象也会添加到新的page中；另外，当next== begin()时，表示AutoreleasePoolPage为空；当next == end()，表示AutoreleasePoolPage已满。
 
-        class AutoreleasePoolPage {
-            #define EMPTY_POOL_PLACEHOLDER ((id*)1)  //空池占位
-            #define POOL_BOUNDARY nil                //边界对象(即哨兵对象）
-            magic_t const magic;        //校验AutoreleasePagePoolPage结构是否完整
-            id *next;                   //指向新加入的autorelease对象的下一个位置，初始化时指向begin()
-            pthread_t const thread;     //当前所在线程，AutoreleasePool是和线程一一对应的
-            AutoreleasePoolPage * const parent;  //双向链表中指向父节点page，第一个结点的parent值为nil
-            AutoreleasePoolPage *child;          //双向链表中指向子节点page，最后一个结点的child值为nil
-            uint32_t const depth;                //链表深度，节点个数
-            uint32_t hiwat;                      //数据容纳的一个上限
-        }
+    class AutoreleasePoolPage {
+        #define EMPTY_POOL_PLACEHOLDER ((id*)1)  //空池占位
+        #define POOL_BOUNDARY nil                //边界对象(即哨兵对象）
+        magic_t const magic; //校验AutoreleasePagePoolPage结构是否完整
+        id *next;            //指向新加入的autorelease对象的下一个位置，初始化时指向begin()
+        pthread_t const thread;  //当前所在线程，AutoreleasePool是和线程一一对应的
+        AutoreleasePoolPage * const parent; //双向链表中指向父节点page，第一个结点的parent值为nil
+        AutoreleasePoolPage *child;         //双向链表中指向子节点page，最后一个结点的child值为nil
+        uint32_t const depth;               //链表深度，节点个数
+        uint32_t hiwat;                     //数据容纳的一个上限
+    }
         
 #### 1.3 哨兵对象(边界对象)(POOL_BOUNDARY)的作用
         #define POOL_BOUNDARY nil
@@ -990,42 +1023,43 @@
         
 #### 下面我们通过Runtime源码了解下详细的方法含义
 #### 3.1 push的调用方法
-        //调用方法1
-        void * _objc_autoreleasePoolPush(void) {
-            return objc_autoreleasePoolPush();
+    //调用方法1
+    void * _objc_autoreleasePoolPush(void) {
+        return objc_autoreleasePoolPush();
+    }
+    //调用方法2
+    void * objc_autoreleasePoolPush(void) {
+        return AutoreleasePoolPage::push();
+    }
+    //调用方法3
+    static inline void *push() {
+        id *dest;
+        if (DebugPoolAllocation) { // Each autorelease pool starts on a new pool page.
+            dest = autoreleaseNewPage(POOL_BOUNDARY);
+        } else {
+            dest = autoreleaseFast(POOL_BOUNDARY);
         }
-        //调用方法2
-        void * objc_autoreleasePoolPush(void) {
-            return AutoreleasePoolPage::push();
+        return dest;
+    }
+    //调用方法4
+    //这个函数的作用就是，找到最顶层的一个AutoreleasePoolPage对象，如果没有那就创建一个；
+    //如果找到了，判断他是否已经装满了full()，因为一个AutoreleasePoolPage只有4096个字节大小，
+    //如果满了那就会调用autoreleaseNoPage()创建一个AutoreleasePoolPage对象并添加add；
+    //如果没满则直接执行add(obj)。
+    static inline id *autoreleaseFast(id obj) {
+        //hotPage()函数会对应线程去取自动释放池，这里也可以看出释放池和线程是一一对应的关系
+        AutoreleasePoolPage *page = hotPage();
+        if (page && !page->full()) {
+        //obj是一个POOL_BOUNDARY对象(哨兵对象)，并不是我们的autorelease的对象
+        //每次执行push操作时都会插入一个哨兵对象，并且把哨兵对象的地址作为返回值返回了,pop函数需要用到这个  
+        哨兵对象的地址，对应的每次pop都是寻找到上一个哨兵对象，对期间所有的autorelease对象执行一次release操作。
+            return page->add(obj);
+        } else if (page) {
+            return autoreleaseFullPage(obj, page);
+        } else {
+            return autoreleaseNoPage(obj);
         }
-        //调用方法3
-        static inline void *push() {
-            id *dest;
-            if (DebugPoolAllocation) { // Each autorelease pool starts on a new pool page.
-                dest = autoreleaseNewPage(POOL_BOUNDARY);
-            } else {
-                dest = autoreleaseFast(POOL_BOUNDARY);
-            }
-            return dest;
-        }
-        //调用方法4
-        //这个函数的作用就是，找到最顶层的一个AutoreleasePoolPage对象，如果没有那就创建一个；
-        //如果找到了，判断他是否已经装满了full()，因为一个AutoreleasePoolPage只有4096个字节大小，
-        //如果满了那就会调用autoreleaseNoPage()创建一个AutoreleasePoolPage对象并添加add；如果没满则直接执行add(obj)。
-        static inline id *autoreleaseFast(id obj) {
-            //hotPage()函数会对应线程去取自动释放池，这里也可以看出释放池和线程是一一对应的关系
-            AutoreleasePoolPage *page = hotPage();
-            if (page && !page->full()) {
-                //obj是一个POOL_BOUNDARY对象(哨兵对象)，并不是我们的autorelease的对象
-                //每次执行push操作时都会插入一个哨兵对象，并且把哨兵对象的地址作为返回值返回了,pop函数需要用到这个哨兵对象的地址
-                //对应的每次pop都是寻找到上一个哨兵对象，对期间所有的autorelease对象执行一次release操作。
-                return page->add(obj);
-            } else if (page) {
-                return autoreleaseFullPage(obj, page);
-            } else {
-                return autoreleaseNoPage(obj);
-            }
-        }
+    }
 #### 观察上述代码，每次调用push其实就是创建一个新的AutoreleasePool，在对应的AutoreleasePoolPage中插入一个POOL_BOUNDARY,并且返回插入的POOL_BOUNDARY的内存地址。push方法内部调用的是autoreleaseFast方法，并传入边界对象(POOL_BOUNDARY)。hotPage可以理解为当前正在使用的AutoreleasePoolPage。自动释放池最终都会通过page->add(obj)方法将边界对象添加到释放池中，而这一过程在autoreleaseFast方法中被分为三种情况：
 1. 当前page存在且不满,调用page->add(obj)方法将对象添加至page的栈中，即next指向的位置
 2. 当前page存在但是已满,调用autoreleaseFullPage初始化一个新的page，调用page->add(obj)方法将对象添加至page的栈中
@@ -1033,43 +1067,43 @@
 
 #### 3.2 Pop函数
 #### AutoreleasePool的释放调用的是objc_autoreleasePoolPop方法，此时需要传入边界对象作为参数。这个边界对象正是每次执行objc_autoreleasePoolPush方法返回的对象atautoreleasepoolobj；
-        //调用方法1
-        void _objc_autoreleasePoolPop(void *ctxt) {
-            objc_autoreleasePoolPop(ctxt);
-        }
-        //调用方法2:
-        void objc_autoreleasePoolPop(void *ctxt) {
-            AutoreleasePoolPage::pop(ctxt);
-        }
-        //调用方法3: 核心方法 向栈中的对象发送release消息，直到遇到第一个哨兵对象
-        void releaseUntil(id *stop)  {
-            while (this->next != stop) { //一直遍历
-                // Restart from hotPage() every time, in case -release 
-                // autoreleased more objects
-                AutoreleasePoolPage *page = hotPage();
-                // fixme I think this `while` can be `if`, but I can't prove it
-                // 如果当前page中的autorelease对象已释放完毕则会重新遍历父结点的page，知道找到传递来的哨兵对象为止
-                while (page->empty()) {
-                    page = page->parent;
-                    setHotPage(page);
-                }
-                page->unprotect();
-                id obj = *--page->next;
-                memset((void*)page->next, SCRIBBLE, sizeof(*page->next));
-                page->protect();
+    //调用方法1
+    void _objc_autoreleasePoolPop(void *ctxt) {
+        objc_autoreleasePoolPop(ctxt);
+    }
+    //调用方法2:
+    void objc_autoreleasePoolPop(void *ctxt) {
+        AutoreleasePoolPage::pop(ctxt);
+    }
+    //调用方法3: 核心方法 向栈中的对象发送release消息，直到遇到第一个哨兵对象
+    void releaseUntil(id *stop)  {
+        while (this->next != stop) { //一直遍历
+            // Restart from hotPage() every time, in case -release 
+            // autoreleased more objects
+            AutoreleasePoolPage *page = hotPage();
+            // fixme I think this `while` can be `if`, but I can't prove it
+            //如果当前page中的autorelease对象已释放完毕则会重新遍历父结点的page，直到找到传递来的哨兵对象为止
+            while (page->empty()) {
+                page = page->parent;
+                setHotPage(page);
+            }
+            page->unprotect();
+            id obj = *--page->next;
+            memset((void*)page->next, SCRIBBLE, sizeof(*page->next));
+            page->protect();
 
-                if (obj != POOL_BOUNDARY) {
-                    objc_release(obj);
-                }
+            if (obj != POOL_BOUNDARY) {
+                objc_release(obj);
             }
-            setHotPage(this);
-            #if DEBUG
-            // we expect any children to be completely empty
-            for (AutoreleasePoolPage *page = child; page; page = page->child) {
-                assert(page->empty());
-            }
-            #endif
         }
+        setHotPage(this);
+        #if DEBUG
+        // we expect any children to be completely empty
+        for (AutoreleasePoolPage *page = child; page; page = page->child) {
+            assert(page->empty());
+        }
+        #endif
+    }
 #### 首先根据传入的边界对象地址找到边界对象所处的page；然后选择当前page中最新加入的对象一直向前清理，可以向前跨越若干个page，直到边界所在的位置；清理的方式是向这些对象发送一次release消息，使其引用计数减一；另外，清空page对象还会遵循一些原则：
 1. 如果当前的page中存放的对象少于一半，则子page全部删除；
 2. 如果当前的page存放的多余一半,(意味着马上将要满),则保留一个子page,节省创建新page的开销;
@@ -1096,15 +1130,15 @@ autorelease函数和push函数一样，关键代码都是调用autoreleaseFast�
         
 #### 分析: stringByAppendingString方法可能会创建一个临时对象,这个临时对象很可能会放在自动释放池中,即便临时对象在调用完方法后就不再使用了，它们也依然处于存活状态,等待系统稍后进行回收,但自动释放池却要等到该线程执行下一次事件循环时才会清空,这就意味着在执行for循环时，会有持续不断的新的临时对象被创建出来，并加入自动释放池。要等到结束for循环才会释放。在for循环中内存用量会持续上涨，而等到结束循环后，内存用量又会突然下降,为了优化性能,我们可以这么解决,通过这种方式可以发现尽管字符串在不断地创建，但由于得到了及时的释放，堆内存始终保持在一个很低的水平。
 
-        for (int i = 0; i < 10000; i++) {
-            //在循环中自动释放的对象就会放在这个池，而不是在线程的主池里面
-            @autoreleasepool {
-                NSString *str = @"Zhang San";
-                str = [str lowercaseString];
-                str = [str stringByAppendingString:@"Li Si"];
-                NSLog(@"%@",str);
-            }
+    for (int i = 0; i < 10000; i++) {
+        //在循环中自动释放的对象就会放在这个池，而不是在线程的主池里面
+        @autoreleasepool {
+            NSString *str = @"Zhang San";
+            str = [str lowercaseString];
+            str = [str stringByAppendingString:@"Li Si"];
+            NSLog(@"%@",str);
         }
+    }
 #### 5.2 避免无意间误用那些在清空池之后已被系统回收的对象,
         @autoreleasepool {
             id obj = [[NSObject alloc]init];

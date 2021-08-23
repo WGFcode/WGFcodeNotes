@@ -61,10 +61,10 @@
         typedef struct objc_class *Class;
         struct objc_class : objc_object {
         // Class ISA;
-        Class superclass;           指向当前类的父类
-        cache_t cache;              用于方法缓存来加速方法的调用
-        class_data_bits_t bits;     存储类的方法、属性、遵循的协议等信息的地方,可以理解为一个指针
-        class_rw_t *data() {        存储方法、属性、协议列表等信息；rw可读可写
+        Class superclass;        指向当前类的父类
+        cache_t cache;           用于方法缓存来加速方法的调用
+        class_data_bits_t bits;  存储类的方法、属性、遵循的协议等信息的地方,可以理解为一个指针
+        class_rw_t *data() {     存储方法、属性、协议列表等信息；rw可读可写
             return bits.data();
         }
         ...
@@ -75,9 +75,10 @@
             return (class_rw_t *)(bits & FAST_DATA_MASK);
         }
     
-        存储方法、属性、协议列表等信息(如果是[类对象]这里的方法指的是[实例方法],如果是[元类对象]这里的方法指的是[类方法])
+        //存储方法、属性、协议列表等信息(如果是[类对象]这里的方法指的是[实例方法];  
+        如果是[元类对象]这里的方法指的是[类方法])
         struct class_rw_t {
-            const class_ro_t *ro;          存储了当前类在编译期就已经确定的属性、方法以及遵循的协议
+            const class_ro_t *ro;   存储了当前类在编译期就已经确定的属性、方法以及遵循的协议
             //下面三个都是二维数组,这三个二位数组中的数据有一部分是从class_ro_t中合并过来的
             method_array_t methods;        方法列表
             property_array_t properties;   属性列表
@@ -86,8 +87,9 @@
             这里是没有成员变量信息的,成员变量的信息是编译期就已经确定并添加到 class_ro_t 中去，并且只读
         }
     
-        存储了当前类在编译期就已经确定的属性、方法以及遵循的协议
-        struct class_ro_t {                     class_ro_t意思是readonly,在编译阶段就已经确定了，不可以修改
+        //存储了当前类在编译期就已经确定的属性、方法以及遵循的协议
+        //class_ro_t意思是readonly,在编译阶段就已经确定了，不可以修改
+        struct class_ro_t {         
             const char * name;                  类名(不能修改)
             uint32_t instanceSize;              对象所占用的内存大小
             method_list_t * baseMethodList;     方法列表
@@ -97,14 +99,14 @@
             const uint8_t * weakIvarLayout;     weak 成员变量内存布局
             const uint8_t * ivarLayout;         (不能修改)
             ...
-            ivarLayout:成员变量ivar内存布局，是放在我们的io里面的，并且是const不允许修改的，也就是说明，我们的
-            成员变量布局，在编译阶段就确定了，内存布局已经确定了，在运行时是不可以修改了，
+            ivarLayout:成员变量ivar内存布局，是放在我们的io里面的，并且是const不允许修改的，也就是说明，  
+            我们的成员变量布局，在编译阶段就确定了，内存布局已经确定了，在运行时是不可以修改了，  
             这就说明了，为什么运行时不能往类中动态添加成员变量。
         };
         
         extern "C" unsigned long OBJC_IVAR_$_WGTestModel$_name;
         extern "C" unsigned long OBJC_IVAR_$_WGTestModel$_age;
-        OC中声明的属性，系统会自动为其生成一个带下划线的成员变量，所以我们在声明成员变量的时候规范性的以_XXX的格式进行声明    
+#### OC中声明的属性，系统会自动为其生成一个带下划线的成员变量，所以我们在声明成员变量的时候规范性的以_XXX的格式进行声明    
 
 #### 总结: 初始化一个类的过程
 * 在编译期将类中已经确定的信息(属性/成员变量/方法/协议)添加到class_ro_t结构体中,这里面信息在运行时是不会改变的
@@ -118,75 +120,77 @@
 * 我们的类实例是需要一块内存空间的，他有isa指针指向，如果我们在运行时允许动态修改成员变量的布局，那么创建出来的类实例就属于无效的了，能够被任意修改，但是属性和方法是我们 objc_class 可以管理的，增删改都不影响我们实例内存布局。
 
 #### 3. 接下来我们解读cache_t结构体
-        实际上cache_t结构体内部本质是一个散列表(哈希表),用来缓存调用过的方法,进而提高访问方法的速度
-        struct cache_t {
-            struct bucket_t *_buckets;     //缓存方法的散列表(也可称为数组)
-            mask_t _mask;                  //总槽位-1(实际就是散列表总长度-1)
-            mask_t _occupied;              //实际已经使用的槽位(已经占用的散列表长度)
-            
-            public:
-            struct bucket_t *buckets();    //_buckets对外的一个获取函数
-            mask_t mask();                 //获取缓存容量_mask
-            mask_t occupied();             //获取已经占用的缓存个数_occupied
-            void incrementOccupied();      //增加缓存，_occupied自++
-            void setBucketsAndMask(struct bucket_t *newBuckets, mask_t newMask);  //设置一个新的_buckets
-            void initializeToEmpty();      //初始化cache并设置为空
-
-            mask_t capacity();             //获取_buckets的容量
-                思考:为什么需要mask()+1? 扩容算法需要：expand()中的扩容算法基本逻辑
-                (最小分配的容量是4，当容量存满3/4时，进行扩容，扩容当前容量的两倍)；
-                这样最小容量4的 1/4就是1，这就是mask() + 1的原因。
-                mask_t cache_t::capacity() {
-                    return mask() ? mask()+1 : 0;  //当mask()=0时,返回0;当mask()>0时,返回mask()+1
-                }
-
-            bool isConstantEmptyCache();    //判断_buckets是否为空
-            bool canBeFreed();
-
-            static size_t bytesForCapacity(uint32_t cap);
-            static struct bucket_t * endMarker(struct bucket_t *b, uint32_t cap);
-
-            void expand();  //扩容
-            void reallocate(mask_t oldCapacity, mask_t newCapacity);   //重新分配
-            //通过 cache_key_t 查找receiver中的 bucket_t *
-            struct bucket_t * find(cache_key_t key, id receiver);
-
-            static void bad_cache(id receiver, SEL sel, Class isa) __attribute__((noreturn));
-        }
+    实际上cache_t结构体内部本质是一个散列表(哈希表),用来缓存调用过的方法,进而提高访问方法的速度
+    struct cache_t {
+        struct bucket_t *_buckets;     //缓存方法的散列表(也可称为数组)
+        mask_t _mask;                  //总槽位-1(实际就是散列表总长度-1)
+        mask_t _occupied;              //实际已经使用的槽位(已经占用的散列表长度)
         
-        bucket_t * cache_t::find(cache_key_t k, id receiver){
-            assert(k != 0);
-            bucket_t *b = buckets();
-            mask_t m = mask();
-            mask_t begin = cache_hash(k, m);    //找到对应的下标
-            mask_t i = begin;
-            do {
-                if (b[i].key() == 0  ||  b[i].key() == k) {
-                    return &b[i];
-                }
-            } while ((i = cache_next(i, m)) != begin); //哈希表会有碰撞问题
-            // hack
-            Class cls = (Class)((uintptr_t)this - offsetof(objc_class, cache));
-            cache_t::bad_cache(receiver, (SEL)k, cls);
-        }
+        public:
+        struct bucket_t *buckets();    //_buckets对外的一个获取函数
+        mask_t mask();                 //获取缓存容量_mask
+        mask_t occupied();             //获取已经占用的缓存个数_occupied
+        void incrementOccupied();      //增加缓存，_occupied自++
+        //设置一个新的_buckets
+        void setBucketsAndMask(struct bucket_t *newBuckets, mask_t newMask);  
+        void initializeToEmpty();      //初始化cache并设置为空
 
-        //发生映射的关系是: key&mask=index,index一定是<=mask的;key就是方法名称,mask就是总槽位-1
-        //散列表(又叫哈希表)的实现原理是f(key)=index,通过一个函数直接找到对应的index
-        static inline mask_t cache_hash(cache_key_t key, mask_t mask) {
-            return (mask_t)(key & mask);  //取余法计算索引
-        }
+        mask_t capacity();             //获取_buckets的容量
+            思考:为什么需要mask()+1? 扩容算法需要：expand()中的扩容算法基本逻辑 
+            (最小分配的容量是4，当容量存满3/4时，进行扩容，扩容当前容量的两倍)；  
+            这样最小容量4的 1/4就是1，这就是mask() + 1的原因。
+            mask_t cache_t::capacity() {
+                //当mask()=0时,返回0;当mask()>0时,返回mask()+1
+                return mask() ? mask()+1 : 0; 
+            }
+
+        bool isConstantEmptyCache();    //判断_buckets是否为空
+        bool canBeFreed();
+
+        static size_t bytesForCapacity(uint32_t cap);
+        static struct bucket_t * endMarker(struct bucket_t *b, uint32_t cap);
+
+        void expand();  //扩容
+        void reallocate(mask_t oldCapacity, mask_t newCapacity);   //重新分配
+        //通过 cache_key_t 查找receiver中的 bucket_t *
+        struct bucket_t * find(cache_key_t key, id receiver);
+
+        static void bad_cache(id receiver, SEL sel, Class isa) __attribute__((noreturn));
+    }
         
-        struct bucket_t {
-            private:
-                cache_key_t _key;    //指方法的名字:@selector()
-                IMP _imp;            //函数地址
-            public:
-                inline cache_key_t key() const { return _key; }
-                inline IMP imp() const { return (IMP)_imp; }
-                inline void setKey(cache_key_t newKey) { _key = newKey; }
-                inline void setImp(IMP newImp) { _imp = newImp; }
-                void set(cache_key_t newKey, IMP newImp);
-        };
+    bucket_t * cache_t::find(cache_key_t k, id receiver){
+        assert(k != 0);
+        bucket_t *b = buckets();
+        mask_t m = mask();
+        mask_t begin = cache_hash(k, m);    //找到对应的下标
+        mask_t i = begin;
+        do {
+            if (b[i].key() == 0  ||  b[i].key() == k) {
+                return &b[i];
+            }
+        } while ((i = cache_next(i, m)) != begin); //哈希表会有碰撞问题
+        // hack
+        Class cls = (Class)((uintptr_t)this - offsetof(objc_class, cache));
+        cache_t::bad_cache(receiver, (SEL)k, cls);
+    }
+
+    //发生映射的关系是: key&mask=index,index一定是<=mask的;key就是方法名称,mask就是总槽位-1
+    //散列表(又叫哈希表)的实现原理是f(key)=index,通过一个函数直接找到对应的index
+    static inline mask_t cache_hash(cache_key_t key, mask_t mask) {
+        return (mask_t)(key & mask);  //取余法计算索引
+    }
+    
+    struct bucket_t {
+        private:
+            cache_key_t _key;    //指方法的名字:@selector()
+            IMP _imp;            //函数地址
+        public:
+            inline cache_key_t key() const { return _key; }
+            inline IMP imp() const { return (IMP)_imp; }
+            inline void setKey(cache_key_t newKey) { _key = newKey; }
+            inline void setImp(IMP newImp) { _imp = newImp; }
+            void set(cache_key_t newKey, IMP newImp);
+    };
         
 * 问题1: 为什么需要cache_t?,我们知道对象调用方法的过程是这样的
 1. 通过obj的isa指针找到obj的类对象Class -> 通过bits找到class_rw_t中的method_array_t方法列表,然后进行循环遍历,如果找到就调用,没有找到继续下一步

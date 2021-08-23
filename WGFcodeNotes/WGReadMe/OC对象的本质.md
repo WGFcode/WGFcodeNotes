@@ -5,14 +5,14 @@
 
 #### 如何证明OC中的类、对象是基于C/C++中的结构体来实现的那? 我们就需要将OC的代码转为类、对象是基于C/C++的语言
     xcrun -sdk iphoneos clang -arch arm64 -rewrite-objc WGMain.m -o WGMain.cpp
-        //创建WGMain.m文件
-        #import <Foundation/Foundation.h>
-        int main(int argc, const char * argv[]) {
-            @autoreleasepool {
-                NSObject *objc = [[NSObject alloc]init];
-            }
-            return 0;
+    //创建WGMain.m文件
+    #import <Foundation/Foundation.h>
+    int main(int argc, const char * argv[]) {
+        @autoreleasepool {
+            NSObject *objc = [[NSObject alloc]init];
         }
+        return 0;
+    }
         
 #### 在WGMain.cpp文件中我们发现了如下结构
         
@@ -21,14 +21,14 @@
         };
         
 #### 我们进入NSObject的系统声明中,发现NSObject中只有一个成员变量就是isa
-        @interface NSObject <NSObject> {
-            Class isa;
-        }
-        typedef struct object_class *Class;   //是个指针
+    @interface NSObject <NSObject> {
+        Class isa;
+    }
+    typedef struct object_class *Class;   //是个指针
 #### 结论: 综上分析 NSObject中定义的类在C/C++中是被转成结构体对象
-        @interface NSObject <NSObject> {            struct NSObject_IMPL {
-            Class isa;                      --->         Class isa;
-        }                                           };    
+    @interface NSObject <NSObject> {            struct NSObject_IMPL {
+        Class isa;                      --->         Class isa;
+    }                                           };    
 
 #### 2. 一个OC对象占用多少个内存空间?
         //.m文件
@@ -77,17 +77,17 @@
 #### 3. 实时查看内存数据
 #### 3.1 方式一: 通过打断点, 然后找到要查看的对象的内存地址,然后通过Xcode -> Debug -> Debug Workflow -> View Memory -> 输入要查看的对象的内存分配情况
 #### 3.2 通过LLDB指令,首先打断点,Xcode的控制台上会出现(lldb), 然后通过print XXX来查看内存,一般我们使用: p/x (long)对象 来查看内存地址,这个命令后续可以来验证实例对象的isa指针--->类对象, 类对象isa指针--->元类对象 等于真实的isa指针,类对象和元类对象的isa地址同理需要进行一次位运算才能计算出
-        常用LLDB指令
-        print 或者 p: 打印
-        po: 打印对象
-        读取内存: 
-        1.memory read 内存地址
-        2.memory read/数量格式字节数 内存地址
-        3.x/数量格式字节数 内存地址
-        格式: x是16进制、f是浮点、d是十进制
-        字节大小: b(byte)1字节、h(half word)2个字节、w(word)4个字节、g(ginat work)8个字节
-        修改内存中的值
-        memory write 内存地址 数值
+    常用LLDB指令
+    print 或者 p: 打印
+    po: 打印对象
+    读取内存: 
+    1.memory read 内存地址
+    2.memory read/数量格式字节数 内存地址
+    3.x/数量格式字节数 内存地址
+    格式: x是16进制、f是浮点、d是十进制
+    字节大小: b(byte)1字节、h(half word)2个字节、w(word)4个字节、g(ginat work)8个字节
+    修改内存中的值
+    memory write 内存地址 数值
 
 #### 4. OC对象分类,分为三类: 实例对象,类对象,元类对象
 1. 实例对象: 通过类alloc出来的对象,每次通过alloc都会产生新的实例对象.实例对象在内存中存储的信息包括**isa指针**、**成员变量的值**, 
@@ -112,17 +112,17 @@
             return 0;
         }
 #### 将main.m文件转为main.cpp文件可以发现，Person实例对象中确实存在成员变量，但是如何证明存放的是值那？，我们可以通过在对成员变量赋值的地方断点，然后通过Xcode -> Debug -> Debug Workflow -> View Memory -> 输入要查看的对象(objcP)的内存分配情况,测试结果是显示的地址值为如下：
-        struct Person_IMPL {
-            struct NSObject_IMPL NSObject_IVARS;
-            int age;
-        };
-        
-        struct NSObject_IMPL {
-            Class isa;
-        };
-        
-        //测试案例中objcP对象的地址，可以发现前8个字节保存的是isa指针，后8个字节保存的就是成员变量age的值
-        8D 13 00 00 01 80 1D 00 04 00 00 00 00 00
+    struct Person_IMPL {
+        struct NSObject_IMPL NSObject_IVARS;
+        int age;
+    };
+    
+    struct NSObject_IMPL {
+        Class isa;
+    };
+    
+    //测试案例中objcP对象的地址，可以发现前8个字节保存的是isa指针，后8个字节保存的就是成员变量age的值
+    8D 13 00 00 01 80 1D 00 04 00 00 00 00 00
         
 2. 类对象。获取类对象方式如下：
 
@@ -137,7 +137,7 @@
         Class objClass4 = object_getClass(obj1);
         Class objClass5 = object_getClass(obj2);
         
-        NSLog(@"objClass1:%p---\nobjClass2:%p---\nobjClass3:%p---\nobjClass4:%p---\nobjClass5:%p---\n",
+        NSLog(@"objClass1:%p---\nobjClass2:%p---\nobjClass3:%p---\nobjClass4:%p---\nobjClass5:%p---\n",  
         objClass1, objClass2, objClass3, objClass4, objClass5);
         
         打印结果: objClass1:0x7fff89e066c0---
@@ -147,30 +147,30 @@
                 objClass5:0x7fff89e066c0---
 #### objClass1~objClass5都是NSObject的类对象; 它们是同一个对象,每个类在内存中有些仅有一个class对象(类对象)
 
-        Person *objcP1 = [[Person alloc]init];
-        Person *objcP2 = [[Person alloc]init];
-        //获取Person的类对象
-        //方式一
-        Class objcClassP1 = [objcP1 class];
-        Class objcClassP2 = [objcP2 class];
-        //方式二
-        Class objcClassP3 = [Person class];
-        //方式三
-        Class objcClassP4 = object_getClass(objcP1);
-        Class objcClassP5 = object_getClass(objcP2);
+    Person *objcP1 = [[Person alloc]init];
+    Person *objcP2 = [[Person alloc]init];
+    //获取Person的类对象
+    //方式一
+    Class objcClassP1 = [objcP1 class];
+    Class objcClassP2 = [objcP2 class];
+    //方式二
+    Class objcClassP3 = [Person class];
+    //方式三
+    Class objcClassP4 = object_getClass(objcP1);
+    Class objcClassP5 = object_getClass(objcP2);
 
-        NSLog(@"\nobjcP1:%p\nobjcP2:%p\nobjcClassP1:%p\nobjcClassP2:%p\nobjcClassP3:%p\nobjcClassP4:%p\nobjcClassP5:%p\n",objcP1,objcP2,objcClassP1,objcClassP2,objcClassP3,objcClassP4,objcClassP5);
+    NSLog(@"\nobjcP1:%p\nobjcP2:%p\nobjcClassP1:%p\nobjcClassP2:%p\nobjcClassP3:%p\nobjcClassP4:%p  
+    \nobjcClassP5:%p\n",objcP1,objcP2,objcClassP1,objcClassP2,objcClassP3,objcClassP4,objcClassP5);
 
-        打印结果: objcP1:0x10051e090
-                objcP2:0x100524100
-                objcClassP1:0x100001398
-                objcClassP2:0x100001398
-                objcClassP3:0x100001398
-                objcClassP4:0x100001398
-                objcClassP5:0x100001398
+    打印结果: objcP1:0x10051e090
+            objcP2:0x100524100
+            objcClassP1:0x100001398
+            objcClassP2:0x100001398
+            objcClassP3:0x100001398
+            objcClassP4:0x100001398
+            objcClassP5:0x100001398
 #### 创建两个不同的Person对象实例，获取到的它们的类对象是一样的，再次证明了每个类在内存中只有一个类对象，但是可以创建多个实例对象              
                 
-
 
 #### class对象(类对象)在内存中存放的信息: **isa指针**、**superClass**、**属性信息**、**对象方法信息**、**协议信息**、**成员变量信息**(成员变量名称类型都是固定的,所以只需要一份存放在类对象中,而成员变量的值是存放在实例对象中的)**
 3. 元类对象。元类对象和类对象都是Class类型
@@ -183,7 +183,9 @@
         Class objcMetaClass1 = object_getClass([Person class]);
         Class objcMetaClass2 = object_getClass([objcP1 class]);
         Class objcMetaClass3 = object_getClass([objcP2 class]);
-        NSLog(@"\nobjcClassP1:%p\nobjcMetaClass1:%p\nobjcMetaClass2:%p\nobjcMetaClass3:%p\n",objcMetaClass1,objcMetaClass2,objcMetaClass3);
+        NSLog(@"\nobjcClassP1:%p\nobjcMetaClass1:%p\nobjcMetaClass2:%p\nobjcMetaClass3:%p\n",  
+        objcMetaClass1,objcMetaClass2,objcMetaClass3);
+        
         打印结果: objcClassP1:0x100001398
                 objcMetaClass1:0x100001370
                 objcMetaClass2:0x100001370
@@ -191,41 +193,44 @@
 #### 从打印结果得知：一个类的元类对象meta-class只有一个，每个类在内存中有且仅有一个元类对象,并且元类对象meta-class和类对象class是不同的对象。元类meta-class对象和类class对象的内存结构是一样的,但是用途不一样,元类在内存中存储的信息: **isa指针**、**superClass**、**类方法信息**等等
 
 #### ⚠️注意，下面的案例,即便通过调用多次class方法，获取到的仍然是类对象，而不是元类对象
-        //元类对象
-        Class objcMetaClass = object_getClass([NSObject class]);
-        //类对象
-        Class objcClass1 = [NSObject class];
-        Class objcClass2 = [[NSObject class] class];
-        Class objcClass3 = [[[NSObject class] class] class];
-        NSLog(@"\nNSObject元类对象信息: %p \nNSObject类对象信息:\n objcClass1:%p \n objcClass2:%p \n objcClass3:%p \n",objcMetaClass, objcClass1, objcClass2, objcClass3);
+    //元类对象
+    Class objcMetaClass = object_getClass([NSObject class]);
+    //类对象
+    Class objcClass1 = [NSObject class];
+    Class objcClass2 = [[NSObject class] class];
+    Class objcClass3 = [[[NSObject class] class] class];
+    
+    NSLog(@"\nNSObject元类对象信息:%p\nNSObject类对象信息:\nobjcClass1:%p\nobjcClass2:%p  
+    \nobjcClass3:%p\n",objcMetaClass,objcClass1, objcClass2, objcClass3);
 
-        //元类对象
-        Class personMetaClass = object_getClass([Person class]);
-        //类对象
-        Class personClass1 = [Person class];
-        Class personClass2 = [[Person class] class];
-        Class personClass3 = [[[Person class] class] class];
-        NSLog(@"\nPerson元类对象信息: %p\n Person类对象信息:\n personClass1:%p \n personClass2:%p \n personClass3:%p \n",personMetaClass, personClass1, personClass2, personClass3);
-        
-        打印结果：NSObject类对象信息: 0x7fffae2bd0f0 
-                NSObject类对象信息: objcClass1:0x7fffae2bd140 
-                                  objcClass2:0x7fffae2bd140 
-                                  objcClass3:0x7fffae2bd140 
+    //元类对象
+    Class personMetaClass = object_getClass([Person class]);
+    //类对象
+    Class personClass1 = [Person class];
+    Class personClass2 = [[Person class] class];
+    Class personClass3 = [[[Person class] class] class];
+    NSLog(@"\nPerson元类对象信息: %p\n Person类对象信息:\n personClass1:%p \n personClass2:%p  
+    \n personClass3:%p \n",personMetaClass, personClass1, personClass2, personClass3);
+    
+    打印结果：NSObject类对象信息: 0x7fffae2bd0f0 
+            NSObject类对象信息: objcClass1:0x7fffae2bd140 
+                              objcClass2:0x7fffae2bd140 
+                              objcClass3:0x7fffae2bd140 
 
-        Person元类对象信息: 0x100001388
-        Person类对象信息: personClass1:0x1000013b0 
+    Person元类对象信息: 0x100001388
+    Person类对象信息: personClass1:0x1000013b0 
                         personClass2:0x1000013b0 
                         personClass3:0x1000013b0
 
 #### 5. isa指针
-      实例对象                   类对象                    元类对象
-      instance                  class                    meta-class
-      isa                       isa                      isa
-      成员变量值                  superclass               superclass
-                                属性、对象方法、协议、       类方法
-                                成员变量(名称类型)
-      实例对象isa指针-->类对象     类对象isa指针-->元类对象    元类对象isa指针-->基类(NSObject)的meta-class
-                                                        基类(NSObject)的meta-class的isa指针指向它本身
+      实例对象                类对象                  元类对象
+      instance               class                meta-class
+      isa                     isa                   isa
+      成员变量值              superclass             superclass
+                            属性、对象方法、协议、      类方法
+                            成员变量(名称类型)
+    实例对象isa指针-->类对象    类对象isa指针-->元类对象  元类对象isa指针-->基类(NSObject)的meta-class  
+                                                    基类(NSObject)的meta-class的isa指针指向它本身
 
 
 #### 接下来我们来证明实例对象的isa指针指向类对象；类对象的isa指针指向元类对象；元类对象的isa指针指向基类的元类对象；基类的元类对象的isa指针指向它自身, 这里有个注意点：从64bit开始,isa需要进行一次位运算才能计算处真实的地址,即实例对象的isa指针地址 & ISA_MASK
@@ -239,43 +244,43 @@
         Class objcClassP = [Person class];
 
 #### 接下来通过Xcode断点，在控制台打印实例对象、类对象，元类对象、基类的元类对象、isa指针信息来验证
-        (lldb) p/x (long)objcP->isa          
-        (long) $5 = 0x001d8001000013a5       //打印实例对象的isa指针地址：0x001d8001000013a5
-        (lldb) p/x (long)objcClassP
-        (long) $6 = 0x00000001000013a0       //打印类对象的地址：0x00000001000013a0
-        (lldb) p/x (long)objcP->isa & 0x00007ffffffffff8ULL
-        (unsigned long long) $7 = 0x00000001000013a0   //打印实例对象的isa的真实地址:0x00000001000013a0
-        (lldb) 
+    (lldb) p/x (long)objcP->isa          
+    (long) $5 = 0x001d8001000013a5   //打印实例对象的isa指针地址：0x001d8001000013a5
+    (lldb) p/x (long)objcClassP
+    (long) $6 = 0x00000001000013a0   //打印类对象的地址：0x00000001000013a0
+    (lldb) p/x (long)objcP->isa & 0x00007ffffffffff8ULL
+    (unsigned long long) $7 = 0x00000001000013a0  //打印实例对象的isa的真实地址:0x00000001000013a0
+    (lldb) 
 * 分析1：验证了：实例对象instance的isa指针指向了类对象class
 
 #### 下面是**Class类型**的底层结构，但是这种结构我们无法像上面一样打印isa指针地址，所以只能通过自定义结构体，然后进行转化，然后再打印对象的isa地址
-        typedef struct objc_class *Class;
-        struct objc_class {
-            Class _Nonnull isa  OBJC_ISA_AVAILABILITY;
-        }
+    typedef struct objc_class *Class;
+    struct objc_class {
+        Class _Nonnull isa  OBJC_ISA_AVAILABILITY;
+    }
 
-        struct WG_objc_class {
-            Class isa;
-        };
+    struct WG_objc_class {
+        Class isa;
+    };
 
-        int main(int argc, const char * argv[]) {
-            @autoreleasepool {
-                Class objcClassP = [Person class];
-                struct WG_objc_class *objcClassPPP = (__bridge struct WG_objc_class *)(objcClassP);
-                Class objcMetaClassP = object_getClass(objcClassP);
-        }
-        
-        p/x (long)objcClassPPP->isa         
-        (long) $0 = 0x001d800100001361     //打印类对象中的isa指针的地址
-        (lldb) p/x (long)objcMetaClassP   
-        (long) $1 = 0x0000000100001360     //打印元类对象的地址
-        (lldb) p/x (long)objcClassPPP->isa & 0x00007ffffffffff8ULL
-        (unsigned long long) $2 = 0x0000000100001360   //打印类对象中isa指针的真实地址
+    int main(int argc, const char * argv[]) {
+        @autoreleasepool {
+        Class objcClassP = [Person class];
+        struct WG_objc_class *objcClassPPP=(__bridge struct WG_objc_class *)(objcClassP);
+        Class objcMetaClassP = object_getClass(objcClassP);
+    }
+    
+    p/x (long)objcClassPPP->isa         
+    (long) $0 = 0x001d800100001361     //打印类对象中的isa指针的地址
+    (lldb) p/x (long)objcMetaClassP   
+    (long) $1 = 0x0000000100001360     //打印元类对象的地址
+    (lldb) p/x (long)objcClassPPP->isa & 0x00007ffffffffff8ULL
+    (unsigned long long) $2 = 0x0000000100001360   //打印类对象中isa指针的真实地址
 * 分析2：验证了：类对象class中的isa指针指向了元类对象meta-class
 
         Class objcMetaRoot = object_getClass([NSObject class]);
         Class objcMetaClassP = object_getClass([Person class]);
-        struct WG_objc_class *objcMetaClassPPP = (__bridge struct WG_objc_class *)(objcMetaClassP);
+        struct WG_objc_class *objcMetaClassPPP=(__bridge struct WG_objc_class *)(objcMetaClassP);
         
         (lldb) p/x (long)objcMetaClassPPP->isa
         (long) $0 = 0x001dffffae2bd0f1        //打印元类对象中isa指针的地址    
@@ -286,7 +291,7 @@
 * 分析3：验证了：元类对象meta-class中的isa指针指向了基类的元类对象
         
         Class objcMetaClassR = object_getClass([NSObject class]);
-        struct WG_objc_class *objcMetaClassRRR = (__bridge struct WG_objc_class *)(objcMetaClassR);
+        struct WG_objc_class *objcMetaClassRRR=(__bridge struct WG_objc_class *)(objcMetaClassR);
 
         (lldb) p/x (long)objcMetaClassRRR->isa
         (long) $0 = 0x001dffffae2bd0f1       //打印基类的元类对象中的isa指针的地址
@@ -303,15 +308,15 @@
 #### 6. superclass
 #### 从上面学习中我们知道superclass只存在于类class对象和元类meta-class对象中,我们通过如下例子来说明
 #### 6.1 superclass存在于类class对象中
-       @interface Student : Person       @interface Person : NSObject
+       @interface Student : Person   @interface Person : NSObject
 
-       Student类对象                      Person类对象                    NSObject类对象
-       isa指针                            isa指针                        isa指针
-       superclass                        superclass                     superclass
-       属性/对象方法                       属性/对象方法                    属性/对象方法
-       成员变量/协议                       成员变量/协议                    成员变量/协议
-       superclass指针-->Person类对象       superclass-->NSObject类对象     superclass-->nil
-       -(void)studentMethod              -(void)personMethod            -(void)init
+       Student类对象                 Person类对象               NSObject类对象
+       isa指针                       isa指针                      isa指针
+       superclass                   superclass                 superclass
+       属性/对象方法                  属性/对象方法                属性/对象方法
+       成员变量/协议                  成员变量/协议               成员变量/协议
+    superclass指针-->Person类对象   superclass-->NSObject类对象  superclass-->nil
+    -(void)studentMethod         -(void)personMethod          -(void)init
        
        Student *stu = [[Student alloc]init];
        [stu studentMethod];
@@ -324,16 +329,17 @@
 #### 总结: 类对象中的superclass指向父类对象的类对象; 父类对象的类对象中的superclass指向基类(NSObject)的类对象; 基类的类对象中的superclass指向nil; 所以类对象中的superclass作用一般就是为了实例方法的查找和调用
 
 #### 6.2 superclass存在于元类meta-class对象中
-        @interface Student : Person               @interface Person : NSObject
+    @interface Student : Person   @interface Person : NSObject
 
-        Student元类对象                     Person元类对象                    NSObject元类对象  
-        isa指针                            isa指针                        isa指针
-        superclass                        superclass                     superclass
-        类方法                             类方法                          类方法 
-        superclass指针-->Person元类对象      superclass-->NSObject元类对象     superclass-->nil
-        +(void)studentClassMethod         +(void)personClassMethod       +(void)load
+    Student元类对象                 Person元类对象              NSObject元类对象  
+    isa指针                         isa指针                       isa指针
+    superclass                    superclass                    superclass
+    类方法                          类方法                         类方法 
+    superclass指针-->Person元类对象  superclass-->NSObject元类对象 superclass-->nil
+    +(void)studentClassMethod     +(void)personClassMethod      +(void)load
 
-       [Student studentClassMethod];
+    [Student studentClassMethod];
+    
 #### 上面方法调用过程: 通过Student类对象中的的isa指针找到Student的元类对象,然后在Student的元类对象中找到类方法studentClassMethod方法进行调用
          [Student personClassMethod];
 #### 当调用父类Person的类方法时: 通过Student类对象中的isa指针找到Student的元类对象,然后在通过Student的元类对象中的superclass找到Person类的元类对象,在Person元类对象中找到类方法personClassMethod进行调用
@@ -373,13 +379,13 @@
         
         打印结果: 实际占用内存:8-----系统分配内存:16
         
-        1.class_getInstanceSize: 真正使用的内存空间大小(可以理解成正在使用的成员变量所使用的空间),Runtime源码如下
+        //1.真正使用的内存空间大小(可以理解成正在使用的成员变量所使用的空间),Runtime源码如下
         size_t class_getInstanceSize(Class cls) {
             if (!cls) return 0;
             return cls->alignedInstanceSize();
         }
         
-        // 类成员变量所占内存 Class's ivar size rounded up to a pointer-size boundary.
+        //类成员变量所占内存 Class's ivar size rounded up to a pointer-size boundary.
         uint32_t alignedInstanceSize() {
             return word_align(unalignedInstanceSize());
         }
@@ -390,8 +396,10 @@
             return data()->ro->instanceSize;  //成员变量大小
         }
         
-        2. malloc_size 系统分配的内存空间大小，Runtime源码查找如下
-        _objc_rootAllocWithZone ---> class_createInstance ---> _class_createInstanceFromZone ---> instanceSize
+        //2. malloc_size 系统分配的内存空间大小，Runtime源码查找如下
+        //_objc_rootAllocWithZone--->class_createInstance--->  
+        _class_createInstanceFromZone--->instanceSize
+        
         size_t instanceSize(size_t extraBytes) {
             size_t size = alignedInstanceSize() + extraBytes;
             // CF requires all objects be at least 16 bytes.
@@ -516,8 +524,9 @@
 
         Person *p = [[Person alloc]init];
         Student *stu = [[Student alloc]init];
-        NSLog(@"Person实际占用内存:%zd,系统分配给Person内存:%zd\n
+        NSLog(@"Person实际占用内存:%zd,系统分配给Person内存:%zd\n  
         Student实际占用内存:%zd,系统分配给Student内存:%zd\n",
+        
         class_getInstanceSize([Person class]),
         malloc_size((__bridge const void *)(p)),
         class_getInstanceSize([Student class]),
@@ -563,24 +572,24 @@
     typedef struct objc_class *Class;
     
 #### 接下来我们来通过RunTime源码(objc源码)来窥探objc_class结构体,
-        struct objc_object {
-        private:
-            isa_t isa;
-            ...其他信息...
-        }
-    
-        为什么结构体可以继承? 因为这是C++语言的结构体,C++语言结构体是可以继承的,这也是和OC语言的区别
-        struct objc_class : objc_object {
-            // Class ISA;
-            Class superclass;
-            cache_t cache;             // formerly cache pointer and vtable
-            class_data_bits_t bits;    // class_rw_t * plus custom rr/alloc flags
+    struct objc_object {
+    private:
+        isa_t isa;
+        ...其他信息...
+    }
 
-            class_rw_t *data() { 
-                return bits.data();
-            }
-                ...其他信息...
+    为什么结构体可以继承? 因为这是C++语言的结构体,C++语言结构体是可以继承的,这也是和OC语言的区别
+    struct objc_class : objc_object {
+        // Class ISA;
+        Class superclass;
+        cache_t cache;             // formerly cache pointer and vtable
+        class_data_bits_t bits;    // class_rw_t * plus custom rr/alloc flags
+
+        class_rw_t *data() { 
+            return bits.data();
         }
+            ...其他信息...
+    }
         
 #### 其实上面的内容相当于下面的结构体
         struct objc_class {
@@ -638,12 +647,12 @@
       isa                                                         
     superclass                         
     cache方法缓存列表                    
-             & FAST_DATA_MASK          
-    bits ------------------------>class_rw_t结构体                  
-                                  class_ro_t --------------->class_ro_t结构体
-                                  methods方法列表             instanceSize实例对象占用的内存空间
-                                  properties属性列表          ivars成员变量列表        
-                                  protocols协议列表
+         & FAST_DATA_MASK          
+    bits ---------------->class_rw_t结构体                  
+                          class_ro_t --------->class_ro_t结构体
+                          methods方法列表       instanceSize实例对象占用的内存空间
+                          properties属性列表    ivars成员变量列表        
+                          protocols协议列表
 
 #### 10 自我总结
 #### iOS中成员变量如果写在.m文件中，那么就是私有的，只能在.m文件内访问，权限就是private，子类是无法访问的,并且在.m文件中访问不能通过**实例对象.XXX**的形式访问,而是直接XXX访问即可；如果成员变量写在.h文件中，默认的权限是@protected，在子类中是可以访问这个成员变量的，但是需要通过**self->XXX**的形式访问，如果想在除了子类的其他地方使用，需要修改权限，添加@public即可

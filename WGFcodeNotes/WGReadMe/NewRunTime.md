@@ -24,13 +24,13 @@
 ### 1. isa详解
 #### 之前的学习中我们知道如下结论,在arm64架构之前,isa就是一个普通的指针,存储着Class、Meta_Class对象的内存地址,而从arm64位架构开始,对isa进行了优化,变成了一个共用体(union)结构,还使用位域来存储更多的信息
     实例对象                               
-    instance  &ISA_MASK                              
-      isa--------------->类对象                   
-    其他成员变量           class      &ISA_MASK  
-    superclass            isa--------------------->元类对象  &ISA_MASK
-                        superclass                  isa----------------->基元类对象(isa----->它本身)    
-                   属性/对象方法/协议/成员变量         superclass
-                                                    类方法
+    instance &ISA_MASK                              
+      isa------------>类对象                   
+    其他成员变量        class   &ISA_MASK  
+    superclass        isa---------------->元类对象  &ISA_MASK
+                    superclass             isa-------------->基元类对象(isa----->它本身)    
+                属性/对象方法/协议/成员变量    superclass
+                                           类方法
     # if __arm64__
     #   define ISA_MASK   0x0000000ffffffff8ULL
     # elif __x86_64__
@@ -48,7 +48,8 @@
         Class cls;
         uintptr_t bits;  //存放所有的数据
         struct {  //利用了位域技术,这个结构体纯粹就是为了增加可读性,其它没什么作用
-            uintptr_t nonpointer        : 1;  //占1位 最低的地址(0b0000 0000 最后一位代表这个值)
+            //占1位 最低的地址(0b0000 0000 最后一位代表这个值)
+            uintptr_t nonpointer        : 1;  
             uintptr_t has_assoc         : 1;  
             uintptr_t has_cxx_dtor      : 1;
             uintptr_t shiftcls          : 33; //代表类/元类对象的地址
@@ -58,7 +59,7 @@
             uintptr_t has_sidetable_rc  : 1;
             uintptr_t extra_rc          : 19;
         };
-        //结构体中位的总和是64位,即8个字节,虽然优化后存储了大量的信息,但是利用共用体和位域技术可以共用一块内存
+    //结构体中位的总和是64位,即8个字节,虽然优化后存储了大量的信息,但是利用共用体和位域技术可以共用一块内存
     }
 1.  nonpointer
 * 若是0: 代表普通的指针,存储着class、Meta-class对象的内存地址,即没有经过优化的isa指针
@@ -130,18 +131,18 @@
         }
         
 #### 例如:二维数组的方法列表method_array_t methods 
-        元素1             元素2           元素3           元素4           元素... 
-        method_list_t    method_list_t   method_list_t  method_list_t   ...
-        
-        method_list_t一维数组
-         元素1        元素2       元素3       元素4     元素... 
-        method_t    method_t   method_t   method_t    ...
-        
-        struct method_t {
-            SEL name;            
-            const char *types;   
-            IMP imp;             
-        }
+    元素1             元素2           元素3           元素4           元素... 
+    method_list_t    method_list_t   method_list_t  method_list_t   ...
+    
+    method_list_t一维数组
+     元素1        元素2       元素3       元素4     元素... 
+    method_t    method_t   method_t   method_t    ...
+    
+    struct method_t {
+        SEL name;            
+        const char *types;   
+        IMP imp;             
+    }
 #### class_rw_t里面的methods、properties、protocols是二维数组,是可读可写的,包含了类的初始内容、分类的内容,为什么要设计成二维数组? 原因就是可以动态往里面添加或删除方法,那么设计成一维数组不是一样可以吗?原因就是分类的方法都是独立的,不同的分类可能存放在数组的不同位置上,而一维数组操作不太方便; 
 #### 类的所有方法、协议、属性、成员变量等一开始都是放在class_ro_t结构体中的,程序运行起来后,会将分类的信息和类原来的信息(class_ro_t)进行合并在一起,存放到class_rw_t结构体中
         //编译期已经确定的内容
@@ -202,7 +203,8 @@
     //这个方法的types是(i24@0:8i16f20)
     // i: 返回值类型  @是第一个参数id类型就是消息接收者  :是SEL  i表示int类型 f表示float类型
     // 24代表所有参数的字节数(id-8字节 SEL-8字节 int-4字节 float-4字节)
-    // @代表第一个参数id,0表示这个参数从哪里开始,8代表参数:(SEL)开始的字节数  16代表参数i开始的字节数 20代表f开始的字节数
+    // @代表第一个参数id,0表示这个参数从哪里开始,
+    // 8代表参数:(SEL)开始的字节数  16代表参数i开始的字节数 20代表f开始的字节数
     -(int)test:(int)age height:(float)height;
 
 #### 2.3 cache_t方法缓存结构
@@ -219,8 +221,8 @@
         mask_t _mask;               //散列表长度-1(数组元素个数-1)
         mask_t _occupied;           //已经缓存的方法数量
     }
-    为什么_mask的长度是散列表长度-1? 因为如果等于散列表长度,而@selector(test)&_mask的值要小于等于散列表的下标
-    而最大的下标是散列表长度-1
+    为什么_mask的长度是散列表长度-1? 因为如果等于散列表长度,而@selector(test)&_mask的值要小于等于  
+    散列表的下标而最大的下标是散列表长度-1
     
     struct bucket_t {               //散列表
         cache_key_t _key;           //SEL作为Key
@@ -284,19 +286,19 @@
                                                 
     (1)receiver是否为nil---否--->(2)从receive Class的cache中查找方法---找到--->调用方法结束查询
          是                         没有找到
-         退出         (3)从receive Class的class_rw_t中查找方法---找到--->调用方法结束查询
-                                      |                           并将方法缓存到receive的cache中
+         退出       (3)从receive Class的class_rw_t中查找方法---找到--->调用方法结束查询
+                                      |                     并将方法缓存到receive的cache中
                                       |
                                    没有找到
-                         (4)从superClass的cache中查找方法---找到--->调用方法结束查询
-                                      |                       并将方法缓存到receive的cache中
+                    (4)从superClass的cache中查找方法---找到--->调用方法结束查询
+                                      |               并将方法缓存到receive的cache中
                                       |
                                     没有找到
-                        (5)从superClass的class_rw_t中查找方法---找到--->调用方法结束查询
-                                      |                           并将方法缓存到receive的cache中
+                  (5)从superClass的class_rw_t中查找方法---找到--->调用方法结束查询
+                                      |                   并将方法缓存到receive的cache中
                                       |
                                     没有找到
-                            (6)上层是否还有superClass---否--->动态方法解析阶段
+                     (6)上层是否还有superClass---否--->动态方法解析阶段
                                       |
                                       |
                                       是
@@ -349,7 +351,7 @@
             Method otherMethod = class_getInstanceMethod(self, @selector(otherTest));
             //2.方法添加到什么上面? 肯定是添加到类对象中,而这个方法就是在类方法中,所以self就代表类对象
             class_addMethod(self,
-                            sel,
+                            sel,  
                             method_getImplementation(otherMethod),
                             method_getTypeEncoding(otherMethod)
                             );
@@ -429,7 +431,7 @@
     #import "Person.h"
     #import "Student.h"
     @implementation Person
-    ///1.方法一,消息转发:将消息转发给别人,将方法交给一个指定的对象去实现
+    //1.方法一,消息转发:将消息转发给别人,将方法交给一个指定的对象去实现
     -(id)forwardingTargetForSelector:(SEL)aSelector {
         if (aSelector == @selector(test)) {
             //底层实际上是这么处理的:objc_msgSend([[Student alloc]init], aSelector)
@@ -438,9 +440,10 @@
         return 0;
     }
     
-    ⚠️：这里Student对象中的方法有如下要求：方法名必须和调用的方法名要一致，方法参数类型要一致,参数名称可以不一致；方法返回值类型可以不一致
+    ⚠️：这里Student对象中的方法有如下要求：方法名必须和调用的方法名要一致，方法参数类型要一致,参数名称可以不一致；  
+    方法返回值类型可以不一致
 
-    /// 2.如果方法一没有实现(相当于返回nil),或者返回值为nil,就继续调用下面这个方法
+    //2.如果方法一没有实现(相当于返回nil),或者返回值为nil,就继续调用下面这个方法
     - (NSMethodSignature *)methodSignatureForSelector:(SEL)aSelector {
         //返回一个方法签名: 方法签名(返回值类型、参数类型)
         if (aSelector == @selector(test)) {
@@ -514,64 +517,66 @@
     打印结果:  ---20
 #### 类方法消息转发
 
-        @interface Student : NSObject
-        +(void)test;
-        @end
+    @interface Student : NSObject
+    +(void)test;
+    @end
 
-        @implementation Student
-        +(void)test {
-            NSLog(@"---%s",__func__);
+    @implementation Student
+    +(void)test {
+        NSLog(@"---%s",__func__);
+    }
+    @end
+
+    @interface Person : NSObject
+    +(void)test;
+    @end
+
+    @implementation Person
+    //如果消息转发的是类方法,那么这个方法应该也是类方法,所以方法用+号,但是一般我们直接敲方法出来的都是  
+    实例方法,因为编译器对于类方法没有提示,所以我们需要根据方法类型来决定是用+还是-
+    
+    +(id)forwardingTargetForSelector:(SEL)aSelector {
+        if (aSelector == @selector(test)) {
+            //因为转发的是类方法,所以消息的接收者应该是类对象
+            return [Student class];
         }
-        @end
+        return [super forwardingTargetForSelector:aSelector];
+    }
+    @end
+    
+    - (void)viewDidLoad {
+        [super viewDidLoad];
+        [Person test];
+    }
+    
+    打印结果: ---+[Student test]
 
-        @interface Person : NSObject
-        +(void)test;
-        @end
 
-        @implementation Person
-        //如果消息转发的是类方法,那么这个方法应该也是类方法,所以方法用+号,但是一般我们直接敲方法出来的都是实例方法,因为编译器对于类方法没有提示,所以我们需要根据方法类型来决定是用+还是-
-        +(id)forwardingTargetForSelector:(SEL)aSelector {
-            if (aSelector == @selector(test)) {
-                //因为转发的是类方法,所以消息的接收者应该是类对象
-                return [Student class];
-            }
-            return [super forwardingTargetForSelector:aSelector];
+    @implementation Person
+    //如果消息转发的是类方法,那么这个方法应该也是类方法,所以方法用+号,但是一般我们直接敲方法出来的都是实例方法,  
+    因为编译器对于类方法没有提示,所以我们需要根据方法类型来决定是用+还是-
+    //+(id)forwardingTargetForSelector:(SEL)aSelector {
+    //    if (aSelector == @selector(test)) {
+    //        //因为转发的是类方法,所以消息的接收者应该是类对象
+    //        return [Student class];
+    //    }
+    //    return [super forwardingTargetForSelector:aSelector];
+    //}
+
+    /// 如果上面的方法返回为nil或者没有处理,就会继续执行下面的方法, 记得也是类方法(+)
+    + (NSMethodSignature *)methodSignatureForSelector:(SEL)aSelector {
+        if (aSelector == @selector(test)) {
+            return [NSMethodSignature signatureWithObjCTypes:"v@:"];
         }
-        @end
+        return [super methodSignatureForSelector:aSelector];
+    }
+    // 这里也是个类方法
+    +(void)forwardInvocation:(NSInvocation *)anInvocation {
+        NSLog(@"123123123");
+    }
+    @end
         
-        - (void)viewDidLoad {
-            [super viewDidLoad];
-            [Person test];
-        }
-        
-        打印结果: ---+[Student test]
-
-
-        @implementation Person
-        //如果消息转发的是类方法,那么这个方法应该也是类方法,所以方法用+号,但是一般我们直接敲方法出来的都是实例方法,
-        因为编译器对于类方法没有提示,所以我们需要根据方法类型来决定是用+还是-
-        //+(id)forwardingTargetForSelector:(SEL)aSelector {
-        //    if (aSelector == @selector(test)) {
-        //        //因为转发的是类方法,所以消息的接收者应该是类对象
-        //        return [Student class];
-        //    }
-        //    return [super forwardingTargetForSelector:aSelector];
-        //}
-
-        /// 如果上面的方法返回为nil或者没有处理,就会继续执行下面的方法, 记得也是类方法(+)
-        + (NSMethodSignature *)methodSignatureForSelector:(SEL)aSelector {
-            if (aSelector == @selector(test)) {
-                return [NSMethodSignature signatureWithObjCTypes:"v@:"];
-            }
-            return [super methodSignatureForSelector:aSelector];
-        }
-        // 这里也是个类方法
-        +(void)forwardInvocation:(NSInvocation *)anInvocation {
-            NSLog(@"123123123");
-        }
-        @end
-        
-        打印结果: 123123123
+    打印结果: 123123123
 #### 整个消息传递流程可以通过RunTime源码中objc-runtime-new.h文件中的_class_lookupMethodAndLoadCache3为入口进行查看
 
 ### 大总结
@@ -586,44 +591,44 @@
 
 
 ### 4 @dynamic、@synthesize关键词
-        @interface Person : NSObject
-        /*
-         写上这么一个属性,编译器会自动帮我们
-         1.生成对应的getter/setter方法的声明
-         -(void)setAge:(int)age;
-         -(int)age;
-         2._age成员变量
-         {
-            int _age;
-         }
-         3. getter/setter方法的实现
-         -(void)setAge:(int)age {
-             _age = age;
-         }
-         -(int)age {
-             return _age;
-         }
-         */
-        @property(nonatomic, assign)int age;
-        @end
+    @interface Person : NSObject
+    /*
+     写上这么一个属性,编译器会自动帮我们
+     1.生成对应的getter/setter方法的声明
+     -(void)setAge:(int)age;
+     -(int)age;
+     2._age成员变量
+     {
+        int _age;
+     }
+     3. getter/setter方法的实现
+     -(void)setAge:(int)age {
+         _age = age;
+     }
+     -(int)age {
+         return _age;
+     }
+     */
+    @property(nonatomic, assign)int age;
+    @end
         
-        @implementation Person
-        /*
-         1.@synthesize关键词是很早之前的写法,现在已经不需要再写这个关键词了,Xcode默认已经实现了,只要写
-         上属性@property,就会自动生成成员变量和getter/setter方法的实现
-         2.@synthesize age = _age; 为age属性生成_age的成员变量,并且自动生成getter/setter方法的实现,这里可以指定成员变量的
-         名称,例如也可以这样写@synthesize age = _age1111;
-         */
-        @synthesize age = _age;
+    @implementation Person
+    /*
+     1.@synthesize关键词是很早之前的写法,现在已经不需要再写这个关键词了,Xcode默认已经实现了,只要写  
+     上属性@property,就会自动生成成员变量和getter/setter方法的实现
+     2.@synthesize age = _age; 为age属性生成_age的成员变量,并且自动生成getter/setter方法的实现,  
+     这里可以指定成员变量的名称,例如也可以这样写@synthesize age = _age1111;
+     */
+    @synthesize age = _age;
 
-        /*
-         如果我们不希望Xcode自动帮我们生成属性的getter/setter方法的实现和对应的成员变量,可以这么写@dynamic age;
-         提醒编译器不要自动生成getter/setter的实现、不要自动生成对应的成员变量
-         外部仍然可以调用setAge方法,因为@dynamic并不影响属性的getter/setter方法的声明
-         */
-        @dynamic age;
-        
-        @end
+    /*
+    如果我们不希望Xcode自动帮我们生成属性的getter/setter方法的实现和对应的成员变量,可以这么写@dynamic age;
+    提醒编译器不要自动生成getter/setter的实现、不要自动生成对应的成员变量
+    外部仍然可以调用setAge方法,因为@dynamic并不影响属性的getter/setter方法的声明
+     */
+    @dynamic age;
+    
+    @end
 ### 5 super关键词
 #### 案例代码
     @interface Student : Person
@@ -679,8 +684,12 @@
     
     C++代码
     static void _I_Student_run(Student * self, SEL _cmd) {
-        ((void (*)(__rw_objc_super *, SEL))(void *)objc_msgSendSuper)((__rw_objc_super){(id)self, (id)class_getSuperclass(objc_getClass("Student"))}, sel_registerName("run"));
+        ((void (*)(__rw_objc_super *, SEL))(void *)objc_msgSendSuper)((__rw_objc_super){  
+        (id)self,
+        (id)class_getSuperclass(objc_getClass("Student"))},
+        sel_registerName("run"));
     }
+    
     C++代码简化版 __rw_objc_super、objc_msgSendSuper在Runtime源码中可以找到
     static void _I_Student_run(Student * self, SEL _cmd) {
         objc_msgSendSuper((__rw_objc_super){
@@ -692,7 +701,7 @@
     struct __rw_objc_super { 
         struct objc_object *object; 
         struct objc_object *superClass; 
-        __rw_objc_super(struct objc_object *o, struct objc_object *s) : object(o), superClass(s) {} 
+        __rw_objc_super(struct objc_object *o,struct objc_object *s):object(o),superClass(s){} 
     };
     
     //objc_super data structure, including the instance of the class that is to receive the
@@ -740,14 +749,15 @@
     - (BOOL)isMemberOfClass:(Class)cls {
         return [self class] == cls;
     }
-    //类方法：类的类对象(元类)是否等于指定的类对象(元类)或者是指定的类对象(元类)的子类【类的元类是否等于指定的元类对象或者是指定元类对象的子类】
+    //类方法：类的类对象(元类)是否等于指定的类对象(元类)或者是指定的类对象(元类)的子类
+    //【类的元类是否等于指定的元类对象或者是指定元类对象的子类】
     + (BOOL)isKindOfClass:(Class)cls {
         for (Class tcls = object_getClass((id)self); tcls; tcls = tcls->superclass) {
             if (tcls == cls) return YES;
         }
         return NO;
     }
-    对象方法：对象的类对象是否是指定的类对象或者是指定的类对象的子类
+    //对象方法：对象的类对象是否是指定的类对象或者是指定的类对象的子类
     - (BOOL)isKindOfClass:(Class)cls {
         for (Class tcls = [self class]; tcls; tcls = tcls->superclass) {
             if (tcls == cls) return YES;
@@ -850,7 +860,8 @@
         Person *person = [[Person alloc]init];
         [person run];
         //4. 获取isa指向的Class(类对象,类对象,元类对象)
-        NSLog(@"%p---%p---%p",object_getClass(person),[Person class],object_getClass([Person class]));
+        NSLog(@"%p---%p---%p",  
+        object_getClass(person),[Person class],object_getClass([Person class]));
         //4. 打印结果:0x107422d78---0x107422d78---0x107422d50
         
         //5. 将person对象的isa指针设置为指向Car类对象;可以实现中途让对象调用其它类的同名的方法
@@ -859,15 +870,17 @@
         //5. 打印结果:-----[Car run]
         
         //6. 判断一个OC对象是否为Class(元类对象也是特殊的类对象)
-        NSLog(@"%d---%d---%d",object_isClass(person),object_isClass([person class]),object_isClass(object_getClass([Person class])));
+        NSLog(@"%d---%d---%d",object_isClass(person),  
+        object_isClass([person class]),object_isClass(object_getClass([Person class])));
         //6. 打印结果:0---1---1
 
         //7. 判断一个Class是否为元类(参数必须传Class类型)
-        NSLog(@"%d---%d",class_isMetaClass([person class]),class_isMetaClass(object_getClass([Person class])));
+        NSLog(@"%d---%d",class_isMetaClass([person class]),  
+        class_isMetaClass(object_getClass([Person class])));
         //7. 打印结果:0---1
         
-        //8. 获取父类(参数必须传Class类型)特例:NSObject元类对象的superClass指向NSOject类对象
-        NSLog(@"---%@---%@---%@",class_getSuperclass([person class]),
+        //8.获取父类(参数必须传Class类型)特例:NSObject元类对象的superClass指向NSOject类对象
+        NSLog(@"---%@---%@---%@",class_getSuperclass([person class]),  
               class_getSuperclass([Person class]),
               class_getSuperclass(object_getClass([Person class])));
         //8. 打印结果: ---NSObject---NSObject---NSObject
@@ -916,7 +929,7 @@
     Void object_setIvar(id obj, Ivar ivar, id value)
     id object_getIvar(id obj, Ivar ivar)
     4. 动态添加成员变量(已经注册的类是不能动态添加成员变量的)
-    Bool class_addIvar(Class cls, const char * name, size_t size, uint8_t alignment, const char * types)
+    Bool class_addIvar(Class cls,const char * name,size_t size,uint8_t alignment,const char * types)
     5. 获取成员变量的相关信息
     const char *ivar_getName(Ivar v)
     const char *ivar_getTypeEncoding(Ivar v)
@@ -936,11 +949,14 @@
         Ivar ageIvar = class_getInstanceVariable([Person class], "_age");
         NSLog(@"---%s---%s",ivar_getName(ageIvar),ivar_getTypeEncoding(ageIvar));
         //打印结果:---_age---i
+        
         //2. 设置和获取成员变量的值
         Person *person = [[Person alloc]init];
         object_setIvar(person, ageIvar, @10);
         NSLog(@"---%d",person.age);
-        //打印结果: ----459048901 结果出乎意料了,因为我们的_age成员变量类型是int,但是我们传递的是NSNumber类型,所以这样会出问题,但可以这样设置,首先将int类型转为(void *)指针,指针变量就是存储值的,然后将指针转为id,再通过桥接即可
+        //打印结果: ----459048901 结果出乎意料了,因为我们的_age成员变量类型是int,  
+        但是我们传递的是NSNumber类型,所以这样会出问题,但可以这样设置,首先将int类型转为(void *)指针,  
+        指针变量就是存储值的,然后将指针转为id,再通过桥接即可
         object_setIvar(person, ageIvar, (__brigde id)(void *)10);
         
         //正常情况下:
@@ -1009,9 +1025,11 @@
     2. 拷贝属性列表(最后需要调用free释放)
     objc_property_t * class_copyPropertyList(Class cls, unsigned int * outCount)
     3. 动态添加属性
-    Bool class_addProperty(Class cls, const char *name, const objc_property_attribute_t *attributes, unsigned int attributeCount)
+    Bool class_addProperty(Class cls, const char *name,  
+    const objc_property_attribute_t *attributes, unsigned int attributeCount)
     4. 动态替换属性
-    Void class_replaceProperty(Class cls, const char *name, const objc_property_attribute_t *attributes, unsigned int attributeCount)
+    Void class_replaceProperty(Class cls, const char *name,  
+    const objc_property_attribute_t *attributes, unsigned int attributeCount)
     5. 获取属性的一些信息
     const char * property_getName(objc_property_t property);
     const char * property_getAttributes(objc_property_t property)
@@ -1123,7 +1141,9 @@
     }
     @end
     
-    //想拦截按钮的点击事件,就要创建UIControl的分类,来拦截到方法-(void)sendAction:(SEL)action to:(id)target forEvent:(UIEvent *)event
+    //想拦截按钮的点击事件,就要创建UIControl的分类,来拦截到  
+    方法-(void)sendAction:(SEL)action to:(id)target forEvent:(UIEvent *)event
+    
     @interface UIControl (WGHookMethod)
     @end
     
@@ -1140,10 +1160,12 @@
         method_exchangeImplementations(method1, method2);
     }
     -(void)WG_sendAction:(SEL)action to:(id)target forEvent:(UIEvent *)event {
-        // 拦截到按钮的点击事件后,可以做自己想做的事情,但注意,一旦拦截到按钮点击事件后,按钮本身添加的事件就不会再次响应了
+        //拦截到按钮的点击事件后,可以做自己想做的事情,但注意,一旦拦截到按钮点击事件后,按钮本身添加的事件就不会再次响应了
         NSLog(@"self:%@---target:%@---selectorName:%@",self, target, NSStringFromSelector(action));
         //如果我们在拦截到按钮事件后,处理完自己想处理的事,仍然想让按钮继续处理它的事件,那么可以这么做
-        //去调用WG_sendAction:to:forEvent:)方法即可,本来应该调用系统方法sendAction:to:forEvent:),但是因为已经方法交换了,所以调用WG_sendAction:to:forEvent:)方法最终才能去执行系统方法sendAction:to:forEvent:),
+        //去调用WG_sendAction:to:forEvent:)方法即可,本来应该调用系统方法sendAction:to:forEvent:),  
+        但是因为已经方法交换了,所以调用WG_sendAction:to:forEvent:)方法最终才能去执行  
+        系统方法sendAction:to:forEvent:),
         [self WG_sendAction:action to:target forEvent:event];
     }
     @end
@@ -1158,7 +1180,8 @@
         [muArr addObject:@"123"];
         [muArr addObject:name];
     }
-    程序crash: *** Terminating app due to uncaught exception 'NSInvalidArgumentException', reason: '*** -[__NSArrayM insertObject:atIndex:]: object cannot be nil'
+    程序crash: *** Terminating app due to uncaught exception 'NSInvalidArgumentException',  
+    reason: '*** -[__NSArrayM insertObject:atIndex:]: object cannot be nil'
 #### 从上面报错信息我们可以知道addObject方法底层调用的是insertObject:atIndex:方法,所以我们创建NSMutableArray的分类来拦截到这个方法,然后去判断添加的元素是否为nil,如果为nil就不要再调用添加的方法了,这样就可以避免程序crash
     @interface NSMutableArray (WGHookMutableArray)
     @end
@@ -1196,7 +1219,8 @@
         muDic[@"name"] = @"zhangSan";
         muDic[obj] = @"ceShi";
     }
-    程序crash: *** Terminating app due to uncaught exception 'NSInvalidArgumentException', reason: '*** -[__NSDictionaryM setObject:forKeyedSubscript:]: key cannot be nil'
+    程序crash: *** Terminating app due to uncaught exception 'NSInvalidArgumentException',  
+    reason: '*** -[__NSDictionaryM setObject:forKeyedSubscript:]: key cannot be nil'
 #### 从上面报错信息我们可以知道setObject:forKey:;方法底层调用的是setObject:forKeyedSubscript:方法,所以我们创建NSMutableDictionary的分类来拦截到这个方法,然后去判断元素Key是否为nil,如果为nil就不要再调用添加的方法了,这样就可以避免程序crash
     @interface NSMutableDictionary (WGHookMutableDictionary)
     @end

@@ -69,185 +69,185 @@
 ### 3. 死锁
 #### 死锁: 线程卡住了,不能继续往下执行了, 那么什么情况下会产生死锁?
 #### 案例1 
-        - (void)viewDidLoad {
-            [super viewDidLoad];
-            NSLog(@"执行任务1");
-            //队列特点是: 排队、先进先出
-            dispatch_queue_t queue = dispatch_get_main_queue();
-            //dispatch_sync: 立马在当前线程执行任务,执行完毕后才能继续往下走
-            dispatch_sync(queue, ^{
-                NSLog(@"执行任务2");
-            });
-            NSLog(@"执行任务3");
-        }
-        
-        打印结果:  执行任务1
-                 程序crash,产生死锁
-                 
-        主线程          主队列
-        任务1           ViewDidLoad
-        sync           任务2
-        任务3
+    - (void)viewDidLoad {
+        [super viewDidLoad];
+        NSLog(@"执行任务1");
+        //队列特点是: 排队、先进先出
+        dispatch_queue_t queue = dispatch_get_main_queue();
+        //dispatch_sync: 立马在当前线程执行任务,执行完毕后才能继续往下走
+        dispatch_sync(queue, ^{
+            NSLog(@"执行任务2");
+        });
+        NSLog(@"执行任务3");
+    }
+    
+    打印结果:  执行任务1
+             程序crash,产生死锁
+             
+    主线程          主队列
+    任务1           ViewDidLoad
+    sync           任务2
+    任务3
 #### 会产生死锁, 执行完任务1后,遇到同步任务sync需要立马执行,所以就去主队列中取出任务2来执行,但是在主队列中任务2前面的任务还没有完成,需要等待,等待ViewDidLoad执行完成后才能执行任务2,而执行完任务3后ViewDidLoad才能算执行完,而任务3又在等待任务2的执行完成,导致任务2和任务3相互等待,产生死锁
 
 #### 案例2
-        - (void)viewDidLoad {
-            [super viewDidLoad];
-            NSLog(@"执行任务1");
-            //串行队列(非主队列)
-            dispatch_queue_t queue = dispatch_queue_create("myqueue", DISPATCH_QUEUE_SERIAL);
-            //dispatch_sync: 立马在当前线程执行任务,执行完毕后才能继续往下走
-            dispatch_sync(queue, ^{
-                NSLog(@"执行任务2");
-            });
-            NSLog(@"执行任务3");
-        }
+    - (void)viewDidLoad {
+        [super viewDidLoad];
+        NSLog(@"执行任务1");
+        //串行队列(非主队列)
+        dispatch_queue_t queue = dispatch_queue_create("myqueue", DISPATCH_QUEUE_SERIAL);
+        //dispatch_sync: 立马在当前线程执行任务,执行完毕后才能继续往下走
+        dispatch_sync(queue, ^{
+            NSLog(@"执行任务2");
+        });
+        NSLog(@"执行任务3");
+    }
 
-        打印结果: 执行任务1
-                执行任务2
-                执行任务3
-                        
-        主线程    主队列           串行队列
-        任务1    viewDidLoad       任务2
-        sync          
-        任务3
+    打印结果: 执行任务1
+            执行任务2
+            执行任务3
+                    
+    主线程    主队列           串行队列
+    任务1    viewDidLoad       任务2
+    sync          
+    任务3
 #### 不会产生死锁, 因为viewDidLoad是在默认的主队列中完成的,而任务2是在串行队列中,两个不在同一个队列中,所以不存在相互等待的问题
 #### ⚠️ 主队列同步任务会产生死锁,但是串行队列(非主队列)同步任务不会产生死锁
 
 
 #### 案例3
-        - (void)viewDidLoad {
-            [super viewDidLoad];
+    - (void)viewDidLoad {
+        [super viewDidLoad];
 
-            NSLog(@"执行任务1");
-            dispatch_queue_t queue = dispatch_get_main_queue();
-            dispatch_async(queue, ^{
-                NSLog(@"执行任务2");
-            });
-            NSLog(@"执行任务3");
-            NSLog(@"执行任务4");
-            NSLog(@"执行任务5");
-            NSLog(@"执行任务6");
-        }
-        打印结果: 执行任务1
-                执行任务3
-                执行任务4
-                执行任务5
-                执行任务6
-                执行任务2
+        NSLog(@"执行任务1");
+        dispatch_queue_t queue = dispatch_get_main_queue();
+        dispatch_async(queue, ^{
+            NSLog(@"执行任务2");
+        });
+        NSLog(@"执行任务3");
+        NSLog(@"执行任务4");
+        NSLog(@"执行任务5");
+        NSLog(@"执行任务6");
+    }
+    打印结果: 执行任务1
+            执行任务3
+            执行任务4
+            执行任务5
+            执行任务6
+            执行任务2
 #### 不会产生死锁, 因为dispatch_sync同步任务要求立马在当前线程同步执行, 而dispatch_async异步任务不要求立马在当前线程同步执行任务, 该案例中虽然是异步任务但是是在主线程中,所以不会开启新的线程,仍然在主线程中执行;dispatch_async异步任务可以等待上一个任务的完成后再执行,即等待ViewDidLoad执行完成后再执行,说白了就是等任务3/4/5/6执行完成了再执行任务2
 
 
 #### 案例4
-        - (void)viewDidLoad {
-            [super viewDidLoad];
+    - (void)viewDidLoad {
+        [super viewDidLoad];
 
-            NSLog(@"执行任务1");
-            //串行队列
-            dispatch_queue_t queue = dispatch_queue_create("myqueue", DISPATCH_QUEUE_SERIAL);
-            dispatch_async(queue, ^{  //block1
-                NSLog(@"执行任务2");
-                dispatch_sync(queue, ^{ //block2
-                    NSLog(@"执行任务3");
-                });
-                NSLog(@"执行任务4");
+        NSLog(@"执行任务1");
+        //串行队列
+        dispatch_queue_t queue = dispatch_queue_create("myqueue", DISPATCH_QUEUE_SERIAL);
+        dispatch_async(queue, ^{  //block1
+            NSLog(@"执行任务2");
+            dispatch_sync(queue, ^{ //block2
+                NSLog(@"执行任务3");
             });
-            NSLog(@"执行任务5");
-        }
-        
-        打印结果: 执行任务1
-                执行任务5
-                执行任务2
-                程序crash,产生死锁
-                
-        子线程     串行队列
-        任务2      block1(任务4完成了block1才算执行完成)
-        sync      block2(任务3)
-        任务4          
+            NSLog(@"执行任务4");
+        });
+        NSLog(@"执行任务5");
+    }
+    
+    打印结果: 执行任务1
+            执行任务5
+            执行任务2
+            程序crash,产生死锁
+            
+    子线程     串行队列
+    任务2      block1(任务4完成了block1才算执行完成)
+    sync      block2(任务3)
+    任务4          
 #### 产生死锁,首先我们分析最外层的dispatch_async异步任务,不会阻塞当前线程,说白了就是不要求立马执行,所以可以等待,即执行任务1然后执行了任务5,接着执行任务2,这个很好理解; block1和block2都添加到了串行队列,按照先进先出的原则,block1在最上面,block2在下面, 执行dispatch_sync同步任务时,需要在当前线程中立马执行, 所以需要从串行队列中取出block2去执行任务3,然而block1在串行队列最上面,所以想执行block2中的任务,需要先将block1中的任务执行完成, 而block1任务的完成是根据任务4是否完成来决定的,而任务4完成需要根据任务3的完成后才能执行, 所以就存在了任务3和任务4相互等待,导致死锁
 
 #### 案例5
-        - (void)viewDidLoad {
-            [super viewDidLoad];
+    - (void)viewDidLoad {
+        [super viewDidLoad];
 
-            NSLog(@"执行任务1");
-            //串行队列
-            dispatch_queue_t queue = dispatch_queue_create("myqueue", DISPATCH_QUEUE_SERIAL);
-            //并发队列
-            dispatch_queue_t queue2 = dispatch_queue_create("myqueue2", DISPATCH_QUEUE_CONCURRENT);
-            dispatch_async(queue, ^{  //block1
-                NSLog(@"执行任务2");
-                dispatch_sync(queue2, ^{ //block2
-                    NSLog(@"执行任务3");
-                });
-                NSLog(@"执行任务4");
+        NSLog(@"执行任务1");
+        //串行队列
+        dispatch_queue_t queue=dispatch_queue_create("myqueue",DISPATCH_QUEUE_SERIAL);
+        //并发队列
+        dispatch_queue_t queue2=dispatch_queue_create("myqueue2",DISPATCH_QUEUE_CONCURRENT);
+        dispatch_async(queue, ^{  //block1
+            NSLog(@"执行任务2");
+            dispatch_sync(queue2, ^{ //block2
+                NSLog(@"执行任务3");
             });
-            NSLog(@"执行任务5");
-        }
+            NSLog(@"执行任务4");
+        });
+        NSLog(@"执行任务5");
+    }
 
-        打印结果: 执行任务1
-                执行任务5
-                执行任务2
-                执行任务3
-                执行任务4
-                
-        子线程    串行队列   并发队列
-                 block1    block2
+    打印结果: 执行任务1
+            执行任务5
+            执行任务2
+            执行任务3
+            执行任务4
+            
+    子线程    串行队列   并发队列
+             block1    block2
 #### 不会产生死锁,  因为block1和block2在不同的队列中, 不会产生相互等待的情况,任务2执行完成后,遇到dispatch_sync同步任务要求立马执行,那么就从并发队列中取出block2执行即可,而block1是在串行队列中,所以不存在相互等待
 
 #### 案例6
-        - (void)viewDidLoad {
-            [super viewDidLoad];
+    - (void)viewDidLoad {
+        [super viewDidLoad];
 
-            NSLog(@"执行任务1");
-            //串行队列
-            dispatch_queue_t queue = dispatch_queue_create("myqueue", DISPATCH_QUEUE_SERIAL);
-            //串行队列
-            dispatch_queue_t queue2 = dispatch_queue_create("myqueue2", DISPATCH_QUEUE_SERIAL);
-            dispatch_async(queue, ^{  //block1
-                NSLog(@"执行任务2");
-                dispatch_sync(queue2, ^{ //block2
-                    NSLog(@"执行任务3");
-                });
-                NSLog(@"执行任务4");
+        NSLog(@"执行任务1");
+        //串行队列
+        dispatch_queue_t queue=dispatch_queue_create("myqueue",DISPATCH_QUEUE_SERIAL);
+        //串行队列
+        dispatch_queue_t queue2=dispatch_queue_create("myqueue2",DISPATCH_QUEUE_SERIAL);
+        dispatch_async(queue, ^{  //block1
+            NSLog(@"执行任务2");
+            dispatch_sync(queue2, ^{ //block2
+                NSLog(@"执行任务3");
             });
-            NSLog(@"执行任务5");
-        }
-        打印结果: 执行任务1
-                执行任务5
-                执行任务2
-                执行任务3
-                执行任务4
-        
-        子线程    串行队列   串行队列
-                 block1    block2
+            NSLog(@"执行任务4");
+        });
+        NSLog(@"执行任务5");
+    }
+    打印结果: 执行任务1
+            执行任务5
+            执行任务2
+            执行任务3
+            执行任务4
+    
+    子线程    串行队列   串行队列
+             block1    block2
 #### 不会产生死锁,道理是一样的,block1和block2在不同的队列中,所以不会存在相互等待的情况
 
 #### 案例7
-        - (void)viewDidLoad {
-            [super viewDidLoad];
+    - (void)viewDidLoad {
+        [super viewDidLoad];
 
-            NSLog(@"执行任务1");
-            //并发队列
-            dispatch_queue_t queue = dispatch_queue_create("myqueue", DISPATCH_QUEUE_CONCURRENT);
-            dispatch_async(queue, ^{  //block1
-                NSLog(@"执行任务2");
-                dispatch_sync(queue, ^{ //block2
-                    NSLog(@"执行任务3");
-                });
-                NSLog(@"执行任务4");
+        NSLog(@"执行任务1");
+        //并发队列
+        dispatch_queue_t queue=dispatch_queue_create("myqueue",DISPATCH_QUEUE_CONCURRENT);
+        dispatch_async(queue, ^{  //block1
+            NSLog(@"执行任务2");
+            dispatch_sync(queue, ^{ //block2
+                NSLog(@"执行任务3");
             });
-            NSLog(@"执行任务5");
-        }
+            NSLog(@"执行任务4");
+        });
+        NSLog(@"执行任务5");
+    }
 
-        打印结果: 执行任务1
-                执行任务2
-                执行任务3
-                执行任务4
-                执行任务5
-        子线程    并发队列 
-                 block1    
-                 block2
+    打印结果: 执行任务1
+            执行任务2
+            执行任务3
+            执行任务4
+            执行任务5
+    子线程    并发队列 
+             block1    
+             block2
 
 #### 不会产生死锁, 虽然block1和block2都在同一个队列中,遇到dispatch_sync同步任务需要立刻执行,但是是在并发队列中,可以同时执行多个任务, 不需要等待上一个任务的完成,所以不存在相互等待
 
@@ -256,20 +256,20 @@
 
 
 #### 3.1 疑问🤔️: 全局队列和创建的队列有什么区别
-        - (void)viewDidLoad {
-            [super viewDidLoad];
-            //全局队列
-            dispatch_queue_t queue1 = dispatch_get_global_queue(0, 0);
-            dispatch_queue_t queue2 = dispatch_get_global_queue(0, 0);
-            //手动创建并发队列
-            dispatch_queue_t queue3 = dispatch_queue_create("queue3", DISPATCH_QUEUE_CONCURRENT);
-            dispatch_queue_t queue4 = dispatch_queue_create("queue4", DISPATCH_QUEUE_CONCURRENT);
-            // 名称一样的并发队列
-            dispatch_queue_t queue5 = dispatch_queue_create("queue4", DISPATCH_QUEUE_CONCURRENT);
-            NSLog(@"%p %p %p %p %p", queue1, queue2, queue3, queue4,queue5);
-        }
+    - (void)viewDidLoad {
+        [super viewDidLoad];
+        //全局队列
+        dispatch_queue_t queue1 = dispatch_get_global_queue(0, 0);
+        dispatch_queue_t queue2 = dispatch_get_global_queue(0, 0);
+        //手动创建并发队列
+        dispatch_queue_t queue3=dispatch_queue_create("queue3",DISPATCH_QUEUE_CONCURRENT);
+        dispatch_queue_t queue4=dispatch_queue_create("queue4",DISPATCH_QUEUE_CONCURRENT);
+        // 名称一样的并发队列
+        dispatch_queue_t queue5=dispatch_queue_create("queue4",DISPATCH_QUEUE_CONCURRENT);
+        NSLog(@"%p %p %p %p %p", queue1, queue2, queue3, queue4,queue5);
+    }
 
-        打印结果:  0x104fc4f00 0x104fc4f00 0x600000fcee00 0x600000fcee80 0x600000fcef00
+    打印结果:  0x104fc4f00 0x104fc4f00 0x600000fcee00 0x600000fcee80 0x600000fcef00
 #### 全局队列是全局的,只有这一个队列,所以queue1和queue2的地址是相同的; 而手动创建的并发队列地址是不一样的,即便拥有相同的线程名也是不一样的, 但项目中不建议使用相同的线程名,因为线程名也是会用到的,为了便于区分所以不建议使用相同的线程名
 
 ### 4. GNUstep: Foundation框架下原理源码参考
@@ -280,76 +280,76 @@
 
 ### 5. 面试题
 #### 案例1
-        - (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
-            NSLog(@"执行任务1");
-            dispatch_queue_t queue = dispatch_get_global_queue(0, 0);
-            dispatch_async(queue, ^{
-                //本质是向RunLoop中添加定时器
-                [self performSelector:@selector(test) withObject:nil afterDelay:.0];
-            });
-            NSLog(@"执行任务3");
-        }
-        -(void)test{
-            NSLog(@"执行任务2");
-        }
-        
-        打印结果: 执行任务1
-                执行任务3
+    - (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+        NSLog(@"执行任务1");
+        dispatch_queue_t queue = dispatch_get_global_queue(0, 0);
+        dispatch_async(queue, ^{
+            //本质是向RunLoop中添加定时器
+            [self performSelector:@selector(test) withObject:nil afterDelay:.0];
+        });
+        NSLog(@"执行任务3");
+    }
+    -(void)test{
+        NSLog(@"执行任务2");
+    }
+    
+    打印结果: 执行任务1
+            执行任务3
 #### 任务2不会被执行,因为dispatch_async异步任务会开启新的线程(子线程), 但是performSelector:withObject:afterDelay:方法底层是依靠Runloop来执行的, 而子线程中默认没有启动RunLoop,所以performSelector方法不会被执行,也就是任务2不会被执, 通过RunTime源码我们可以知道performSelector:withObject是通过objc_msgSend来发送消息的,而performSelector:withObject:afterDelay:方法是在RunLoop下定义的,它的底层用到的是定时器NSTimer,本质就是向RunLoop中添加定时器
 
 #### 解决方法
-        - (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
-            NSLog(@"执行任务1");
-            dispatch_queue_t queue = dispatch_get_global_queue(0, 0);
-            dispatch_async(queue, ^{
-                [self performSelector:@selector(test) withObject:nil afterDelay:.0];
-                //这句代码可以去掉的,因为performSelector本质是个定时器,所以可以唤醒Runloop(observer/Timer/source)
-                //不需要再添加额外的端口来唤醒RunLoop了
-                //[[NSRunLoop currentRunLoop] addPort:[[NSPort alloc]init] forMode:NSDefaultRunLoopMode];
-                //启动RunLoop
-                [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]];
-            });
-            NSLog(@"执行任务3");
-        }
-        -(void)test{
-            NSLog(@"执行任务2");
-        }
+    - (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+        NSLog(@"执行任务1");
+        dispatch_queue_t queue = dispatch_get_global_queue(0, 0);
+        dispatch_async(queue, ^{
+            [self performSelector:@selector(test) withObject:nil afterDelay:.0];
+            //这句代码可以去掉的,因为performSelector本质是个定时器,所以可以唤醒Runloop(observer/Timer/source)
+            //不需要再添加额外的端口来唤醒RunLoop了
+            //[[NSRunLoop currentRunLoop] addPort:[[NSPort alloc]init] forMode:NSDefaultRunLoopMode];
+            //启动RunLoop
+            [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]];
+        });
+        NSLog(@"执行任务3");
+    }
+    -(void)test{
+        NSLog(@"执行任务2");
+    }
 
-        打印结果: 执行任务1
-                执行任务3
-                执行任务2
+    打印结果: 执行任务1
+            执行任务3
+            执行任务2
 
 #### 案例2 
-        - (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
-            NSThread *thread = [[NSThread alloc]initWithBlock:^{
-                NSLog(@"执行任务1");
-            }];
-            [thread start];
-            [self performSelector:@selector(test) onThread:thread withObject:nil waitUntilDone:YES];
-        }
-        -(void)test{
-            NSLog(@"执行任务2");
-        }
+    - (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+        NSThread *thread = [[NSThread alloc]initWithBlock:^{
+            NSLog(@"执行任务1");
+        }];
+        [thread start];
+        [self performSelector:@selector(test) onThread:thread withObject:nil waitUntilDone:YES];
+    }
+    -(void)test{
+        NSLog(@"执行任务2");
+    }
 
-        打印结果: 执行任务1
+    打印结果: 执行任务1
 #### 任务2不会执行,因为执行完[thread start]后,线程已经销毁了,所以程序会crash
 
 #### 解决方案
-        - (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
-            NSThread *thread = [[NSThread alloc]initWithBlock:^{
-                NSLog(@"执行任务1");
-                //向子线程中的RunLoop添加NSPort端口来保证Runloop一直存在,并且启动Runloop
-                [[NSRunLoop  currentRunLoop] addPort:[[NSPort alloc]init] forMode:NSDefaultRunLoopMode];
-                [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]];
-            }];
-            [thread start];
-            [self performSelector:@selector(test) onThread:thread withObject:nil waitUntilDone:YES];
-        }
-        -(void)test{
-            NSLog(@"执行任务2");
-        }
-        打印结果: 执行任务1
-                执行任务2
+    - (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+        NSThread *thread = [[NSThread alloc]initWithBlock:^{
+            NSLog(@"执行任务1");
+            //向子线程中的RunLoop添加NSPort端口来保证Runloop一直存在,并且启动Runloop
+            [[NSRunLoop  currentRunLoop] addPort:[[NSPort alloc]init] forMode:NSDefaultRunLoopMode];
+            [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]];
+        }];
+        [thread start];
+        [self performSelector:@selector(test) onThread:thread withObject:nil waitUntilDone:YES];
+    }
+    -(void)test{
+        NSLog(@"执行任务2");
+    }
+    打印结果: 执行任务1
+            执行任务2
         
 #### 向子线程中的RunLoop添加NSPort端口来保证Runloop一直存在,并且启动Runloop,这样执行完 [thread start]后,线程也不会销毁,就能保证任务2的执行
 
@@ -508,7 +508,7 @@
             /*
              #define PTHREAD_MUTEX_NORMAL        0          普通锁
              #define PTHREAD_MUTEX_ERRORCHECK    1          检测错误锁(一般用不上)
-             #define PTHREAD_MUTEX_RECURSIVE        2       递归锁
+             #define PTHREAD_MUTEX_RECURSIVE     2       递归锁
              #define PTHREAD_MUTEX_DEFAULT        PTHREAD_MUTEX_NORMAL  普通锁
              */
             //3.销毁属性
@@ -561,93 +561,93 @@
 #### 递归锁: 允许同一个线程对一把锁重复加锁, 如上代码中,如果线程1调用test,则加锁,此时继续执行,当执行到test2的位置时, 又开始调用test方法,此时线程1仍然可以对已经加锁的锁在此进行加锁; 如果线程1已经加锁了,线程2也来了,那么线程2是无法加锁的,需要等待线程1解锁后才能执行
 
 #### 3.pthread_mutex中的条件
-        #import <pthread.h>
+    #import <pthread.h>
 
-        @interface WGMainObjcVC()
-        @property(nonatomic, assign) pthread_mutex_t mutex;
-        @property(nonatomic, strong) NSMutableArray *data;
-        @property(nonatomic, assign) pthread_cond_t cond;
-        @end
+    @interface WGMainObjcVC()
+    @property(nonatomic, assign) pthread_mutex_t mutex;
+    @property(nonatomic, strong) NSMutableArray *data;
+    @property(nonatomic, assign) pthread_cond_t cond;
+    @end
 
-        @implementation WGMainObjcVC
-        - (void)viewDidLoad {
-            [super viewDidLoad];
-            self.view.backgroundColor = [UIColor redColor];
-            _ticketCount = 15;
-            _data = [NSMutableArray array];
-            //1. 静态初始化
-            //pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
-            //初始化属性
-            pthread_mutexattr_t attr;
-            pthread_mutexattr_init(&attr);
-            pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_DEFAULT);
-            //2.初始化锁
-            pthread_mutex_init(&_mutex, &attr);
-            //3.销毁属性
-            pthread_mutexattr_destroy(&attr);
-            // 初始化条件
-            pthread_cond_init(&_cond, NULL);
-        }
+    @implementation WGMainObjcVC
+    - (void)viewDidLoad {
+        [super viewDidLoad];
+        self.view.backgroundColor = [UIColor redColor];
+        _ticketCount = 15;
+        _data = [NSMutableArray array];
+        //1. 静态初始化
+        //pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+        //初始化属性
+        pthread_mutexattr_t attr;
+        pthread_mutexattr_init(&attr);
+        pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_DEFAULT);
+        //2.初始化锁
+        pthread_mutex_init(&_mutex, &attr);
+        //3.销毁属性
+        pthread_mutexattr_destroy(&attr);
+        // 初始化条件
+        pthread_cond_init(&_cond, NULL);
+    }
 
-        -(void)dealloc {
-            //4.销毁锁
-            pthread_mutex_destroy(&_mutex);
-            //5.销毁条件
-            pthread_cond_destroy(&_cond);
-        }
+    -(void)dealloc {
+        //4.销毁锁
+        pthread_mutex_destroy(&_mutex);
+        //5.销毁条件
+        pthread_cond_destroy(&_cond);
+    }
 
-        -(void)test {
-            //在不同的子线程中执行增、删操作
-            [[[NSThread alloc] initWithTarget:self selector:@selector(add) object:nil] start];
-            [[[NSThread alloc] initWithTarget:self selector:@selector(remove) object:nil] start];
-        }
+    -(void)test {
+        //在不同的子线程中执行增、删操作
+        [[[NSThread alloc] initWithTarget:self selector:@selector(add) object:nil] start];
+        [[[NSThread alloc] initWithTarget:self selector:@selector(remove) object:nil] start];
+    }
 
-        -(void)add{
-            pthread_mutex_lock(&_mutex);
-            [_data addObject:@"123"];
-            NSLog(@"添加了元素");
-            //唤醒刚刚因为pthread_cond_wait而睡眠的线程
-            pthread_cond_signal(&_cond);
-            pthread_mutex_unlock(&_mutex);
+    -(void)add{
+        pthread_mutex_lock(&_mutex);
+        [_data addObject:@"123"];
+        NSLog(@"添加了元素");
+        //唤醒刚刚因为pthread_cond_wait而睡眠的线程
+        pthread_cond_signal(&_cond);
+        pthread_mutex_unlock(&_mutex);
+    }
+    -(void)remove{
+        pthread_mutex_lock(&_mutex);
+        if (_data.count == 0) {
+            //等待,一旦睡觉_mutex就会解锁, 锁就会放开; 一旦被再次唤醒,那么就会继续对_mutex进行加锁
+            pthread_cond_wait(&_cond, &_mutex);
+            //pthread_cond_broadcast(&_cond)  激活所有等待该条件的线程
         }
-        -(void)remove{
-            pthread_mutex_lock(&_mutex);
-            if (_data.count == 0) {
-                //等待,一旦睡觉_mutex就会解锁, 锁就会放开; 一旦被再次唤醒,那么就会继续对_mutex进行加锁
-                pthread_cond_wait(&_cond, &_mutex);
-                //pthread_cond_broadcast(&_cond)  激活所有等待该条件的线程
-            }
-            [_data removeLastObject];
-            NSLog(@"删除了元素");
-            pthread_mutex_unlock(&_mutex);
-        }
+        [_data removeLastObject];
+        NSLog(@"删除了元素");
+        pthread_mutex_unlock(&_mutex);
+    }
 #### 通过pthread_cond条件就可以保证不同线程中执行数组增删操作,就能保证在没有元素情况下,一定会先调用添加元素的操作
 
 
 #### 6.2.4 NSLock
 #### NSLock是对mutex普通锁的封装
-        @interface NSLock : NSObject <NSLocking> {
-            - (BOOL)tryLock;
-            //到这个时间如果还等不到锁,就加锁失败会睡觉,如果等到锁了,那么就加锁成功
-            - (BOOL)lockBeforeDate:(NSDate *)limit; 
-        }
-        @protocol NSLocking
-        - (void)lock;
-        - (void)unlock;
-        @end
-        
-        @property(nonatomic, strong) NSLock *lock;
-        //1. 初始化
-        _lock = [[NSLock alloc]init];
+    @interface NSLock : NSObject <NSLocking> {
+        - (BOOL)tryLock;
+        //到这个时间如果还等不到锁,就加锁失败会睡觉,如果等到锁了,那么就加锁成功
+        - (BOOL)lockBeforeDate:(NSDate *)limit; 
+    }
+    @protocol NSLocking
+    - (void)lock;
+    - (void)unlock;
+    @end
+    
+    @property(nonatomic, strong) NSLock *lock;
+    //1. 初始化
+    _lock = [[NSLock alloc]init];
 
-        -(void)saleTicket{
-            //2. 加锁
-            [_lock lock];
-            _ticketCount -= 1;
-            NSLog(@"还剩%d张票",_ticketCount);
-            //3. 解锁
-            [_lock unlock];
-        }
+    -(void)saleTicket{
+        //2. 加锁
+        [_lock lock];
+        _ticketCount -= 1;
+        NSLog(@"还剩%d张票",_ticketCount);
+        //3. 解锁
+        [_lock unlock];
+    }
 #### 6.2.5 NSRecursiveLock
 #### NSRecursiveLock递归锁是对mutex递归锁的封装,API和NSLock基本一致
         @interface NSRecursiveLock : NSObject <NSLocking> {
@@ -684,17 +684,17 @@
         }
 #### 6.2.7 NSConditionLock
 #### NSConditionLock是对NSCondition的进一步封装,可以设置具体的条件值
-        @interface NSConditionLock : NSObject <NSLocking> {
-            - (instancetype)initWithCondition:(NSInteger)condition NS_DESIGNATED_INITIALIZER;
-            
-            @property (readonly) NSInteger condition;
-            - (void)lockWhenCondition:(NSInteger)condition;
-            - (BOOL)tryLock;
-            - (BOOL)tryLockWhenCondition:(NSInteger)condition;
-            - (void)unlockWithCondition:(NSInteger)condition;
-            - (BOOL)lockBeforeDate:(NSDate *)limit;
-            - (BOOL)lockWhenCondition:(NSInteger)condition beforeDate:(NSDate *)limit;
-        }
+    @interface NSConditionLock : NSObject <NSLocking> {
+        - (instancetype)initWithCondition:(NSInteger)condition NS_DESIGNATED_INITIALIZER;
+        
+        @property (readonly) NSInteger condition;
+        - (void)lockWhenCondition:(NSInteger)condition;
+        - (BOOL)tryLock;
+        - (BOOL)tryLockWhenCondition:(NSInteger)condition;
+        - (void)unlockWithCondition:(NSInteger)condition;
+        - (BOOL)lockBeforeDate:(NSDate *)limit;
+        - (BOOL)lockWhenCondition:(NSInteger)condition beforeDate:(NSDate *)limit;
+    }
         
 #### 6.2.8 dispatch_queue
 #### 直接使用GCD的串行队列也可以实现线程同步的
@@ -750,102 +750,102 @@
 * 通过将信号量初始值设置为1, 可以达到线程同步,即每次只有一个线程在执行任务
 #### 案例1:创建了20个子线程,想让每次执行task的线程只有5个线程在执行,即控制最大线程执行数是5
         
-        @interface WGMainObjcVC()
-        @property(nonatomic, strong) dispatch_semaphore_t semaphore;
-        @end
+    @interface WGMainObjcVC()
+    @property(nonatomic, strong) dispatch_semaphore_t semaphore;
+    @end
 
-        @implementation WGMainObjcVC
-        - (void)viewDidLoad {
-            [super viewDidLoad];
-            self.view.backgroundColor = [UIColor redColor];
-            //设置信号量的初始值为5,代表线程执行的最大并发数为5,即每次只能有5个线程在执行任务
-            _semaphore = dispatch_semaphore_create(5);
-            [self test];
-        }
+    @implementation WGMainObjcVC
+    - (void)viewDidLoad {
+        [super viewDidLoad];
+        self.view.backgroundColor = [UIColor redColor];
+        //设置信号量的初始值为5,代表线程执行的最大并发数为5,即每次只能有5个线程在执行任务
+        _semaphore = dispatch_semaphore_create(5);
+        [self test];
+    }
 
-        -(void)test {
-            for (int i = 0; i < 20; i++) {
-                [[[NSThread alloc]initWithTarget:self selector:@selector(task) object:nil] start];
-            }
+    -(void)test {
+        for (int i = 0; i < 20; i++) {
+            [[[NSThread alloc]initWithTarget:self selector:@selector(task) object:nil] start];
         }
+    }
 
-        -(void)task {
-            //如果信号量的值 > 0,就让信号量的值减1,然后继续往下执行代码
-            //如果信号量的值 <= 0,就会休眠等待,知道信号量的值变成 >0,然后就让信号量的值减1,然后继续往下执行代码
-            dispatch_semaphore_wait(_semaphore, DISPATCH_TIME_FOREVER);
-            sleep(2);
-            NSLog(@"task----%@",[NSThread currentThread]);
-            //让信号量的值+1
-            dispatch_semaphore_signal(_semaphore);
-        }
+    -(void)task {
+        //如果信号量的值 > 0,就让信号量的值减1,然后继续往下执行代码
+        //如果信号量的值 <= 0,就会休眠等待,知道信号量的值变成 >0,然后就让信号量的值减1,然后继续往下执行代码
+        dispatch_semaphore_wait(_semaphore, DISPATCH_TIME_FOREVER);
+        sleep(2);
+        NSLog(@"task----%@",[NSThread currentThread]);
+        //让信号量的值+1
+        dispatch_semaphore_signal(_semaphore);
+    }
 #### 案例2: 使用信号量实现线程同步
 
-        @interface WGMainObjcVC()
-        @property(nonatomic, assign) int ticketCount;
-        @property(nonatomic, strong) dispatch_semaphore_t semaphore;
-        @end
+    @interface WGMainObjcVC()
+    @property(nonatomic, assign) int ticketCount;
+    @property(nonatomic, strong) dispatch_semaphore_t semaphore;
+    @end
 
 
-        @implementation WGMainObjcVC
-        - (void)viewDidLoad {
-            [super viewDidLoad];
-            self.view.backgroundColor = [UIColor redColor];
-            _ticketCount = 15;
-            //1. 初始值设置为1, 代表每次只能有一个线程在执行任务
-            _semaphore = dispatch_semaphore_create(1);
-            [self testTicket];
-        }
+    @implementation WGMainObjcVC
+    - (void)viewDidLoad {
+        [super viewDidLoad];
+        self.view.backgroundColor = [UIColor redColor];
+        _ticketCount = 15;
+        //1. 初始值设置为1, 代表每次只能有一个线程在执行任务
+        _semaphore = dispatch_semaphore_create(1);
+        [self testTicket];
+    }
 
-        -(void)testTicket {
-            dispatch_queue_t queue = dispatch_get_global_queue(0, 0);
-            dispatch_async(queue, ^{
-                for (int i = 0; i < 5; i++) {
-                    [self saleTicket];
-                }
-            });
-            dispatch_async(queue, ^{
-                for (int i = 0; i < 5; i++) {
-                    [self saleTicket];
-                }
-            });
-            dispatch_async(queue, ^{
-                for (int i = 0; i < 5; i++) {
-                    [self saleTicket];
-                }
-            });
-        }
-        -(void)saleTicket{
-            //2. 初始化为1, 判断为信号量>0,然后将信号量的值减1变成0,继续往下执行任务
-            //此时如果有第二个线程到来,发现信号量=0,就会处于等待状态,等待信号量的值 > 0
-            dispatch_semaphore_wait(_semaphore, DISPATCH_TIME_FOREVER);
-            _ticketCount -= 1;
-            NSLog(@"还剩%d张票",_ticketCount);
-            //3. 将信号量的值+1
-            dispatch_semaphore_signal(_semaphore);
-        }
+    -(void)testTicket {
+        dispatch_queue_t queue = dispatch_get_global_queue(0, 0);
+        dispatch_async(queue, ^{
+            for (int i = 0; i < 5; i++) {
+                [self saleTicket];
+            }
+        });
+        dispatch_async(queue, ^{
+            for (int i = 0; i < 5; i++) {
+                [self saleTicket];
+            }
+        });
+        dispatch_async(queue, ^{
+            for (int i = 0; i < 5; i++) {
+                [self saleTicket];
+            }
+        });
+    }
+    -(void)saleTicket{
+        //2. 初始化为1, 判断为信号量>0,然后将信号量的值减1变成0,继续往下执行任务
+        //此时如果有第二个线程到来,发现信号量=0,就会处于等待状态,等待信号量的值 > 0
+        dispatch_semaphore_wait(_semaphore, DISPATCH_TIME_FOREVER);
+        _ticketCount -= 1;
+        NSLog(@"还剩%d张票",_ticketCount);
+        //3. 将信号量的值+1
+        dispatch_semaphore_signal(_semaphore);
+    }
 
 #### 6.2.10 @synchronized
 #### @synchronized是对mutex递归锁的封装,所以@synchronized就是个递归锁,源码查看: objc4中的objc-sync.mm文件, 底层就是根据@synchronized(对象)传进来的对象找到对应的锁, 每个对象对应一个锁,底层是个Map结构,拿到对应对应的锁后进行加锁解锁操作
-        -(void)saleTicket{
-            @synchronized (self) {
-                _ticketCount -= 1;
-                NSLog(@"还剩%d张票",_ticketCount);
-            }
+    -(void)saleTicket{
+        @synchronized (self) {
+            _ticketCount -= 1;
+            NSLog(@"还剩%d张票",_ticketCount);
         }
+    }
 
 #### 这里传进的时self对象,根据业务需要,如果想保证所有对象(项目中可能会创建多个对象情况下)使用的是同一把锁,也可以传进去[self class]对象,因为所有对象的类对象只有一个,这样就能保证使用的是同一把锁,或者也可以这么操作
-        -(void)saleTicket{
-            //保证testObj对象只会被创建一次,每个对象都对应一把锁,只要对象是唯一的,那么使用的就是同一把锁
-            static NSObject *testObj;
-            static dispatch_once_t onceToken;
-            dispatch_once(&onceToken, ^{
-                testObj = [[NSObject alloc]init];
-            });
-            @synchronized (testObj) {
-                _ticketCount -= 1;
-                NSLog(@"还剩%d张票",_ticketCount);
-            }
+    -(void)saleTicket{
+        //保证testObj对象只会被创建一次,每个对象都对应一把锁,只要对象是唯一的,那么使用的就是同一把锁
+        static NSObject *testObj;
+        static dispatch_once_t onceToken;
+        dispatch_once(&onceToken, ^{
+            testObj = [[NSObject alloc]init];
+        });
+        @synchronized (testObj) {
+            _ticketCount -= 1;
+            NSLog(@"还剩%d张票",_ticketCount);
         }
+    }
 
 #### 6.3 iOS线程同步方案性能比较
 #### 性能从高到低: 
@@ -885,9 +885,10 @@
         /*
         nonatomic: 非原子属性
         atomic: 原子属性
-        原子在物理学中就是不可再分割的,代码层面就是 int a = 10, int b = 20 int c = a+b, 正常情况三行代码会按照顺序逐条执行,如果有
-        多个线程访问,那么同一时间可能线程1访问int a = 10, 线程2访问int b = 20, 线程3访问int c = a+b,而如果是原子属性,那么就是不可
-        分割的,线程会把这三行代码看成是一个整体,即同一时间多个线程访问时,某一个线程只能访问的是这三行代码的整体
+        原子在物理学中就是不可再分割的,代码层面就是 int a = 10, int b = 20 int c = a+b,正常情况  
+        三行代码会按照顺序逐条执行,如果有多个线程访问,那么同一时间可能线程1访问int a = 10, 线程2访问  
+        int b = 20, 线程3访问int c = a+b,而如果是原子属性,那么就是不可分割的,线程会把这  
+        三行代码看成是一个整体,即同一时间多个线程访问时,某一个线程只能访问的是这三行代码的整体
         */
         @property(atomic, strong) NSString *name;
         -(void)setName:(NSString *)name {
@@ -905,59 +906,60 @@
 2. 实际业务中很少遇到多个线程访问同一个属性的,除非是多个线程访问多个对象的同一个属性,如果真是这种情况再考虑加锁解锁问题即可
 
 #### 为什么atomic并不能保证使用属性的过程是线程安全的? 
-        @interface WGMainObjcVC()
-        @property(atomic, strong) NSMutableArray *data;
-        @end
-        
-        @implementation WGMainObjcVC
-        - (void)viewDidLoad {
-            [super viewDidLoad];
-            self.view.backgroundColor = [UIColor redColor];
+    @interface WGMainObjcVC()
+    @property(atomic, strong) NSMutableArray *data;
+    @end
+    
+    @implementation WGMainObjcVC
+    - (void)viewDidLoad {
+        [super viewDidLoad];
+        self.view.backgroundColor = [UIColor redColor];
 
-            //1. 下面的代码相当于调用了属性data的setter方法,所以它是线程安全的
-            //[self setData:[NSMutableArray array]];
-            self.data = [NSMutableArray array];
+        //1. 下面的代码相当于调用了属性data的setter方法,所以它是线程安全的
+        //[self setData:[NSMutableArray array]];
+        self.data = [NSMutableArray array];
 
-            //2. 添加元素相当于先通过getter方法获取到data对象,这一步是线程安全的,但是再调用addObject方法这一步就不是线程安全的了
-            //[[self data] addObject:@"1"];
-            [self.data addObject:@"1"];
-            [self.data addObject:@"2"];
-            [self.data addObject:@"3"];
-        }
+        //2. 添加元素相当于先通过getter方法获取到data对象,这一步是线程安全的,但是再调用  
+        addObject方法这一步就不是线程安全的了
+        //[[self data] addObject:@"1"];
+        [self.data addObject:@"1"];
+        [self.data addObject:@"2"];
+        [self.data addObject:@"3"];
+    }
 
 #### atomic属性只有在使用它的getter/setter方法时是线程安全的,但是在使用过程中并不能保证线程安全
 
 ### 9. iOS中的读写安全方案
 #### iOS中的IO操作(文件操作), 如何保证读写安全? 从文件中读取内容、往文件中写入内容,读写是不能同时进行的
-        @interface WGMainObjcVC()
-        @property(nonatomic, strong) dispatch_semaphore_t semaphore;
-        @end
+    @interface WGMainObjcVC()
+    @property(nonatomic, strong) dispatch_semaphore_t semaphore;
+    @end
+    
+    @implementation WGMainObjcVC
+    - (void)viewDidLoad {
+        [super viewDidLoad];
+        self.view.backgroundColor = [UIColor redColor];
         
-        @implementation WGMainObjcVC
-        - (void)viewDidLoad {
-            [super viewDidLoad];
-            self.view.backgroundColor = [UIColor redColor];
-            
-            //1.初始化信号量,value设置为1,即只能有一条线程在执行任务
-            self.semaphore = dispatch_semaphore_create(1);
-            for (int i = 0; i < 5; i++) {
-                [[[NSThread alloc]initWithTarget:self selector:@selector(read) object:nil] start];
-                [[[NSThread alloc]initWithTarget:self selector:@selector(write) object:nil] start];
-            }
+        //1.初始化信号量,value设置为1,即只能有一条线程在执行任务
+        self.semaphore = dispatch_semaphore_create(1);
+        for (int i = 0; i < 5; i++) {
+            [[[NSThread alloc]initWithTarget:self selector:@selector(read) object:nil] start];
+            [[[NSThread alloc]initWithTarget:self selector:@selector(write) object:nil] start];
         }
+    }
 
-        //从文件中读取内容
-        -(void)read {
-            dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_FOREVER);
-            NSLog(@"%s",__func__);
-            dispatch_semaphore_signal(self.semaphore);
-        }
-        //往文件中写入内容
-        -(void)write {
-            dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_FOREVER);
-            NSLog(@"%s",__func__);
-            dispatch_semaphore_signal(self.semaphore);
-        }
+    //从文件中读取内容
+    -(void)read {
+        dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_FOREVER);
+        NSLog(@"%s",__func__);
+        dispatch_semaphore_signal(self.semaphore);
+    }
+    //往文件中写入内容
+    -(void)write {
+        dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_FOREVER);
+        NSLog(@"%s",__func__);
+        dispatch_semaphore_signal(self.semaphore);
+    }
 
 #### 通过信号量的方式,虽然我们能够保证同一时间只能有读操作,或者同一时间只能有写操作,但是实际情况中,我们需要的是允许在同一时间有多个线程可以读操作,但是同一时间只能有一个线程在写操作,这样才会更加提高项目,即多读单写操作
 
@@ -971,51 +973,52 @@
 2. dispatch_barrier_async: 异步栅栏调用
 
 #### 方案1: 读写锁pthread_rwlock, 等待锁的线程会进入休眠,类似互斥锁
-        #import <pthread.h>
+    #import <pthread.h>
 
-        @interface WGMainObjcVC()
-        @property(nonatomic, assign) pthread_rwlock_t lock;
-        @end
+    @interface WGMainObjcVC()
+    @property(nonatomic, assign) pthread_rwlock_t lock;
+    @end
 
-        @implementation WGMainObjcVC
-        - (void)viewDidLoad {
-            [super viewDidLoad];
-            self.view.backgroundColor = [UIColor redColor];
-            //1. 初始化读写锁
-            pthread_rwlock_init(&_lock, NULL);
+    @implementation WGMainObjcVC
+    - (void)viewDidLoad {
+        [super viewDidLoad];
+        self.view.backgroundColor = [UIColor redColor];
+        //1. 初始化读写锁
+        pthread_rwlock_init(&_lock, NULL);
 
-            //全局并发队列异步任务,这样就能让读写同时进行,主要为了能更好的观察打印结果中read可以同时进行,但是write只能1秒进行一次
-            dispatch_queue_t queue = dispatch_get_global_queue(0, 0);
-            for (int i = 0; i < 10; i++) {
-                dispatch_async(queue, ^{
-                    [self read];
-                });
-                dispatch_async(queue, ^{
-                    [self write];
-                });
-            }
+        //全局并发队列异步任务,这样就能让读写同时进行,主要为了能更好的观察打印结果中read   
+        可以同时进行,但是write只能1秒进行一次
+        dispatch_queue_t queue = dispatch_get_global_queue(0, 0);
+        for (int i = 0; i < 10; i++) {
+            dispatch_async(queue, ^{
+                [self read];
+            });
+            dispatch_async(queue, ^{
+                [self write];
+            });
         }
+    }
 
-        //从文件中读取内容
-        -(void)read {
-            pthread_rwlock_rdlock(&_lock); //读-加锁
-            sleep(1);
-            NSLog(@"%s",__func__);
-            pthread_rwlock_unlock(&_lock); //解锁
-        }
+    //从文件中读取内容
+    -(void)read {
+        pthread_rwlock_rdlock(&_lock); //读-加锁
+        sleep(1);
+        NSLog(@"%s",__func__);
+        pthread_rwlock_unlock(&_lock); //解锁
+    }
 
-        //往文件中写入内容
-        -(void)write {
-            pthread_rwlock_wrlock(&_lock);  //写-加锁
-            sleep(1);
-            NSLog(@"%s",__func__);
-            pthread_rwlock_unlock(&_lock);  //解锁
-        }
+    //往文件中写入内容
+    -(void)write {
+        pthread_rwlock_wrlock(&_lock);  //写-加锁
+        sleep(1);
+        NSLog(@"%s",__func__);
+        pthread_rwlock_unlock(&_lock);  //解锁
+    }
 
-        //销毁锁
-        -(void)dealloc {
-            pthread_rwlock_destroy(&_lock);
-        }
+    //销毁锁
+    -(void)dealloc {
+        pthread_rwlock_destroy(&_lock);
+    }
 #### 这样就能保证可以同时进行多次读操作,但是每次只能进行一次写操作, 读写操作不会同时进行
 
 #### 方案2: 异步栅栏调用dispatch_barrier_async
@@ -1049,7 +1052,8 @@
 
         //往文件中写入内容
         -(void)write {
-            dispatch_barrier_async(self.queue, ^{  //3.写时: 调用dispatch_barrier_async函数
+            //3.写时: 调用dispatch_barrier_async函数
+            dispatch_barrier_async(self.queue, ^{  
                 sleep(1);
                 NSLog(@"write");
             });
@@ -1071,68 +1075,68 @@
 
 ### 1.NSLock
 #### 创建NSLock对象，然后调用实例方法lock()和unlock()方法实现加锁和解锁，NSLock也提供了try()方法，来判断是否加锁成功。接下来通过案例来说明
-        //初始化苹果数量为20个
-        private var appleTotalNum = 20
+    //初始化苹果数量为20个
+    private var appleTotalNum = 20
 
-        NSLog("开始了")
-        let thread1 = Thread.init(target: self, selector: #selector(eatApple), object: nil)
-        let thread2 = Thread.init(target: self, selector: #selector(eatApple), object: nil)
-        let thread3 = Thread.init(target: self, selector: #selector(eatApple), object: nil)
-        thread1.start()
-        thread2.start()
-        thread3.start()
-        NSLog("结束了")
-        
-        打印结果: 开始了
-                结束了
-                11111--<NSThread: 0x600002a63080>{number = 6, name = (null)}--剩余的苹果数:17
-                11111--<NSThread: 0x600002a62a40>{number = 8, name = (null)}--剩余的苹果数:17
-                11111--<NSThread: 0x600002a62a00>{number = 7, name = (null)}--剩余的苹果数:17
+    NSLog("开始了")
+    let thread1=Thread(target:self, selector: #selector(eatApple), object:nil)
+    let thread2=Thread(target:self, selector: #selector(eatApple), object:nil)
+    let thread3=Thread(target:self, selector: #selector(eatApple), object:nil)
+    thread1.start()
+    thread2.start()
+    thread3.start()
+    NSLog("结束了")
+    
+    打印结果: 开始了
+            结束了
+    11111--<NSThread: 0x600002a63080>{number = 6, name = (null)}--剩余的苹果数:17
+    11111--<NSThread: 0x600002a62a40>{number = 8, name = (null)}--剩余的苹果数:17
+    11111--<NSThread: 0x600002a62a00>{number = 7, name = (null)}--剩余的苹果数:17
 #### 分析:有3个线程任务同时去访问appleTotalNum变量，通过打印信息发现不符合我们的业务逻辑(每次只能吃掉一个苹果，正常的打印信息应该是剩余的苹果数19->18->17),接下来我们通过加锁来控制同一时间只有一个线程任务被执行
-        //声明一个锁对象
-        private var lockObjc = NSLock()
+    //声明一个锁对象
+    private var lockObjc = NSLock()
 
-        @objc func eatApple() {
-            lockObjc.lock()            
-            appleTotalNum -= 1
-            NSLog("11111--\(Thread.current)--剩余的苹果数:\(appleTotalNum)")
-            lockObjc.unlock()
-        }
+    @objc func eatApple() {
+        lockObjc.lock()            
+        appleTotalNum -= 1
+        NSLog("11111--\(Thread.current)--剩余的苹果数:\(appleTotalNum)")
+        lockObjc.unlock()
+    }
 
-        打印结果:开始了
-                结束了
-                11111--<NSThread: 0x60000359e380>{number = 7, name = (null)}--剩余的苹果数:19
-                11111--<NSThread: 0x60000359e080>{number = 8, name = (null)}--剩余的苹果数:18
-                11111--<NSThread: 0x60000359e2c0>{number = 9, name = (null)}--剩余的苹果数:17
+    打印结果:开始了
+            结束了
+    11111--<NSThread: 0x60000359e380>{number = 7, name = (null)}--剩余的苹果数:19
+    11111--<NSThread: 0x60000359e080>{number = 8, name = (null)}--剩余的苹果数:18
+    11111--<NSThread: 0x60000359e2c0>{number = 9, name = (null)}--剩余的苹果数:17
 #### 分析：打印的结果和我们的预期一样。当一个线程开始进来执行任务的时候，调用NSLock的lock方法锁住这个资源(任务)，其他线程不能访问，直到这个线程的任务完成，然后调用unlock方法来解锁，告诉其他线程可以继续去访问了，从而达到同一时间只能有一个线程来执行该任务，避免了多线程间的资源抢夺
 #### 需要注意的就是lock加锁和unlock解锁是成对出现的。如果没有加锁(lock),直接解锁(unlock),程序执行和没有加锁解锁效果是一样的；如果多次加锁(获取锁)，会导致死锁
-        //只解锁而没有加锁
-        @objc func eatApple() {
-            appleTotalNum -= 1
-            NSLog("11111--\(Thread.current)--剩余的苹果数:\(appleTotalNum)")
-            lockObjc.unlock()
-        }
-        打印结果: 开始了
-                结束了
-                11111--<NSThread: 0x6000011a9900>{number = 6, name = (null)}--剩余的苹果数:17
-                11111--<NSThread: 0x6000011a9b00>{number = 7, name = (null)}--剩余的苹果数:18
-                11111--<NSThread: 0x6000011a9bc0>{number = 5, name = (null)}--剩余的苹果数:17
-                
-        //多次加锁，不管解锁次数是不是和加锁次数一样，都会造成死锁
-        @objc func eatApple() {
-            NSLog("进来了")
-            lockObjc.lock()
-            lockObjc.lock()
-            appleTotalNum -= 1
-            NSLog("11111--\(Thread.current)--剩余的苹果数:\(appleTotalNum)")
-            lockObjc.unlock()
-            lockObjc.unlock()
-        }
-        打印结果: 开始了
-                结束了
-                进来了
-                进来了
-                进来了
+    //只解锁而没有加锁
+    @objc func eatApple() {
+        appleTotalNum -= 1
+        NSLog("11111--\(Thread.current)--剩余的苹果数:\(appleTotalNum)")
+        lockObjc.unlock()
+    }
+    打印结果: 开始了
+            结束了
+    11111--<NSThread: 0x6000011a9900>{number = 6, name = (null)}--剩余的苹果数:17
+    11111--<NSThread: 0x6000011a9b00>{number = 7, name = (null)}--剩余的苹果数:18
+    11111--<NSThread: 0x6000011a9bc0>{number = 5, name = (null)}--剩余的苹果数:17
+            
+    //多次加锁，不管解锁次数是不是和加锁次数一样，都会造成死锁
+    @objc func eatApple() {
+        NSLog("进来了")
+        lockObjc.lock()
+        lockObjc.lock()
+        appleTotalNum -= 1
+        NSLog("11111--\(Thread.current)--剩余的苹果数:\(appleTotalNum)")
+        lockObjc.unlock()
+        lockObjc.unlock()
+    }
+    打印结果: 开始了
+            结束了
+            进来了
+            进来了
+            进来了
 #### 当NSLock类收到一个解锁的消息，必须确保发送源也是来自那个发送上锁的线程，即lock和unlock必须同时出现在被同一个线程访问的任务中，否则会毁掉线程安全，出现非预期的效果
 
 ### 2.NSCondition(状态锁)
@@ -1150,40 +1154,40 @@
                 1开始解锁当前的线程
 ### 3. 同步代码块 synchronized(OC)   objc_sync_enter/objc_sync_exit(swfit)  
 #### swift例子,定义一个属性pageNum，初始值为10
-        let thread1 = Thread(target: self, selector: #selector(method1), object: nil)
-        thread1.start()
-        let thread2 = Thread(target: self, selector: #selector(method1), object: nil)
-        thread2.start()
-        @objc func method1() {
-            //objc_sync_enter(self)
-            pageNum -= 1
-            NSLog("当前的pageNum为:\(pageNum)")
-            //objc_sync_exit(self)
-        }
+    let thread1 = Thread(target:self, selector: #selector(method1), object:nil)
+    thread1.start()
+    let thread2 = Thread(target:self, selector: #selector(method1), object:nil)
+    thread2.start()
+    @objc func method1() {
+        //objc_sync_enter(self)
+        pageNum -= 1
+        NSLog("当前的pageNum为:\(pageNum)")
+        //objc_sync_exit(self)
+    }
 
-        打印结果: 当前的pageNum为:8
-                当前的pageNum为:8
-                
-        如果将objc_sync_enter objc_sync_exit添加上去
-        打印结果: 当前的pageNum为:9  
-                当前的pageNum为:8
+    打印结果: 当前的pageNum为:8
+            当前的pageNum为:8
+            
+    如果将objc_sync_enter objc_sync_exit添加上去
+    打印结果: 当前的pageNum为:9  
+            当前的pageNum为:8
 #### OC例子
-        _pageNum = 10;
-        NSThread *thread1 = [[NSThread alloc]initWithTarget:self selector:@selector(method1) object:nil];
-        [thread1 start];
-        NSThread *thread2 = [[NSThread alloc]initWithTarget:self selector:@selector(method1) object:nil];
-        [thread2 start];
-        NSThread *thread3 = [[NSThread alloc]initWithTarget:self selector:@selector(method1) object:nil];
-        [thread3 start];
-        -(void)method1 {
-            @synchronized (self) {
-                _pageNum -= 1;
-                NSLog(@"当前的pageNum为:%d",_pageNum);
-            }
+    _pageNum = 10;
+    NSThread *thread1=[[NSThread alloc]initWithTarget:self selector:@selector(method1) object:nil];
+    [thread1 start];
+    NSThread *thread2=[[NSThread alloc]initWithTarget:self selector:@selector(method1) object:nil];
+    [thread2 start];
+    NSThread *thread3=[[NSThread alloc]initWithTarget:self selector:@selector(method1) object:nil];
+    [thread3 start];
+    -(void)method1 {
+        @synchronized (self) {
+            _pageNum -= 1;
+            NSLog(@"当前的pageNum为:%d",_pageNum);
         }
-        打印结果: 当前的pageNum为:9
-                 当前的pageNum为:8
-                 当前的pageNum为:7
+    }
+    打印结果: 当前的pageNum为:9
+             当前的pageNum为:8
+             当前的pageNum为:7
 #### 实际上 @synchronized (objc)同步锁会被编辑器转化为在swift中使用的objc_sync_enter(objc)和objc_sync_exit(objc)两个方法，这两个方法在Runtime的源码可以查看到  
 ![图片](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGScreenshots/lock3.png)
 
@@ -1193,35 +1197,35 @@
 
 ### 4. NSRecursiveLock(递归锁)
 #### 递归锁与普通锁(NSLock)区别：递归锁允许同一个线程多次加锁而不会造成死锁，普通锁多次lock的时候，会造成死锁
-        private var lock = NSRecursiveLock()
-        @objc func eatApple() {
-            lock.lock()
-            lock.lock()
-            appleTotalNum -= 1
-            NSLog("剩余苹果数:\(appleTotalNum)")
-            lock.unlock()
-            lock.unlock()
-        }
-        
-        打印结果: 开始了
-                结束了
-                11111--<NSThread: 0x600000091440>{number = 6, name = (null)}--剩余的苹果数:19
-                11111--<NSThread: 0x600000091880>{number = 7, name = (null)}--剩余的苹果数:18
-                11111--<NSThread: 0x6000000915c0>{number = 8, name = (null)}--剩余的苹果数:17
+    private var lock = NSRecursiveLock()
+    @objc func eatApple() {
+        lock.lock()
+        lock.lock()
+        appleTotalNum -= 1
+        NSLog("剩余苹果数:\(appleTotalNum)")
+        lock.unlock()
+        lock.unlock()
+    }
+    
+    打印结果: 开始了
+            结束了
+            11111--<NSThread: 0x600000091440>{number = 6, name = (null)}--剩余的苹果数:19
+            11111--<NSThread: 0x600000091880>{number = 7, name = (null)}--剩余的苹果数:18
+            11111--<NSThread: 0x6000000915c0>{number = 8, name = (null)}--剩余的苹果数:17
 #### 需要注意的是lock和unlock要成对出现，否则会出现不确定的结果
-        @objc func eatApple() {
-            lock.lock()
-            lock.lock()
-            lock.lock()
-            appleTotalNum -= 1
-            NSLog("11111--\(Thread.current)--剩余的苹果数:\(appleTotalNum)")
-            lock.unlock()
-            lock.unlock()
-        }
+    @objc func eatApple() {
+        lock.lock()
+        lock.lock()
+        lock.lock()
+        appleTotalNum -= 1
+        NSLog("11111--\(Thread.current)--剩余的苹果数:\(appleTotalNum)")
+        lock.unlock()
+        lock.unlock()
+    }
 
-        打印结果: 开始了
-                结束了
-                11111--<NSThread: 0x60000106bec0>{number = 7, name = (null)}--剩余的苹果数:19
+    打印结果: 开始了
+            结束了
+        11111--<NSThread: 0x60000106bec0>{number = 7, name = (null)}--剩余的苹果数:19
 
 ### 5.条件锁 NSConditionLock
 #### 首先需要通过设置条件初始化NSConditionLock对象，具体事例如下
