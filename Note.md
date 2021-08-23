@@ -27,7 +27,7 @@
 
 ### [多线程之线程锁](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGReadMe/ThreadLock.md)
 
-### [多线程总结](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGReadMe/Summary.md)
+### [多线程总结](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGReadMe/ThreadSummary.md)
 
 ### [内存管理](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGReadMe/Memory.md)
 
@@ -45,7 +45,7 @@
 
 ### [iOS内存分区](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGReadMe/iOS内存分区.md)
 
-### [Swift内存对齐问题](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGReadMe/Swift内存对齐问题)
+### [Swift内存对齐问题](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGReadMe/Swift内存对齐问题.md)
 
 ### [iOS签名机制](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGReadMe/iOS签名机制.md)
 
