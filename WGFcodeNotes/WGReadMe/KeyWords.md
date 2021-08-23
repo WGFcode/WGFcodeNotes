@@ -12,7 +12,6 @@
     @interface Person : NSObject
     @end
     
-    
     #import "Person.h"
     /*
      extern声明全局变量或常量的实现，必须实现，否则外部使用时，编译期会报错
@@ -23,9 +22,7 @@
     @implementation Person
     @end
 
-
     #import "WGMainObjcVC.h"
-
     @implementation WGMainObjcVC
     - (void)viewDidLoad {
         [super viewDidLoad];
@@ -33,7 +30,8 @@
         name1 = @"zhangsan11111";
         NSLog(@"修改后--全局变量name1:%@",name1);
         NSLog(@"修改前--全局常量name2:%@",name2);
-        //name2 = @"lisi"; 编译器会报错:Cannot assign to variable 'name2' with const-qualified type 'NSString *const  _Nonnull __strong'
+        //name2 = @"lisi"; 编译器会报错:Cannot assign to variable 'name2' with const-qualified   
+        type 'NSString *const  _Nonnull __strong'
     }
     @end
     
@@ -127,7 +125,8 @@
         3. const嵌套使用
         const NSString *const name4 = @"zhangsan4";  //name4和*name4都不能被修改
         
-        //name3 = @"lisi";  编译器会报错->Cannot assign to variable 'name3' with const-qualified type 'NSString *const __strong'
+        编译器会报错->Cannot assign to variable 'name3' with const-qualified type 'NSString *const __strong'
+        //name3 = @"lisi";  
 
 #### const使用场景
 * 一般是联合static和const使用，来定义一个只能在当前文件中访问的、不能被修改的变量；类似#define定义，不过优点就在于这种方式可以指定变量类型，而#define不能
@@ -312,14 +311,9 @@
                 NSLog("WGMyClass->testFunc")
             }
         }
-        
-        
-        
-        
-        
+
 ### 6. static
 #### static关键字声明静态变量或者函数，它保证在对应的作用域当中只有一份, 同时也不需要依赖实例化,用static关键字指定的方法是类方法，他是不能被子类重写的
-
 
 ### 7. lazy
 #### lazy修饰的变量, 只有在第一次被调用的时候才会去初始化值(懒加载),提高程序的性能
@@ -381,10 +375,10 @@
             NSLog("5555")
         }
         打印结果: 1111
-                        5555
-                        4444------
-                        3333------
-                        2222------
+                5555
+                4444------
+                3333------
+                2222------
 
 ### 13 inout
 #### inout 输入输出参数: 用inout定义的一个输入输出参数，可以在函数内部修改外部实参的值
@@ -395,23 +389,3 @@
 
 ### 14. throws 和 rethrows 
 #### throws 用在函数上, 表示这个函数会抛出错误； rethrows 与 throws 类似, 不过只适用于参数中有函数, 且函数会抛出异常的情况, rethrows可以用throws 替换, 反过来不行
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

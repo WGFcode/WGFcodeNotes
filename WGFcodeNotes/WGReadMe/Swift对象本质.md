@@ -53,8 +53,10 @@ Debug Workflow
 
     #define SWIFT_HEAPOBJECT_NON_OBJC_MEMBERS InlineRefCounts refCounts
     struct HeapObject {
-        HeapMetadata const *__ptrauth_objc_isa_pointer metadata;  //指向元数据的指针-8字节(可以理解为OC中类对象和元类对象)
-        SWIFT_HEAPOBJECT_NON_OBJC_MEMBERS;                        //引用计数-8字节
+        //指向元数据的指针-8字节(可以理解为OC中类对象和元类对象)
+        HeapMetadata const *__ptrauth_objc_isa_pointer metadata;  
+        //引用计数-8字节
+        SWIFT_HEAPOBJECT_NON_OBJC_MEMBERS;                        
     }
     
     //HeapMetadata是TargetHeapMetadata的别名
@@ -71,12 +73,13 @@ Debug Workflow
     };
     
     struct TargetMetadata {
-        StoredPointer Kind;  //kind属性，就是之前传入的Inprocess，主要用于区分是哪种类型的元数据
-        // 若kind > 0x7FF(LastEnumeratedMetadataKind) 则kind为MetadataKind::Class，否则返回MetadataKind(kind)
+        //kind属性，就是之前传入的Inprocess，主要用于区分是哪种类型的元数据
+        StoredPointer Kind;  
+        //若kind > 0x7FF(LastEnumeratedMetadataKind) 则kind为MetadataKind::Class，否则返回MetadataKind(kind)
         MetadataKind getKind() const {
             return getEnumeratedMetadataKind(Kind);
         }
-        // 通过去匹配kind，返回值是TargetClassMetadata类型，如果有则获取它的类对象，若类型不是class,则返回nil
+        //通过去匹配kind，返回值是TargetClassMetadata类型，如果有则获取它的类对象，若类型不是class,则返回nil
         const TargetClassMetadata<Runtime> *getClassObject() const;
     }
     
@@ -114,7 +117,6 @@ Debug Workflow
 4. 若元数据类型kind是MetadataKind::Class:即纯swift类，则元类对象类型就是TargetClassMetadata，继承关系是: TargetClassMetadata : TargetAnyClassMetadata : TargetHeapMetadata
  
 
-
 ### 1.3 swift对象和OC对象区别
 1. OC中的实例对象本质是结构体，通过底层的objc_object模版创建，类是继承自objc_class
 2. Swift中的实例对象本质是结构体，类型是HeapObject，比OC多了一个refCounts
@@ -139,13 +141,3 @@ Debug Workflow
         Extension       否        否        直接调用
         Extension       是        否      objc_msgSend
         Class           是        是      objc_msgSend
-
-
-
-
-
-
-
-
-
-
