@@ -16,11 +16,35 @@
 //NSString *const name2 = @"lisi";
 
 
+@interface Person() <NSCoding>
+
+@end
 
 @implementation Person
--(void)run {
-    NSLog(@"---%s",__func__);
+
+-(instancetype)initWithCoder:(NSCoder *)coder {
+    self = [super init];
+    if (self) {
+        self.name = [coder decodeObjectForKey:@"name"];
+    }
+    return self;
 }
+
+-(void)encodeWithCoder:(NSCoder *)coder {
+    [coder encodeObject:self.name forKey:@"name"];
+}
+
+//-(instancetype)initWithCoder:(NSCoder *)coder {
+//    self = [super init];
+//    if (self) {
+//        self.name = [coder decodeObjectForKey:@"name"];
+//    }
+//    return self;
+//}
+//-(void)encodeWithCoder:(NSCoder *)coder {
+//    [coder encodeObject:self.name forKey:@"name"];
+//}
+
 @end
 
 

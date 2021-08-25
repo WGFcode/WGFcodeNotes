@@ -10,8 +10,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface Person (PersonAAAAA)
--(void)run;
-@end
+//@interface Person (PersonAAAAA)
+//-(void)run;
+//@end
 
 NS_ASSUME_NONNULL_END
