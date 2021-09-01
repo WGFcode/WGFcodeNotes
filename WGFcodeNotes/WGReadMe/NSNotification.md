@@ -142,6 +142,12 @@
     * 当post中的object不为nil,add中的object为nil，可以接收到通知
     * 当post中的object不为nil,add中的object不为nil，可以接收到通知
 #### 从这里可以知道object参数并不能作为是否触发通知的一个条件，也不能作为参数传递；object其实就是一个发送通知的对象，谁发出了通知，object就是谁,如果设置为nil，则表示匿名发送。其实这个是对消息发送方的一个过滤，此参数据说明当前监听器仅对某个对象发出的消息感兴趣
+#### 简单总结
+1. 添加通知时，若指定了object参数，那么该响应者只会接收发送通知时object参数指定为同一实例的通知。
+2. 添加通知时，若object为nil,那么无论发送通知时的object参数为nil或者不为nil，都可以接收到通知。
+3. 添加通知时，若object不为nil,那么发送通知时的object参数必须和添加通知时object的参数一致才能接收到通知。
+4. 发送通知时，若指定了object参数，并不会影响添加通知时没有指定object参数的响应者接收通知。
+
 
 ### 1.3 从通知中心移除观察者
 #### 当对象销毁的时候，一定要从通知中心移除观察者，否则会造成内存泄露;移除通知有两种方式；对一个已经销毁的观察者发送通知是收不到通知消息的
@@ -179,7 +185,7 @@
     打印结果: 通知名称:customStr,通知对象:(null),通知携带参数:(null)
 
 ### 1.5 NSNotificationQueue 通知队列
-#### NSNotificationQueue通知队列充当通知中心的缓冲区。尽管NSNotificationCenter已经分发通知，但放入队列的通知可能会延迟，直到当前的runloop结束或runloop处于空闲状态才发送.
+#### NSNotificationQueue通知队列充当通知中心的缓冲区。尽管NSNotificationCenter已经分发通知，但放入队列的通知可能会延迟，直到当前的runloop结束或runloop处于空闲状态才发送.；NSNotificationCenter都是同步发送的，而这里介绍关于NSNotificationQueue的异步发送，从线程的角度看并不是真正的异步发送，或可称为延时发送，它是利用了runloop的时机来触发的
     @interface NSNotificationQueue : NSObject {
     @property (class, readonly, strong) NSNotificationQueue *defaultQueue;
     初始化方法来关联外部的通知中心，最终也是通过通知中心来管理通知的发送、注册
@@ -207,27 +213,30 @@
         NSNotificationCoalescingOnSender = 2    按照传入的object(发送推送的对象)合并通知
     };
 #### 如果有多个相同的通知，可以在NSNotificationQueue进行合并，这样只会发送一个通知。NSNotificationQueue会通过先进先出的方式来维护NSNotification的实例，当通知实例位于队列首部，通知队列会将它发送到通知中心，然后依次的像注册的所有观察者派发通知；通知中心发送通知给观察者是同步的，也可以用通知队列（NSNotificationQueue）异步发送通知。
+1. 依赖runloop，所以如果在其他子线程使用NSNotificationQueue，需要开启runloop
+2. 最终还是通过NSNotificationCenter进行发送通知，所以这个角度讲它还是同步的
+3. 所谓异步，指的是非实时发送而是在合适的时机发送，并没有开启异步线程
 
-### 2.0  NSNotification实现原理
+
+### 2.0  NSNotification实现原理(https://juejin.cn/post/6844904082516213768)
 #### NSNotificationCenter是通知的管理类，其核心就是操作两个Table及一个链表通知中心底层结构简化如下
+    根容器，NSNotificationCenter持有
     typedef struct NCTbl {
-      Observation    *wildcard;  
-      MapTable       nameless;   
-      MapTable       named;  
+      Observation    *wildcard;  //链表结构，保存既没有name也没有object的通知 
+      MapTable       nameless;   //存储没有name但是有object的通知
+      MapTable       named;      //存储带有name的通知，不管有没有object
     } NCTable;
     
+    Observation 存储观察者和响应结构体，基本的存储单元
     typedef struct  Obs {
-      id        observer;   观察者对象
+      id        observer;   观察者,接收通知消息的对象
       SEL       selector;   观察者接收到通知后执行的方法
       struct Obs    *next;  下一个观察者对象的地址
       int       retained;   /* Retain count for structure.  */
       struct NCTbl  *link;      /* Pointer back to chunk table  */
     } Observation;
-* wildcard 保存既没有通知名称也没有object的通知
-* named表 保存传入通知名称的通知
-* nameless表 保存没有传入通知名称的通知
 
-1. named表是以通知名称作为Key,因为注册观察者的时候，有可能传入了一个object参数用于接收指定对象发送的通知，并且一个通知可能有多个观察者对象，所以还需要一张表来保存object和观察者observer的对应关系，这张表以object为Key,observer观察者为value,如何实现同一个通知保存多个观察者的情况？答案就是使用链表；所以name表的结果如下:外层是个Table(表)，通知名称作为其Key,value又是一个Tabel(内嵌表)，内层表以object为key,value为一个链表，用来保存所有的观察者
+1. named表是以通知名称作为Key,因为注册观察者的时候，有可能传入了一个object参数用于接收指定对象发送的通知，并且一个通知可能有多个观察者对象，所以还需要一张表来保存object和观察者observer的对应关系，这张表以object为Key,observer观察者为value,如何实现同一个通知保存多个观察者的情况？答案就是使用链表；所以name表的结果如下:外层是个Table(表)，通知名称作为其Key,value又是一个Tabel(内嵌表)，内层表以object为key,value为observer的一个链表，用来保存所有的观察者
 2. 实际开发中我们经常传入object的值为nil，这时系统会根据nil自动生成一个key,对应的value就是当前通知传入了NotificationName没有传入object的所有观察者，当对应的NotificationName的通知发送时，链表中所有的观察者都会收到通知
 3. nameless表，因为没有NotificationName，所以只有一个Table(表),以object作为Key，value是一个链表,链表中保存的就是注册了通知(没有传入通知名称而传入了object)的所有观察者
 4. wildcard其实是一种链表结构，注册观察时没有传入通知名称，也没有传入object，就会被添加到wildcard链表中，注册到这里的观察者能接收到所有的系统通知
@@ -250,6 +259,109 @@
 1. 若NotificationName和object都为nil，则清空wildcard链表。
 2. 若NotificationName为nil，遍历named表，若object为nil,则清空named表；若object不为nil,则以object为key找到对应的链表，然后清空链表；在nameless table中以object为key找到对应的observer链表，然后清空，若object也为nil，则清空nameless table
 3. 若NotificationName不为nil，在named table中以NotificationName为key找到对应的table，若object为nil，则清空找到的table，若object不为nil，则以object为key在找到的table中取出对应的链表，然后清空链表。
+
+### 2.3 总结流程
+#### 2.3.1 简化源码
+
+    // 根容器，NSNotificationCenter持有
+    typedef struct NCTbl {
+      Observation   *wildcard;    链表结构，保存既没有name也没有object的通知
+      GSIMapTable   nameless;     存储没有name但是有object的通知    
+      GSIMapTable   named;        存储带有name的通知，不管有没有object    
+        ...
+    } NCTable;
+
+    //Observation 存储观察者和响应结构体，基本的存储单元
+    typedef struct Obs {
+      id   observer;      观察者，接收通知的对象    
+      SEL  selector;      响应方法        
+      struct Obs *next;   Next item in linked list.  
+      ...
+    } Observation;
+
+    /*
+     observer：观察者，即通知的接收者   selector：接收到通知时的响应方法
+     name: 通知name                 object：携带对象
+     */
+    -(void)addObserver:(id)observer selector:(SEL)aSelector name:(nullable NSNotificationName)aName
+    object:(nullable id)anObject {
+        //1.创建一个observation对象，持有观察者和SEL，下面进行的所有逻辑就是为了存储它
+        o = obsNew(TABLE, aSelector, observer);
+        
+        // case1: 如果aName存在
+        if (aName) {
+            //NAMED是个宏，表示名为named字典。以aName为key，从named表中获取对应的mapTable
+            n = GSIMapNodeForKey(NAMED, (GSIMapKey)(id)aName);
+            if (n == 0) {
+                //不存在，则创建
+                m = mapNew(TABLE);  //先取缓存，如果缓存没有则新建一个map
+                GSIMapAddPair(NAMED, (GSIMapKey)(id)aName, (GSIMapVal)(void*)m);
+            }else {
+                //存在则把值取出来 赋值给m
+                m = (GSIMapTable)n->value.ptr;
+            }
+        
+            //以anObject为key，从字典m中取出对应的value，其实value被MapNode的结构包装了一层，这里不追究细节
+            n = GSIMapNodeForSimpleKey(m, (GSIMapKey)anObject);
+            if (n == 0) {
+                //不存在，则创建,然后将新创建的observation对象进行保存
+                o->next = ENDOBS;
+                GSIMapAddPair(m, (GSIMapKey)anObject, (GSIMapVal)o);
+            }else {
+                //存在，则将新创建的observation对象进行保存
+                list = (Observation*)n->value.ptr;
+                o->next = list->next;
+                list->next = o;
+            }
+            //case2: 如果name为空，但object不为空
+        }else if (anObject) { 
+            //以anObject为key，从nameless字典中取出对应的value，value是个链表结构
+            n = GSIMapNodeForSimpleKey(NAMELESS, (GSIMapKey)anObject);
+            if (n == 0) {
+                //不存在则新建链表，并存到map中
+                o->next = ENDOBS;
+                GSIMapAddPair(NAMELESS, (GSIMapKey)object, (GSIMapVal)o);
+            }else {
+                //存在 则把值接到链表的节点上
+            }
+        }else { //case3: name 和 object 都为空
+            // 则存储到wildcard链表中
+            o->next = WILDCARD;
+            WILDCARD = o;
+        }
+    }
+#### 2.3.2 逻辑分析
+#### NCTable结构体中核心的三个变量: wildcard、named、nameless,对应的功能如下
+##### 2.3.2.1 存在name（无论object是否存在）
+1. 注册通知，如果通知的name存在，则以name为key从named字典中取出值n(这个n其实被MapNode包装了一层，便于理解这里直接认为没有包装)，这个n还是个字典，各种判空新建逻辑不讨论
+2. 然后以object为key，从字典n中取出对应的值，这个值就是Observation类型(后面简称obs)的链表，然后把刚开始创建的obs对象o存储进去
+3. 如果注册通知时传入name，那么会是一个双层的存储结构
+4. 找到NCTable中的named表，这个表存储了还有name的通知；以name作为key，找到value，这个value依然是一个map；map的结构是以object作为key，obs对象为value，这个obs对象的结构上面已经解释，主要存储了observer & SEL
+
+                   named表(mapTab)
+           |--------------------------|
+       key(通知名称)             value(mapTab)
+                       |--------------------------|
+                     key(object)             value(observation对象)
+
+
+
+
+
+##### 2.3.2.2 只存在object
+1. 以object为key，从nameless字典中取出value，此value是个obs类型的链表
+2. 把创建的obs类型的对象o存储到链表中
+3. 只存在object时存储只有一层，那就是object和obs对象之间的映射
+
+                nameless表(mapTab)
+        |--------------------------|
+        key(object)             value(observation对象-链表)
+
+
+##### 2.3.2.3 没有name和object
+1. 这种情况直接把obs对象存放在了Observation  *wildcard链表结构中
+
+
         
 ### 3.通知的优缺点
 #### 优点

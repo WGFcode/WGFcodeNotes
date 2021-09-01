@@ -16,7 +16,7 @@
 * KVC是基于动态运行时的，属于OC的特性，所有继承自NSObject的对象都可以实现KVC
 * KVC可以让对象通过字符串key或者通过keypath动态的设值、取值、处理异常等基本操作
 * KVC在调用setValue:forKey:时，如果value是值类型或者结构体类型，需要先将value转为NSNumber(值类型)或者NSValue(结构体类型)对象类型进行设值，如果需要使用的时候，再将NSNumber或者NSValue对象类型转为需要的值类型或者结构体类型
-* 在swift3.0版本中想使用KVC，除了该类必须继承自NSObject外，该类还必须添加@objcMembers标识或者在需要使用KVC的变量前面添加@objc的修饰符，目的就是为了暴露接口给OC的运行时，利用运行时特性能动态的设值、取值等；在swift4.0之后，苹果剔除了这些限制条件，可以直接使用KVC，但是不再明确调用KVC的方法了，而是通过\开头创建的keypath来实现KVC，并且值类型的结构体也开始支持KVC了，KVC在swift中不能访问private的变量
+* 在swift3.0版本中想使用KVC，除了该类必须继承自NSObject外，该类还必须添加@objcMembers标识或者在需要使用KVC的变量前面添加@objc的修饰符，目的就是为了暴露接口给OC的运行时，利用运行时特性能动态的设值、取值等；在swift4.0之后，苹果剔除了这些限制条件，可以直接使用KVC，但是不再明确调用KVC的方法了，而是通过\开头创建的keypath来实现KVC，并且值类型的结构体也开始支持KVC了，KVC在swift中不能访问private的变量,即在外部(非本类文件中)环境中无法通过KVC获取/设置本类属性的值，无论是通过明确调用KVC方法(setValue/value(forKey:))或者通过swift中的KeyPath方式都不能对private属性进行访问
 * swift中使用KVC比在OC中更加的高效和安全，swift中使用Keypath的方式进行KVC操作时候不需要担心因为拼写Key错误而导致的异常问题，而拼写错误在OC中出现频率比较高
 
 ## Swift
