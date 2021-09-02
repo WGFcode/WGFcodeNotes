@@ -383,3 +383,32 @@
 3. 由于Cocoa 框架中有很多代码实现是不开源的，开发者如果想了解底层实现没有很好的办法，现在GNUstep就可以辅助开发者了解其实现原理。
 4. GNUstep是Cocoa框架的互换框架，从源代码的实现上来说，虽然和Apple不完全一样，但是从开发者角度看，两者的行为和实现方式是一样的，或者说非常相似，因为NSObject类的Foundation框架是不开源的，所以想了解GNUstep的实现方式，有助于我们去理解Apple的实现方式
 #### 上面我们研究的通知底层原理就是通过GNUstep Base来窥探的，GNUstep Base 的官网下载地址:http://www.gnustep.org/resources/downloads.php,
+
+
+### 5. 特殊验证
+    public class WGTestNotification : WGBaseVC {
+        public override func layoutUI() {
+            self.title = "收银员"
+            self.addNavBackBtn()
+            //向通知中心注册观察者
+            NotificationCenter.default.addObserver(self, selector: #selector(getNotification(noti:)),  
+            name: nil, object: nil)
+        }
+        
+        @objc func getNotification(noti: NSNotification) {
+            let userInfoDic = noti.userInfo
+            NSLog("收到的通知内容:\(userInfoDic)")
+        }
+        
+        public override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+            NotificationCenter.default.post(name: NSNotification.Name.init("A"), object: nil,  
+            userInfo: ["A": "a"])
+        }
+        
+        deinit {
+            NotificationCenter.default.removeObserver(self)
+        }
+    }
+#### 当addObserver添加通知时，若通知名称和object都设置为nil，在没有点击屏幕进行发送通知情况下，控制台也会打印很多类似"收到的通知内容...."的内容，说明在使用通知过程中，name和 object参数不能都设置为nil，否则会导致打印很多脏乱数据，这里猜测是打印了系统和项目中所有在通知中心注册过的观察者。总之这两个参数不能全部设置为nil
+
+#### ⚠️ name和object参数不能全部设置为nil

@@ -28,7 +28,7 @@
    <title>NSNotificationCenter class reference</title>
    $Date$ $Revision$
 */
-
+//⚠️ WGGUNstep源码阅读 NSNotification通知底层原理
 #import "common.h"
 #define	EXPOSE_NSNotificationCenter_IVARS	1
 #import "Foundation/NSNotification.h"
@@ -43,13 +43,13 @@ static NSZone	*_zone = 0;
 
 /**
  * Concrete class implementing NSNotification.
+ * ⚠️：通知对象里面包含三个元素：通知名称、携带的对象、携带的参数
  */
-@interface	GSNotification : NSNotification
-{
+@interface	GSNotification : NSNotification {
 @public
-  NSString	*_name;
-  id		_object;
-  NSDictionary	*_info;
+  NSString	*_name;         //通知名称
+  id		_object;        //携带的对象
+  NSDictionary	*_info;     //携带的参数
 }
 @end
 
@@ -57,20 +57,15 @@ static NSZone	*_zone = 0;
 
 static Class concrete = 0;
 
-+ (void) initialize
-{
-  if (concrete == 0)
-    {
++ (void) initialize {
+  if (concrete == 0) {
       concrete = [GSNotification class];
     }
 }
 
-+ (NSNotification*) notificationWithName: (NSString*)name
-				  object: (id)object
-			        userInfo: (NSDictionary*)info
-{
+//创建通知对象
++ (NSNotification*) notificationWithName: (NSString*)name object: (id)object userInfo: (NSDictionary*)info{
   GSNotification	*n;
-
   n = (GSNotification*)NSAllocateObject(self, 0, NSDefaultMallocZone());
   n->_name = [name copyWithZone: [self zone]];
   n->_object = TEST_RETAIN(object);
@@ -78,14 +73,12 @@ static Class concrete = 0;
   return AUTORELEASE(n);
 }
 
-- (id) copyWithZone: (NSZone*)zone
-{
+- (id) copyWithZone: (NSZone*)zone {
   GSNotification	*n;
 
-  if (NSShouldRetainWithZone (self, zone))
-    {
+  if (NSShouldRetainWithZone (self, zone)){
       return [self retain];
-    }
+  }
   n = (GSNotification*)NSAllocateObject(concrete, 0, zone);
   n->_name = [_name copyWithZone: [self zone]];
   n->_object = TEST_RETAIN(_object);
@@ -93,26 +86,23 @@ static Class concrete = 0;
   return n;
 }
 
-- (void) dealloc
-{
+//通知对象的销毁
+- (void) dealloc {
   RELEASE(_name);
   TEST_RELEASE(_object);
   TEST_RELEASE(_info);
   [super dealloc];
 }
 
-- (NSString*) name
-{
+- (NSString*) name {
   return _name;
 }
 
-- (id) object
-{
+- (id) object {
   return _object;
 }
 
-- (NSDictionary*) userInfo
-{
+- (NSDictionary*) userInfo {
   return _info;
 }
 
@@ -130,16 +120,16 @@ static Class concrete = 0;
  * Elsewhere, we store the pointers with a bit added, to hide them from
  * the garbage collector.
  */
-
+// 通知中心表结构
 struct	NCTbl;		/* Notification Center Table structure	*/
 
 /*
  * Observation structure - One of these objects is created for
- * each -addObserver... request.  It holds the requested selector,
- * name and object.  Each struct is placed in one LinkedList,
- * as keyed by the NAME/OBJECT parameters.
- * If 'next' is 0 then the observation is unused (ie it has been
- * removed from, or not yet added to  any list).  The end of a
+ * each -addObserver... request.  It holds the requested selector, //包含方法实现、通知名称和通知携带的对象
+ * name and object.  Each struct is placed in one LinkedList,       //每个结构体都是存放在链表中
+ * as keyed by the NAME/OBJECT parameters.                          //链表中以name/object作为key
+ * If 'next' is 0 then the observation is unused (ie it has been  //若过next为0.则说明这个未使用（可能是被移除或者还没有添加到列表中）
+ * removed from, or not yet added to  any list).  The end of a。  //当next被设置为ENDOBS，则表示是链表的尾部
  * list is marked by 'next' being set to 'ENDOBS'.
  *
  * This is normally a structure which handles memory management using a fast
@@ -148,10 +138,11 @@ struct	NCTbl;		/* Notification Center Table structure	*/
  * trivial class instead ... and gets managed by the garbage collector.
  */
 
+//⚠️Observation 存储观察者和响应结构体，基本的存储单元
 typedef	struct	Obs {
-  id		observer;	/* Object to receive message.	*/
-  SEL		selector;	/* Method selector.		*/
-  struct Obs	*next;		/* Next item in linked list.	*/
+  id		observer;	/* Object to receive message.	*/         //接收消息对象（观察者）
+  SEL		selector;	/* Method selector.		*/                 //接收到消息后，观察者响应的方法
+  struct Obs	*next;		/* Next item in linked list.	*/     //指向链表的下个节点
   int		retained;	/* Retain count for structure.	*/
   struct NCTbl	*link;		/* Pointer back to chunk table	*/
 } Observation;
@@ -224,34 +215,38 @@ static void obsFree(Observation *o);
 #include "GNUstepBase/GSIMap.h"
 
 /*
+ NC表通常用于跟踪分配给存储观察结构的内存；当通知从通知中心移除时，它的内存会返回到块表的空闲列表中，而不是释放到一般的内存分配系统中，
+ 意味着一旦注册了大量的通知，内存使用量也永远不会减少，即使是移除通知；另一方面，也说明了添加和移除通知速度是很快的，因为不存在内存分配和收回的开销
  * An NC table is used to keep track of memory allocated to store
  * Observation structures. When an Observation is removed from the
  * notification center, it's memory is returned to the free list of
- * the chunk table, rather than being released to the general
+ * the chunk table, rather than being released to the general。
  * memory allocation system.  This means that, once a large numbner
  * of observers have been registered, memory usage will never shrink
  * even if the observers are removed.  On the other hand, the process
  * of adding and removing observers is speeded up.
  *
+ 作为对性能的另一个帮助，我们维护了一个映射表的缓存，用于保持通知对象到观察列表的映射，这让我们可以避免在频繁的创建和删除
+ 通知观察时创建和小会映射表的开销
  * As another minor aid to performance, we also maintain a cache of
  * the map tables used to keep mappings of notification objects to
  * lists of Observations.  This lets us avoid the overhead of creating
  * and destroying map tables when we are frequently adding and removing
  * notification observations.
- *
+ * 然后性能并不是使用这种结构的主要原因，它提供了一种整洁的方法，以确保由Observation结构指向的观察者不会被垃圾收集机制视为正在使用。
  * Performance is however, not the primary reason for using this
- * structure - it provides a neat way to ensure that observers pointed
+ * structure - it provides a neat way to ensure that observers pointedObservation结构不会被垃圾
  * to by the Observation structures are not seen as being in use by
  * the garbage collection mechanism.
  */
 #define	CHUNKSIZE	128
 #define	CACHESIZE	16
 typedef struct NCTbl {
-  Observation		*wildcard;	/* Get ALL messages.		*/
-  GSIMapTable		nameless;	/* Get messages for any name.	*/
-  GSIMapTable		named;		/* Getting named messages only.	*/
-  unsigned		lockCount;	/* Count recursive operations.	*/
-  NSRecursiveLock	*_lock;		/* Lock out other threads.	*/
+  Observation		*wildcard;	/* Get ALL messages.		*/ 链表结构，保存既没有name也没有object的通知
+  GSIMapTable		nameless;	/* Get messages for any name.	*/ 存储没有name但是有object的通知
+  GSIMapTable		named;		/* Getting named messages only.	*/ 存储带有name的通知，不管有没有object
+  unsigned		lockCount;	/* Count recursive operations.	*/  递归操作数
+  NSRecursiveLock	*_lock;		/* Lock out other threads.	*/  递归锁
   Observation		*freeList;
   Observation		**chunks;
   unsigned		numChunks;
@@ -711,7 +706,7 @@ static NSNotificationCenter *default_center = nil;
 
 
 /* Initializing. */
-
+//通知中心初始化时会创建一个NCTab表
 - (id) init
 {
   if ((self = [super init]) != nil)
@@ -742,9 +737,15 @@ static NSNotificationCenter *default_center = nil;
 }
 
 
+//MARK: ⚠️ 添加观察者
 /* Adding new observers. */
 
+
 /**
+ *注册观察者以接收名称为 notificationName 和/或包含对象的通知（这两个中的一个或两个必须非 nil；nil就像通配符一样）。
+ *当发布包含对象的名称名称的通知时，观察者会收到一个以该通知为参数的选择器消息。
+ *通知中心等待观察者处理完消息，然后通知下一个匹配通知的注册树，完成所有这些后，控制权返回到通知的发布者。 因此选择器实现中的处理应该很短
+ *⚠️ name和object参数不能全部为nil
  * <p>Registers observer to receive notifications with the name
  * notificationName and/or containing object (one or both of these two must be
  * non-nil; nil acts like a wildcard).  When a notification of name name
@@ -755,6 +756,7 @@ static NSNotificationCenter *default_center = nil;
  * to the poster of the notification.  Therefore the processing in the
  * selector implementation should be short.</p>
  *
+ * ⚠️通知中心不会持有观察者或者object
  * <p>The notification center does not retain observer or object. Therefore,
  * you should always send removeObserver: or removeObserver:name:object: to
  * the notification center before releasing these objects.<br />
@@ -767,104 +769,84 @@ static NSNotificationCenter *default_center = nil;
  * removing an observer will remove <em>all</em> of the multiple registrations.
  * </p>
  */
-- (void) addObserver: (id)observer
-	    selector: (SEL)selector
-                name: (NSString*)name
-	      object: (id)object
-{
-  Observation	*list;
-  Observation	*o;
-  GSIMapTable	m;
-  GSIMapNode	n;
+- (void) addObserver: (id)observer selector: (SEL)selector name: (NSString*)name object: (id)object {
+    Observation	*list;
+    Observation	*o;
+    GSIMapTable	m;
+    GSIMapNode	n;
 
-  if (observer == nil)
-    [NSException raise: NSInvalidArgumentException
-		format: @"Nil observer passed to addObserver ..."];
+    if (observer == nil)   //观察者不能为nil
+        [NSException raise: NSInvalidArgumentException format: @"Nil observer passed to addObserver ..."];
 
-  if (selector == 0)
-    [NSException raise: NSInvalidArgumentException
-		format: @"Null selector passed to addObserver ..."];
+    if (selector == 0)   //观察者响应的方法实现不能为nil
+        [NSException raise: NSInvalidArgumentException format: @"Null selector passed to addObserver ..."];
 
-  if ([observer respondsToSelector: selector] == NO)
-    {
-      [NSException raise: NSInvalidArgumentException
-        format: @"[%@-%@] Observer '%@' does not respond to selector '%@'",
+    if ([observer respondsToSelector: selector] == NO) { //如观察者必须实现了响应的方法
+        [NSException raise: NSInvalidArgumentException format: @"[%@-%@] Observer '%@' does not respond to selector '%@'",
         NSStringFromClass([self class]), NSStringFromSelector(_cmd),
         observer, NSStringFromSelector(selector)];
     }
-
-  lockNCTable(TABLE);
-
-  o = obsNew(TABLE, selector, observer);
-
-  /*
-   * Record the Observation in one of the linked lists.
-   *
-   * NB. It is possible to register an observer for a notification more than
-   * once - in which case, the observer will receive multiple messages when
-   * the notification is posted... odd, but the MacOS-X docs specify this.
-   */
-
-  if (name)
-    {
-      /*
-       * Locate the map table for this name - create it if not present.
-       */
-      n = GSIMapNodeForKey(NAMED, (GSIMapKey)(id)name);
-      if (n == 0)
-	{
-	  m = mapNew(TABLE);
-	  /*
-	   * As this is the first observation for the given name, we take a
-	   * copy of the name so it cannot be mutated while in the map.
-	   */
-	  name = [name copyWithZone: NSDefaultMallocZone()];
-	  GSIMapAddPair(NAMED, (GSIMapKey)(id)name, (GSIMapVal)(void*)m);
-	  GS_CONSUMED(name)
-	}
-      else
-	{
-	  m = (GSIMapTable)n->value.ptr;
-	}
-
-      /*
-       * Add the observation to the list for the correct object.
-       */
-      n = GSIMapNodeForSimpleKey(m, (GSIMapKey)object);
-      if (n == 0)
-	{
-	  o->next = ENDOBS;
-	  GSIMapAddPair(m, (GSIMapKey)object, (GSIMapVal)o);
-	}
-      else
-	{
-	  list = (Observation*)n->value.ptr;
-	  o->next = list->next;
-	  list->next = o;
-	}
-    }
-  else if (object)
-    {
-      n = GSIMapNodeForSimpleKey(NAMELESS, (GSIMapKey)object);
-      if (n == 0)
-	{
-	  o->next = ENDOBS;
-	  GSIMapAddPair(NAMELESS, (GSIMapKey)object, (GSIMapVal)o);
-	}
-      else
-	{
-	  list = (Observation*)n->value.ptr;
-	  o->next = list->next;
-	  list->next = o;
-	}
-    }
-  else
-    {
-      o->next = WILDCARD;
-      WILDCARD = o;
-    }
-
-  unlockNCTable(TABLE);
+    
+    lockNCTable(TABLE);   //对通知中心中的NCTab表进行加锁
+    
+    //创建一个observation对象，持有观察者和SEL，下面进行的所有逻辑就是为了存储它
+    o = obsNew(TABLE, selector, observer);
+    
+    /*
+    * Record the Observation in one of the linked lists.
+    *
+    * NB. It is possible to register an observer for a notification more than
+    * once - in which case, the observer will receive multiple messages when
+    * the notification is posted... odd, but the MacOS-X docs specify this.
+    */
+    if (name){  //⚠️1如果通知名称name存在，即不为nil，
+        /*
+        * Locate the map table for this name - create it if not present.
+        */
+        //NAMED是个宏，表示名为named字典。以name为key，从named表中获取对应的value(mapTable)
+        n = GSIMapNodeForKey(NAMED, (GSIMapKey)(id)name);
+        if (n == 0) { //不存在，则创建
+            m = mapNew(TABLE);
+            /*
+             * As this is the first observation for the given name, we take a
+             * copy of the name so it cannot be mutated while in the map.
+             */
+            name = [name copyWithZone: NSDefaultMallocZone()];
+            GSIMapAddPair(NAMED, (GSIMapKey)(id)name, (GSIMapVal)(void*)m);
+            GS_CONSUMED(name)
+        }else { //存在则把值取出来 赋值给m
+            m = (GSIMapTable)n->value.ptr;
+        }
+        /*
+         * Add the observation to the list for the correct object.
+         */
+        //以object为key，从字典m中取出对应的value，其实value被MapNode的结构包装了一层，这里不追究细节
+        n = GSIMapNodeForSimpleKey(m, (GSIMapKey)object);
+        if (n == 0) { // 不存在，则创建
+            o->next = ENDOBS;
+            GSIMapAddPair(m, (GSIMapKey)object, (GSIMapVal)o);
+        }else {
+            list = (Observation*)n->value.ptr;
+            o->next = list->next;
+            list->next = o;
+        }
+   }else if (object) { //⚠️2. 如果name为空，但object不为空
+       //以object为key，从nameless字典中取出对应的value，value是个链表结构
+       n = GSIMapNodeForSimpleKey(NAMELESS, (GSIMapKey)object);
+       if (n == 0) { //不存在则新建链表，并存到map中
+           o->next = ENDOBS;
+           GSIMapAddPair(NAMELESS, (GSIMapKey)object, (GSIMapVal)o);
+       }else { //存在 则把值接到链表的节点上
+           list = (Observation*)n->value.ptr;
+           o->next = list->next;
+           list->next = o;
+       }
+   }else{ //⚠️3. name 和 object 都为空 则存储到wildcard链表中
+       o->next = WILDCARD;
+       WILDCARD = o;
+   }
+    
+   unlockNCTable(TABLE); //放开锁
 }
 
 /**
@@ -896,6 +878,7 @@ static NSNotificationCenter *default_center = nil;
 	return observer;
 }
 
+//MARK: ⚠️移除观察者
 /**
  * Deregisters observer for notifications matching name and/or object.  If
  * either or both is nil, they act like wildcards.  The observer may still
@@ -904,11 +887,8 @@ static NSNotificationCenter *default_center = nil;
  * for the specified notifications, unless both observer and name are nil, in
  * which case nothing is done.
  */
-- (void) removeObserver: (id)observer
-		   name: (NSString*)name
-                 object: (id)object
-{
-  if (name == nil && object == nil && observer == nil)
+- (void) removeObserver: (id)observer name: (NSString*)name object: (id)object {
+  if (name == nil && object == nil && observer == nil)  //若都为空，则直接返回
       return;
 
   /*
@@ -917,15 +897,13 @@ static NSNotificationCenter *default_center = nil;
    *	the entry returned by the enumerator.
    */
 
-  lockNCTable(TABLE);
+  lockNCTable(TABLE);  //加锁
 
-  if (name == nil && object == nil)
-    {
+  if (name == nil && object == nil) {  //若通知名称和object都为nil，则直接将wildcard链表删除
       WILDCARD = listPurge(WILDCARD, observer);
-    }
+  }
 
-  if (name == nil)
-    {
+  if (name == nil) {
       GSIMapEnumerator_t	e0;
       GSIMapNode		n0;
 
