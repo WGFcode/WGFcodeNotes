@@ -8,8 +8,8 @@
 
 #import "Person+PersonTest.h"
 
-@implementation Person (PersonTest)
--(void)run {
-    NSLog(@"-----%s",__func__);
-}
-@end
+//@implementation Person (PersonTest)
+//-(void)run {
+//    NSLog(@"-----%s",__func__);
+//}
+//@end

@@ -6,11 +6,11 @@
 //  Copyright © 2021 WG. All rights reserved.
 //
 
-#import "Person+PersonAAAAA.h"
-
-@implementation Person (PersonAAAAA)
--(void)run {
-    NSLog(@"-----%s",__func__);
-}
-
-@end
+//#import "Person+PersonAAAAA.h"
+//
+//@implementation Person (PersonAAAAA)
+//-(void)run {
+//    NSLog(@"-----%s",__func__);
+//}
+//
+//@end
