@@ -13,7 +13,7 @@
 // Automatic differentiation common utilities.
 //
 //===----------------------------------------------------------------------===//
-
+/*
 #ifndef SWIFT_SILOPTIMIZER_UTILS_DIFFERENTIATION_COMMON_H
 #define SWIFT_SILOPTIMIZER_UTILS_DIFFERENTIATION_COMMON_H
 
@@ -315,3 +315,4 @@ public:
 } // end namespace swift
 
 #endif // SWIFT_SILOPTIMIZER_MANDATORY_DIFFERENTIATION_COMMON_H
+*/

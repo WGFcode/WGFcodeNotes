@@ -9,5 +9,7 @@
 #import "Student+StudentCategory.h"
 
 @implementation Student (StudentCategory)
-
++(void)load {
+    
+}
 @end
