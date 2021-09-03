@@ -412,3 +412,142 @@
 #### 当addObserver添加通知时，若通知名称和object都设置为nil，在没有点击屏幕进行发送通知情况下，控制台也会打印很多类似"收到的通知内容...."的内容，说明在使用通知过程中，name和 object参数不能都设置为nil，否则会导致打印很多脏乱数据，这里猜测是打印了系统和项目中所有在通知中心注册过的观察者。总之这两个参数不能全部设置为nil
 
 #### ⚠️ name和object参数不能全部设置为nil
+
+#### 5.1 发送通知方式
+#### 5.1.1通知中心发送通知
+    public override func layoutUI() {
+        self.title = "测试通知"
+        self.addNavBackBtn()
+        //向通知中心注册观察者
+        NotificationCenter.default.addObserver(self, selector: #selector(getNotification(notifi:)), name: NSNotification.Name.init("111"), object: nil)
+    }
+
+    public override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        //通知中心发送通知
+        self.notificationCenterSendNotification()
+    }
+
+    @objc func getNotification(notifi: Notification) {
+        NSLog("2.get notification message")
+    }
+
+    //1. 通知中心发送通知
+    private func notificationCenterSendNotification() {
+        NSLog("1.before send notification")
+        NotificationCenter.default.post(name: NSNotification.Name("111"), object: nil, userInfo: nil)
+        NSLog("3.after send notification")
+    }
+
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+    
+    打印结果：1.before send notification
+            2.get notification message
+            3.after send notification
+#### 分析，使用最常用的NSNotificationCenter通知中心发送通知，这是在同一线程里发送的，并且是同步执行的。
+
+#### 5.1.2通知队列发送通知
+    public override func layoutUI() {
+        self.title = "收银员"
+        self.addNavBackBtn()
+        //向通知中心注册观察者
+        NotificationCenter.default.addObserver(self, selector: #selector(getNotification(notifi:)), name: NSNotification.Name.init("111"), object: nil)
+    }
+
+
+    public override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        //通知队列发送通知
+        self.queueSendNotification()
+    }
+
+    @objc func getNotification(notifi: Notification) {
+        NSLog("2.get notification message")
+    }
+
+    //2. 通知队列发送通知
+    private func queueSendNotification() {
+        NSLog("1.before send notification")
+        //创建通知对象、通知队列对象，将通知放到通知队列中
+        let notifi = Notification.init(name: NSNotification.Name.init(rawValue: "111"), object: nil)
+        let notifiQueue = NotificationQueue.default
+        /*
+         postingStyle: 通知的发送时机
+         enum PostingStyle: UInt{
+         case whenIdle = 1 runloop空闲时发送通知，简单地说就是当本线程的runloop空闲时即发送通知到通知中心--异步执行132(延迟执行)
+         case asap = 2  (As Soon As Possible)尽可能快的发送，这种时机是穿插在每次事件完成期间来做的--异步执行132(延迟执行)
+         case now = 3  立刻发送或者合并通知完成之后发送，NotificationCenter就是这种方式发送的--同步执行的123
+         }
+         
+         coalesceMask: 通知合并的策略,有些时候同名通知只想存在一个，这时候就可以用到它了
+         struct NotificationCoalescing : OptionSet {
+         var none    默认不合并
+         var onName  只要name相同，就认为是相同通知,合并相同名称的通知
+         var onSender object相同，就认为是相同通知，合并相同object的通知
+         }
+         forModes:[RunLoop.Mode]?
+         当指定了某种特定runloop mode后，该通知只有在当前runloop为指定mode的下，才会被发出。
+         */
+        notifiQueue.enqueue(notifi, postingStyle: NotificationQueue.PostingStyle.whenIdle, coalesceMask: NotificationQueue.NotificationCoalescing.onName, forModes: nil)
+        NSLog("3.after send notification")
+    }
+
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+#### 分析：利用通知队列可以实现异步执行通知的效果，但有限制条件，就是发送通知的时机必须设置为whenIdle或者asap，若设置为now，则和通知中心发送通知的效果是一样的，都是同步的。其实这里的异步发送通知并不是线程意义上的异步，只是通知延迟至行而已；
+1.
+通知中心默认是以同步的方式发送通知的，也就是说，当一个对象发送了一个通知，只有当该通知的所有接受者都接受到了通知中心分发的通知消息并且处理完成后，发送通知的对象才能继续执行接下来的方法
+
+2. 将通知加到通知队列中，就可以将一个通知异步的发送到当前的线程，这些方法调用后会立即返回，不用再等待通知的所有监听者都接收并处理完。
+#### ⚠️ 如果通知入队的线程在该通知被通知队列发送到通知中心之前结束了，那么这个通知将不会被发送了。
+
+
+#### 5.3 通知中的多线程
+    public override func layoutUI() {
+        self.title = "收银员"
+        self.addNavBackBtn()
+        //向通知中心注册观察者
+        NotificationCenter.default.addObserver(self, selector: #selector(getNotification(notifi:)), name: NSNotification.Name.init("111"), object: nil)
+    }
+
+
+    public override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        //子线程发送通知
+        self.sendSubThreadNotification()
+    }
+
+    @objc func getNotification(notifi: Notification) {
+        NSLog("2.get notification message---\(Thread.current)")
+    }
+
+    //主线程发通知
+    private func sendMainThreadNotification() {
+        NSLog("1 before send--\(Thread.current)")
+        NotificationCenter.default.post(name: NSNotification.Name.init("111"), object: nil, userInfo: nil)
+        NSLog("3 after send--\(Thread.current)")
+    }
+
+    //子线程发送通知
+    private func sendSubThreadNotification() {
+        DispatchQueue.global().async {
+            NSLog("1 before send--\(Thread.current)")
+            NotificationCenter.default.post(name: NSNotification.Name.init("111"), object: nil, userInfo: nil)
+            NSLog("3 after send--\(Thread.current)")
+        }
+    }
+
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+    
+    打印结果: 1 before send--<NSThread: 0x283e8af00>{number = 7, name = (null)}
+            2.get notification message---<NSThread: 0x283e8af00>{number = 7, name = (null)}
+            3 after send--<NSThread: 0x283e8af00>{number = 7, name = (null)}
+#### 分析，接收通知处理消息代码(观察者接收到消息并处理/getNotification方法)的线程，是由发出通知(post)的线程决定,因为发出通知是在子线程，所以处理接受到的消息的代码也是在子线程中，并且和发出通知是在同一个线程中
+
+
+
+
+#### 5.2.3 发送通知到指定线程
+#### 通知中心分发通知的线程一般就是通知的发出者发送通知的线程。但是有时候，你可能想自己决定通知发出的线程，而不是由通知中心来决定
