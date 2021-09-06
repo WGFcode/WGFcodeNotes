@@ -391,7 +391,7 @@
             self.title = "收银员"
             self.addNavBackBtn()
             //向通知中心注册观察者
-            NotificationCenter.default.addObserver(self, selector: #selector(getNotification(noti:)),  
+            NotificationCenter.default.addObserver(self, selector: #selector(getNotification(noti:)), 
             name: nil, object: nil)
         }
         
@@ -419,7 +419,8 @@
         self.title = "测试通知"
         self.addNavBackBtn()
         //向通知中心注册观察者
-        NotificationCenter.default.addObserver(self, selector: #selector(getNotification(notifi:)), name: NSNotification.Name.init("111"), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(getNotification(notifi:)),  
+        name: NSNotification.Name.init("111"), object: nil)
     }
 
     public override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -452,7 +453,8 @@
         self.title = "收银员"
         self.addNavBackBtn()
         //向通知中心注册观察者
-        NotificationCenter.default.addObserver(self, selector: #selector(getNotification(notifi:)), name: NSNotification.Name.init("111"), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(getNotification(notifi:)),   
+        name: NSNotification.Name.init("111"), object: nil)
     }
 
 
@@ -488,7 +490,8 @@
          forModes:[RunLoop.Mode]?
          当指定了某种特定runloop mode后，该通知只有在当前runloop为指定mode的下，才会被发出。
          */
-        notifiQueue.enqueue(notifi, postingStyle: NotificationQueue.PostingStyle.whenIdle, coalesceMask: NotificationQueue.NotificationCoalescing.onName, forModes: nil)
+        notifiQueue.enqueue(notifi, postingStyle: NotificationQueue.PostingStyle.whenIdle,   
+        coalesceMask: NotificationQueue.NotificationCoalescing.onName, forModes: nil)
         NSLog("3.after send notification")
     }
 
@@ -508,7 +511,8 @@
         self.title = "收银员"
         self.addNavBackBtn()
         //向通知中心注册观察者
-        NotificationCenter.default.addObserver(self, selector: #selector(getNotification(notifi:)), name: NSNotification.Name.init("111"), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(getNotification(notifi:)),   
+        name: NSNotification.Name.init("111"), object: nil)
     }
 
 
@@ -550,4 +554,105 @@
 
 
 #### 5.2.3 发送通知到指定线程
-#### 通知中心分发通知的线程一般就是通知的发出者发送通知的线程。但是有时候，你可能想自己决定通知发出的线程，而不是由通知中心来决定
+#### 通知中心分发通知的线程一般就是通知的发出者发送通知的线程。但是有时候，你可能想自己决定通知发出的线程，而不是由通知中心来决定，例如我们在子线程中通过通知中心发送通知，那么观察者接受到通知后处理响应事件的线程也必定是在子线程中，但是实际业务中可能是子线程发送了通知，但是我们想让响应事件的代码是在主线程或者其他线程处理的，那么就需要用到线程间通信了，这里我们使用NSMachPort来实现线程间通信，进而达到我们想要的效果
+#### 首先我们先研究下NSMachPort的使用方法
+
+    public class WGTestVC : WGBaseVC, NSMachPortDelegate {
+        private var machPort: NSMachPort!
+        public override func layoutUI() {
+            self.title = "会员管理"
+            self.addNavBackBtn()
+            //1.将MachProt添加到主线程的Runloop中
+            /*MachPort的工作方式
+             1.将NSMachPort的对象添加到一个线程A所对应的RunLoop中
+             2.并给NSMachPort对象设置相应的代理
+             3.在其他线程B中调用该MachPort对象发消息时会在MachPort所关联的线程A中执行相关的代理方法。
+            */
+            NSLog("add before thread is \(Thread.current)")
+            self.machPort = NSMachPort()
+            self.machPort.setDelegate(self)
+            RunLoop.current.add(self.machPort, forMode: .common)
+            NSLog("add after thread is \(Thread.current)")
+        }
+        
+        //NSMachPortDelegate
+        public func handleMachMessage(_ msg: UnsafeMutableRawPointer) {
+            NSLog("handleMachMessage thread is: \(Thread.current)")
+        }
+        
+        public override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+            //2.在子线程中通过NSMachPort对象发送消息，会在NSMachPort关联的线程中执行相关的代理方法
+            DispatchQueue.global().async {
+                NSLog("NSMachPort send message thread is: \(Thread.current)")
+                self.machPort!.send(before: Date(), msgid: 100, components: nil, from: nil, reserved: 0)
+            }
+        }
+    }
+    
+    打印结果： add before thread is <NSThread: 0x28053a840>{number = 1, name = main}
+            add after thread is <NSThread: 0x28053a840>{number = 1, name = main}
+            NSMachPort send message thread is: <NSThread: 0x2805862c0>{number = 14, name = (null)}
+            handleMachMessage thread is: <NSThread: 0x28053a840>{number = 1, name = main}
+#### 分析: 通过NSMachPort我们可以将在子线程中的消息发送到主线程中执行，具体就是将NSMachPort添加到主线程的Runloop中，然后在子线程中通过NSMachPort发送消息，这样消息就会在NSMachPort关联的线程中响应事件了，通过这个思路，我们可以将在子线程发送的通知，让观察者的响应在主线程(或者指定的线程中响应)中响应事件，也就是将子线程发出的通知通过MachPort转发到主线程中进行处理
+
+    public class WGTestVVVVV : WGBaseVC, NSMachPortDelegate {
+        private var notificationArr = [Notification]() //存放子线程发出的所有通知
+        private var mainThread = Thread.main           //处理通知事件的预期线程(这里预期线程用主线程)
+        private var lock = NSLock()                    //对通知队列枷锁的锁对象，避免线程冲突
+        private var machPort = NSMachPort()
+        public override func layoutUI() {
+            self.title = "会员管理"
+            self.addNavBackBtn()
+            //1.设置代理并将NSMachPort添加到主线程的Runloop中
+            self.machPort.setDelegate(self)
+            RunLoop.current.add(self.machPort, forMode: .common)
+            
+            //2. 主线程中添加观察者
+            NotificationCenter.default.addObserver(self, selector: #selector(getNofiti(notifi:)),   
+            name: NSNotification.Name.init("code"), object: nil)
+            
+            //3.在子线程中发送通知
+            DispatchQueue.global().async {
+                NotificationCenter.default.post(name: NSNotification.Name.init("code"), object: nil, userInfo: nil)
+            }
+        }
+        
+        //响应通知事件：子线程中收到通知后，将通知放入到通知队列中暂存(通知数组)，然后给主线程的RunLoop发送处理通知的消息
+        @objc func getNofiti(notifi: Notification) {
+            NSLog("收到通知 当前线程是:\(Thread.current)")
+            if Thread.current == mainThread {  //处理出队列的通知(这里其实就是数组)
+                NSLog("在当前主线程中执行任务: \(Thread.current)")
+            }else {
+                self.lock.lock()
+                self.notificationArr.append(notifi)
+                self.lock.unlock()
+                //通过NSMachPort给处理通知的线程发送通知，使其处理队列中所暂存的队列
+                self.machPort.send(before: Date(), components: nil, from: nil, reserved: 0)
+            }
+        }
+        
+        //NSMachPortDelegate
+        public func handleMachMessage(_ msg: UnsafeMutableRawPointer) {
+            NSLog("NSMachPort代理方法 当前线程是: \(Thread.current)")
+            self.lock.lock()
+            while self.notificationArr.count > 0 {
+                //取出第一个通知，然后删除通知数组中的这个通知，然后处理从通知数组中取出的通知
+                let notifi = self.notificationArr[0]
+                self.notificationArr.remove(at: 0)
+                
+                self.lock.unlock()
+                self.getNofiti(notifi: notifi)
+                self.lock.lock()
+            }
+            self.lock.unlock()
+        }
+    }
+    
+    打印结果: 收到通知 当前线程是:<NSThread: 0x282636080>{number = 13, name = (null)}
+            NSMachPort代理方法 当前线程是: <NSThread: 0x2826b2840>{number = 1, name = main}
+            收到通知 当前线程是:<NSThread: 0x2826b2840>{number = 1, name = main}
+            在当前主线程中执行任务: <NSThread: 0x2826b2840>{number = 1, name = main}
+#### 分析，通知NSMachPort我们可以实现线程间通信，将子线程发送的通知，转发到主线程(指定线程)去处理收到通知的响应事件。大概流程就是将NSMachPort添加到主线程/指定线程中，然后在子线程中发送通知，观察者收到通知并处理通知事件时，该通知事件肯定是在子线程中，然后在这个子线程中保存该通知到队列(其实就是数组)中，然后用NSMachPort给处理通知的线程(主线程/指定线程)发送通知，让其处理队列中所暂存的通知。NSMachPort一旦发送了消息，NSMachPort的代理方法handleMachMessage就会响应事件，该代理方法一定是在主线程/指定的线程中执行的(因为NSMachPort当初add的就是这个线程)，然后在该代理方法中去调用处理通知事件的方法即可
+        
+            
+            
