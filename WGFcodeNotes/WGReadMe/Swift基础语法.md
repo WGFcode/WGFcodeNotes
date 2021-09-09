@@ -597,6 +597,17 @@
 - 使用class关键字时，计算类型属性可以在子类中被重写：
 - extension中可以定义计算类型属性
 
+        存储属性：可以用var或let修饰
+        var name: String = ""
+        let age: Int = 18
+        
+        计算属性：计算属性必须用var修饰，不直接存储值，而是提供一个getter和一个可选的setter，来间接获取和设置其他属性或变量的值
+        var age: Int {
+            get {
+                return 10
+            }
+        }
+
 
 ### 8. swift中KVC
 #### swift中使用KVC必须满足如下两个条件

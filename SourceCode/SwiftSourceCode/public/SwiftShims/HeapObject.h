@@ -51,9 +51,10 @@ typedef struct HeapObject HeapObject;
 
 /// The Swift heap-object header.
 /// This must match RefCountedStructTy in IRGen.
+// MARK:第1⃣️步swift对象本质是个结构体HeapObject，结构体内成员
 /*
  WGSwift底层源码
- 第1⃣️步
+ 
  ⚠️ swift对象的底层结构是个结构体HeapObject，里面包含两个成员，元数据和引用计数
  元数据类型是HeapMetadata，它是TargetHeapMetadata的别名，所以元数据类型其实是TargetHeapMetadata类型
  */
@@ -87,7 +88,7 @@ struct HeapObject {
 
 
 
-//⚠️第2⃣️步 TargetHeapMetadata
+// MARK:⚠️第2⃣️步 TargetHeapMetadata 是HeapMetadata的别名
 /*
  模板类型,这个结构体中没有属性，只有一个初始化方法
  */
@@ -106,7 +107,7 @@ struct TargetHeapMetadata : TargetMetadata<Runtime> {
 };
 
 
-//⚠️第3⃣️步 MetadataKind元数据类型-总结版
+//MARK: ⚠️第3⃣️步 MetadataKind元数据类型-总结版
 /*
  const unsigned MetadataKindIsNonHeap = 0x200;
  */
@@ -151,7 +152,7 @@ enum class MetadataKind : uint32_t {
 
 
 
-//⚠️第4⃣️步 TargetMetadata简化版
+//MARK: ⚠️第4⃣️步 TargetMetadata简化版
 /*
  通过kind我们获取到元类对象的类型，
  若是swift类则类对象是TargetClassMetadata；
@@ -204,7 +205,7 @@ struct TargetObjCClassWrapperMetadata : public TargetMetadata<Runtime> {
 };
 
 
-//⚠️第5⃣️步 TargetClassMetadata简化版
+//MARK: ⚠️第5⃣️步 TargetClassMetadata简化版
 /* WGSwift底层源码
     ⚠️TargetClassMetadata底层结构，继承关系如下 TargetClassMetadata : TargetAnyClassMetadata : TargetHeapMetadata
  */
@@ -248,9 +249,13 @@ struct TargetClassMetadata : public TargetAnyClassMetadata<Runtime> {
 
 
 
-//⚠️第6⃣️步 TargetAnyClassMetadata简化版
+//MARK: ⚠️第6⃣️步 TargetAnyClassMetadata简化版
 /*
  ⚠️ 在swift中，如果没有明确声明父类的类，则会隐式地继承自 SwiftObject，当SWIFT_OBJC_INTEROP为true时才会声明为SwiftObject
+ 有三个属性
+ 1. Superclass
+ 2. CacheData
+ 3. Data
  */
 template <typename Runtime>
 struct TargetAnyClassMetadata : public TargetHeapMetadata<Runtime> {
@@ -268,6 +273,30 @@ struct TargetAnyClassMetadata : public TargetHeapMetadata<Runtime> {
  3.TargetMetadata结构体中只有一个kind成员，用来表示该元数据是哪种类型
  4.若元数据类型kind是MetadataKind::Class:即纯swift类，则元类对象类型就是TargetClassMetadata，
  继承关系是: TargetClassMetadata : TargetAnyClassMetadata : TargetHeapMetadata
+ 
+ 
+ 元数据(HeapMetadata)TargetHeapMetadata : TargetMetadata(里面有kind属性，根据kind判断返回是)TargetClassMetadata ： TargetAnyClassMetadata : TargetHeapMetadata
+ 
+ 
+ ⚠️ 一个swift类底层结构成员：由 TargetClassMetadata属性 + TargetAnyClassMetaData属性 + TargetMetaData属性 构成
+ HeapObject结构体中的元数据结构体中属性由以下组成
+         //TargetMetadata 中属性
+         StoredPointer Kind;  //相当于OC中的isa，kind的实际类型是unsigned long
+
+         //TargetClassMetadata 中属性
+         ClassFlags Flags;
+         uint32_t InstanceAddressPoint;
+         uint32_t InstanceSize;
+         uint16_t InstanceAlignMask;
+         uint16_t Reserved;
+         uint32_t ClassSize;
+         uint32_t ClassAddressPoint;
+ 
+ 
+         // TargetAnyClassMetadata 中属性
+         Superclass;
+         TargetPointer<Runtime, void> CacheData[2];
+         StoredSize Data;
  */
 
 

@@ -111,7 +111,7 @@ static HeapObject *_swift_tryRetain_(HeapObject *object)
  创建swift类底层执行的方法顺序如下
     1. __allocating_init()
     2. swift_allocObject
- _swift_allocObject_方法返回一会HeapObject结构体，说明swift对象的底层结构是个HeapObject结构体
+ _swift_allocObject_方法返回一个HeapObject结构体，说明swift对象的底层结构是个HeapObject结构体
  
  */
 static HeapObject *_swift_allocObject_(HeapMetadata const *metadata,

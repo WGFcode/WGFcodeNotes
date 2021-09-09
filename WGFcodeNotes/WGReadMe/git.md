@@ -244,3 +244,25 @@
     git diff 分支A 分支B --stat
     3.显示指定文件的详细差异
     git diff Refund WLKM 文件路径
+
+#### 7. git reset 和git revert区别
+#### 两者的作用都是撤销上一次commit操作
+1. 本地代码 add -> commit 但是没有push
+
+        git reset --soft|--mixed|--hard commitID
+        --mixed 会保留源码，只是将 git commit 和 index 信息回退到了某个版本。
+        --soft 保留源码，只回退到 commit 信息到某个版本.不涉及 index 的回退,如果还需要提交,直接 commit 即可。
+        --hard 源码也会回退到某个版本, commit 和 index 都会回退到某个版本(注意，这种方式是改变本地代码仓库源码)。
+
+
+2. 本地代码 add -> commit -> push 已经push到线上的远程仓库了
+
+        git revert commitID 
+        revert 之后你的本地代码会回滚到指定的历史版本,这时你再 git commit -> git push 就能把线上的代码也更新
+        git revert是用一次新的commit来回滚之前的commit
+#### 区别之处
+* 如果你已经 push 到线上代码库，reset 删除指定commit 以后，你 git push 可能导致一大堆冲突，但是 revert 并不会。
+
+* 如果在日后现有分支和历史分支需要合并的时候，reset 恢复部分的代码依然会出现在历史分支里，但是 revert 提交的 commit 并不会出现在历史分支里。
+
+* reset 是在正常的 commit 历史中，删除了指定的 commit ，这时 HEAD 是向后移动了，而 revert 是在正常的 commit 历史中再 commit 一次，只不过是反向提交，他的 HEAD 是一直向前的。
