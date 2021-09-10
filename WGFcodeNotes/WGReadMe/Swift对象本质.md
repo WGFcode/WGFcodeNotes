@@ -126,18 +126,219 @@ Debug Workflow
 6. Swift中的引用计数是对象内部由一个refCounts属性存储
 
 
-### 2. swift方法调用
-#### swift中方法调用主要分两类
-1. 直接调用: 直接调用函数地址
-2. 查找调用: 函数都按照顺序存储在vtable中，需要偏移
-#### 2.1 swift中方法调用情况分析
-* extension扩展中的方法。swift中，extension中方法是不能被继承的，并不在vtable中，调用方式是直接调用;
-* final关键字。final修饰的方法和属性,也不会写入vtable中，子类不可重写，只可以调用，调用方式是直接调用;
-* dynamic关键字。标记为dynamic的变量/函数会隐式的加上@objc关键字，它会使用OC的runtime机制,Swift 为了追求性能，Swift 类型的成员或者方法在编译时就已经决定，而运行时便不再需要经过一次查找,想要实现OC的方法交换或者kvo都需要要添加dynamic关键字
+### 2. swift方法调用/派发
+#### swift中方法派发主要分两大类动态派发和静态派发，但是实际上应该有四种：内联inline(最快)、静态派发、动态虚拟表派发、动态消息派发
+* 静态派发 (直接派发): 直接调用函数地址，最快且最高效的一种方法派发类型，编译阶段编译器就已经知道了所有被静态派发的方法在内存中的地址，因而在运行阶段，这些方法可以被立即执行。
+* 动态派发：表派发(VTable)和消息派发
+1. vtable派发 (函数表派发): 编译阶段编译器会为每一个类创建一个vtable,存放的是一个包含若干函数指针的数组，这些函数指针指向这个类中相对应函数的实现代码，运行阶段调用实现代码时，表派发需要比静态派发多执行两个指令(读取该类的vtable和该函数的指针).函数表派发也是一种高效的方式。不过和直接派发相比，编译器对某些含有副作用的函数却无法优化，也是导致函数表派发变慢的原因之一。
+2. 消息派发: objc_method方式，和OC方法调用流程一样，是最动态但也是最慢的一种派发技术。在派发消息后，runtime需要爬遍该类的整个层级体系，才可以确定要执行哪个方法实现。不过这也为在运行阶段改变程序的行为提供了可能，也使得Swizzling技术得以实现。Objective-C非常依赖消息派发，同时，它通过Objective-C runtime为Swift也提供了消息派发这一功能。
+* 内联inline: 内联派发可以理解成不需要进行函数地址跳转，直接运行函数中的代码块
 
-        声明位置        @Objc    dynamic    调用方式
-        Struct          否        否        直接调用
-        Class           否        否       V-Table 调用
-        Extension       否        否        直接调用
-        Extension       是        否      objc_msgSend
-        Class           是        是      objc_msgSend
+
+#### 接下来我们将swift源码通过编译器swiftc获取对应的SIL文件（swift使用的编译器为swiftc，OC使用的为Clang）
+    1. 创建swift文件：WGSwiftMethodDispatch.swift
+    2. 终端cd到改文件的上级目录  
+    3. 终端输入: swiftc -emit-sil WGMemAModelVC.swift >> WGMemAModelVC.sil   在同目录中生成.sil文件
+             或 swiftc -emit-sil WGMemAModelVC.swift  在终端生成对应的SIL代码
+             
+#### 方式一：静态派发 
+#### 源码WGSwiftMethodDispatch.swift和生成的SIL文件(截取部分)如下
+    final public class WGMethodDispatchStatic {
+        public init() {}
+        
+        func printMethodName() -> String {
+            let name = getMethodName()
+            return name
+        }
+        
+        func getMethodName() -> String {
+            let name = "swift static dispatch method"
+            return name
+        }
+    }
+    
+    import Foundation
+    //如果final修饰类，那么它里面所有的方法和属性都会被final修饰
+    final public class WGMethodDispatchStatic {
+        public init()
+        final func printMethodName() -> String
+        final func getMethodName() -> String
+        @objc deinit
+    }
+    
+    // WGMethodDispatchStatic.__allocating_init()
+    sil [serialized] [exact_self_class] @$s21WGSwiftMethodDispatch08WGMethodC6StaticCACycfC : $@convention(method) (@thick WGMethodDispatchStatic.Type) -> @owned WGMethodDispatchStatic {
+        ......
+    } 
+
+    // WGMethodDispatchStatic.init()
+    sil @$s21WGSwiftMethodDispatch08WGMethodC6StaticCACycfc : $@convention(method) (@owned WGMethodDispatchStatic) -> @owned WGMethodDispatchStatic {
+        ......
+    }
+
+    
+    // WGMethodDispatchStatic.printMethodName()
+    sil hidden @$s21WGSwiftMethodDispatch08WGMethodC6StaticC05printB4NameSSyF : $@convention(method) (@guaranteed WGMethodDispatchStatic) -> @owned String {
+    // %0 "self"                                      // users: %3, %1
+    bb0(%0 : $WGMethodDispatchStatic):
+      debug_value %0 : $WGMethodDispatchStatic, let, name "self", argno 1 // id: %1
+      // function_ref WGMethodDispatchStatic.getMethodName()
+      %2 = function_ref @$s21WGSwiftMethodDispatch08WGMethodC6StaticC03getB4NameSSyF : $@convention(method) (@guaranteed WGMethodDispatchStatic) -> @owned String // user: %3
+      %3 = apply %2(%0) : $@convention(method) (@guaranteed WGMethodDispatchStatic) -> @owned String // users: %5, %4
+      debug_value %3 : $String, let, name "name"      // id: %4
+      return %3 : $String                             // id: %5
+    } // end sil function '$s21WGSwiftMethodDispatch08WGMethodC6StaticC05printB4NameSSyF'
+
+
+    // WGMethodDispatchStatic.getMethodName()
+    sil hidden @$s21WGSwiftMethodDispatch08WGMethodC6StaticC03getB4NameSSyF : $@convention(method) (@guaranteed WGMethodDispatchStatic) -> @owned String {
+        ......
+    } 
+
+    //sil_vtable中只有init和deinit两个方法，没有
+    sil_vtable [serialized] WGMethodDispatchStatic {
+        // WGMethodDispatchStatic.__allocating_init()
+        #WGMethodDispatchStatic.init!allocator: (WGMethodDispatchStatic.Type) -> () -> 
+        WGMethodDispatchStatic : @$s21WGSwiftMethodDispatch08WGMethodC6StaticCACycfC
+        // WGMethodDispatchStatic.__deallocating_deinit
+        #WGMethodDispatchStatic.deinit!deallocator: @$s21WGSwiftMethodDispatch08WGMethodC6StaticCfD    
+    }
+    
+#### 上面的SIL代码重点观察如下代码
+
+    // function_ref WGMethodDispatchStatic.getMethodName()
+    %2 = function_ref @$s21WGSwiftMethodDispatch08WGMethodC6StaticC03getB4NameSSyF : $@convention(method) (@guaranteed WGMethodDispatchStatic) -> @owned String
+
+#### 分析: **function_ref**关键字表明**getMethodName方法**是通过方法指针来调用的，并且通过符号 **s21WGSwiftMethodDispatch08WGMethodC6StaticC03getB4NameSSyF**来定位方法地址，同时sil_vtable中也未包含该方法
+
+#### 方式二：Vtable派发
+    //MARK: VTable派发
+    public class WGMethodDispatchStatic {
+        public init() {}
+        
+        func printMethodName() -> String {
+            let name = getMethodName()
+            return name
+        }
+        
+        func getMethodName() -> String {
+            let name = "swift static dispatch method"
+            return name
+        }
+    }
+
+
+    public class WGMethodDispatchStatic {
+      public init()
+      func printMethodName() -> String
+      func getMethodName() -> String
+      @objc deinit
+    }
+    
+    // WGMethodDispatchStatic.printMethodName()
+    sil hidden @$s21WGSwiftMethodDispatch08WGMethodC6StaticC05printB4NameSSyF : $@convention(method) (@guaranteed WGMethodDispatchStatic) -> @owned String {
+    // %0 "self"                                      // users: %3, %2, %1
+    bb0(%0 : $WGMethodDispatchStatic):
+      debug_value %0 : $WGMethodDispatchStatic, let, name "self", argno 1 // id: %1
+      %2 = class_method %0 : $WGMethodDispatchStatic, #WGMethodDispatchStatic.getMethodName : (WGMethodDispatchStatic) -> () -> String, $@convention(method) (@guaranteed WGMethodDispatchStatic) -> @owned String // user: %3
+      %3 = apply %2(%0) : $@convention(method) (@guaranteed WGMethodDispatchStatic) -> @owned String // users: %5, %4
+      debug_value %3 : $String, let, name "name"      // id: %4
+      return %3 : $String                             // id: %5
+    } // end sil function '$s21WGSwiftMethodDispatch08WGMethodC6StaticC05printB4NameSSyF'
+
+    sil_vtable [serialized] WGMethodDispatchStatic {
+        //1. WGMethodDispatchStatic.__allocating_init()
+        #WGMethodDispatchStatic.init!allocator: (WGMethodDispatchStatic.Type) -> () -> 
+        WGMethodDispatchStatic : @$s21WGSwiftMethodDispatch08WGMethodC6StaticCACycfC 
+        
+        //2. WGMethodDispatchStatic.printMethodName()
+        #WGMethodDispatchStatic.printMethodName: (WGMethodDispatchStatic) -> () -> 
+        String : @$s21WGSwiftMethodDispatch08WGMethodC6StaticC05printB4NameSSyF    
+        
+        //3. WGMethodDispatchStatic.getMethodName()
+        #WGMethodDispatchStatic.getMethodName: (WGMethodDispatchStatic) -> () -> 
+        String : @$s21WGSwiftMethodDispatch08WGMethodC6StaticC03getB4NameSSyF    
+        
+        //4. WGMethodDispatchStatic.__deallocating_deinit
+        #WGMethodDispatchStatic.deinit!deallocator: @$s21WGSwiftMethodDispatch08WGMethodC6StaticCfD   
+    }
+
+#### 上面的SIL代码重点观察如下代码
+
+    %2 = class_method %0 : $WGMethodDispatchStatic, #WGMethodDispatchStatic.getMethodName : (WGMethodDispatchStatic)
+    -> () -> String, $@convention(method) (@guaranteed WGMethodDispatchStatic) -> @owned String 
+
+#### 分析: **class_method**关键字表明表明**getMethodName**使用类对象方法的方式，即函数表的方式，通过 sil_vtable 中的信息也能印证这一点，WGMethodDispatchStatic 类的 vtable 表包含了这个方法。
+
+
+#### 方式三：消息派发
+    //MARK: 消息派发
+    public class WGMethodDispatchStatic {
+        public init() {}
+        
+        func printMethodName() -> String {
+            let name = getMethodName()
+            return name
+        }
+        
+        @objc dynamic func getMethodName() -> String {
+            let name = "swift static dispatch method"
+            return name
+        }
+    }
+
+    public class WGMethodDispatchStatic {
+      public init()
+      func printMethodName() -> String
+      @objc dynamic func getMethodName() -> String
+      @objc deinit
+    }
+    
+    
+    // WGMethodDispatchStatic.printMethodName()
+    sil hidden @$s21WGSwiftMethodDispatch08WGMethodC6StaticC05printB4NameSSyF : $@convention(method) (@guaranteed WGMethodDispatchStatic) -> @owned String {
+    bb0(%0 : $WGMethodDispatchStatic):
+    debug_value %0 : $WGMethodDispatchStatic, let, name "self", argno 1
+      %2 = objc_method %0 : $WGMethodDispatchStatic, #WGMethodDispatchStatic.getMethodName!foreign : (WGMethodDispatchStatic) -> () -> String, $@convention(objc_method) (WGMethodDispatchStatic) -> @autoreleased NSString // user: %3
+        ......
+    } 
+
+    sil_vtable [serialized] WGMethodDispatchStatic {
+        /1. WGMethodDispatchStatic.__allocating_init()
+        #WGMethodDispatchStatic.init!allocator: (WGMethodDispatchStatic.Type) -> () -> 
+        WGMethodDispatchStatic : @$s21WGSwiftMethodDispatch08WGMethodC6StaticCACycfC
+        
+        //2. WGMethodDispatchStatic.printMethodName()
+        #WGMethodDispatchStatic.printMethodName: (WGMethodDispatchStatic) -> () -> 
+        String : @$s21WGSwiftMethodDispatch08WGMethodC6StaticC05printB4NameSSyF   
+        
+        //3. WGMethodDispatchStatic.__deallocating_deinit
+        #WGMethodDispatchStatic.deinit!deallocator: @$s21WGSwiftMethodDispatch08WGMethodC6StaticCfD    
+    }
+#### 分析: **objc_method**关键字表明了方法已经转为了使用OC中的方法派发方式，即消息派发，并且方法签名中，返回类型已经变为了 NSString，vtable中也没有了**getMethodName**方法。
+
+
+
+
+#### 2.1 swift中方法调用情况汇总
+#### swift函数可以声明在两个地方，一个是类型声明的作用域，一个是扩展extension中
+                      类型声明所在的作用域内        扩展声明Extension 
+        class             Vtable派发                static派发
+        value type        static派发                static派发
+        protocol          Vtable派发                static派发
+        NSObject          Vtable派发            消息派发(objc_method)
+#### Swift 的一些修饰符可以指定派发方式
+* final修饰的类，类里面的所有函数都将使用直接派发，或final修饰的方法，也采用直接派发
+* dynamic 可以让类里面的函数使用消息机制派发
+* @inline 告诉编译器可以使用直接派发
+* @objc 和 @nonobjc 显示声明一个函数能否被 Objective-C 的运行时捕获到。
+* @nonojc 用这个修饰符声明的方法，在被调用时，将不再采用消息派发的方式
+#### 2.2 建议
+1. 能用值类型地方就有值类型，不仅仅是因为其拷贝速度快，方法调度也快
+2. 多使用private final 等关键字，一方面提高代码阅读性，编译器内部也对消息调度进行优化
+3. 代码分类多使用拓展，拓展中的方法是静态派发（除了定义成运行时方法）
+4. 遵守的协议(这里说的是Swift协议)尽量写在拓展中，如果希望被子类重写的话。建议不要使用类的多态，而是使用协议进行抽象，将需要属性和多种实现的方法抽取到协议中，拓展实现一些共用方法。这样不仅移除对父类的依赖也可以实现‘多继承’
+5. OC混编时候，使用了一些OC特性的框架（例如KVO），不仅仅只需要对属性或者方法进行@objc 声明，还需要对其进行dynamic修饰才能按照预期的来
+6. Swift 编写函数大部分走的是静态方法，这也就是Swift快的原因所在
+7. 协议继承和类继承确保对象多态性会使用虚函数表进行动态派发
+8. 继承自NSObject对象通过 dynamic/ @objc dynamic 关键字让其走消息机制派发

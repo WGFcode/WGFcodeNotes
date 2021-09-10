@@ -1,0 +1,135 @@
+sil_stage canonical
+
+import Builtin
+import Swift
+import SwiftShims
+
+import Foundation
+
+public class WGMethodDispatchStatic {
+  public init()
+  func printMethodName() -> String
+  @objc dynamic func getMethodName() -> String
+  @objc deinit
+}
+
+// main
+sil @main : $@convention(c) (Int32, UnsafeMutablePointer<Optional<UnsafeMutablePointer<Int8>>>) -> Int32 {
+bb0(%0 : $Int32, %1 : $UnsafeMutablePointer<Optional<UnsafeMutablePointer<Int8>>>):
+  %2 = integer_literal $Builtin.Int32, 0          // user: %3
+  %3 = struct $Int32 (%2 : $Builtin.Int32)        // user: %4
+  return %3 : $Int32                              // id: %4
+} // end sil function 'main'
+
+// WGMethodDispatchStatic.__allocating_init()
+sil [serialized] [exact_self_class] @$s21WGSwiftMethodDispatch08WGMethodC6StaticCACycfC : $@convention(method) (@thick WGMethodDispatchStatic.Type) -> @owned WGMethodDispatchStatic {
+// %0 "$metatype"
+bb0(%0 : $@thick WGMethodDispatchStatic.Type):
+  %1 = alloc_ref $WGMethodDispatchStatic          // user: %3
+  // function_ref WGMethodDispatchStatic.init()
+  %2 = function_ref @$s21WGSwiftMethodDispatch08WGMethodC6StaticCACycfc : $@convention(method) (@owned WGMethodDispatchStatic) -> @owned WGMethodDispatchStatic // user: %3
+  %3 = apply %2(%1) : $@convention(method) (@owned WGMethodDispatchStatic) -> @owned WGMethodDispatchStatic // user: %4
+  return %3 : $WGMethodDispatchStatic             // id: %4
+} // end sil function '$s21WGSwiftMethodDispatch08WGMethodC6StaticCACycfC'
+
+// WGMethodDispatchStatic.init()
+sil @$s21WGSwiftMethodDispatch08WGMethodC6StaticCACycfc : $@convention(method) (@owned WGMethodDispatchStatic) -> @owned WGMethodDispatchStatic {
+// %0 "self"                                      // users: %2, %1
+bb0(%0 : $WGMethodDispatchStatic):
+  debug_value %0 : $WGMethodDispatchStatic, let, name "self", argno 1 // id: %1
+  return %0 : $WGMethodDispatchStatic             // id: %2
+} // end sil function '$s21WGSwiftMethodDispatch08WGMethodC6StaticCACycfc'
+
+// WGMethodDispatchStatic.printMethodName()
+sil hidden @$s21WGSwiftMethodDispatch08WGMethodC6StaticC05printB4NameSSyF : $@convention(method) (@guaranteed WGMethodDispatchStatic) -> @owned String {
+// %0 "self"                                      // users: %3, %2, %1
+bb0(%0 : $WGMethodDispatchStatic):
+  debug_value %0 : $WGMethodDispatchStatic, let, name "self", argno 1 // id: %1
+  %2 = objc_method %0 : $WGMethodDispatchStatic, #WGMethodDispatchStatic.getMethodName!foreign : (WGMethodDispatchStatic) -> () -> String, $@convention(objc_method) (WGMethodDispatchStatic) -> @autoreleased NSString // user: %3
+  %3 = apply %2(%0) : $@convention(objc_method) (WGMethodDispatchStatic) -> @autoreleased NSString // user: %5
+  // function_ref static String._unconditionallyBridgeFromObjectiveC(_:)
+  %4 = function_ref @$sSS10FoundationE36_unconditionallyBridgeFromObjectiveCySSSo8NSStringCSgFZ : $@convention(method) (@guaranteed Optional<NSString>, @thin String.Type) -> @owned String // user: %7
+  %5 = enum $Optional<NSString>, #Optional.some!enumelt, %3 : $NSString // users: %9, %7
+  %6 = metatype $@thin String.Type                // user: %7
+  %7 = apply %4(%5, %6) : $@convention(method) (@guaranteed Optional<NSString>, @thin String.Type) -> @owned String // users: %10, %8
+  debug_value %7 : $String, let, name "name"      // id: %8
+  release_value %5 : $Optional<NSString>          // id: %9
+  return %7 : $String                             // id: %10
+} // end sil function '$s21WGSwiftMethodDispatch08WGMethodC6StaticC05printB4NameSSyF'
+
+// static String._unconditionallyBridgeFromObjectiveC(_:)
+sil [readonly] @$sSS10FoundationE36_unconditionallyBridgeFromObjectiveCySSSo8NSStringCSgFZ : $@convention(method) (@guaranteed Optional<NSString>, @thin String.Type) -> @owned String
+
+// WGMethodDispatchStatic.getMethodName()
+sil hidden @$s21WGSwiftMethodDispatch08WGMethodC6StaticC03getB4NameSSyF : $@convention(method) (@guaranteed WGMethodDispatchStatic) -> @owned String {
+// %0 "self"                                      // user: %1
+bb0(%0 : $WGMethodDispatchStatic):
+  debug_value %0 : $WGMethodDispatchStatic, let, name "self", argno 1 // id: %1
+  %2 = string_literal utf8 "swift static dispatch method" // user: %7
+  %3 = integer_literal $Builtin.Word, 28          // user: %7
+  %4 = integer_literal $Builtin.Int1, -1          // user: %7
+  %5 = metatype $@thin String.Type                // user: %7
+  // function_ref String.init(_builtinStringLiteral:utf8CodeUnitCount:isASCII:)
+  %6 = function_ref @$sSS21_builtinStringLiteral17utf8CodeUnitCount7isASCIISSBp_BwBi1_tcfC : $@convention(method) (Builtin.RawPointer, Builtin.Word, Builtin.Int1, @thin String.Type) -> @owned String // user: %7
+  %7 = apply %6(%2, %3, %4, %5) : $@convention(method) (Builtin.RawPointer, Builtin.Word, Builtin.Int1, @thin String.Type) -> @owned String // users: %9, %8
+  debug_value %7 : $String, let, name "name"      // id: %8
+  return %7 : $String                             // id: %9
+} // end sil function '$s21WGSwiftMethodDispatch08WGMethodC6StaticC03getB4NameSSyF'
+
+// String.init(_builtinStringLiteral:utf8CodeUnitCount:isASCII:)
+sil [serialized] [always_inline] [readonly] [_semantics "string.makeUTF8"] @$sSS21_builtinStringLiteral17utf8CodeUnitCount7isASCIISSBp_BwBi1_tcfC : $@convention(method) (Builtin.RawPointer, Builtin.Word, Builtin.Int1, @thin String.Type) -> @owned String
+
+// @objc WGMethodDispatchStatic.getMethodName()
+sil hidden [thunk] @$s21WGSwiftMethodDispatch08WGMethodC6StaticC03getB4NameSSyFTo : $@convention(objc_method) (WGMethodDispatchStatic) -> @autoreleased NSString {
+// %0                                             // users: %4, %3, %1
+bb0(%0 : $WGMethodDispatchStatic):
+  strong_retain %0 : $WGMethodDispatchStatic      // id: %1
+  // function_ref WGMethodDispatchStatic.getMethodName()
+  %2 = function_ref @$s21WGSwiftMethodDispatch08WGMethodC6StaticC03getB4NameSSyF : $@convention(method) (@guaranteed WGMethodDispatchStatic) -> @owned String // user: %3
+  %3 = apply %2(%0) : $@convention(method) (@guaranteed WGMethodDispatchStatic) -> @owned String // users: %7, %6
+  strong_release %0 : $WGMethodDispatchStatic     // id: %4
+  // function_ref String._bridgeToObjectiveC()
+  %5 = function_ref @$sSS10FoundationE19_bridgeToObjectiveCSo8NSStringCyF : $@convention(method) (@guaranteed String) -> @owned NSString // user: %6
+  %6 = apply %5(%3) : $@convention(method) (@guaranteed String) -> @owned NSString // user: %8
+  release_value %3 : $String                      // id: %7
+  return %6 : $NSString                           // id: %8
+} // end sil function '$s21WGSwiftMethodDispatch08WGMethodC6StaticC03getB4NameSSyFTo'
+
+// String._bridgeToObjectiveC()
+sil [_semantics "convertToObjectiveC"] @$sSS10FoundationE19_bridgeToObjectiveCSo8NSStringCyF : $@convention(method) (@guaranteed String) -> @owned NSString
+
+// WGMethodDispatchStatic.deinit
+sil @$s21WGSwiftMethodDispatch08WGMethodC6StaticCfd : $@convention(method) (@guaranteed WGMethodDispatchStatic) -> @owned Builtin.NativeObject {
+// %0 "self"                                      // users: %2, %1
+bb0(%0 : $WGMethodDispatchStatic):
+  debug_value %0 : $WGMethodDispatchStatic, let, name "self", argno 1 // id: %1
+  %2 = unchecked_ref_cast %0 : $WGMethodDispatchStatic to $Builtin.NativeObject // user: %3
+  return %2 : $Builtin.NativeObject               // id: %3
+} // end sil function '$s21WGSwiftMethodDispatch08WGMethodC6StaticCfd'
+
+// WGMethodDispatchStatic.__deallocating_deinit
+sil @$s21WGSwiftMethodDispatch08WGMethodC6StaticCfD : $@convention(method) (@owned WGMethodDispatchStatic) -> () {
+// %0 "self"                                      // users: %3, %1
+bb0(%0 : $WGMethodDispatchStatic):
+  debug_value %0 : $WGMethodDispatchStatic, let, name "self", argno 1 // id: %1
+  // function_ref WGMethodDispatchStatic.deinit
+  %2 = function_ref @$s21WGSwiftMethodDispatch08WGMethodC6StaticCfd : $@convention(method) (@guaranteed WGMethodDispatchStatic) -> @owned Builtin.NativeObject // user: %3
+  %3 = apply %2(%0) : $@convention(method) (@guaranteed WGMethodDispatchStatic) -> @owned Builtin.NativeObject // user: %4
+  %4 = unchecked_ref_cast %3 : $Builtin.NativeObject to $WGMethodDispatchStatic // user: %5
+  dealloc_ref %4 : $WGMethodDispatchStatic        // id: %5
+  %6 = tuple ()                                   // user: %7
+  return %6 : $()                                 // id: %7
+} // end sil function '$s21WGSwiftMethodDispatch08WGMethodC6StaticCfD'
+
+sil_vtable [serialized] WGMethodDispatchStatic {
+  #WGMethodDispatchStatic.init!allocator: (WGMethodDispatchStatic.Type) -> () -> WGMethodDispatchStatic : @$s21WGSwiftMethodDispatch08WGMethodC6StaticCACycfC	// WGMethodDispatchStatic.__allocating_init()
+  #WGMethodDispatchStatic.printMethodName: (WGMethodDispatchStatic) -> () -> String : @$s21WGSwiftMethodDispatch08WGMethodC6StaticC05printB4NameSSyF	// WGMethodDispatchStatic.printMethodName()
+  #WGMethodDispatchStatic.deinit!deallocator: @$s21WGSwiftMethodDispatch08WGMethodC6StaticCfD	// WGMethodDispatchStatic.__deallocating_deinit
+}
+
+
+
+// Mappings from '#fileID' to '#filePath':
+//   'WGSwiftMethodDispatch/WGSwiftMethodDispatch.swift' => 'WGSwiftMethodDispatch.swift'
+
+

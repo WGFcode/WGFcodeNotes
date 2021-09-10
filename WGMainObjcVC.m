@@ -21,8 +21,6 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.view.backgroundColor = UIColor.lightGrayColor;
-
-    NSNotificationQueue
     
     Person *p1 = [[Person alloc]init];
     Person *p2 = [[Person alloc]init];

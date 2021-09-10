@@ -36,6 +36,7 @@
 		30D3DF72245E74790012F803 /* WGTestModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 30D3DF71245E74790012F803 /* WGTestModel.m */; };
 		30D5D08D2627CD1700F5A4EF /* Swift基础语法.md in Resources */ = {isa = PBXBuildFile; fileRef = 30D5D08C2627CD1700F5A4EF /* Swift基础语法.md */; };
 		30DD858B244F00C100897144 /* block.jpeg in Resources */ = {isa = PBXBuildFile; fileRef = 30DD858A244F00C100897144 /* block.jpeg */; };
+		30E9226F26EB331F008D151A /* WGSwiftMethodDispatch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30E9226E26EB331F008D151A /* WGSwiftMethodDispatch.swift */; };
 		30ECA52024580E9000E3D312 /* Response.md in Resources */ = {isa = PBXBuildFile; fileRef = 30ECA51F24580E9000E3D312 /* Response.md */; };
 		30F7186C24F7AB020025AD98 /* 设计模式.md in Resources */ = {isa = PBXBuildFile; fileRef = 30F7186B24F7AB020025AD98 /* 设计模式.md */; };
 		30F8F49E243F142900968177 /* ThreadSummary.md in Resources */ = {isa = PBXBuildFile; fileRef = 30F8F49D243F142900968177 /* ThreadSummary.md */; };
@@ -1731,6 +1732,8 @@
 		30D3DF71245E74790012F803 /* WGTestModel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WGTestModel.m; sourceTree = "<group>"; };
 		30D5D08C2627CD1700F5A4EF /* Swift基础语法.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Swift基础语法.md"; sourceTree = "<group>"; };
 		30DD858A244F00C100897144 /* block.jpeg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = block.jpeg; sourceTree = "<group>"; };
+		30E9226E26EB331F008D151A /* WGSwiftMethodDispatch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WGSwiftMethodDispatch.swift; sourceTree = "<group>"; };
+		30E9227026EB3672008D151A /* WGSwiftMethodDispatchSIL.sil */ = {isa = PBXFileReference; lastKnownFileType = text; path = WGSwiftMethodDispatchSIL.sil; sourceTree = "<group>"; };
 		30ECA51F24580E9000E3D312 /* Response.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Response.md; sourceTree = "<group>"; };
 		30F7186B24F7AB020025AD98 /* 设计模式.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "设计模式.md"; sourceTree = "<group>"; };
 		30F8F49D243F142900968177 /* ThreadSummary.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = ThreadSummary.md; sourceTree = "<group>"; };
@@ -2123,6 +2126,7 @@
 		3015810A2455778B00EC6001 /* WGCore */ = {
 			isa = PBXGroup;
 			children = (
+				30E9227026EB3672008D151A /* WGSwiftMethodDispatchSIL.sil */,
 				30FCCF82256F8D9100AEC012 /* MJMemoryTool */,
 				3015810B245577A600EC6001 /* WGMonitorManage.h */,
 				3015810C245577A600EC6001 /* WGMonitorManage.m */,
@@ -2140,6 +2144,7 @@
 				543FF0B125CEDFA2006B72E6 /* WGPermanentThreadOC.m */,
 				543FF0B325CEEBFD006B72E6 /* WGPermanentThreadC.h */,
 				543FF0B425CEEBFD006B72E6 /* WGPermanentThreadC.m */,
+				30E9226E26EB331F008D151A /* WGSwiftMethodDispatch.swift */,
 			);
 			path = WGCore;
 			sourceTree = "<group>";
@@ -5055,6 +5060,7 @@
 				30160A2924A75A970074FB82 /* BinaryTree.m in Sources */,
 				54E1965B250A70A90064027B /* WGThread.m in Sources */,
 				54E19658250909050064027B /* WGRunLoopVC.m in Sources */,
+				30E9226F26EB331F008D151A /* WGSwiftMethodDispatch.swift in Sources */,
 				548F332B24F2B87300AB3540 /* Person.m in Sources */,
 				548AC983242F4C7100EEE11C /* WGMainVC.swift in Sources */,
 				304011B026734C0B00845393 /* WGTestKVCEntity.m in Sources */,

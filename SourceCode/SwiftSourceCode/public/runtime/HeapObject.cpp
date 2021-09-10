@@ -118,7 +118,8 @@ static HeapObject *_swift_allocObject_(HeapMetadata const *metadata,
                                        size_t requiredSize,
                                        size_t requiredAlignmentMask) {
   assert(isAlignmentMask(requiredAlignmentMask));
-  //⚠️swift_slowAlloc方法: 通过malloc在堆内存中开辟size大小的内存空间，并返回内存地址
+  //⚠️swift_slowAlloc方法:
+  //分配内存，并进行内存字节对齐，通过malloc在堆内存中开辟size大小的内存空间，并返回内存地址，主要是用于存储实例变量:
   auto object = reinterpret_cast<HeapObject *>(
       swift_slowAlloc(requiredSize, requiredAlignmentMask));
 
