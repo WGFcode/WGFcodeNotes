@@ -328,11 +328,14 @@ Debug Workflow
         protocol          Vtable派发                static派发
         NSObject          Vtable派发            消息派发(objc_method)
 #### Swift 的一些修饰符可以指定派发方式
-* final修饰的类，类里面的所有函数都将使用直接派发，或final修饰的方法，也采用直接派发
-* dynamic 可以让类里面的函数使用消息机制派发
-* @inline 告诉编译器可以使用直接派发
-* @objc 和 @nonobjc 显示声明一个函数能否被 Objective-C 的运行时捕获到。
-* @nonojc 用这个修饰符声明的方法，在被调用时，将不再采用消息派发的方式
+* struct是值类型，其中函数的调度属于直接调用地址，即静态调度
+* class是引用类型，其中函数的调度是通过V-Table函数表来进行调度的，即动态调度
+* extension中的函数调度方式是直接调度
+* final修饰的函数调度方式是直接调度
+* @objc修饰的函数调度方式是函数表调度，如果OC中需要使用，class还必须继承NSObject
+* dynamic修饰的函数的调度方式是函数表调度，使函数具有动态性
+* @objc + dynamic 组合修饰的函数调度，是执行的是 objc_msgSend流程，即 动态消息转发
+* @inline 告诉编译器可以使用直接派
 #### 2.2 建议
 1. 能用值类型地方就有值类型，不仅仅是因为其拷贝速度快，方法调度也快
 2. 多使用private final 等关键字，一方面提高代码阅读性，编译器内部也对消息调度进行优化

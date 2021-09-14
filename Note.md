@@ -43,9 +43,6 @@
 
 ### [NewRunloop](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGReadMe/NewRunloop.md)
 
-### [iOS内存分区](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGReadMe/iOS内存分区.md)
-
-### [Swift内存对齐问题](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGReadMe/Swift内存对齐问题.md)
 
 ### [iOS签名机制](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGReadMe/iOS签名机制.md)
 
@@ -78,3 +75,6 @@
 ### [Swift基础语法](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGReadMe/Swift基础语法.md)
 
 
+### [iOS内存分区](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGReadMe/iOS内存分区.md)
+
+### [Swift内存对齐问题](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGReadMe/Swift内存对齐问题.md)

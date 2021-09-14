@@ -332,7 +332,7 @@
     }
 #### 2.3.2 逻辑分析
 #### NCTable结构体中核心的三个变量: wildcard、named、nameless,对应的功能如下
-##### 2.3.2.1 存在name（无论object是否存在）
+#### 2.3.2.1 存在name（无论object是否存在）
 1. 注册通知，如果通知的name存在，则以name为key从named字典中取出值n(这个n其实被MapNode包装了一层，便于理解这里直接认为没有包装)，这个n还是个字典，各种判空新建逻辑不讨论
 2. 然后以object为key，从字典n中取出对应的值，这个值就是Observation类型(后面简称obs)的链表，然后把刚开始创建的obs对象o存储进去
 3. 如果注册通知时传入name，那么会是一个双层的存储结构
@@ -348,7 +348,7 @@
 
 
 
-##### 2.3.2.2 只存在object
+#### 2.3.2.2 只存在object
 1. 以object为key，从nameless字典中取出value，此value是个obs类型的链表
 2. 把创建的obs类型的对象o存储到链表中
 3. 只存在object时存储只有一层，那就是object和obs对象之间的映射
@@ -358,7 +358,7 @@
         key(object)             value(observation对象-链表)
 
 
-##### 2.3.2.3 没有name和object
+#### 2.3.2.3 没有name和object
 1. 这种情况直接把obs对象存放在了Observation  *wildcard链表结构中
 
 

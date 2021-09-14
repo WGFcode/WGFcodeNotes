@@ -77,7 +77,7 @@
         return (1+value)*value/2
     }
 #### 3.property的作用是什么，有哪些关键词，分别是什么含义？
-##### 用property可以直接调用属性，不需要我们再写set/get方法，系统已经帮我们实现了，@property的实质就是生成 _var +set +get方法(成员变量+set/get方法，添加实例变量有个前提，就是对象还没有同名的成员变量；如果我们同时自定义了属性的set和get方法，那么就不会再生成实例变量了)；property有两个对应的词，@synthesize和@dynamic
+#### 用property可以直接调用属性，不需要我们再写set/get方法，系统已经帮我们实现了，@property的实质就是生成 _var +set +get方法(成员变量+set/get方法，添加实例变量有个前提，就是对象还没有同名的成员变量；如果我们同时自定义了属性的set和get方法，那么就不会再生成实例变量了)；property有两个对应的词，@synthesize和@dynamic
 1. @synthesize：(1)ARC下很少使用了，因为都会生成set/get方法；在 MRC 下只有@synthesize name这样，编译器才会自动合成name的set/get存取方法;(2)如果不喜欢生成的实例变量名称，可以@synthesize  newName = name,即给实例变量起个别名，但是name的存取方法不会改变的。但一般不建议这么用
 2. @dynamic：(1)告诉编译器,属性的setter/getter方法由用户自己实现，编辑器不再自动生成，即便我们没有手动实现，编辑阶段也不会报错，因为编辑器认为我们运行过程中会实现，但是如果我们确实没有实现并且调用了，那么运行就会报错“-[XXX setStr:]: unrecognized selector sent to instance 0x10040af10”;(2)如果我们子类中声明(重写)了和父类相同的属性名，编辑器就会警告，因为它不知道该在父类还是子类中实现set/get方法，如果在子类的.m文件中@dynamic name；那么系统就不会再为子类生成set/get方法了，这样就可以明确了
 3. 如果@synthesize和@dynamic都没写，那么默认的就是@syntheszie var = _var;

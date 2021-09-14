@@ -585,7 +585,7 @@
 
     打印结果: -[WGPerson dealloc]
     
-##### 通过 xcrun -sdk iphoneos clang -arch arm64 -rewrite-objc main.m 转为C++代码,这里会发生如下错误
+#### 通过 xcrun -sdk iphoneos clang -arch arm64 -rewrite-objc main.m 转为C++代码,这里会发生如下错误
     cannot create __weak reference because the current deployment target does  
     not support weak references
     __attribute__((objc_ownership(weak))) WGPerson *weakPerson = person;

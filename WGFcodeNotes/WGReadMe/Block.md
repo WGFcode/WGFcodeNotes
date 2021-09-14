@@ -489,18 +489,18 @@
     WGCustomBlock();
         
 #### 1.4.2 _NSConcreteStackBlock : 栈Block: 存在栈区,超出作用域就会被销毁；
-##### 设置在栈上的Block,如果其所属的变量作用域结束,则该Block就被废弃; 由于__block变量也配置在栈上,所以如果其所属的变量作用域结束,则该__block变量也会被废弃,为了解决这个问题,Block提供了从栈区拷贝Block到堆区的方法,这样即使变量作用域结束了,堆上的Block还可以继续存在; 而__block变量用结构体成员变量__forwarding可以实现无论__block变量配置在栈上还是堆上时都能够正确的访问__block变量,需要注意的就是从栈区拷贝Block到堆区是比较消耗CPU的
+#### 设置在栈上的Block,如果其所属的变量作用域结束,则该Block就被废弃; 由于__block变量也配置在栈上,所以如果其所属的变量作用域结束,则该__block变量也会被废弃,为了解决这个问题,Block提供了从栈区拷贝Block到堆区的方法,这样即使变量作用域结束了,堆上的Block还可以继续存在; 而__block变量用结构体成员变量__forwarding可以实现无论__block变量配置在栈上还是堆上时都能够正确的访问__block变量,需要注意的就是从栈区拷贝Block到堆区是比较消耗CPU的
 
-##### 在MRC下访问外界变量的Block默认存储在栈中;
+#### 在MRC下访问外界变量的Block默认存储在栈中;
 
 #### 1.4.3 _NSConcreteMallocBlock : 存在堆区;【__NSStackBlock__ copy】就是堆区Block
-##### 在ARC下访问外界变量的Block默认存储在堆中(实际在栈中,ARC情况下自动拷贝到堆区);系统自动分配  
+#### 在ARC下访问外界变量的Block默认存储在堆中(实际在栈中,ARC情况下自动拷贝到堆区);系统自动分配  
 栈区内存，自动销毁，先入后出；动态分配堆区内存，需要程序员自己申请，程序员自己管理
 
 
 
 #### 在ARC下,为什么访问外界变量的Block自动从栈区拷贝到堆区?
-#####  栈上的Block,如果其所属的变量作用域结束,该Block就会被销毁/废弃,当然Block中的__block变量也会  
+#### 栈上的Block,如果其所属的变量作用域结束,该Block就会被销毁/废弃,当然Block中的__block变量也会  
 跟着销毁;为了解决栈区在其变量作用域结束后被销毁的问题,我们需要把Block复制到堆区来延长它的生命周期;  
 将Block从栈区复制(copy)到堆区比较耗费CPU资源,所以在栈区也能够使用就尽量不要复制了
 
@@ -511,7 +511,7 @@
         __NSGlobalBlock__       数据区          什么也不做
         __NSStackBlock__         栈           从栈复制到堆上
         __NSMallocBlock__        堆           引用计数增加
-##### Block在堆中copy会造成引用计数增加,这和对象是一样的;虽然在栈上的Block也是以对象的身份存在的,  
+#### Block在堆中copy会造成引用计数增加,这和对象是一样的;虽然在栈上的Block也是以对象的身份存在的,  
 但是栈区没有引用计数,栈区内存是由编译器自动分配释放,所以不需要引用计数; 不管Block配置在何处,  
 用copy方法复制都不会引起任何问题,在不确定时调用copy方法即可
 
@@ -1092,7 +1092,7 @@
             "li si",
             "wang wu"
             ),名字是:小黑
-##### 底层代码：将arr,name作为参数传递到这个结构体函数中赋值给结构体中新增加的对应的成员变量
+#### 底层代码：将arr,name作为参数传递到这个结构体函数中赋值给结构体中新增加的对应的成员变量
     void(*WGCustomBlock)(void) = &__WGMainObjcVC__viewDidLoad_block_impl_0(
     __WGMainObjcVC__viewDidLoad_block_func_0, 
     &__WGMainObjcVC__viewDidLoad_block_desc_0_DATA, 
@@ -1136,7 +1136,7 @@
     打印结果:111111a1:<WGAnimal: 0x6000024496a0>---a2:<WGAnimal: 0x6000024496b0>
             222222a1:<WGAnimal: 0x6000024496b0>---a2:<WGAnimal: 0x6000024496b0>
             对象a1：<WGAnimal: 0x6000024496a0>,名称是:张三
-##### 分析: a1和a2对象都是局部变量，所以在WGCustomBlock中，捕获到的是对象a1的值，即便在Block外a1对象的地址被更换为对象a2的值，也不会改变WGCustomBlock中对象a1的值；因为捕获到的是a1的值，所以对象a1的属性name的值也是值捕获；
+#### 分析: a1和a2对象都是局部变量，所以在WGCustomBlock中，捕获到的是对象a1的值，即便在Block外a1对象的地址被更换为对象a2的值，也不会改变WGCustomBlock中对象a1的值；因为捕获到的是a1的值，所以对象a1的属性name的值也是值捕获；
 
 
 ### 7. __weak 和 __strong的区别

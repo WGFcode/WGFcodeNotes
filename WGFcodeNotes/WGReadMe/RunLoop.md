@@ -136,7 +136,7 @@
     -(void)timerChange {
         NSLog(@"timer来了");
     }
-##### 上面NSTimer方法中userInfo参数表示可以给NSTimer传递参数,但是这个参数需要通过NSTimer对象来获取,算个小小的知识点. 
+#### 上面NSTimer方法中userInfo参数表示可以给NSTimer传递参数,但是这个参数需要通过NSTimer对象来获取,算个小小的知识点. 
 #### 从上面可以发现NSTimer只能运行在NSDefaultRunLoopMode默认模式和NSRunLoopCommonModes占位(UI&默认)模式这两种模式下,这里就解释了我们在项目中经常遇到的问题: 滚动视图时我们的NSTimer会无效,原因就是当滚动视图时触发的是RunLoop下的UITrackingRunLoopMode(UI模式),也就是说滚动视图时,RunLoop从默认模式NSDefaultRunLoopMode跳到UI模式UITrackingRunLoopMode下去执行了,而RunLoop同一时间只能在一个模式下运行,所以就导致了NSTimer的实效,解决办法就是在创建完NSTimer后将其添加到NSRunLoopCommonModes占位模式下
 
 #### 我们知道UITrackingRunLoopMode(UI模式)下不仅会处理滚动视图事件也会处理触摸事件,所以点击事件同样也是在该模式下被处理的,所以我们应该可以发现一点有UI事件,RunLoop的运行模式就会马上从默认模式下切换到UI模式下进行处理,所以我们得到结论: UITrackingRunLoopMode(UI模式)处理事件的优先级比NSDefaultRunLoopMode(默认模式)要高

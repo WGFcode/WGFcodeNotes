@@ -124,9 +124,9 @@
 #### 8.运行程序，包含模拟器和真机模式，打包上线的时候要使用真机下的Bundle包
 #### 9.Produce -> show in Finder 找到对应的Bundle包，导入到主工程中(这里我们用的主工程是frameWork)
 #### 10.在主工程中使用图片:
-##### (1)找到资源包的路径path : Bundle.main.path(forResource: "testBundle", ofType: ".bundle")
-##### (2)创建Bundle对象bundle: Bundle(path: path!)
-##### (3)赋值 UIImage(named: "com_img", in: bundle, compatibleWith: nil)
+#### (1)找到资源包的路径path : Bundle.main.path(forResource: "testBundle", ofType: ".bundle")
+#### (2)创建Bundle对象bundle: Bundle(path: path!)
+#### (3)赋值 UIImage(named: "com_img", in: bundle, compatibleWith: nil)
 
 
 ## 静态库中导入第三方库
@@ -164,7 +164,7 @@
     Debug-iphoneos/Alamofire.framework/Alamofire: Mach-O 64-bit dynamically linked shared library arm64
 #### 若出现的都是 archive 则为静态库；若出现dynamically则为动态库
 
-#####  1.MQTT集成过程的坑
+####  1.MQTT集成过程的坑
 #### 项目采用的是swift，所以到https://github.com/aciidb0mb3r/SwiftMQTT去下载(手动集成)，打开demo,demo中包含了SwiftMQTT.framework工程，这个工程是动态库的，然后就是运行在模拟器和真机上在framework工程下的Product找到对应的真机framework和模拟器framework，然后利用lipo进行真机和模拟器SDK的合并，导入到项目中，发现运行报错，暂时没能解决
 #### 更换思路，将SwiftMQTT.framework工程设置为静态库，然后利用lipo进行合并真机和模拟器的framework，导入到项目中，最终成功在模拟器和真机上运行
 

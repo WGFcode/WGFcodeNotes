@@ -17,7 +17,7 @@ public class WGMethodDispatchStatic {
         return name
     }
     
-    @objc dynamic func getMethodName() -> String {
+    func getMethodName() -> String {
         let name = "swift static dispatch method"
         return name
     }
