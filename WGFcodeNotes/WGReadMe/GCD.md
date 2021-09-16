@@ -1184,22 +1184,22 @@
     //这里我们创建一个串行队列,并添加异步任务
     let serialQueue = DispatchQueue(label: "串行队列名称")
     serialQueue.async {
-        NSLog("11111串行队列同步任务--\(Thread.current)")
+        NSLog("11111串行队列异步任务--\(Thread.current)")
     }
     serialQueue.async {
-        NSLog("22222串行队列同步任务--\(Thread.current)")
+        NSLog("22222串行队列异步任务--\(Thread.current)")
     }
     group.notify(queue:serialQueue,work:DispatchWorkItem(block:{
         NSLog("开始去执行串行队列中的任务吧----\(Thread.current)")
     }))
         
-    打印结果:11111串行队列同步任务--<NSThread: 0x600000cda7c0>{number=6,name=(null)}
-    22222串行队列同步任务--<NSThread: 0x600000cda7c0>{number = 6,name=(null)}
+    打印结果:11111串行队列异步任务--<NSThread: 0x600000cda7c0>{number=6,name=(null)}
+    22222串行队列异步任务--<NSThread: 0x600000cda7c0>{number = 6,name=(null)}
     11111--<NSThread: 0x600000cf1880>{number = 5, name = (null)}
     22222--<NSThread: 0x600000cdc400>{number = 4, name = (null)}
     33333--<NSThread: 0x600000cda7c0>{number = 6, name = (null)}
     开始去执行串行队列中的任务吧----<NSThread: 0x600000cda7c0>{number = 6,name=(null)}
-#### 分析:通过结果打印，发现在串行队列中添加异步任务，group仍然没有通知到队列中的任务去执行，而是串行队列中的异步任务按照自己的方式去执行了，为什么？难道group不能通知串行队列(除了主队列)，只支持通知异步队列？我们继续验证
+#### 分析:通过结果打印，发现在串行队列中添加异步任务，group仍然没有通知到队列中的任务去执行，而是串行队列中的异步任务按照自己的方式去执行了，为什么？难道group不能通知串行队列(除了主队列)，只支持通知并发队列？我们继续验证
 
     let group = DispatchGroup()
     //将全局队列+异步任务添加到组中(DispatchQueue.global()全局队列其实就是个并发队列)

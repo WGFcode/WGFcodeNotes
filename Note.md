@@ -19,7 +19,7 @@
 ### [动画CoreAnimal](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGReadMe/CoreAnimal.md)
 
 ###
-[多线程之Thread](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGReadMe/NSThread.md)
+[多线程之Thread、performSelectorXXX](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGReadMe/NSThread.md)
 
 ### [多线程之GCD](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGReadMe/GCD.md)
 

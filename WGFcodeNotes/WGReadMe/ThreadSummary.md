@@ -1,7 +1,18 @@
 ## 多线程总结
 ### 1.多线程通信
-#### 线程间通信一般指的是1个线程传递数据给另1个线程，在1个线程中执行完特定任务后，转到另1个线程继续执行任务
+#### 在一个进程中，线程往往不是孤立存在的，多个线程之间需要进行通信，线程间通信主要体现在以下两个方面
+* 1个线程传递数据给另1个线程，
+* 在1个线程中执行完特定任务后，转到另1个线程继续执行任务
 #### 1.1 Thread多线程通信
+
+    常用的两个方法
+    self performSelectorOnMainThread:(nonnull SEL) withObject:(nullable id)
+    waitUntilDone:(BOOL)
+    
+    self performSelector:(nonnull SEL) onThread:(nonnull NSThread *) 
+    withObject:(nullable id) waitUntilDone:(BOOL)
+    
+
     //开启子线程去完成任务1
     self.performSelector(inBackground: #selector(method1), with: nil)
 

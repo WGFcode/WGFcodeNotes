@@ -1,4 +1,5 @@
-### Thread 常用属性和方法
+### Thread与performSelector
+#### Thread 常用属性和方法
     //类属性
     //获取当前线程信息(通过用于调试)
     class var current: Thread { get }      
@@ -247,3 +248,164 @@
     打印结果: 11111--<NSThread: 0x600002436900>{number = 5, name = (null)}
             11111--<NSThread: 0x600002436900>{number = 5, name = (null)}
 #### 正常情况下，线程中任务执行完成后，线程就销毁了，但是如果在执行任务过程中调用exit()方法，任务就会被终止，线程也提前进入死亡状态
+
+
+### 9.performSelector相关的线程
+#### 9.1 和线程无关的performSelector方法，这些方法都是在@protocol NSObject中，即NSObject中的协议
+    -(id)performSelector:(SEL)aSelector;
+    -(id)performSelector:(SEL)aSelector withObject:(id)object;
+    -(id)performSelector:(SEL)aSelector withObject:(id)object1 withObject:(id)object2;
+    -(BOOL)respondsToSelector:(SEL)aSelector;
+    
+    [self performSelector:@selector(clickChange)];
+#### 若self没有实现方法clickChange，则运行项目会**crash**,所以使用该方法最好配合**respondsToSelector**方法一块使用，首先检查self是否实现了该方法，这样可以有效避免程序**crash**
+
+    - (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+        if ([self respondsToSelector:@selector(clickChange:withOtherParame:)]) {
+            [self performSelector:@selector(clickChange:withOtherParame:) 
+            withObject:@"123" withObject:@[@"1",@"2"]];
+        }
+    }
+    -(void)clickChange:(id)parame1 withOtherParame:(id)parame2 {
+        NSLog(@"执行了---parame1:%@---parame2:%@",parame1,parame2);
+    }
+    
+    打印结果：执行了---parame1:123---parame2:(
+    1,
+    2
+    )
+#### 分析，performSelector方法后面的**withObject:**其实就是传递参数用的
+
+#### 9.2 与NSThread相关的方法
+    
+    -(void)performSelectorOnMainThread:(SEL)aSelector withObject:(nullable id)arg waitUntilDone:(BOOL)wait   
+    modes:(nullable NSArray<NSString *> *)array;
+    -(void)performSelectorOnMainThread:(SEL)aSelector withObject:(nullable id)arg waitUntilDone:(BOOL)wait;
+
+
+    -(void)performSelector:(SEL)aSelector onThread:(NSThread *)thr withObject:(nullable id)arg waitUntilDone:(BOOL)wait
+    modes:(nullable NSArray<NSString *> *)array;
+    -(void)performSelector:(SEL)aSelector onThread:(NSThread *)thr withObject:(nullable id)arg waitUntilDone:(BOOL)wait;
+    -(void)performSelectorInBackground:(SEL)aSelector withObject:(nullable id)arg;
+
+
+    - (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+        NSLog(@"开始了");
+        [self performSelectorOnMainThread:@selector(clickChange:) withObject:@"1" waitUntilDone:YES];
+        NSLog(@"结束了");
+    }
+    -(void)clickChange:(id)parame1 {
+        NSLog(@"执行了---parame1:%@---thread: %@",parame1,[NSThread currentThread]);
+    }
+    
+    打印结果: 开始了
+            执行了---parame1:1---thread: <NSThread: 0x280096f00>{number = 1, name = main}
+            结束了
+
+#### **performSelectorOnMainThread**方法就是回到主线程执行任务；**withObject**携带的参数；**waitUntilDone**是否阻塞当前线程；该方法是工作在主线程RunLoop运行循环中的NSRunLoopCommonModes模式下的，当从同一个线程中多次调用这个方法时，会导致selector方法选择器排队并以调用相同的顺序执行,如下
+    - (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+        NSLog(@"开始了");
+        [self performSelectorOnMainThread:@selector(clickChange:) withObject:@"1" waitUntilDone:NO];
+        [self performSelectorOnMainThread:@selector(clickChange:) withObject:@"2" waitUntilDone:NO];
+        [self performSelectorOnMainThread:@selector(clickChange:) withObject:@"3" waitUntilDone:NO];
+        NSLog(@"结束了");
+    }
+
+    -(void)clickChange:(id)parame1 {
+        NSLog(@"执行了---parame1:%@---thread:%@",parame1,[NSThread currentThread]);
+    }
+    打印结果: 开始了
+    20:43:47.467101+0800  结束了
+    20:43:47.467331+0800 ---parame1:1---thread: <NSThread: 0x281606f00>{number = 1, name = main}
+    20:43:47.467484+0800 ---parame1:2---thread: <NSThread: 0x281606f00>{number = 1, name = main}
+    20:43:47.467562+0800 执行了---parame1:3---thread: <NSThread: 0x281606f00>{number = 1, name = main}
+
+#### **performSelector:onThread**方法是在指定的线程中执行任务; **onThread**在指定的线程执行selector方法选择器；**waitUntilDone**是否阻塞当前线程; 该方法是工作在**target**线程的RunLoop运行循环中的NSRunLoopCommonModes模式下的
+    - (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+        NSLog(@"开始了");
+        [self performSelector:@selector(clickChange:) onThread:[NSThread currentThread] withObject:@"1" waitUntilDone:YES];
+        NSLog(@"结束了");
+    }
+
+    -(void)clickChange:(id)parame1 {
+        NSLog(@"执行了---parame1:%@---thread: %@",parame1,[NSThread currentThread]);
+    }
+
+    打印结果: 开始了
+            执行了---parame1:1---thread: <NSThread: 0x283ae24c0>{number = 1, name = main}
+            结束了
+#### **performSelectorInBackground**方法会开辟新的线程，将selector方法选择器放在新开辟的线程中执行任务;该方法不会阻塞当前线程；
+    - (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+        NSLog(@"开始了");
+        [self performSelectorInBackground:@selector(clickChange:) withObject:@"1"];
+        NSLog(@"结束了");
+    }
+
+    -(void)clickChange:(id)parame1 {
+        NSLog(@"执行了---parame1:%@---thread: %@",parame1,[NSThread currentThread]);
+    }
+    
+    打印结果: 开始了
+            结束了
+            执行了---parame1:1---thread: <NSThread: 0x2812f2a80>{number = 9, name = (null)}
+
+#### 9.3 与NSRunloop相关的**performSelector**方法
+
+    -(void)performInModes:(NSArray<NSRunLoopMode> *)modes block:(void (^)(void))block;  //ios(10.0)
+    -(void)performBlock:(void (^)(void))block;        // ios(10.0)
+
+    -(void)performSelector:(SEL)aSelector withObject:(nullable id)anArgument afterDelay:(NSTimeInterval)delay
+    inModes:(NSArray<NSRunLoopMode> *)modes;
+    
+    -(void)performSelector:(SEL)aSelector withObject:(nullable id)anArgument afterDelay:(NSTimeInterval)delay;
+
+
+    - (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+        NSLog(@"开始了");
+        [self performSelector:@selector(clickChange:) withObject:@"1" afterDelay:2.0];
+        NSLog(@"结束了");
+    }
+    -(void)clickChange:(id)parame1 {
+        NSLog(@"执行了---parame1:%@--thread: %@",parame1,[NSThread currentThread]);
+    }
+    
+    打印结果: 21:12:18.995146+0800 开始了
+     21:12:18.995267+0800 结束了
+     21:12:20.996874+0800 执行了---parame1:1---crrent thread is <NSThread: 0x2833764c0>{number = 1, name = main}
+     
+#### 当前在主线程中执行，所以@selector也是在主线程中执行的; 然后我们把afterDelay设置为0秒看看效果
+    - (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+        NSLog(@"开始了");
+        [self performSelector:@selector(clickChange:) withObject:@"1" afterDelay:0];
+        for (int i = 0 ; i < 10 ; i++) {
+            NSLog(@"结束了");
+        }
+    }
+    -(void)clickChange:(id)parame1 {
+        NSLog(@"执行了---parame1:%@---crrent thread is %@",parame1,[NSThread currentThread]);
+    }
+    
+    打印结果: 开始了
+    结束了
+    结束了
+    ......
+    结束了
+    执行了---parame1:1---crrent thread is <NSThread: 0x282c1af40>{number = 1, name = main}
+#### 当我们把**afterDelay**设置为0秒后，执行效果仍然是先执行**结束了**,然后再执行@selector方法选择器，为什么？因为即便延迟时间指定了0秒，不一定会使@selector方法选择器立即执行，选择器仍然在当前线程的运行循环中排队并尽快执行，接下来我们来看下在子线程是什么效果
+
+    - (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+        NSLog(@"开始了");
+        NSThread *thread = [[NSThread alloc]initWithBlock:^{
+            [self performSelector:@selector(clickChange:) withObject:@"1" afterDelay:0];
+        }];
+        [thread start];
+        NSLog(@"结束了");
+    }
+
+    -(void)clickChange:(id)parame1 {
+        NSLog(@"执行了---parame1:%@---crrent thread is %@",parame1,[NSThread currentThread]);
+    }
+    打印结果: 开始了
+             结束了
+#### 为什么该方法在子线程中执行时没有打印@selector方法选择器中的信息？因为该方法是依赖Runloop运行循环的，子线程中RunLoop默认是不开启的，所以该方法不会执行，要想执行，必须在该子线程中手动开启RunLoop运行循环
+
