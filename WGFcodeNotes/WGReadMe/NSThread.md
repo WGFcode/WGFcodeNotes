@@ -351,11 +351,8 @@
 
 #### 9.3 与NSRunloop相关的**performSelector**方法
 
-    -(void)performInModes:(NSArray<NSRunLoopMode> *)modes block:(void (^)(void))block;  //ios(10.0)
-    -(void)performBlock:(void (^)(void))block;        // ios(10.0)
-
-    -(void)performSelector:(SEL)aSelector withObject:(nullable id)anArgument afterDelay:(NSTimeInterval)delay
-    inModes:(NSArray<NSRunLoopMode> *)modes;
+    -(void)performSelector:(SEL)aSelector withObject:(nullable id)anArgument afterDelay:(NSTimeInterval)delay  
+     inModes:(NSArray<NSRunLoopMode> *)modes;
     
     -(void)performSelector:(SEL)aSelector withObject:(nullable id)anArgument afterDelay:(NSTimeInterval)delay;
 
@@ -391,7 +388,7 @@
     ......
     结束了
     执行了---parame1:1---crrent thread is <NSThread: 0x282c1af40>{number = 1, name = main}
-#### 当我们把**afterDelay**设置为0秒后，执行效果仍然是先执行**结束了**,然后再执行@selector方法选择器，为什么？因为即便延迟时间指定了0秒，不一定会使@selector方法选择器立即执行，选择器仍然在当前线程的运行循环中排队并尽快执行，接下来我们来看下在子线程是什么效果
+#### 当我们把**afterDelay**设置为0秒后，执行效果仍然是先执行**结束了**,然后再执行@selector方法选择器，为什么？因为即便延迟时间指定了0秒，不一定会使@selector方法选择器立即执行，选择器仍然在当前线程的运行循环中排队并尽快执行，苹果文档对**afterDelay**参数解释是: 执行消息需要等待的最小时间，若指定afterDelay=0并不一定会让@selector选择器立即执行，@selector方法选择器仍然在线程的RunLoop运行循环中排队等待并尽可能快的执行
 
     - (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
         NSLog(@"开始了");
@@ -408,4 +405,21 @@
     打印结果: 开始了
              结束了
 #### 为什么该方法在子线程中执行时没有打印@selector方法选择器中的信息？因为该方法是依赖Runloop运行循环的，子线程中RunLoop默认是不开启的，所以该方法不会执行，要想执行，必须在该子线程中手动开启RunLoop运行循环
-
+    - (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+        NSLog(@"开始了");
+        NSThread *thread = [[NSThread alloc]initWithBlock:^{
+            [self performSelector:@selector(clickChange:) withObject:@"1" afterDelay:0];
+            必须在子线程中开启RunLoop
+            [[NSRunLoop currentRunLoop] run];
+        }];
+        [thread start];
+        NSLog(@"结束了");
+    }
+    -(void)clickChange:(id)parame1 {
+        NSLog(@"执行了---parame1:%@---thread: %@",parame1,[NSThread currentThread]);
+    }
+    
+    打印结果:开始了
+            结束了
+            执行了---parame1:1---thread: <NSThread: 0x281d8e780>{number = 7, name = (null)}
+#### 苹果文档描述**performSelector:withObject:afterDelay:** 方法:该方法在当前线程的RunLoop中设置了一个定时器去执行@selector，该定时器工作在RunLoop的NSDefaultRunLoopMode模式下，当定时器被触发时，当前线程会从RunLoop中取出这个@selector方法去执行，如果RunLoop是运行的并且是在NSDefaultRunLoopMode模式下，则@selector会执行成功，否则定时器会一直等待直到RunLoop是NSDefaultRunLoopMode模式下。 所以该方法是依赖所在线程的RunLoop才能运行的
