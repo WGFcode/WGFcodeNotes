@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		300845CB24456B2800055737 /* KVC.md in Resources */ = {isa = PBXBuildFile; fileRef = 300845CA24456B1700055737 /* KVC.md */; };
 		300845CC24456B3A00055737 /* NSOperation.md in Resources */ = {isa = PBXBuildFile; fileRef = 30C7D40C2439C05000EA99C6 /* NSOperation.md */; };
+		300D51442700607600BBFC4C /* 抓包工具.md in Resources */ = {isa = PBXBuildFile; fileRef = 300D51432700607600BBFC4C /* 抓包工具.md */; };
 		3015810D245577A600EC6001 /* WGMonitorManage.m in Sources */ = {isa = PBXBuildFile; fileRef = 3015810C245577A600EC6001 /* WGMonitorManage.m */; };
 		30160A2924A75A970074FB82 /* BinaryTree.m in Sources */ = {isa = PBXBuildFile; fileRef = 30160A2824A75A970074FB82 /* BinaryTree.m */; };
 		30179F9A24401E8000EED9BD /* Note.md in Resources */ = {isa = PBXBuildFile; fileRef = 30179F9924401E8000EED9BD /* Note.md */; };
@@ -136,6 +137,7 @@
 /* Begin PBXFileReference section */
 		300845CA24456B1700055737 /* KVC.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = KVC.md; sourceTree = "<group>"; };
 		300845CD24456B4C00055737 /* KVO.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = KVO.md; sourceTree = "<group>"; };
+		300D51432700607600BBFC4C /* 抓包工具.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "抓包工具.md"; sourceTree = "<group>"; };
 		3015810B245577A600EC6001 /* WGMonitorManage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WGMonitorManage.h; sourceTree = "<group>"; };
 		3015810C245577A600EC6001 /* WGMonitorManage.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WGMonitorManage.m; sourceTree = "<group>"; };
 		30160A2724A75A970074FB82 /* BinaryTree.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BinaryTree.h; sourceTree = "<group>"; };
@@ -4847,6 +4849,7 @@
 				548AC987242F4CAD00EEE11C /* PackageIpaWithShell.md */,
 				548AC985242F4CAD00EEE11C /* WG.sh */,
 				309A2DB32665D97900212257 /* swift面试题.md */,
+				300D51432700607600BBFC4C /* 抓包工具.md */,
 			);
 			path = WGReadMe;
 			sourceTree = "<group>";
@@ -4975,6 +4978,7 @@
 			files = (
 				303D7ABC2539731F00EB6052 /* Xcode错误总结.md in Resources */,
 				30A7DC832434A43E008DDCF9 /* lock2.png in Resources */,
+				300D51442700607600BBFC4C /* 抓包工具.md in Resources */,
 				548AC98C242F4CAD00EEE11C /* git.md in Resources */,
 				30A73F332447F14A00C86BB8 /* kvc1.png in Resources */,
 				54330A4F25C1B40E00055C66 /* NewRunloop.md in Resources */,
