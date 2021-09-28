@@ -20,7 +20,42 @@
         源码可见                可见                     不可见                       可见
 
 
+##  CocoaPods使用心得
+### 1.[CocoaPods安装指南](https://guides.cocoapods.org/using/getting-started.html)
+1. pod --version     :查看CocoaPods版本号
+2. sudo gem install cocoapods       :更新 CocoaPods,只需再次安装 gem
+3. sudo gem install cocoapods --pre         :更新CocoaPods预发布版本
 
+### 2. CocoaPods使用
+1. cd 到工程的根目录
+2. touch Podfile 创建Podfile文件，注意必须是这个名字
+3. open -a Xcode Podfile  打开Podfile文件进行编辑，
+
+        #1.第一行要指定支持的平台和版本。
+        platform :ios, '9.0'
+
+        #忽略引入库的所有警告
+        inhibit_all_warnings!
+
+
+        #2.定义将它们链接到Xcode的目标，其实就是添加项目名称
+        target 'AAA' do
+          pod 'AFNetworking', '~> 4.0'
+        end
+4. 保存Podfile，然后pod install, pod install过程可能会失败多次，大部分是因为访问github时的网络问题
+
+        Pod之前项目目录  
+        AAA项目 ----【AAA AAA.xcodeproj】
+        
+        Pod install后项目目录
+        AAA项目 ----【AAA AAA.xcodeproj Podfile Pods AAA.xcworkspace Podfile.lock】
+5. 点击AAA.xcworkspace打开项目，可以发现和AAA并列的还有个Pods的工程，在AAA项目下还多出来了Pods和Frameworks两个文件夹
+
+
+
+
+
+###  3. pod install和pod update区别
 
 
 ##  Carthage使用心得
