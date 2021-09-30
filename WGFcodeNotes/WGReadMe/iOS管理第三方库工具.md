@@ -50,13 +50,43 @@
         Pod install后项目目录
         AAA项目 ----【AAA AAA.xcodeproj Podfile Pods AAA.xcworkspace Podfile.lock】
 5. 点击AAA.xcworkspace打开项目，可以发现和AAA并列的还有个Pods的工程，在AAA项目下还多出来了Pods和Frameworks两个文件夹
+6. 在项目中创建XXX.pch文件，然后在里面导入第三方库如: #import <AFNetworking.h>,然后在Build Settings -> Prefix Header中设置pch文件的路径如:$(SRCROOT)/AAA/PrefixHeader.pch,然后就可以直接使用第三方库了
+
+### 3. CocoaPods文件分析
+#### 3.1Podfile: Podfile 是一种规范，用于描述一个或多个 Xcode 项目的目标的依赖关系
+#### 3.2Podfile.lock: 当第一次运行**pod install**后，该文件就会自动生成，该文件记录了项目中使用CocoaPods的版本、第三方库的真实版本、来源和他们生成的哈希值。一般用在多人协作中，来确定版本是否被更改。这份文件中的第三方库的版本才是你项目中真实使用的版本，而不是Podfile文件中写的版本号；Podfile更像是一个版本约束，而Podfile.lock才是你真正使用的版本；如果让你去确定你使用某一个三方库的版本，你不应该找Podfile，而是应该找Podfile.lock文件。 即使你Podfile使用的定死版本的方式。
+
+#### 为了整个团队第三方库的一致性，推荐将**Podfile.lock**文件加入到版本控制中；当A执行**pod install**后，podfile.lock文件中就会记录下当时最新Pods依赖库的版本，此时Bcheck下来这份包含podfile.lock文件的工程后，再去执行**pod install**后获取下来的Pods依赖库的版本就和最开始用户获取到的版本一致；若没有**podfile.lock**文件，后续团队所有成员都执行**pod install**后，都会获取最新版本的依赖库(可能执行install时机不一样，第三方库可能有新的版本)，有可能造成同一个团队使用的依赖库版本不一致
 
 
+### 4. **pod install**和**pod update**区别
+#### 很多人认为**pod install**是用在第一次使用CocoaPods去配置项目，而**pod update**是用在之后的更新配置中，这种想法是错误的
+* pod install: 使用pod install在你的项目中安装新的库，即使你已经有了Podfile文件并且运行过pod install命令，或者你已经有添加、删除过库
+* pod update: 仅仅是在你想更新库版本的时候
+#### 4.1 **pod install**
+1. 第一次在项目中获取第三方库时使用；每次对**Podfile**编辑时(添加/更新/删除)使用
+2. 每次运行**pod install**后，都回去下载安装新的库，并且会修改**Podfile.lock**文件中记录的库的版本，**Podfile.lock**文件是用来追踪和锁定这些库的版本的
+3. 运行**pod install**仅仅只能解决**Podfile.lock**中没有列出来的依赖关系，在**Podfile.lock**中列出的那些库，也仅仅只是去下载Podfile.lock中指定的版本，并不会去检查最新的版本
+4. 没有在**Podfile.lock**中列出的那些库，会去检索Podfile中指定的版本
 
+#### 4.2 **pod update**
+1. 当运行**pod update 库名称**，CocoaPods将不会考虑**Podfile.lock**中列出的版本，而直接去查找该库的新版本。它将更新到这个库尽可能新的版本，只要符合**Podfile**中的版本限制要求。
+2. 如果使用**pod update** 命令不带库名称参数，CocoaPods将会去更新**Podfile**中每一个库的尽可能新的版本。
 
+#### 4.3 **pod outdated**
+#### 当你使用**pod outdated**时，CocoaPods会罗列出所有在Podfile.lock中记录的有最新版本的库
+#### 4.4 总结
+1. 使用**pod update 库名称**可以去更新一个库的指定版本(检查相应的库是否存在更新的版本，并且更新)；而使用**pod install**将不会更新那些已经下载安装了的库
+2. 当在Podfile文件中新增加一个库时，应该使用**pod install**而不是**pod update**,这样安装了新增的库，也不会重复安装已经存在的库。
+3. 使用pod update仅仅只是去更新指定库的版本（或者全部库）
+4. 必须将**Podfile.lcok**添加到版本控制提交中
 
-###  3. pod install和pod update区别
-
+### 5 什么时候用**pod install**？什么时候用**pod update**?
+* 第一次使用cocoapod导入第三方库时，使用**pod install**
+* 编辑**Podfile**文件，添加/删除/更新第三方库时使用**pod install**
+* 有新的成员加入项目时，clone项目后，需要使用**pod install**去更新第三方库，如果用**pod update**会导致第三方库更新到最新的版本，这样和之前成员的第三方库版本就会不一样，导致冲突
+* 检查哪些第三方库有最新的版本更新时，使用**pod outdated**
+* 需要更新库版本时,使用**pod update 库名称**或者**pod update**
 
 ##  Carthage使用心得
 ## 1.安装
