@@ -132,24 +132,30 @@ namespace {
 #define SIDE_TABLE_RC_SHIFT 2
 #define SIDE_TABLE_FLAG_MASK (SIDE_TABLE_RC_ONE-1)
 
+/*
+ ⚠️RefcountMap 引用计数表底层结构
+ 引用计数Map,其实就是个以objc_object为key的hash表，value值对应的就是该对象的引用计数
+ 三个参数对应的就是：key类型、value类型、是否需要在value=0时释放掉响应的hash节点，这里写的是true
+ */
 // RefcountMap disguises its pointers because we 
 // don't want the table to act as a root for `leaks`.
 typedef objc::DenseMap<DisguisedPtr<objc_object>,size_t,true> RefcountMap;
+
 
 // Template parameters.
 enum HaveOld { DontHaveOld = false, DoHaveOld = true };
 enum HaveNew { DontHaveNew = false, DoHaveNew = true };
 
 /// WGRunTimeSourceCode 源码阅读
-//MARK: SideTable底层结构
+//⚠️MARK: SideTable底层结构
 struct SideTable {
     /*
-     自旋锁：忙等状态、比较消耗CPU资源、不能递归调用、如果短时间内可以获取到资源，则则使用自旋锁比互斥锁效率要高，因为少了互斥锁中的线程调度等操作
+     自旋锁：忙等状态、比较消耗CPU资源、不能递归调用、如果短时间内可以获取到资源，则使用自旋锁比互斥锁效率要高，因为少了互斥锁中的线程调度等操作
      自旋锁比较适用于锁使用者保持锁时间比较短的情况。正是由于自旋锁使用者一般保持锁时间非常短,因此选择自旋而不是睡眠是非常必要的，自旋锁的效率远高于互斥锁。
      */
     spinlock_t slock;           //自旋锁：用于上锁/解锁SideTable
-    RefcountMap refcnts;        //OC对象引用计数Map（key为对象，value为引用计数）
-    weak_table_t weak_table;    //OC对象弱引用Map（）
+    RefcountMap refcnts;        //OC对象引用计数Map（key为对象，value为引用计数）-引用计数表
+    weak_table_t weak_table;    //OC对象弱引用Map-弱引用表
 
     
     SideTable() { //构造函数
@@ -159,7 +165,7 @@ struct SideTable {
     ~SideTable() { //析构函数
         _objc_fatal("Do not delete SideTable.");
     }
-
+    //锁操作 符合StripedMap对T的定义
     void lock() { slock.lock(); }
     void unlock() { slock.unlock(); }
     void forceReset() { slock.forceReset(); }
@@ -228,9 +234,9 @@ static void SideTableInit() {
 }
 
 /// WGRunTimeSourceCode 源码阅读
-//MARK:SideTables结构
+//MARK:⚠️SideTables底层结构
 /*
- 1. SideTables与iOS内存管理息息相关
+ 1. SideTables与iOS内存管理息息相关,其实可以理解成一个全局的hash数组
  2. SideTables实际的类型是存储SideTable的StripedMap，StripedMap里面定义了可以存储SideTable的最大数量StripeCount，最大数量是64个
  3. SideTables可以理解为全局的hash数组，里面存放的是SideTable元素，例如：数组[SideTable]
  4. SideTables的hash键值是一个对象obj的地址，对应的Value值就是SideTable,即一个对象对应一个SideTable；但是SideTable个数最多只有64个，
@@ -336,9 +342,21 @@ template <HaveOld haveOld, HaveNew haveNew,
 //MARK: StoreWeak源码->存储weak指针
 /*
  ⚠️如果weak指向的对象还没有初始化 ，先对其进行初始化，再把它存储到弱引用表中
+ storeWeak<DontHaveOld, DoHaveNew, DoCrashIfDeallocating>
+     (location, (objc_object*)newObj);
+ 为什么搞两个sidetable(oldTable和newTable)，主要是因为 weak 修饰的变量如果之前已经指向一个对象，然后其再次改变指向另一个对象，那么按理来说我们需要释放旧对象中该 weak 变量的记录，也就是要将旧记录删除，然后在新记录中添加。这里的新旧散列表就是这个作用。
+ 1. 根据新旧变量的地址获取相应的 SideTable
+ 2. 对两个表进行加锁操作，防止多线程竞争冲突
+ 3. 进行线程冲突重处理判断
+ 4. 判断其 isa 是否为空，为空则需要进行初始化
+ 5. 如果存在旧值，调用 weak_unregister_no_lock 函数清除旧值
+ 6. 调用 weak_register_no_lock 函数分配新值
+ 7. 解锁两个表，并返回对象
  */
+//MARK:⚠️weak指针存取第2⃣️步
 static id 
-storeWeak(id *location, objc_object *newObj) {
+storeWeak(id *location, objc_object *newObj) { //location 是 weak 指针,newObj 是 weak 指针将要指向的对象
+    //模版函数 haveOld、haveNew由编译器传入参数，这里传递的是haveOld=false，haveNew=true
     assert(haveOld  ||  haveNew);
     if (!haveNew) assert(newObj == nil);
 
@@ -351,9 +369,9 @@ storeWeak(id *location, objc_object *newObj) {
     // Order by lock address to prevent lock ordering problems. 
     // Retry if the old value changes underneath us.
  retry:
-    if (haveOld) {
-        oldObj = *location;                 //⚠️获取旧对象
-        oldTable = &SideTables()[oldObj];   //⚠️获取旧对象的SideTable
+    if (haveOld) {  //如果之前weak弱指针(即id *location)有指向，现在要改指向新的对象，那么需要先将旧的指向给删除了，才能重新指向新的对象
+        oldObj = *location;                 //⚠️通过弱引用指针获取旧对象
+        oldTable = &SideTables()[oldObj];   //⚠️通过旧对象获取到对应的SideTable
     } else {
         oldTable = nil;
     }
@@ -364,8 +382,9 @@ storeWeak(id *location, objc_object *newObj) {
     }
 
     SideTable::lockTwo<haveOld, haveNew>(oldTable, newTable);
-
-    if (haveOld  &&  *location != oldObj) {
+    
+    //进行线程冲突重处理判断
+    if (haveOld  &&  *location != oldObj) {  //如果有旧值，并且现在新的弱引用指向不指向旧对象
         SideTable::unlockTwo<haveOld, haveNew>(oldTable, newTable);
         goto retry;
     }
@@ -393,14 +412,16 @@ storeWeak(id *location, objc_object *newObj) {
     }
 
     // Clean up old value, if any.
-    //⚠️ 清除旧对象weak_table种的location
-    if (haveOld) {
+    //⚠️ 清除旧对象weak_table中的location
+    if (haveOld) {  //旧对象所在的弱引用表、旧对象、弱引用指针
+        //如果 weak 指针有旧值, 则需要在 weak_table 中处理掉旧值
         weak_unregister_no_lock(&oldTable->weak_table, oldObj, location);
     }
     
     // Assign new value, if any.
     //⚠️ 保存location到新对象的weak_table种
     if (haveNew) {
+        //如果 weak 指针将要指向新值(即非 location = nil 的情况), 在 weak_table 中处理赋值操作
         newObj = (objc_object *)
             weak_register_no_lock(&newTable->weak_table, (id)newObj, location, 
                                   crashIfDeallocating);
@@ -510,7 +531,7 @@ objc_storeWeakOrNil(id *location, id newObj)
  第二个参数id newObj：weak指针指向的对象(obj)
  这个函数是weak弱引用的底层入口
  */
-
+//MARK:⚠️weak指针存取第1⃣️步
 id
 objc_initWeak(id *location, id newObj) {
     if (!newObj) { //如果newObj对象为nil，那么指向它的weak指针也要置为nil
@@ -1330,13 +1351,13 @@ objc_object::rootRelease_underflow(bool performDealloc)
 // that were ever weakly referenced 
 // or whose retain count ever overflowed to the side table.
 NEVER_INLINE void
-//⚠️dealloc流程第5⃣️步
+//MARK: ⚠️dealloc销毁对象第6⃣️.2⃣️步  若有弱引用或者sidetable存储有引用计数
 objc_object::clearDeallocating_slow() {
     assert(isa.nonpointer  &&  (isa.weakly_referenced || isa.has_sidetable_rc));
-
-    SideTable& table = SideTables()[this];
+    SideTable& table = SideTables()[this];  //拿到对象的地址通过hash算法获取到SideTable
     table.lock();
     if (isa.weakly_referenced) { //若有弱引用表，则会将指向该对象的弱引用指针置为nil。
+        //⚠️全局搜索weak_clear_no_lock(weak_table_t *weak_table, id referent_id)
         weak_clear_no_lock(&table.weak_table, (id)this);
     }
     if (isa.has_sidetable_rc) { //若有引用计数表，从引用计数表中擦除该对象的引用计数。
@@ -1664,7 +1685,7 @@ objc_object::sidetable_release(bool performDealloc)
     return do_dealloc;
 }
 
-
+//MARK: ⚠️dealloc销毁对象第6⃣️.1⃣️步
 void 
 objc_object::sidetable_clearDeallocating()
 {
@@ -1889,13 +1910,13 @@ objc_allocWithZone(Class cls)
 }
 
 
-
+//MARK: ⚠️dealloc销毁对象第2⃣️步
 void
 _objc_rootDealloc(id obj)
 {
     assert(obj);
 
-    obj->rootDealloc();
+    obj->rootDealloc();  //⚠️全局搜索rootDealloc()找到对应的方法 objc_object::rootDealloc()
 }
 
 void
@@ -2437,6 +2458,7 @@ void arr_init(void)
 //MARK: OC中dealloc方法底层调用顺序及流程
 
 // Replaced by NSZombies
+//MARK:  ⚠️dealloc销毁对象第1⃣️步
 - (void)dealloc {
     _objc_rootDealloc(self);
 }

@@ -709,20 +709,23 @@ class list_array_tt { //  二维数组[[method_t]]
             return &list;
         }
     }
-
+    // ⚠️：dyld加载第9⃣️步(系统通过内存移动和内存拷贝将分类信息添加到类信息中)
     void attachLists(List* const * addedLists, uint32_t addedCount) {
         if (addedCount == 0) return;
-
+        //array()->lists: 类对象原来的方法列表
         if (hasArray()) {
             // many lists -> many lists
-            uint32_t oldCount = array()->count;
-            uint32_t newCount = oldCount + addedCount;
+            uint32_t oldCount = array()->count;  //原来类对象中方法列表数组的元素个数
+            uint32_t newCount = oldCount + addedCount;  //新数组元素个数 = 类原来元素个数 + 分类中元素个数
             setArray((array_t *)realloc(array(), array_t::byteSize(newCount)));
             array()->count = newCount;
+            // 内存移动，将原来的地址向后移动addedCount的大小，即将类对象中的方法列表数组地址向后移动
             memmove(array()->lists + addedCount, array()->lists, 
                     oldCount * sizeof(array()->lists[0]));
+            //内存拷贝 将分类中的方法列表拷贝到内存移动腾空后的内存空间
             memcpy(array()->lists, addedLists, 
                    addedCount * sizeof(array()->lists[0]));
+            //⚠️通过内存移动和内存拷贝，分类的方法就位于类对象方法的前面了，所以分类和类有相同方法时，首先调用的就是分类中的方法
         }
         else if (!list  &&  addedCount == 1) {
             // 0 lists -> 1 list

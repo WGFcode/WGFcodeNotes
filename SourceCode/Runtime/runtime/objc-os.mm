@@ -436,7 +436,7 @@ static bool shouldRejectGCImage(const headerType *mhdr)
 #include "objc-file-old.h"
 #endif
 
-//⚠️：dyld加载第3⃣️步
+//⚠️：dyld加载第3⃣️步(系统通过内存移动和内存拷贝将分类信息添加到类信息中)
 void 
 map_images_nolock(unsigned mhCount, const char * const mhPaths[],
                   const struct mach_header * const mhdrs[])
@@ -575,7 +575,7 @@ map_images_nolock(unsigned mhCount, const char * const mhPaths[],
     }
 
     if (hCount > 0) {
-        //⚠️：dyld加载第4⃣️步
+        //⚠️：dyld加载第4⃣️步(系统通过内存移动和内存拷贝将分类信息添加到类信息中)
         _read_images(hList, hCount, totalClasses, unoptimizedTotalClasses);
     }
 
@@ -875,7 +875,7 @@ void _objc_atfork_child()
 **********************************************************************/
 /// WGRunTimeSourceCode 源码阅读
 //MARK:运行时初始化开始的地方,通过dyld进行加载的
-//⚠️：dyld加载第1⃣️步
+//⚠️：dyld加载第1⃣️步(系统通过内存移动和内存拷贝将分类信息添加到类信息中)
 void _objc_init(void)
 {
     static bool initialized = false;

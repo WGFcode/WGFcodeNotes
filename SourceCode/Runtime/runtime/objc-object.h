@@ -90,7 +90,7 @@ objc_object::getIsa()
     }
 }
 
-
+//WGRuntime 判断是否是TaggedPointer指针
 inline bool 
 objc_object::isTaggedPointer() 
 {
@@ -395,7 +395,7 @@ objc_object::rootIsDeallocating()
 }
 
 
-//⚠️dealloc流程第4⃣️步
+//MARK: ⚠️dealloc销毁对象第6⃣️步
 inline void 
 objc_object::clearDeallocating() {
     if (slowpath(!isa.nonpointer)) {  //⚠️判断isa是否优化过，arm64架构后都优化过了，所以结果就是都优化过了
@@ -403,7 +403,7 @@ objc_object::clearDeallocating() {
         sidetable_clearDeallocating();
     }else if (slowpath(isa.weakly_referenced  ||  isa.has_sidetable_rc)) { //⚠️判断是否有弱引用或者引用计数
         // Slow path for non-pointer isa with weak refs and/or side table data.
-        clearDeallocating_slow();
+        clearDeallocating_slow();  //⚠️全局搜素 objc_object::clearDeallocating_slow()
     }
 
     assert(!sidetable_present());
@@ -411,7 +411,7 @@ objc_object::clearDeallocating() {
 
 /// WGRunTimeSourceCode 源码阅读
 
-//MARK:rootDealloc方法
+//MARK: ⚠️dealloc销毁对象第3⃣️步
 inline void
 objc_object::rootDealloc() {
     //⚠️若是TaggedPointer指针，则直接返回，因为TaggedPointer指针指向的并不是真正的OC对象，它不涉及到内存管理的东西
@@ -421,11 +421,11 @@ objc_object::rootDealloc() {
                  !isa.weakly_referenced  &&     //是否存在弱引用指向
                  !isa.has_assoc  &&             //是否设置过关联对象
                  !isa.has_cxx_dtor  &&          //是否有cpp的析构函数
-                 !isa.has_sidetable_rc)) {      //引用计数器是否过大无法存储在isa中
+                 !isa.has_sidetable_rc)) {      //引用计数器是否过大无法存储在isa中，而是存储在sideTable中；若是1则表示存储在sideTable中，若是0则引用计数存储在isa指针中
         assert(!sidetable_present());
-        free(this);  //若5种情况同时满足，则调用C语言的释放对象方法快速释放
+        free(this);  //若5种情况同时满足，则调用C语言的释放对象方法快速释放，这种对象释放速度最快
     } else {  //否则调用object_dispose
-        object_dispose((id)this);
+        object_dispose((id)this);  //⚠️全局搜索object_dispose(id obj)
     }
 }
 

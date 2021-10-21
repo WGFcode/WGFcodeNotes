@@ -618,7 +618,7 @@ prepareMethodLists(Class cls, method_list_t **addedLists, int addedCount,
 // Attach method lists and properties and protocols from categories to a class.
 // Assumes the categories in cats are all loaded and sorted by load order, 
 // oldest categories first.
-//⚠️：dyld加载第8⃣️步
+//⚠️：dyld加载第8⃣️步(系统通过内存移动和内存拷贝将分类信息添加到类信息中)
 //MAARK:将分类信息添加都类信息结构中
 static void 
 attachCategories(Class cls, category_list *cats, bool flush_caches)
@@ -666,6 +666,7 @@ attachCategories(Class cls, category_list *cats, bool flush_caches)
     auto rw = cls->data();
 
     prepareMethodLists(cls, mlists, mcount, NO, fromBundle);
+    //⚠️搜索void attachLists(List* const * addedLists, uint32_t addedCount)
     rw->methods.attachLists(mlists, mcount);
     free(mlists);
     if (flush_caches  &&  mcount > 0) flushCaches(cls);
@@ -758,7 +759,7 @@ static void methodizeClass(Class cls)
 * Updates method caches for cls and its subclasses.
 * Locking: runtimeLock must be held by the caller
 **********************************************************************/
-//⚠️：dyld加载第7⃣️步
+//⚠️：dyld加载第7⃣️步(系统通过内存移动和内存拷贝将分类信息添加到类信息中)
 static void remethodizeClass(Class cls)
 {
     category_list *cats;
@@ -2016,7 +2017,7 @@ void _objc_flush_caches(Class cls)
 *
 * Locking: write-locks runtimeLock
 **********************************************************************/
-//⚠️：dyld加载第2⃣️步
+//⚠️：dyld加载第2⃣️步(系统通过内存移动和内存拷贝将分类信息添加到类信息中)
 void
 map_images(unsigned count, const char * const paths[],
            const struct mach_header * const mhdrs[])
@@ -2307,7 +2308,7 @@ readProtocol(protocol_t *newproto, Class protocol_class,
 *
 * Locking: runtimeLock acquired by map_images
 **********************************************************************/
-//⚠️：dyld加载第5⃣️步
+//⚠️：dyld加载第5⃣️步(系统通过内存移动和内存拷贝将分类信息添加到类信息中)
 void _read_images(header_info **hList, uint32_t hCount, int totalClasses, int unoptimizedTotalClasses)
 {
     header_info *hi;
@@ -2603,7 +2604,7 @@ void _read_images(header_info **hList, uint32_t hCount, int totalClasses, int un
             {
                 addUnattachedCategoryForClass(cat, cls->ISA(), hi);
                 if (cls->ISA()->isRealized()) {
-                    //⚠️：dyld加载第6⃣️步
+                    //⚠️：dyld加载第6⃣️步(系统通过内存移动和内存拷贝将分类信息添加到类信息中)
                     remethodizeClass(cls->ISA());
                 }
                 if (PrintConnecting) {
@@ -6315,7 +6316,7 @@ object_copyFromZone(id oldObj, size_t extraBytes, void *zone)
 * Removes associative references.
 * Returns `obj`. Does nothing if `obj` is nil.
 **********************************************************************/
-//⚠️dealloc流程中的第3⃣️步
+//MARK: ⚠️dealloc销毁对象第5⃣️步
 void *objc_destructInstance(id obj) {
     if (obj) {
         // Read all of the flags at once for performance.
@@ -6325,7 +6326,7 @@ void *objc_destructInstance(id obj) {
         // This order is important.
         if (cxx) object_cxxDestruct(obj);     //有析构函数就释放（清除成员变量）
         if (assoc) _object_remove_assocations(obj); //销毁关联对象
-        obj->clearDeallocating();
+        obj->clearDeallocating();  //⚠️全局搜索objc_object::clearDeallocating()
     }
     return obj;
 }
@@ -6336,13 +6337,13 @@ void *objc_destructInstance(id obj) {
 * fixme
 * Locking: none
 **********************************************************************/
-//⚠️dealloc流程第2⃣️步
+//MARK: ⚠️dealloc销毁对象第4⃣️步
 id 
 object_dispose(id obj)
 {
     if (!obj) return nil;
-
-    objc_destructInstance(obj);    
+    
+    objc_destructInstance(obj);    //先调用objc_destructInstance方法，然后再进行free
     free(obj);
 
     return nil;

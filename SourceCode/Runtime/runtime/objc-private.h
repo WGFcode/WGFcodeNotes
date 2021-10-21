@@ -103,7 +103,7 @@ union isa_t
         uintptr_t deallocating      : 1;  //对象是否正在释放
         //引用计数器是否过大无法存储在isa中,如果是1,那么引用计数器就存储在一个叫SideTable的类的属性中
         uintptr_t has_sidetable_rc  : 1;
-        uintptr_t extra_rc          : 19;  //里面存储的值是引用计数器减1
+        uintptr_t extra_rc          : 19;  //里面存储的值是引用计数值减1（如果引用计数为3，则这里存储的就是2）
 #       define RC_ONE   (1ULL<<45)
 #       define RC_HALF  (1ULL<<18)
     };
@@ -202,6 +202,12 @@ public:
     // If this is a new object, use initIsa() for performance.
     Class changeIsa(Class newCls);
 
+    /*
+     Tagged Pointer专门用来存储小的对象，例如NSNumber, NSDate, NSString。
+     Tagged Pointer指针的值不再是地址了，而是真正的值。所以，实际上它不再是一个对象了，它只是一个披着对象皮的普通变量而已。
+     所以，它的内存并不存储在堆中，也不需要malloc和free。
+     在内存读取上有着3倍的效率，创建时比以前快106倍。
+     */
     bool hasNonpointerIsa();
     bool isTaggedPointer();
     bool isBasicTaggedPointer();
@@ -856,17 +862,23 @@ class TimeLogger {
 };
 
 
-// StripedMap<T> is a map of void* -> T, sized appropriately 
+// StripedMap<T> is a map of void* -> T, sized appropriately  //StripedMap<T>是一个以void *为hash key， T为vaule的hash 表
 // for cache-friendly lock striping. 
 // For example, this may be used as StripedMap<spinlock_t>
 // or as StripedMap<SomeStruct> where SomeStruct stores a spin lock.
+
 template<typename T>
 
 /// WGRunTimeSourceCode 源码阅读
 /*
  这里可以看出SideTables的长度为64，说明可以存放64个SideTable
+ 全局的SideTables就是通过这种方式获取的，所以StripedMap中的T就代表SideTable类型了
+ static StripedMap<SideTable>& SideTables() {
+     return *reinterpret_cast<StripedMap<SideTable>*>(SideTableBuf);
+ }
  */
 //MARK:SideTables结构实际的类型StripedMap，可以存放64个SideTable
+//⚠️StripedMap底层结构
 class StripedMap {
 
     enum { CacheLineSize = 64 };
@@ -874,21 +886,22 @@ class StripedMap {
 #if TARGET_OS_EMBEDDED
     enum { StripeCount = 8 };
 #else
-    enum { StripeCount = 64 };
+    enum { StripeCount = 64 };    //ios设备  StripeCount = 64字节
 #endif
 
-    struct PaddedT {
-        T value alignas(CacheLineSize);
+    struct PaddedT { //StripedMap总所有的T类型的数据都被封装到PaddedT结构体中，是为了字节对齐，估计是存取hash值时的效率考虑
+        T value alignas(CacheLineSize);   //64字节对齐
     };
 
-    PaddedT array[StripeCount];
+    PaddedT array[StripeCount];        //PaddedT被放到数组array中，array[64]
 
-    static unsigned int indexForPointer(const void *p) {
+    //以obj的地址为key,找到SideTables中对应的SideTable
+    static unsigned int indexForPointer(const void *p) {  //以void *作为key,获取对应的value值在StripedMap中的位置
         uintptr_t addr = reinterpret_cast<uintptr_t>(p);
-        return ((addr >> 4) ^ (addr >> 9)) % StripeCount;
+        return ((addr >> 4) ^ (addr >> 9)) % StripeCount; //取余是为了防止index越界
     }
 
- public:
+ public: //取值，通过对象obj的地址找到对应的SideTable
     T& operator[] (const void *p) { 
         return array[indexForPointer(p)].value; 
     }
@@ -896,6 +909,8 @@ class StripedMap {
         return const_cast<StripedMap<T>>(this)[p]; 
     }
 
+    //由于SideTables是全局的hash数组，所以肯定是需要加锁操作的
+    //锁操作都是通过array[i].value方式进行的，所以对于模板的抽象数据T类型，必须具备相关的lock操作接口。而T类型对应的就是SideTable类型
     // Shortcuts for StripedMaps of locks.
     void lockAll() {
         for (unsigned int i = 0; i < StripeCount; i++) {

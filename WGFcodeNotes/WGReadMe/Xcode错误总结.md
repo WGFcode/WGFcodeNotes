@@ -98,3 +98,6 @@ build Settings ->Excluded Architecture->debug 和 release ->Any ios simulator SD
 8. 真机运行项目没问题，模拟器上运行项目报错: dyld: dyld_sim cannot be loaded in a restricted process
 (lldb) 
 #### 解决方法: Build Settings -> Other Linker Flags 删除-Wl,-sectcreate,__RESTRICT,__restrict,/dev/null 就可以在模拟器上运行了
+
+9. 运行项目，报警告⚠️: ld: warning: object file (/Users/baicai/Desktop/WLKProject/NXYJHXEProject/NXYXE/WGLib/JYSDK/EAccountHYSDK.framework/EAccountHYSDK(EAccountHYUiEventHandler.o)) was built for newer iOS version (10.0) than being linked (9.0)
+#### 解决方法： Build Settings -> Other Linker Flags 添加-w即可消除警告

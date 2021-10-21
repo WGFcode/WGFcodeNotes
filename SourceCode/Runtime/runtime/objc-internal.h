@@ -360,9 +360,11 @@ _objc_makeTaggedPointer(objc_tag_index_t tag, uintptr_t value)
     }
 }
 
+//WGRuntime 判断是否是TaggedPointer
 static inline bool 
 _objc_isTaggedPointer(const void * _Nullable ptr) 
 {
+    // define _OBJC_TAG_MASK (1UL<<63) 一个对象的地址是64位(8字节)，若最高位是1，则代表是TaggedPointer
     return ((uintptr_t)ptr & _OBJC_TAG_MASK) == _OBJC_TAG_MASK;
 }
 

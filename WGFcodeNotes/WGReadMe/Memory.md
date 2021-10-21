@@ -187,7 +187,7 @@
      高地址
 #### 2.2   Tagged Pointer技术
 #### 从64bit开始,iOS引入了Tagged Pointer技术,用来优化NSNumber、NSDate、NSString等小对象的存储.
-1.  在没有使用Tagged Pointer技术前,NSNumber等对象就是普通的OC对象,需要动态分配内存,维护饮用计数等,NSNumber的指针存储的是堆中NSNumber对象的地址值; 
+1.  在没有使用Tagged Pointer技术前,NSNumber等对象就是普通的OC对象,需要动态分配内存,维护引用计数等,NSNumber的指针存储的是堆中NSNumber对象的地址值; 
 2. 使用Tagged Pointer技术后, NSNumber指针里面存储的数据变成了: Tag(类型标记)+Data(值),也就是直接将数据存储到了指针中
 
         // 这两行代码完全一样
