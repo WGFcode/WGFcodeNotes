@@ -24,7 +24,6 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view.backgroundColor = UIColor.red
-        
         let sexEnum = WGSexType()
         // 实际占用的内存大小
         let sexEnumSize0 = MemoryLayout.size(ofValue: sexEnum)
