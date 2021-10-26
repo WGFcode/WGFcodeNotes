@@ -919,7 +919,7 @@ BOOL class_isMetaClass(Class cls)
     return cls->isMetaClass();
 }
 
-
+//⚠️ class_getInstanceSize底层第1⃣️步 获取对象实际占用的内存大小
 size_t class_getInstanceSize(Class cls)
 {
     if (!cls) return 0;

@@ -542,7 +542,7 @@ struct locstamped_category_list_t {
  4. class_ro_t结构体中包含了方法列表、协议列表、成员变量列表、属性列表
  5. 成员变量在编译期已经确定了，不能再修改了，所以在运行时不能添加成员变量
  */
-//MARK: class_ro_t结构体
+//MARK: class_ro_t底层结构体
 struct class_ro_t {
     uint32_t flags;
     uint32_t instanceStart;
@@ -824,7 +824,7 @@ class protocol_array_t :
  2. class_rw_t结构体中包含：只读的结构体class_ro_t、方法列表、属性列表、协议列表
  3. class_ro_t结构体存放的是类初始化的信息
  */
-//MARK: class_rw_t结构体
+//MARK: class_rw_t底层结构
 struct class_rw_t {
     // Be warned that Symbolication knows the layout of this structure.
     uint32_t flags;
@@ -1103,7 +1103,7 @@ public:
                                    _mask                     _sel
                                  _occupied                   _imp
  */
-//MARK: 类对象底层结构体
+//MARK: 类对象底层结构
 struct objc_class : objc_object {
     // Class ISA;
     Class superclass;          //执行父类对象
@@ -1307,14 +1307,14 @@ struct objc_class : objc_object {
     uint32_t alignedInstanceStart() {
         return word_align(unalignedInstanceStart());
     }
-
+    //⚠️ class_getInstanceSize底层第3⃣️步 获取对象实际占用的内存大小
     // May be unaligned depending on class's ivars.
     uint32_t unalignedInstanceSize() {
         assert(isRealized());
         return data()->ro->instanceSize;
     }
-
-    // Class's ivar size rounded up to a pointer-size boundary.
+    //⚠️ class_getInstanceSize底层第2⃣️步 获取对象实际占用的内存大小
+    // Class's ivar size rounded up to a pointer-size boundary. 类成员变量所占用的大小
     uint32_t alignedInstanceSize() {
         return word_align(unalignedInstanceSize());
     }
