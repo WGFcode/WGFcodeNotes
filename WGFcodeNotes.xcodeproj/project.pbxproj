@@ -19,6 +19,15 @@
 		30313DC2253829F600941BE5 /* WGTargetProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 30313DC1253829F600941BE5 /* WGTargetProxy.m */; };
 		303D7ABC2539731F00EB6052 /* Xcode错误总结.md in Resources */ = {isa = PBXBuildFile; fileRef = 303D7ABB2539731F00EB6052 /* Xcode错误总结.md */; };
 		304011B026734C0B00845393 /* WGTestKVCEntity.m in Sources */ = {isa = PBXBuildFile; fileRef = 304011AF26734C0B00845393 /* WGTestKVCEntity.m */; };
+		304727AB2750E5EB00BF3AFC /* WGStack.m in Sources */ = {isa = PBXBuildFile; fileRef = 304727AA2750E5EB00BF3AFC /* WGStack.m */; };
+		304727B22750E5FE00BF3AFC /* WGDoubleNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 304727AC2750E5FD00BF3AFC /* WGDoubleNode.m */; };
+		304727B32750E5FE00BF3AFC /* WGDoubleList.m in Sources */ = {isa = PBXBuildFile; fileRef = 304727AD2750E5FE00BF3AFC /* WGDoubleList.m */; };
+		304727B42750E5FE00BF3AFC /* WGDoubleCycleList.m in Sources */ = {isa = PBXBuildFile; fileRef = 304727B12750E5FE00BF3AFC /* WGDoubleCycleList.m */; };
+		304727BB2750E63700BF3AFC /* WGSingleList.m in Sources */ = {isa = PBXBuildFile; fileRef = 304727B62750E63600BF3AFC /* WGSingleList.m */; };
+		304727BC2750E63700BF3AFC /* WGNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 304727B72750E63600BF3AFC /* WGNode.m */; };
+		304727BD2750E63700BF3AFC /* WGSingleCycleList.m in Sources */ = {isa = PBXBuildFile; fileRef = 304727BA2750E63600BF3AFC /* WGSingleCycleList.m */; };
+		304727C02750E64300BF3AFC /* WGDynamicArray.m in Sources */ = {isa = PBXBuildFile; fileRef = 304727BE2750E64200BF3AFC /* WGDynamicArray.m */; };
+		304727C62750E70F00BF3AFC /* WGLeetCode.m in Sources */ = {isa = PBXBuildFile; fileRef = 304727C52750E70F00BF3AFC /* WGLeetCode.m */; };
 		305188F7265661DA00923282 /* 冷知识.md in Resources */ = {isa = PBXBuildFile; fileRef = 305188F6265661DA00923282 /* 冷知识.md */; };
 		3066E0F02435DD48004C71F7 /* GCD.md in Resources */ = {isa = PBXBuildFile; fileRef = 3066E0EF2435DD48004C71F7 /* GCD.md */; };
 		3078C069251C366B00A73E54 /* 传值方式.md in Resources */ = {isa = PBXBuildFile; fileRef = 3078C068251C366B00A73E54 /* 传值方式.md */; };
@@ -163,6 +172,24 @@
 		303D7ABB2539731F00EB6052 /* Xcode错误总结.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Xcode错误总结.md"; sourceTree = "<group>"; };
 		304011AE26734C0B00845393 /* WGTestKVCEntity.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WGTestKVCEntity.h; sourceTree = "<group>"; };
 		304011AF26734C0B00845393 /* WGTestKVCEntity.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WGTestKVCEntity.m; sourceTree = "<group>"; };
+		304727A92750E5EB00BF3AFC /* WGStack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WGStack.h; sourceTree = "<group>"; };
+		304727AA2750E5EB00BF3AFC /* WGStack.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WGStack.m; sourceTree = "<group>"; };
+		304727AC2750E5FD00BF3AFC /* WGDoubleNode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WGDoubleNode.m; sourceTree = "<group>"; };
+		304727AD2750E5FE00BF3AFC /* WGDoubleList.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WGDoubleList.m; sourceTree = "<group>"; };
+		304727AE2750E5FE00BF3AFC /* WGDoubleList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WGDoubleList.h; sourceTree = "<group>"; };
+		304727AF2750E5FE00BF3AFC /* WGDoubleNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WGDoubleNode.h; sourceTree = "<group>"; };
+		304727B02750E5FE00BF3AFC /* WGDoubleCycleList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WGDoubleCycleList.h; sourceTree = "<group>"; };
+		304727B12750E5FE00BF3AFC /* WGDoubleCycleList.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WGDoubleCycleList.m; sourceTree = "<group>"; };
+		304727B52750E63600BF3AFC /* WGSingleList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WGSingleList.h; sourceTree = "<group>"; };
+		304727B62750E63600BF3AFC /* WGSingleList.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WGSingleList.m; sourceTree = "<group>"; };
+		304727B72750E63600BF3AFC /* WGNode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WGNode.m; sourceTree = "<group>"; };
+		304727B82750E63600BF3AFC /* WGNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WGNode.h; sourceTree = "<group>"; };
+		304727B92750E63600BF3AFC /* WGSingleCycleList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WGSingleCycleList.h; sourceTree = "<group>"; };
+		304727BA2750E63600BF3AFC /* WGSingleCycleList.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WGSingleCycleList.m; sourceTree = "<group>"; };
+		304727BE2750E64200BF3AFC /* WGDynamicArray.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WGDynamicArray.m; sourceTree = "<group>"; };
+		304727BF2750E64300BF3AFC /* WGDynamicArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WGDynamicArray.h; sourceTree = "<group>"; };
+		304727C42750E70F00BF3AFC /* WGLeetCode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WGLeetCode.h; sourceTree = "<group>"; };
+		304727C52750E70F00BF3AFC /* WGLeetCode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WGLeetCode.m; sourceTree = "<group>"; };
 		305188F6265661DA00923282 /* 冷知识.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = "冷知识.md"; sourceTree = "<group>"; };
 		3066E0EF2435DD48004C71F7 /* GCD.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = GCD.md; sourceTree = "<group>"; };
 		307005CB2637ACD400E1DF19 /* CompatibilityOverride.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CompatibilityOverride.h; sourceTree = "<group>"; };
@@ -2150,6 +2177,13 @@
 		3015810A2455778B00EC6001 /* WGCore */ = {
 			isa = PBXGroup;
 			children = (
+				304727C32750E6CA00BF3AFC /* LeetCode */,
+				304727C12750E67800BF3AFC /* 二叉树 */,
+				304727A82750E5CE00BF3AFC /* 队列 */,
+				304727A72750E5B800BF3AFC /* 栈 */,
+				304727A62750E54B00BF3AFC /* 双向链表 */,
+				304727A52750E53B00BF3AFC /* 单向链表 */,
+				304727A42750E53100BF3AFC /* 动态数组 */,
 				57070505270F368D002A2ACC /* 数据结构与算法 */,
 				30E9227026EB3672008D151A /* WGSwiftMethodDispatchSIL.sil */,
 				30FCCF82256F8D9100AEC012 /* MJMemoryTool */,
@@ -2172,6 +2206,73 @@
 				30E9226E26EB331F008D151A /* WGSwiftMethodDispatch.swift */,
 			);
 			path = WGCore;
+			sourceTree = "<group>";
+		};
+		304727A42750E53100BF3AFC /* 动态数组 */ = {
+			isa = PBXGroup;
+			children = (
+				304727BF2750E64300BF3AFC /* WGDynamicArray.h */,
+				304727BE2750E64200BF3AFC /* WGDynamicArray.m */,
+			);
+			path = "动态数组";
+			sourceTree = "<group>";
+		};
+		304727A52750E53B00BF3AFC /* 单向链表 */ = {
+			isa = PBXGroup;
+			children = (
+				304727B82750E63600BF3AFC /* WGNode.h */,
+				304727B72750E63600BF3AFC /* WGNode.m */,
+				304727B92750E63600BF3AFC /* WGSingleCycleList.h */,
+				304727BA2750E63600BF3AFC /* WGSingleCycleList.m */,
+				304727B52750E63600BF3AFC /* WGSingleList.h */,
+				304727B62750E63600BF3AFC /* WGSingleList.m */,
+			);
+			path = "单向链表";
+			sourceTree = "<group>";
+		};
+		304727A62750E54B00BF3AFC /* 双向链表 */ = {
+			isa = PBXGroup;
+			children = (
+				304727B02750E5FE00BF3AFC /* WGDoubleCycleList.h */,
+				304727B12750E5FE00BF3AFC /* WGDoubleCycleList.m */,
+				304727AE2750E5FE00BF3AFC /* WGDoubleList.h */,
+				304727AD2750E5FE00BF3AFC /* WGDoubleList.m */,
+				304727AF2750E5FE00BF3AFC /* WGDoubleNode.h */,
+				304727AC2750E5FD00BF3AFC /* WGDoubleNode.m */,
+			);
+			path = "双向链表";
+			sourceTree = "<group>";
+		};
+		304727A72750E5B800BF3AFC /* 栈 */ = {
+			isa = PBXGroup;
+			children = (
+				304727A92750E5EB00BF3AFC /* WGStack.h */,
+				304727AA2750E5EB00BF3AFC /* WGStack.m */,
+			);
+			path = "栈";
+			sourceTree = "<group>";
+		};
+		304727A82750E5CE00BF3AFC /* 队列 */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = "队列";
+			sourceTree = "<group>";
+		};
+		304727C12750E67800BF3AFC /* 二叉树 */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = "二叉树";
+			sourceTree = "<group>";
+		};
+		304727C32750E6CA00BF3AFC /* LeetCode */ = {
+			isa = PBXGroup;
+			children = (
+				304727C42750E70F00BF3AFC /* WGLeetCode.h */,
+				304727C52750E70F00BF3AFC /* WGLeetCode.m */,
+			);
+			path = LeetCode;
 			sourceTree = "<group>";
 		};
 		307001E72637A9D800E1DF19 /* SwiftSourceCode */ = {
@@ -5100,24 +5201,32 @@
 				57070507270F36B3002A2ACC /* 斐波那契数.swift in Sources */,
 				30313DC2253829F600941BE5 /* WGTargetProxy.m in Sources */,
 				548AC957242F4B3100EEE11C /* ViewController.swift in Sources */,
+				304727C02750E64300BF3AFC /* WGDynamicArray.m in Sources */,
 				54E19661250E750B0064027B /* WGProxy.m in Sources */,
 				575C5AFA271080B4006EBAA2 /* 9.桶排序.swift in Sources */,
 				542CD1E326075822006A6D1D /* NSMutableArray+WGHookMutableArray.m in Sources */,
+				304727B32750E5FE00BF3AFC /* WGDoubleList.m in Sources */,
 				575C5AF227108078006EBAA2 /* 5.快速排序.swift in Sources */,
 				575C5AF02710806A006EBAA2 /* 4.归并排序.swift in Sources */,
+				304727BB2750E63700BF3AFC /* WGSingleList.m in Sources */,
+				304727BD2750E63700BF3AFC /* WGSingleCycleList.m in Sources */,
 				542D3D8F251A48CC00394130 /* Student.m in Sources */,
+				304727B42750E5FE00BF3AFC /* WGDoubleCycleList.m in Sources */,
 				30160A2924A75A970074FB82 /* BinaryTree.m in Sources */,
 				54E1965B250A70A90064027B /* WGThread.m in Sources */,
 				575C5AF627108096006EBAA2 /* 7.堆排序.swift in Sources */,
 				54E19658250909050064027B /* WGRunLoopVC.m in Sources */,
 				30E9226F26EB331F008D151A /* WGSwiftMethodDispatch.swift in Sources */,
 				548F332B24F2B87300AB3540 /* Person.m in Sources */,
+				304727C62750E70F00BF3AFC /* WGLeetCode.m in Sources */,
+				304727B22750E5FE00BF3AFC /* WGDoubleNode.m in Sources */,
 				548AC983242F4C7100EEE11C /* WGMainVC.swift in Sources */,
 				304011B026734C0B00845393 /* WGTestKVCEntity.m in Sources */,
 				30FD75F824357E3800431678 /* WGMainObjcVC.m in Sources */,
 				54E1965E250A7BDC0064027B /* WGRunLoopSecondVC.m in Sources */,
 				30FCCF84256F8DB000AEC012 /* Mems.swift in Sources */,
 				3015810D245577A600EC6001 /* WGMonitorManage.m in Sources */,
+				304727BC2750E63700BF3AFC /* WGNode.m in Sources */,
 				575C5AEC2710802F006EBAA2 /* 2.选择排序.swift in Sources */,
 				575C5AF427108087006EBAA2 /* 6.希尔排序.swift in Sources */,
 				542CD1E626075AE2006A6D1D /* NSMutableDictionary+WGHookMutableDictionary.m in Sources */,
@@ -5125,6 +5234,7 @@
 				543FF0B225CEDFA2006B72E6 /* WGPermanentThreadOC.m in Sources */,
 				30975813260C27D100709A73 /* Person+PersonTest.m in Sources */,
 				30975816260C2DF800709A73 /* Person+PersonAAAAA.m in Sources */,
+				304727AB2750E5EB00BF3AFC /* WGStack.m in Sources */,
 				542D3D92251A48F500394130 /* Student+StudentCategory.m in Sources */,
 				544008892606DB1F00233364 /* Car.m in Sources */,
 				543FF0B525CEEBFD006B72E6 /* WGPermanentThreadC.m in Sources */,
