@@ -52,7 +52,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// 向指定位置添加元素
 -(void)add:(int)index withElement:(int)element;
 
-/// 添加元素到最面
+/// 添加元素到最后面
 -(void)add:(int)element;
 
 /// 删除index位置的元素,并返回删除的元素

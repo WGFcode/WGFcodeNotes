@@ -28,6 +28,7 @@
 
 #include "objc-private.h"
 #include "hashtable2.h"
+//MARK: ⚠️HashBucket 是hash表的元素，它存储着具有相同hash值的所有key。它为了高效率获取只有一个元素的情况，使用了union oneOrMany结构。当只有一个元素的时候，one就指代这data值，当有多个元素的时候，需要通过访问many数组，方可获取。
 
 /* In order to improve efficiency, buckets contain a pointer to an array or directly the data when the array size is 1 */
 typedef union {
@@ -242,7 +243,7 @@ NXHashTable *NXCopyHashTable (NXHashTable *table) {
         NXHashInsert (newt, data);
     return newt;
     }
-
+//MARK: ⚠️ 获取哈希表中的元素个数
 unsigned NXCountHashTable (NXHashTable *table) {
     return table->count;
     }
@@ -264,17 +265,18 @@ int NXHashMember (NXHashTable *table, const void *data) {
 	};
     return 0;
     }
-
+//MARK: 哈希数组的查找
 void *NXHashGet (NXHashTable *table, const void *data) {
     HashBucket	*bucket = BUCKETOF(table, data);
     unsigned	j = bucket->count;
     const void	**pairs;
     
-    if (! j) return NULL;
-    if (j == 1) {
+    if (! j) return NULL;  //如果哈希表中数组的个数为空，说明无元素，则直接返回
+    if (j == 1) { // 表明只有一个元素，因此使用ISEQUAL与bucket->elements.one进行比较，相同则返回。
     	return ISEQUAL(table, data, bucket->elements.one)
 	    ? (void *) bucket->elements.one : NULL; 
 	};
+    // ⚠️表明多于一个元素，需要进行遍历many数组，逐个比较。
     pairs = bucket->elements.many;
     while (j--) {
 	/* we don't cache isEqual because lists are short */
@@ -284,10 +286,12 @@ void *NXHashGet (NXHashTable *table, const void *data) {
     return NULL;
     }
 
+//MARK: ⚠️ 获取哈希表的容量
 unsigned _NXHashCapacity (NXHashTable *table) {
     return table->nbBuckets;
     }
-
+//MARK: ⚠️ 再哈希新的哈希表容量 将旧的哈希表数据装填到新的哈希表，设置新哈希表的容量，将旧的哈希表清除
+//⚠️注意扩容不能简单的内存copy，这主要是因为BUCKETOF最后的求余是使用的table->nbBuckets。也就是说相同的key值在不同的大小的Hash表中具有不同的数组索引，直接内存copy会使原来的Hash失效，因此只能采用再次插入的办法，是一个很费效率的工作，因此初始化的时候分配一个差不多适合大小的数组是一个很大的必要。
 void _NXHashRehashToCapacity (NXHashTable *table, unsigned newCapacity) {
     /* Rehash: we create a pseudo table pointing really to the old guys,
     extend self, copy the old pairs, and free the pseudo table */
@@ -303,6 +307,7 @@ void _NXHashRehashToCapacity (NXHashTable *table, unsigned newCapacity) {
     table->count = 0; table->buckets = ALLOCBUCKETS(z, table->nbBuckets);
     state = NXInitHashState (old);
     while (NXNextHashState (old, &state, &aux))
+        //重新插入元素不能使用copy,因为哈希表的容量已经改变了，相同的key值在不同大小的哈希表中具有不同的数组索引，直接copy会使原来的hash失效
 	(void) NXHashInsert (table, aux);
     freeBuckets (old, NO);
     if (old->count != table->count)
@@ -311,10 +316,13 @@ void _NXHashRehashToCapacity (NXHashTable *table, unsigned newCapacity) {
     free (old);
     }
 
+//MARK: ⚠️ 扩容-扩大哈希表的容量为原容量的 2倍+1
+#define MORE_CAPACITY(b) (b*2+1)
 static void _NXHashRehash (NXHashTable *table) {
     _NXHashRehashToCapacity (table, MORE_CAPACITY(table->nbBuckets));
     }
 
+//MARK: ⚠️ 向哈希表中插入元素
 void *NXHashInsert (NXHashTable *table, const void *data) {
     HashBucket	*bucket = BUCKETOF(table, data);
     unsigned	j = bucket->count;
@@ -322,24 +330,27 @@ void *NXHashInsert (NXHashTable *table, const void *data) {
     const void	**newt;
     __unused void *z = ZONE_FROM_PTR(table);
     
-    if (! j) {
+    if (! j) {  //⚠️如果哈希表中没有元素，则直接将data放入bucket->elements.one = data
 	bucket->count++; bucket->elements.one = data; 
 	table->count++; 
 	return NULL;
 	};
-    if (j == 1) {
+    if (j == 1) { //⚠️如果哈希表中已经有一个元素，需要重分配一个两个元素的数组，将data插入前面
     	if (ISEQUAL(table, data, bucket->elements.one)) {
-	    const void	*old = bucket->elements.one;
-	    bucket->elements.one = data;
-	    return (void *) old;
+            //如果新添加的元素和已经存在的元素相等，则将原来的元素覆盖掉
+            const void	*old = bucket->elements.one;
+            bucket->elements.one = data;
+            return (void *) old;
 	    };
-	newt = ALLOCPAIRS(z, 2);
-	newt[1] = bucket->elements.one;
-	*newt = data;
-	bucket->count++; bucket->elements.many = newt; 
-	table->count++; 
-	if (table->count > table->nbBuckets) _NXHashRehash (table);
-	return NULL;
+        //如果不相同，则需要重新分配一个两个元素的数组，将data插入
+        newt = ALLOCPAIRS(z, 2);
+        newt[1] = bucket->elements.one;
+        *newt = data;
+        bucket->count++; bucket->elements.many = newt;
+        table->count++;
+        //MARK: ⚠️ 如果哈希表中的元素个数 > 哈希表的容量 则进行扩容 扩容为原容量的2倍+1
+        if (table->count > table->nbBuckets) _NXHashRehash (table);
+        return NULL;
 	};
     pairs = bucket->elements.many;
     while (j--) {
@@ -351,13 +362,15 @@ void *NXHashInsert (NXHashTable *table, const void *data) {
 	    };
 	pairs ++;
 	};
+    //⚠️超过一个元素，同样重分配j+1个元素，然后进行copy，并释放掉原来的内存。
     /* we enlarge this bucket; and put new data in front */
     newt = ALLOCPAIRS(z, bucket->count+1);
     if (bucket->count) bcopy ((const char*)bucket->elements.many, (char*)(newt+1), bucket->count * PTRSIZE);
     *newt = data;
     FREEPAIRS (bucket->elements.many);
     bucket->count++; bucket->elements.many = newt; 
-    table->count++; 
+    table->count++;
+    //MARK: ⚠️ 如果哈希表中的元素个数 > 哈希表的容量 则进行扩容 扩容为原容量的2倍+1
     if (table->count > table->nbBuckets) _NXHashRehash (table);
     return NULL;
     }

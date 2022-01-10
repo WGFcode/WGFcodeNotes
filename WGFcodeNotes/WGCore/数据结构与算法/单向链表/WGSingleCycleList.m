@@ -69,11 +69,11 @@ static int ELEMENT_NOT_FOUND = -1;
         //⚠️单向循环链表需要改动的地方------start
         //新建一个元素，让它的next指向_fitst指向的结点，即原来的0下标的结点
         WGNode *newFirst = [[WGNode alloc]initWithElement:element withNext:first];
-        
+        first = newFirst;
+
         //拿到最后一个结点的元素,让它的next指向新的first结点（即我们新添加的元素）
         WGNode *lastNode = size == 0 ? newFirst : [self getNodeWithIndex:size - 1];
         lastNode->next = newFirst;
-        first = newFirst;
         //⚠️单向循环链表需要改动的地方------end
     }else {
         //先获取到index结点对象的上一个结点

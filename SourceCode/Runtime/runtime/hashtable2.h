@@ -71,11 +71,12 @@ typedef struct {
 	2- isEqual (data1, data2) => data1= data2
  */
 
+//MARK: ⚠️ 哈希表底层结构 HashTable 第1⃣️步
 typedef struct {
-    const NXHashTablePrototype	* _Nonnull prototype OBJC_HASH_AVAILABILITY;
-    unsigned			count OBJC_HASH_AVAILABILITY;
-    unsigned			nbBuckets OBJC_HASH_AVAILABILITY;
-    void			* _Nullable buckets OBJC_HASH_AVAILABILITY;
+    const NXHashTablePrototype	* _Nonnull prototype OBJC_HASH_AVAILABILITY;  //hash结构所使用的hash，以及比较函数的函数表
+    unsigned			count OBJC_HASH_AVAILABILITY;             //哈希表中已经存放的关键字个数，每次插入count都会+1
+    unsigned			nbBuckets OBJC_HASH_AVAILABILITY;         //哈希表的容量大小，随着count的增多会动态扩容
+    void			* _Nullable buckets OBJC_HASH_AVAILABILITY;   //哈希表中数组的基地址
     const void			* _Nullable info OBJC_HASH_AVAILABILITY;
    } NXHashTable OBJC_HASH_AVAILABILITY;
     /* private data structure; may change */

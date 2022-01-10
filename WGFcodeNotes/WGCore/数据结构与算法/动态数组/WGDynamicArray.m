@@ -87,7 +87,7 @@ static int ELEMENT_NOT_FOUND = -1;
 }
 
 
-//MARK: 添加元素到最面
+//MARK: 添加元素到最后面
 -(void)add:(int)element {
     //_elements[_size] = @(element);
     //_size++;
@@ -166,6 +166,9 @@ static int ELEMENT_NOT_FOUND = -1;
 //MARK: 查看元素的位置
 -(int)indexOf:(int)element {
     for (int i = 0; i < _size; i++) {
+        //⚠️如果数组元素是对象类型，那么这里如果仍然这么写就是判断两个对象的内存地址是否一样，
+        //一般我们不用 == 来判断对象是否相等，而是在对象类内部重写isEqual方法来做判断，然后这里直接 array[i].isEqual(element)来判断
+        //如果对象没有重写isEqual方法，而这里仍然用array[i].isEqual(element)来判断，默认就是比较两个对象的内存地址是否相等
         if ([_elements[i] intValue] == element) {
             return i;
         }

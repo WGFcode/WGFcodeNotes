@@ -101,7 +101,7 @@ null<--- prev <--- prev <--- prev <--- prev <--- prev <--- prev
 
 
 
-/// 添加元素到最面
+/// 添加元素到最后面
 -(void)add:(int)element {
     [self add:size withElement:element];
 }

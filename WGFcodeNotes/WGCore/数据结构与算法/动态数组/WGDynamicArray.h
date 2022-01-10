@@ -31,7 +31,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// 判断是否包含某个元素
 -(BOOL)contains:(int)element;
 
-/// 添加元素到最面
+/// 添加元素到最后面
 -(void)add:(int)element;
 
 /// 向指定位置添加元素

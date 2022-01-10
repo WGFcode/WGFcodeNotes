@@ -19,14 +19,6 @@
 		30313DC2253829F600941BE5 /* WGTargetProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 30313DC1253829F600941BE5 /* WGTargetProxy.m */; };
 		303D7ABC2539731F00EB6052 /* Xcode错误总结.md in Resources */ = {isa = PBXBuildFile; fileRef = 303D7ABB2539731F00EB6052 /* Xcode错误总结.md */; };
 		304011B026734C0B00845393 /* WGTestKVCEntity.m in Sources */ = {isa = PBXBuildFile; fileRef = 304011AF26734C0B00845393 /* WGTestKVCEntity.m */; };
-		304727AB2750E5EB00BF3AFC /* WGStack.m in Sources */ = {isa = PBXBuildFile; fileRef = 304727AA2750E5EB00BF3AFC /* WGStack.m */; };
-		304727B22750E5FE00BF3AFC /* WGDoubleNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 304727AC2750E5FD00BF3AFC /* WGDoubleNode.m */; };
-		304727B32750E5FE00BF3AFC /* WGDoubleList.m in Sources */ = {isa = PBXBuildFile; fileRef = 304727AD2750E5FE00BF3AFC /* WGDoubleList.m */; };
-		304727B42750E5FE00BF3AFC /* WGDoubleCycleList.m in Sources */ = {isa = PBXBuildFile; fileRef = 304727B12750E5FE00BF3AFC /* WGDoubleCycleList.m */; };
-		304727BB2750E63700BF3AFC /* WGSingleList.m in Sources */ = {isa = PBXBuildFile; fileRef = 304727B62750E63600BF3AFC /* WGSingleList.m */; };
-		304727BC2750E63700BF3AFC /* WGNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 304727B72750E63600BF3AFC /* WGNode.m */; };
-		304727BD2750E63700BF3AFC /* WGSingleCycleList.m in Sources */ = {isa = PBXBuildFile; fileRef = 304727BA2750E63600BF3AFC /* WGSingleCycleList.m */; };
-		304727C02750E64300BF3AFC /* WGDynamicArray.m in Sources */ = {isa = PBXBuildFile; fileRef = 304727BE2750E64200BF3AFC /* WGDynamicArray.m */; };
 		304727C62750E70F00BF3AFC /* WGLeetCode.m in Sources */ = {isa = PBXBuildFile; fileRef = 304727C52750E70F00BF3AFC /* WGLeetCode.m */; };
 		305188F7265661DA00923282 /* 冷知识.md in Resources */ = {isa = PBXBuildFile; fileRef = 305188F6265661DA00923282 /* 冷知识.md */; };
 		3066E0F02435DD48004C71F7 /* GCD.md in Resources */ = {isa = PBXBuildFile; fileRef = 3066E0EF2435DD48004C71F7 /* GCD.md */; };
@@ -43,6 +35,33 @@
 		30AACDD9262D7FC500132AF5 /* Swift对象本质.md in Resources */ = {isa = PBXBuildFile; fileRef = 30AACDD8262D7FC500132AF5 /* Swift对象本质.md */; };
 		30BB26BB244BF62B00255288 /* NSNotification.md in Resources */ = {isa = PBXBuildFile; fileRef = 30BB26BA244BF62B00255288 /* NSNotification.md */; };
 		30C1F2B82431F0C7003B30B3 /* face.md in Resources */ = {isa = PBXBuildFile; fileRef = 30C1F2B72431F0C7003B30B3 /* face.md */; };
+		30D0895B278BCED6003EAFAC /* WGDynamicArray.m in Sources */ = {isa = PBXBuildFile; fileRef = 30D08958278BCED6003EAFAC /* WGDynamicArray.m */; };
+		30D0895C278BCED6003EAFAC /* DynamicArray.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30D08959278BCED6003EAFAC /* DynamicArray.swift */; };
+		30D08964278BCF0A003EAFAC /* WGSingleList.m in Sources */ = {isa = PBXBuildFile; fileRef = 30D0895D278BCF0A003EAFAC /* WGSingleList.m */; };
+		30D08965278BCF0A003EAFAC /* WGSingleCycleList.m in Sources */ = {isa = PBXBuildFile; fileRef = 30D0895E278BCF0A003EAFAC /* WGSingleCycleList.m */; };
+		30D08966278BCF0A003EAFAC /* WGNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 30D08961278BCF0A003EAFAC /* WGNode.m */; };
+		30D08967278BCF0A003EAFAC /* SingleList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30D08962278BCF0A003EAFAC /* SingleList.swift */; };
+		30D0896F278BCF3B003EAFAC /* DoubleList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30D08969278BCF3A003EAFAC /* DoubleList.swift */; };
+		30D08970278BCF3B003EAFAC /* WGDoubleList.m in Sources */ = {isa = PBXBuildFile; fileRef = 30D0896A278BCF3A003EAFAC /* WGDoubleList.m */; };
+		30D08971278BCF3B003EAFAC /* WGDoubleNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 30D0896D278BCF3B003EAFAC /* WGDoubleNode.m */; };
+		30D08972278BCF3B003EAFAC /* WGDoubleCycleList.m in Sources */ = {isa = PBXBuildFile; fileRef = 30D0896E278BCF3B003EAFAC /* WGDoubleCycleList.m */; };
+		30D08976278BCF61003EAFAC /* Stack.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30D08974278BCF61003EAFAC /* Stack.swift */; };
+		30D08977278BCF61003EAFAC /* WGStack.m in Sources */ = {isa = PBXBuildFile; fileRef = 30D08975278BCF61003EAFAC /* WGStack.m */; };
+		30D0897F278BCF83003EAFAC /* WGLeetCodeQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 30D0897B278BCF82003EAFAC /* WGLeetCodeQueue.m */; };
+		30D08980278BCF83003EAFAC /* WGQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 30D0897C278BCF82003EAFAC /* WGQueue.m */; };
+		30D08981278BCF83003EAFAC /* WGDoubleQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 30D0897D278BCF83003EAFAC /* WGDoubleQueue.m */; };
+		30D08982278BCF83003EAFAC /* Queue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30D0897E278BCF83003EAFAC /* Queue.swift */; };
+		30D0898C278BCFD4003EAFAC /* WGBinarySearchTree.m in Sources */ = {isa = PBXBuildFile; fileRef = 30D08983278BCFD3003EAFAC /* WGBinarySearchTree.m */; };
+		30D0898D278BCFD4003EAFAC /* AVLTree.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30D08984278BCFD3003EAFAC /* AVLTree.swift */; };
+		30D0898E278BCFD4003EAFAC /* BinaryTree.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30D08985278BCFD3003EAFAC /* BinaryTree.swift */; };
+		30D0898F278BCFD4003EAFAC /* RedBlackTree.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30D08988278BCFD4003EAFAC /* RedBlackTree.swift */; };
+		30D08990278BCFD4003EAFAC /* BinarySearchTree.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30D08989278BCFD4003EAFAC /* BinarySearchTree.swift */; };
+		30D08991278BCFD4003EAFAC /* WGSearchTreeNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 30D0898B278BCFD4003EAFAC /* WGSearchTreeNode.m */; };
+		30D08994278BD02C003EAFAC /* WGSort.m in Sources */ = {isa = PBXBuildFile; fileRef = 30D08992278BD02B003EAFAC /* WGSort.m */; };
+		30D08998278BD06A003EAFAC /* WGBinaryHeap.m in Sources */ = {isa = PBXBuildFile; fileRef = 30D08997278BD06A003EAFAC /* WGBinaryHeap.m */; };
+		30D0899E278BD09F003EAFAC /* WGPerson.m in Sources */ = {isa = PBXBuildFile; fileRef = 30D0899A278BD09E003EAFAC /* WGPerson.m */; };
+		30D0899F278BD09F003EAFAC /* WGHashTab.m in Sources */ = {isa = PBXBuildFile; fileRef = 30D0899C278BD09F003EAFAC /* WGHashTab.m */; };
+		30D089A3278BD0F5003EAFAC /* LeetCodeInterview.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30D089A2278BD0F5003EAFAC /* LeetCodeInterview.swift */; };
 		30D3DF72245E74790012F803 /* WGTestModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 30D3DF71245E74790012F803 /* WGTestModel.m */; };
 		30D5D08D2627CD1700F5A4EF /* Swift基础语法.md in Resources */ = {isa = PBXBuildFile; fileRef = 30D5D08C2627CD1700F5A4EF /* Swift基础语法.md */; };
 		30DD858B244F00C100897144 /* block.jpeg in Resources */ = {isa = PBXBuildFile; fileRef = 30DD858A244F00C100897144 /* block.jpeg */; };
@@ -105,16 +124,6 @@
 		54E1965E250A7BDC0064027B /* WGRunLoopSecondVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 54E1965D250A7BDC0064027B /* WGRunLoopSecondVC.m */; };
 		54E19661250E750B0064027B /* WGProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 54E19660250E750B0064027B /* WGProxy.m */; };
 		57070507270F36B3002A2ACC /* 斐波那契数.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57070506270F36B3002A2ACC /* 斐波那契数.swift */; };
-		575C5AEA27108020006EBAA2 /* 1.冒泡排序.swift in Sources */ = {isa = PBXBuildFile; fileRef = 575C5AE927108020006EBAA2 /* 1.冒泡排序.swift */; };
-		575C5AEC2710802F006EBAA2 /* 2.选择排序.swift in Sources */ = {isa = PBXBuildFile; fileRef = 575C5AEB2710802F006EBAA2 /* 2.选择排序.swift */; };
-		575C5AEE2710803C006EBAA2 /* 3.插入排序.swift in Sources */ = {isa = PBXBuildFile; fileRef = 575C5AED2710803C006EBAA2 /* 3.插入排序.swift */; };
-		575C5AF02710806A006EBAA2 /* 4.归并排序.swift in Sources */ = {isa = PBXBuildFile; fileRef = 575C5AEF2710806A006EBAA2 /* 4.归并排序.swift */; };
-		575C5AF227108078006EBAA2 /* 5.快速排序.swift in Sources */ = {isa = PBXBuildFile; fileRef = 575C5AF127108078006EBAA2 /* 5.快速排序.swift */; };
-		575C5AF427108087006EBAA2 /* 6.希尔排序.swift in Sources */ = {isa = PBXBuildFile; fileRef = 575C5AF327108087006EBAA2 /* 6.希尔排序.swift */; };
-		575C5AF627108096006EBAA2 /* 7.堆排序.swift in Sources */ = {isa = PBXBuildFile; fileRef = 575C5AF527108096006EBAA2 /* 7.堆排序.swift */; };
-		575C5AF8271080A5006EBAA2 /* 8.基数排序.swift in Sources */ = {isa = PBXBuildFile; fileRef = 575C5AF7271080A5006EBAA2 /* 8.基数排序.swift */; };
-		575C5AFA271080B4006EBAA2 /* 9.桶排序.swift in Sources */ = {isa = PBXBuildFile; fileRef = 575C5AF9271080B4006EBAA2 /* 9.桶排序.swift */; };
-		575C5AFC271080C6006EBAA2 /* 10.计数排序.swift in Sources */ = {isa = PBXBuildFile; fileRef = 575C5AFB271080C6006EBAA2 /* 10.计数排序.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -172,22 +181,6 @@
 		303D7ABB2539731F00EB6052 /* Xcode错误总结.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Xcode错误总结.md"; sourceTree = "<group>"; };
 		304011AE26734C0B00845393 /* WGTestKVCEntity.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WGTestKVCEntity.h; sourceTree = "<group>"; };
 		304011AF26734C0B00845393 /* WGTestKVCEntity.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WGTestKVCEntity.m; sourceTree = "<group>"; };
-		304727A92750E5EB00BF3AFC /* WGStack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WGStack.h; sourceTree = "<group>"; };
-		304727AA2750E5EB00BF3AFC /* WGStack.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WGStack.m; sourceTree = "<group>"; };
-		304727AC2750E5FD00BF3AFC /* WGDoubleNode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WGDoubleNode.m; sourceTree = "<group>"; };
-		304727AD2750E5FE00BF3AFC /* WGDoubleList.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WGDoubleList.m; sourceTree = "<group>"; };
-		304727AE2750E5FE00BF3AFC /* WGDoubleList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WGDoubleList.h; sourceTree = "<group>"; };
-		304727AF2750E5FE00BF3AFC /* WGDoubleNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WGDoubleNode.h; sourceTree = "<group>"; };
-		304727B02750E5FE00BF3AFC /* WGDoubleCycleList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WGDoubleCycleList.h; sourceTree = "<group>"; };
-		304727B12750E5FE00BF3AFC /* WGDoubleCycleList.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WGDoubleCycleList.m; sourceTree = "<group>"; };
-		304727B52750E63600BF3AFC /* WGSingleList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WGSingleList.h; sourceTree = "<group>"; };
-		304727B62750E63600BF3AFC /* WGSingleList.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WGSingleList.m; sourceTree = "<group>"; };
-		304727B72750E63600BF3AFC /* WGNode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WGNode.m; sourceTree = "<group>"; };
-		304727B82750E63600BF3AFC /* WGNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WGNode.h; sourceTree = "<group>"; };
-		304727B92750E63600BF3AFC /* WGSingleCycleList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WGSingleCycleList.h; sourceTree = "<group>"; };
-		304727BA2750E63600BF3AFC /* WGSingleCycleList.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WGSingleCycleList.m; sourceTree = "<group>"; };
-		304727BE2750E64200BF3AFC /* WGDynamicArray.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WGDynamicArray.m; sourceTree = "<group>"; };
-		304727BF2750E64300BF3AFC /* WGDynamicArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WGDynamicArray.h; sourceTree = "<group>"; };
 		304727C42750E70F00BF3AFC /* WGLeetCode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WGLeetCode.h; sourceTree = "<group>"; };
 		304727C52750E70F00BF3AFC /* WGLeetCode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WGLeetCode.m; sourceTree = "<group>"; };
 		305188F6265661DA00923282 /* 冷知识.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = "冷知识.md"; sourceTree = "<group>"; };
@@ -1768,6 +1761,51 @@
 		30BB26BA244BF62B00255288 /* NSNotification.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = NSNotification.md; sourceTree = "<group>"; };
 		30C1F2B72431F0C7003B30B3 /* face.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = face.md; sourceTree = "<group>"; };
 		30C7D40C2439C05000EA99C6 /* NSOperation.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = NSOperation.md; sourceTree = "<group>"; };
+		30D08958278BCED6003EAFAC /* WGDynamicArray.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WGDynamicArray.m; sourceTree = "<group>"; };
+		30D08959278BCED6003EAFAC /* DynamicArray.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DynamicArray.swift; sourceTree = "<group>"; };
+		30D0895A278BCED6003EAFAC /* WGDynamicArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WGDynamicArray.h; sourceTree = "<group>"; };
+		30D0895D278BCF0A003EAFAC /* WGSingleList.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WGSingleList.m; sourceTree = "<group>"; };
+		30D0895E278BCF0A003EAFAC /* WGSingleCycleList.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WGSingleCycleList.m; sourceTree = "<group>"; };
+		30D0895F278BCF0A003EAFAC /* WGSingleCycleList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WGSingleCycleList.h; sourceTree = "<group>"; };
+		30D08960278BCF0A003EAFAC /* WGNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WGNode.h; sourceTree = "<group>"; };
+		30D08961278BCF0A003EAFAC /* WGNode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WGNode.m; sourceTree = "<group>"; };
+		30D08962278BCF0A003EAFAC /* SingleList.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SingleList.swift; sourceTree = "<group>"; };
+		30D08963278BCF0A003EAFAC /* WGSingleList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WGSingleList.h; sourceTree = "<group>"; };
+		30D08968278BCF3A003EAFAC /* WGDoubleCycleList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WGDoubleCycleList.h; sourceTree = "<group>"; };
+		30D08969278BCF3A003EAFAC /* DoubleList.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DoubleList.swift; sourceTree = "<group>"; };
+		30D0896A278BCF3A003EAFAC /* WGDoubleList.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WGDoubleList.m; sourceTree = "<group>"; };
+		30D0896B278BCF3A003EAFAC /* WGDoubleNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WGDoubleNode.h; sourceTree = "<group>"; };
+		30D0896C278BCF3A003EAFAC /* WGDoubleList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WGDoubleList.h; sourceTree = "<group>"; };
+		30D0896D278BCF3B003EAFAC /* WGDoubleNode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WGDoubleNode.m; sourceTree = "<group>"; };
+		30D0896E278BCF3B003EAFAC /* WGDoubleCycleList.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WGDoubleCycleList.m; sourceTree = "<group>"; };
+		30D08973278BCF61003EAFAC /* WGStack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WGStack.h; sourceTree = "<group>"; };
+		30D08974278BCF61003EAFAC /* Stack.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Stack.swift; sourceTree = "<group>"; };
+		30D08975278BCF61003EAFAC /* WGStack.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WGStack.m; sourceTree = "<group>"; };
+		30D08978278BCF82003EAFAC /* WGLeetCodeQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WGLeetCodeQueue.h; sourceTree = "<group>"; };
+		30D08979278BCF82003EAFAC /* WGDoubleQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WGDoubleQueue.h; sourceTree = "<group>"; };
+		30D0897A278BCF82003EAFAC /* WGQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WGQueue.h; sourceTree = "<group>"; };
+		30D0897B278BCF82003EAFAC /* WGLeetCodeQueue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WGLeetCodeQueue.m; sourceTree = "<group>"; };
+		30D0897C278BCF82003EAFAC /* WGQueue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WGQueue.m; sourceTree = "<group>"; };
+		30D0897D278BCF83003EAFAC /* WGDoubleQueue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WGDoubleQueue.m; sourceTree = "<group>"; };
+		30D0897E278BCF83003EAFAC /* Queue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Queue.swift; sourceTree = "<group>"; };
+		30D08983278BCFD3003EAFAC /* WGBinarySearchTree.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WGBinarySearchTree.m; sourceTree = "<group>"; };
+		30D08984278BCFD3003EAFAC /* AVLTree.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AVLTree.swift; sourceTree = "<group>"; };
+		30D08985278BCFD3003EAFAC /* BinaryTree.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BinaryTree.swift; sourceTree = "<group>"; };
+		30D08986278BCFD3003EAFAC /* WGSearchTreeNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WGSearchTreeNode.h; sourceTree = "<group>"; };
+		30D08988278BCFD4003EAFAC /* RedBlackTree.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RedBlackTree.swift; sourceTree = "<group>"; };
+		30D08989278BCFD4003EAFAC /* BinarySearchTree.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BinarySearchTree.swift; sourceTree = "<group>"; };
+		30D0898A278BCFD4003EAFAC /* WGBinarySearchTree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WGBinarySearchTree.h; sourceTree = "<group>"; };
+		30D0898B278BCFD4003EAFAC /* WGSearchTreeNode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WGSearchTreeNode.m; sourceTree = "<group>"; };
+		30D08992278BD02B003EAFAC /* WGSort.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WGSort.m; sourceTree = "<group>"; };
+		30D08993278BD02C003EAFAC /* WGSort.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WGSort.h; sourceTree = "<group>"; };
+		30D08996278BD06A003EAFAC /* WGBinaryHeap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WGBinaryHeap.h; sourceTree = "<group>"; };
+		30D08997278BD06A003EAFAC /* WGBinaryHeap.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WGBinaryHeap.m; sourceTree = "<group>"; };
+		30D0899A278BD09E003EAFAC /* WGPerson.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WGPerson.m; sourceTree = "<group>"; };
+		30D0899B278BD09E003EAFAC /* WGHashTab.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WGHashTab.h; sourceTree = "<group>"; };
+		30D0899C278BD09F003EAFAC /* WGHashTab.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WGHashTab.m; sourceTree = "<group>"; };
+		30D0899D278BD09F003EAFAC /* WGPerson.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WGPerson.h; sourceTree = "<group>"; };
+		30D089A1278BD0F5003EAFAC /* DataStructureConclusion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DataStructureConclusion.h; sourceTree = "<group>"; };
+		30D089A2278BD0F5003EAFAC /* LeetCodeInterview.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LeetCodeInterview.swift; sourceTree = "<group>"; };
 		30D3DF70245E74790012F803 /* WGTestModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WGTestModel.h; sourceTree = "<group>"; };
 		30D3DF71245E74790012F803 /* WGTestModel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WGTestModel.m; sourceTree = "<group>"; };
 		30D5D08C2627CD1700F5A4EF /* Swift基础语法.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Swift基础语法.md"; sourceTree = "<group>"; };
@@ -2137,16 +2175,6 @@
 		54E1965F250E750B0064027B /* WGProxy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WGProxy.h; sourceTree = "<group>"; };
 		54E19660250E750B0064027B /* WGProxy.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WGProxy.m; sourceTree = "<group>"; };
 		57070506270F36B3002A2ACC /* 斐波那契数.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "斐波那契数.swift"; sourceTree = "<group>"; };
-		575C5AE927108020006EBAA2 /* 1.冒泡排序.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "1.冒泡排序.swift"; sourceTree = "<group>"; };
-		575C5AEB2710802F006EBAA2 /* 2.选择排序.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "2.选择排序.swift"; sourceTree = "<group>"; };
-		575C5AED2710803C006EBAA2 /* 3.插入排序.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "3.插入排序.swift"; sourceTree = "<group>"; };
-		575C5AEF2710806A006EBAA2 /* 4.归并排序.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "4.归并排序.swift"; sourceTree = "<group>"; };
-		575C5AF127108078006EBAA2 /* 5.快速排序.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "5.快速排序.swift"; sourceTree = "<group>"; };
-		575C5AF327108087006EBAA2 /* 6.希尔排序.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "6.希尔排序.swift"; sourceTree = "<group>"; };
-		575C5AF527108096006EBAA2 /* 7.堆排序.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "7.堆排序.swift"; sourceTree = "<group>"; };
-		575C5AF7271080A5006EBAA2 /* 8.基数排序.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "8.基数排序.swift"; sourceTree = "<group>"; };
-		575C5AF9271080B4006EBAA2 /* 9.桶排序.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "9.桶排序.swift"; sourceTree = "<group>"; };
-		575C5AFB271080C6006EBAA2 /* 10.计数排序.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "10.计数排序.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -2177,14 +2205,7 @@
 		3015810A2455778B00EC6001 /* WGCore */ = {
 			isa = PBXGroup;
 			children = (
-				304727C32750E6CA00BF3AFC /* LeetCode */,
-				304727C12750E67800BF3AFC /* 二叉树 */,
-				304727A82750E5CE00BF3AFC /* 队列 */,
-				304727A72750E5B800BF3AFC /* 栈 */,
-				304727A62750E54B00BF3AFC /* 双向链表 */,
-				304727A52750E53B00BF3AFC /* 单向链表 */,
-				304727A42750E53100BF3AFC /* 动态数组 */,
-				57070505270F368D002A2ACC /* 数据结构与算法 */,
+				30D089A0278BD0D8003EAFAC /* 数据结构与算法 */,
 				30E9227026EB3672008D151A /* WGSwiftMethodDispatchSIL.sil */,
 				30FCCF82256F8D9100AEC012 /* MJMemoryTool */,
 				3015810B245577A600EC6001 /* WGMonitorManage.h */,
@@ -2211,8 +2232,9 @@
 		304727A42750E53100BF3AFC /* 动态数组 */ = {
 			isa = PBXGroup;
 			children = (
-				304727BF2750E64300BF3AFC /* WGDynamicArray.h */,
-				304727BE2750E64200BF3AFC /* WGDynamicArray.m */,
+				30D0895A278BCED6003EAFAC /* WGDynamicArray.h */,
+				30D08958278BCED6003EAFAC /* WGDynamicArray.m */,
+				30D08959278BCED6003EAFAC /* DynamicArray.swift */,
 			);
 			path = "动态数组";
 			sourceTree = "<group>";
@@ -2220,12 +2242,13 @@
 		304727A52750E53B00BF3AFC /* 单向链表 */ = {
 			isa = PBXGroup;
 			children = (
-				304727B82750E63600BF3AFC /* WGNode.h */,
-				304727B72750E63600BF3AFC /* WGNode.m */,
-				304727B92750E63600BF3AFC /* WGSingleCycleList.h */,
-				304727BA2750E63600BF3AFC /* WGSingleCycleList.m */,
-				304727B52750E63600BF3AFC /* WGSingleList.h */,
-				304727B62750E63600BF3AFC /* WGSingleList.m */,
+				30D08962278BCF0A003EAFAC /* SingleList.swift */,
+				30D08960278BCF0A003EAFAC /* WGNode.h */,
+				30D08961278BCF0A003EAFAC /* WGNode.m */,
+				30D0895F278BCF0A003EAFAC /* WGSingleCycleList.h */,
+				30D0895E278BCF0A003EAFAC /* WGSingleCycleList.m */,
+				30D08963278BCF0A003EAFAC /* WGSingleList.h */,
+				30D0895D278BCF0A003EAFAC /* WGSingleList.m */,
 			);
 			path = "单向链表";
 			sourceTree = "<group>";
@@ -2233,12 +2256,13 @@
 		304727A62750E54B00BF3AFC /* 双向链表 */ = {
 			isa = PBXGroup;
 			children = (
-				304727B02750E5FE00BF3AFC /* WGDoubleCycleList.h */,
-				304727B12750E5FE00BF3AFC /* WGDoubleCycleList.m */,
-				304727AE2750E5FE00BF3AFC /* WGDoubleList.h */,
-				304727AD2750E5FE00BF3AFC /* WGDoubleList.m */,
-				304727AF2750E5FE00BF3AFC /* WGDoubleNode.h */,
-				304727AC2750E5FD00BF3AFC /* WGDoubleNode.m */,
+				30D08969278BCF3A003EAFAC /* DoubleList.swift */,
+				30D08968278BCF3A003EAFAC /* WGDoubleCycleList.h */,
+				30D0896E278BCF3B003EAFAC /* WGDoubleCycleList.m */,
+				30D0896C278BCF3A003EAFAC /* WGDoubleList.h */,
+				30D0896A278BCF3A003EAFAC /* WGDoubleList.m */,
+				30D0896B278BCF3A003EAFAC /* WGDoubleNode.h */,
+				30D0896D278BCF3B003EAFAC /* WGDoubleNode.m */,
 			);
 			path = "双向链表";
 			sourceTree = "<group>";
@@ -2246,8 +2270,9 @@
 		304727A72750E5B800BF3AFC /* 栈 */ = {
 			isa = PBXGroup;
 			children = (
-				304727A92750E5EB00BF3AFC /* WGStack.h */,
-				304727AA2750E5EB00BF3AFC /* WGStack.m */,
+				30D08974278BCF61003EAFAC /* Stack.swift */,
+				30D08973278BCF61003EAFAC /* WGStack.h */,
+				30D08975278BCF61003EAFAC /* WGStack.m */,
 			);
 			path = "栈";
 			sourceTree = "<group>";
@@ -2255,6 +2280,13 @@
 		304727A82750E5CE00BF3AFC /* 队列 */ = {
 			isa = PBXGroup;
 			children = (
+				30D0897E278BCF83003EAFAC /* Queue.swift */,
+				30D08979278BCF82003EAFAC /* WGDoubleQueue.h */,
+				30D0897D278BCF83003EAFAC /* WGDoubleQueue.m */,
+				30D08978278BCF82003EAFAC /* WGLeetCodeQueue.h */,
+				30D0897B278BCF82003EAFAC /* WGLeetCodeQueue.m */,
+				30D0897A278BCF82003EAFAC /* WGQueue.h */,
+				30D0897C278BCF82003EAFAC /* WGQueue.m */,
 			);
 			path = "队列";
 			sourceTree = "<group>";
@@ -2262,6 +2294,14 @@
 		304727C12750E67800BF3AFC /* 二叉树 */ = {
 			isa = PBXGroup;
 			children = (
+				30D08984278BCFD3003EAFAC /* AVLTree.swift */,
+				30D08989278BCFD4003EAFAC /* BinarySearchTree.swift */,
+				30D08985278BCFD3003EAFAC /* BinaryTree.swift */,
+				30D08988278BCFD4003EAFAC /* RedBlackTree.swift */,
+				30D0898A278BCFD4003EAFAC /* WGBinarySearchTree.h */,
+				30D08983278BCFD3003EAFAC /* WGBinarySearchTree.m */,
+				30D08986278BCFD3003EAFAC /* WGSearchTreeNode.h */,
+				30D0898B278BCFD4003EAFAC /* WGSearchTreeNode.m */,
 			);
 			path = "二叉树";
 			sourceTree = "<group>";
@@ -4449,6 +4489,45 @@
 			path = WGScreenshots;
 			sourceTree = "<group>";
 		};
+		30D08995278BD04E003EAFAC /* 堆 */ = {
+			isa = PBXGroup;
+			children = (
+				30D08996278BD06A003EAFAC /* WGBinaryHeap.h */,
+				30D08997278BD06A003EAFAC /* WGBinaryHeap.m */,
+			);
+			path = "堆";
+			sourceTree = "<group>";
+		};
+		30D08999278BD07C003EAFAC /* 哈希表 */ = {
+			isa = PBXGroup;
+			children = (
+				30D0899B278BD09E003EAFAC /* WGHashTab.h */,
+				30D0899C278BD09F003EAFAC /* WGHashTab.m */,
+				30D0899D278BD09F003EAFAC /* WGPerson.h */,
+				30D0899A278BD09E003EAFAC /* WGPerson.m */,
+			);
+			path = "哈希表";
+			sourceTree = "<group>";
+		};
+		30D089A0278BD0D8003EAFAC /* 数据结构与算法 */ = {
+			isa = PBXGroup;
+			children = (
+				30D089A1278BD0F5003EAFAC /* DataStructureConclusion.h */,
+				30D089A2278BD0F5003EAFAC /* LeetCodeInterview.swift */,
+				30D08999278BD07C003EAFAC /* 哈希表 */,
+				30D08995278BD04E003EAFAC /* 堆 */,
+				304727C32750E6CA00BF3AFC /* LeetCode */,
+				304727C12750E67800BF3AFC /* 二叉树 */,
+				304727A82750E5CE00BF3AFC /* 队列 */,
+				304727A72750E5B800BF3AFC /* 栈 */,
+				304727A62750E54B00BF3AFC /* 双向链表 */,
+				304727A52750E53B00BF3AFC /* 单向链表 */,
+				304727A42750E53100BF3AFC /* 动态数组 */,
+				57070505270F368D002A2ACC /* 排序 */,
+			);
+			path = "数据结构与算法";
+			sourceTree = "<group>";
+		};
 		30D566A3253C6DFF007B45F1 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -4978,22 +5057,14 @@
 			path = WGReadMe;
 			sourceTree = "<group>";
 		};
-		57070505270F368D002A2ACC /* 数据结构与算法 */ = {
+		57070505270F368D002A2ACC /* 排序 */ = {
 			isa = PBXGroup;
 			children = (
+				30D08993278BD02C003EAFAC /* WGSort.h */,
+				30D08992278BD02B003EAFAC /* WGSort.m */,
 				57070506270F36B3002A2ACC /* 斐波那契数.swift */,
-				575C5AE927108020006EBAA2 /* 1.冒泡排序.swift */,
-				575C5AEB2710802F006EBAA2 /* 2.选择排序.swift */,
-				575C5AED2710803C006EBAA2 /* 3.插入排序.swift */,
-				575C5AEF2710806A006EBAA2 /* 4.归并排序.swift */,
-				575C5AF127108078006EBAA2 /* 5.快速排序.swift */,
-				575C5AF327108087006EBAA2 /* 6.希尔排序.swift */,
-				575C5AF527108096006EBAA2 /* 7.堆排序.swift */,
-				575C5AF7271080A5006EBAA2 /* 8.基数排序.swift */,
-				575C5AF9271080B4006EBAA2 /* 9.桶排序.swift */,
-				575C5AFB271080C6006EBAA2 /* 10.计数排序.swift */,
 			);
-			path = "数据结构与算法";
+			path = "排序";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -5198,54 +5269,63 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				30D08971278BCF3B003EAFAC /* WGDoubleNode.m in Sources */,
+				30D0895C278BCED6003EAFAC /* DynamicArray.swift in Sources */,
+				30D08964278BCF0A003EAFAC /* WGSingleList.m in Sources */,
 				57070507270F36B3002A2ACC /* 斐波那契数.swift in Sources */,
 				30313DC2253829F600941BE5 /* WGTargetProxy.m in Sources */,
 				548AC957242F4B3100EEE11C /* ViewController.swift in Sources */,
-				304727C02750E64300BF3AFC /* WGDynamicArray.m in Sources */,
 				54E19661250E750B0064027B /* WGProxy.m in Sources */,
-				575C5AFA271080B4006EBAA2 /* 9.桶排序.swift in Sources */,
+				30D08980278BCF83003EAFAC /* WGQueue.m in Sources */,
+				30D08972278BCF3B003EAFAC /* WGDoubleCycleList.m in Sources */,
+				30D08981278BCF83003EAFAC /* WGDoubleQueue.m in Sources */,
 				542CD1E326075822006A6D1D /* NSMutableArray+WGHookMutableArray.m in Sources */,
-				304727B32750E5FE00BF3AFC /* WGDoubleList.m in Sources */,
-				575C5AF227108078006EBAA2 /* 5.快速排序.swift in Sources */,
-				575C5AF02710806A006EBAA2 /* 4.归并排序.swift in Sources */,
-				304727BB2750E63700BF3AFC /* WGSingleList.m in Sources */,
-				304727BD2750E63700BF3AFC /* WGSingleCycleList.m in Sources */,
+				30D08965278BCF0A003EAFAC /* WGSingleCycleList.m in Sources */,
+				30D08966278BCF0A003EAFAC /* WGNode.m in Sources */,
 				542D3D8F251A48CC00394130 /* Student.m in Sources */,
-				304727B42750E5FE00BF3AFC /* WGDoubleCycleList.m in Sources */,
+				30D08982278BCF83003EAFAC /* Queue.swift in Sources */,
+				30D0895B278BCED6003EAFAC /* WGDynamicArray.m in Sources */,
+				30D08977278BCF61003EAFAC /* WGStack.m in Sources */,
 				30160A2924A75A970074FB82 /* BinaryTree.m in Sources */,
+				30D08998278BD06A003EAFAC /* WGBinaryHeap.m in Sources */,
 				54E1965B250A70A90064027B /* WGThread.m in Sources */,
-				575C5AF627108096006EBAA2 /* 7.堆排序.swift in Sources */,
+				30D0898E278BCFD4003EAFAC /* BinaryTree.swift in Sources */,
 				54E19658250909050064027B /* WGRunLoopVC.m in Sources */,
 				30E9226F26EB331F008D151A /* WGSwiftMethodDispatch.swift in Sources */,
 				548F332B24F2B87300AB3540 /* Person.m in Sources */,
+				30D08994278BD02C003EAFAC /* WGSort.m in Sources */,
 				304727C62750E70F00BF3AFC /* WGLeetCode.m in Sources */,
-				304727B22750E5FE00BF3AFC /* WGDoubleNode.m in Sources */,
 				548AC983242F4C7100EEE11C /* WGMainVC.swift in Sources */,
+				30D0898F278BCFD4003EAFAC /* RedBlackTree.swift in Sources */,
+				30D08967278BCF0A003EAFAC /* SingleList.swift in Sources */,
 				304011B026734C0B00845393 /* WGTestKVCEntity.m in Sources */,
 				30FD75F824357E3800431678 /* WGMainObjcVC.m in Sources */,
 				54E1965E250A7BDC0064027B /* WGRunLoopSecondVC.m in Sources */,
+				30D08976278BCF61003EAFAC /* Stack.swift in Sources */,
 				30FCCF84256F8DB000AEC012 /* Mems.swift in Sources */,
 				3015810D245577A600EC6001 /* WGMonitorManage.m in Sources */,
-				304727BC2750E63700BF3AFC /* WGNode.m in Sources */,
-				575C5AEC2710802F006EBAA2 /* 2.选择排序.swift in Sources */,
-				575C5AF427108087006EBAA2 /* 6.希尔排序.swift in Sources */,
+				30D08970278BCF3B003EAFAC /* WGDoubleList.m in Sources */,
+				30D0898C278BCFD4003EAFAC /* WGBinarySearchTree.m in Sources */,
+				30D0898D278BCFD4003EAFAC /* AVLTree.swift in Sources */,
 				542CD1E626075AE2006A6D1D /* NSMutableDictionary+WGHookMutableDictionary.m in Sources */,
 				542CD1E0260751E4006A6D1D /* UIControl+WGHookMethod.m in Sources */,
 				543FF0B225CEDFA2006B72E6 /* WGPermanentThreadOC.m in Sources */,
+				30D0899E278BD09F003EAFAC /* WGPerson.m in Sources */,
 				30975813260C27D100709A73 /* Person+PersonTest.m in Sources */,
 				30975816260C2DF800709A73 /* Person+PersonAAAAA.m in Sources */,
-				304727AB2750E5EB00BF3AFC /* WGStack.m in Sources */,
 				542D3D92251A48F500394130 /* Student+StudentCategory.m in Sources */,
 				544008892606DB1F00233364 /* Car.m in Sources */,
+				30D089A3278BD0F5003EAFAC /* LeetCodeInterview.swift in Sources */,
 				543FF0B525CEEBFD006B72E6 /* WGPermanentThreadC.m in Sources */,
-				575C5AEA27108020006EBAA2 /* 1.冒泡排序.swift in Sources */,
+				30D0897F278BCF83003EAFAC /* WGLeetCodeQueue.m in Sources */,
 				301CF1BC2452BE310024EC69 /* WGFirstVC.m in Sources */,
 				5438813425445D6F00F5E4D1 /* WGGCDTimer.m in Sources */,
-				575C5AF8271080A5006EBAA2 /* 8.基数排序.swift in Sources */,
+				30D08991278BCFD4003EAFAC /* WGSearchTreeNode.m in Sources */,
 				548AC953242F4B3100EEE11C /* AppDelegate.swift in Sources */,
-				575C5AFC271080C6006EBAA2 /* 10.计数排序.swift in Sources */,
+				30D0896F278BCF3B003EAFAC /* DoubleList.swift in Sources */,
+				30D0899F278BD09F003EAFAC /* WGHashTab.m in Sources */,
 				548AC955242F4B3100EEE11C /* SceneDelegate.swift in Sources */,
-				575C5AEE2710803C006EBAA2 /* 3.插入排序.swift in Sources */,
+				30D08990278BCFD4003EAFAC /* BinarySearchTree.swift in Sources */,
 				30D3DF72245E74790012F803 /* WGTestModel.m in Sources */,
 				542CD1DB26074284006A6D1D /* NSObject+WGJson.m in Sources */,
 			);

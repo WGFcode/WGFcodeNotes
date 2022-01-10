@@ -101,3 +101,12 @@ build Settings ->Excluded Architecture->debug 和 release ->Any ios simulator SD
 
 9. 运行项目，报警告⚠️: ld: warning: object file (/Users/baicai/Desktop/WLKProject/NXYJHXEProject/NXYXE/WGLib/JYSDK/EAccountHYSDK.framework/EAccountHYSDK(EAccountHYUiEventHandler.o)) was built for newer iOS version (10.0) than being linked (9.0)
 #### 解决方法： Build Settings -> Other Linker Flags 添加-w即可消除警告
+
+10. 添加第三方库XWPushSDK.framework，默认的会在Build Phases -> Link Binary with Libraries中显示该framework，一切都很正常，但是运行项目报错
+ld: framework not found XWPushSDK
+#### 解决方法：首先通过lipo -info xxx/xxx/XWPushSDK.framework/XWPushSDK查看该framework支持的架构(模拟器还是真机)；再通过file xxx/xxx/XWPushSDK.framework/XWPushSDK 查看该framework是动态库还是静态库，静态库动态库区别如下
+    动态库: ....Mach-O 64-bit dynamically linked shared....  
+    静态库: ....current ar archive random library....
+结果发现XWPushSDK.framework是动态库，所以会出现错误，添加动态库的方法不是添加到Link Binary with Libraries，而是在General -> Frameworks, Libraries,and Embedded Content,直接将动态库拖到这里面即可，这时工程目录下的Frameworks会出现该库，并且在Link Binary with Libraries下也有该库
+11. 运行项目报错：xxx has conflicting provisioning settings，问题分析：勾选了Automatically manage signing，xcode会自动管理描述文件和证书等，但是由于项目原来的描述文件被设置为其他的值，所有会出现这个报错，提示描述文件冲突！解决方案：选择xxx.xcodeproj，显示包内容，找到project.pbxproj，打开，全局搜索被设定的描述文件，把指定行全部删除保存（可提前备份以备不时之需），重启xcode就好了为了安全，可以先把指定行备份！
+
