@@ -263,7 +263,11 @@
         正常运行并打印
         str1: ----__NSCFString str2:---- NSTaggedPointerString
         
-#### 分析: 因为字符串值是abc, 直接是用Tagged Pointer技术存储的,所以它不是OC对象,不会去调用属性name的setter方法
+#### 分析: 因为字符串值是abc, 直接是用Tagged Pointer技术存储的,所以它不是OC对象,不会去调用属性name的setter方法；
+#### 针对NSString,有以下三种类型
+1. __NSCFString: 对象类型，存储在堆中
+2. __NSCFConstantString: 常量字符串，存储在数据区
+3. NSTaggedPointerString: 内容被直接存储在指针中，可以当作一种伪对象：stringWithFormat方式创建的字符串(数字，英文字母)长度小于等于9，又被优化成TaggedPointer，若大于9个字符，则会成为对象类型，存储在堆中
         
 #### 2.3 Tagged Pointer源码分析
 

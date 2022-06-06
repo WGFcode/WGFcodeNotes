@@ -21,8 +21,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             
             self.window = UIWindow(frame: UIScreen.main.bounds)
 //            self.window?.rootViewController = WGMainVC()
-            self.window?.rootViewController = UINavigationController.init(rootViewController: WGDataTestVC())
-            //self.window?.rootViewController = WGMainObjcVC()
+//            self.window?.rootViewController = UINavigationController.init(rootViewController: WGDataTestVC())
+            self.window?.rootViewController = WGMainObjcVC()
 //            self.window?.rootViewController = UINavigationController.init(rootViewController: WGFirstVC())
 //            self.window?.rootViewController = UINavigationController.init(rootViewController: ViewController())
 //            self.window?.rootViewController = UINavigationController(rootViewController: WGRunLoopSecondVC())

@@ -9,7 +9,9 @@
  226. 翻转二叉树 保证所有节点的左右子树交换位置
  */
 import Foundation
+import CoreVideo
 
+//树
 public class TreeNode {
      public var val: Int
      public var left: TreeNode?
@@ -30,6 +32,23 @@ public class TreeNode {
          self.right = right
      }
  }
+//链表
+public class ListNode {
+    public var val: Int
+    public var next: ListNode?
+    public init() {
+        self.val = 0;
+        self.next = nil;
+    }
+    public init(_ val: Int) {
+        self.val = val;
+        self.next = nil;
+    }
+    public init(_ val: Int, _ next: ListNode?) {
+        self.val = val;
+        self.next = next;
+    }
+}
 
 
 
@@ -577,13 +596,13 @@ class Solution {
             }
         }
     }
+    //1.冒泡排序-优化版
     func merge1(_ nums1: inout [Int], _ m: Int, _ nums2: [Int], _ n: Int) {
         //合并数组
         for i in 0..<n {
             nums1[m+i] = nums2[i]
         }
         let count = m + m
-        //1.冒泡排序-优化版
         for end in (0..<count).reversed() {
             //默认已经排好序了
             var hasSort = true
@@ -603,5 +622,303 @@ class Solution {
             }
         }
     }
+    //2.冒泡排序-优化版 如果数据序列尾部已经局部有序，可以记录最后一次交换的位置，来减少比较次数
+    func merge2(_ nums1: inout [Int], _ m: Int, _ nums2: [Int], _ n: Int) {
+        //合并数组
+        for i in 0..<n {
+            nums1[m+i] = nums2[i]
+        }
+        let count = m + m
+        for var end in (0..<count).reversed() {
+            var sortIndex = 1
+            //第一轮循环可以找到最大的值
+            for i in 0..<end {
+                if nums1[i] > nums1[i+1] {
+                    //交换位置
+                    let temp = nums1[i]
+                    nums1[i] = nums1[i+1]
+                    nums1[i+1] = temp
+                    //一旦发生位置交换就保存下下标位置
+                    sortIndex = i
+                }
+            }
+            //下次循环从开头位置到sortIndex位置进行循环就行，sortIndex位置后的数据已经排好序了
+            end = sortIndex
+        }
+    }
+    //3. 选择排序 从序列中找出最大的那个元素，然后与最末尾的元素交换位置，执行完第一轮后，最末尾的元素就是最大的元素,然后重复执行
+    func merge3(_ nums1: inout [Int], _ m: Int, _ nums2: [Int], _ n: Int) {
+        for i in 0..<n {
+            nums1[m+i] = nums2[i]
+        }
+        let count = m + n
+        for end in (1..<count).reversed() {
+            //找到最大的值,和最后一位进行交换
+            var maxIndex = 0
+            for i in 1...end {
+                if nums1[maxIndex] < nums1[i] {
+                    maxIndex = i
+                }
+            }
+            let temp = nums1[end]
+            nums1[end] = nums1[maxIndex]
+            nums1[maxIndex] = temp
+        }
+    }
+    //4. 插入排序  插入排序会将序列分为两部分: 头部是已经排好序的，尾部是待排序的
+    //从头开始扫描每一个元素，每当扫描到一个元素，就将它插入到头部合适的位置，使得头部数据依然保持有序
+    func merge4(_ nums1: inout [Int], _ m: Int, _ nums2: [Int], _ n: Int) {
+        for i in 0..<n {
+            nums1[m+i] = nums2[i]
+        }
+        let count = m + n
+        //这里默认nums[0]是已经排序序的序列
+        for i in 1..<count {
+            //已经排好序的序列的结束下标
+            var cur = i
+            while cur > 0 && (nums1[cur-1] > nums1[cur]) {
+                //左边比右边的元素大，交换元素位置
+                let temp = nums1[cur-1]
+                nums1[cur-1] = nums1[cur]
+                nums1[cur] = temp
+                cur = cur - 1
+            }
+        }
+    }
+    
+    // 插入排序-优化版（交换元素->移动元素）
+    func merge5(_ nums1: inout [Int], _ m: Int, _ nums2: [Int], _ n: Int) {
+        //合并数组
+        for i in 0..<n {
+            nums1[m+i] = nums2[i]
+        }
+        let count = m + n
+        //这里默认nums[0]是已经排序序的序列
+        for i in 1..<count {
+            //已经排好序的序列的结束下标
+            var cur = i
+            //先备份待插入的元素
+            let waitInsert = nums1[cur]
+            //如果待插入的元素比前面元素小，那么就让前面元素向后移动一位
+            while cur > 0 && (nums1[cur-1] > waitInsert) {
+                nums1[cur] = nums1[cur-1]
+                cur = cur - 1
+            }
+            nums1[cur] = waitInsert
+        }
+    }
+    
+    /* 快速排序-1.从序列中选择一个轴点（假设0位置作为轴点）2.利用轴点将序列分成2部分(小于在左边大于在右边等于在那边都可以)，对12步继续进行操作，直到不能再次分割位置
+    快速排序的本质就是：逐渐将每个元素都转为轴点元素
+     */
+    func merge6(_ nums1: inout [Int], _ m: Int, _ nums2: [Int], _ n: Int) {
+        //合并数组
+        for i in 0..<n {
+            nums1[m+i] = nums2[i]
+        }
+        let count = m + n
+        quickSort(&nums1, begin: 0, end: count)
+    }
+    private func quickSort(_ arr: inout [Int], begin: Int, end: Int) {
+        if (end - begin < 2) { //(end-begin=元素的个数)
+            return;
+        }
+        let mid = getZhouPointIndex(&arr, begin: begin, end: end)
+        //对子序列进行快速排序
+        quickSort(&arr, begin: begin, end: mid)
+        quickSort(&arr, begin: mid+1, end: end)
+    }
+    // 获取[begin, end)轴点元素
+    private func getZhouPointIndex(_ arr: inout [Int],begin: Int, end: Int) -> Int {
+        //轴点元素值
+        let pointElement = arr[begin]
+        var starIndex = begin
+        //endIndex指向最后一个元素的下标
+        var endIndex = end - 1
+        
+        while starIndex < endIndex {
+            //从右开始和轴点元素进行比较
+            while starIndex < endIndex {
+                //右边元素 > 轴点元素, 将元素放在轴点的右边，刚好就在右边，所以不用动，继续下一个元素对比
+                if pointElement < arr[endIndex] {
+                    endIndex = endIndex - 1
+                }else { //右边元素 <= 轴点元素,让右边元素占居当前轴点位置的元素,之前轴点位置元素是被覆盖了，
+                    //但是我们已经备份过了pivotElement，所以不用担心，此时end位置应该已经空置出来了，然后让begin++
+                    //然后结束此次循环，开始从左边元素开始和轴点元素进行对比
+                    arr[starIndex] = arr[endIndex]
+                    starIndex = starIndex + 1
+                    break
+                }
+            }
+            //从左开始和轴点元素对比
+            while starIndex < endIndex {
+                //左边元素 < 轴点元素，则该元素位置不需要改动，将start向前移动继续进行比较
+                if pointElement > arr[starIndex]  {
+                    starIndex = starIndex + 1
+                }else { // 左边元素 >= 轴点元素,则将该元素放到最右边(endIndex)位置,然后将end向前一位
+                    //结束循环，让序列开始从右边开始和轴点元素对比
+                    arr[endIndex] = arr[starIndex]
+                    endIndex = endIndex - 1
+                    break
+                }
+            }
+        }
+        //循环结束后，starIndex = endIndex,此时starIndex(endIndex)就是轴点元素的位置
+        //将轴点元素放入轴点位置
+        arr[starIndex] = pointElement
+        return starIndex
+    }
+    
+    /*
+     98. 验证二叉搜索树
+     https://leetcode-cn.com/problems/validate-binary-search-tree/
+     有效 二叉搜索树定义如下：
+         节点的左子树只包含 小于 当前节点的数。
+         节点的右子树只包含 大于 当前节点的数。
+         所有左子树和右子树自身必须也是二叉搜索树。
+            5
+        1       4
+              3   6
+     */   //[5,1,4,null,null,3,6]
+    //方案一：二叉搜索树中序遍历是有序数组，若有序则表示是二叉搜索树 左根右
+    //思路: 从根节点一路向左，将节点入栈，找到最左的节点，然后弹出栈顶元素进行访问，然后让右子节点重新循环上面的步骤
+    func isValidBST(_ root: TreeNode?) -> Bool {
+        if root == nil {
+            return true
+        }
+        //中序遍历 将根节点入栈
+        var arr = [Int]()
+        //模拟栈
+        var stack = [TreeNode]()
+        var node: TreeNode? = root
+        while true {
+            if node != nil {
+                //将根节点入栈
+                stack.append(node!)
+                //一路向左
+                node = node!.left
+            }else {
+                if !stack.isEmpty {
+                    //弹出栈顶元素访问
+                    node = stack.popLast()
+                    arr.append(node!.val)
+                    //处理右子节点
+                    node = node!.right
+                }else {
+                    break
+                }
+            }
+        }
+        //对arr进行判断是否是完全递增的顺序
+        for i in 1..<arr.count {
+            
+            if arr[i] <= arr[i-1] {
+                return false
+            }
+        }
+        return true
+    }
+    //方案二： 递归
+    func isValidBST1(_ root: TreeNode?) -> Bool {
+        return isValidBSTRecursive(root, leftMin: Int.min, rightMax: Int.max)
+    }
+    private func isValidBSTRecursive(_ node: TreeNode?, leftMin: Int, rightMax: Int) -> Bool {
+        guard let baseNode = node else {
+            return true
+        }
+        //左节点 < 根节点的值  右节点 > 根节点的值
+        guard leftMin < baseNode.val  && rightMax > baseNode.val else {
+            return false
+        }
+        //判断左子树是否是完全二叉树： 根节点: baseNode.left  最小值:Int.min 最大值肯定要小于上一个根节点：baseNode.val
+        let leftValidBST = isValidBSTRecursive(baseNode.left, leftMin: leftMin, rightMax: baseNode.val)
+        //判断右子树是否是完全二叉树： 根节点: baseNode.right  最小值肯定要大于上个根节点的值:baseNode.val   最大值:Int.max
+        let rightValidBST = isValidBSTRecursive(baseNode.right, leftMin: baseNode.val, rightMax: rightMax)
+        return leftValidBST && rightValidBST
+    }
+    
+    /*
+     876. 链表的中间结点
+     https://leetcode-cn.com/problems/middle-of-the-linked-list/
+     给定一个头结点为 head 的非空单链表，返回链表的中间结点。
+     如果有两个中间结点，则返回第二个中间结点。
+     给定链表的结点数介于 1 和 100 之间
+     */
+    func middleNode(_ head: ListNode?) -> ListNode? {
+        if head == nil || head?.next == nil {
+            return head
+        }
+        //遍历链表找到结点数量count
+        var baseHead = head
+        var count = 0
+        var arr = [ListNode]()
+        while baseHead != nil {
+            arr.append(baseHead!)
+            baseHead = baseHead!.next
+            count = count + 1
+        }
+        //取中间节点的下标，遍历找到中间节点
+        let endIndex = count % 2 == 0 ? count / 2 : count / 2
+        return arr[endIndex]
+    }
+    //方案二
+    func middleNode1(_ head: ListNode?) -> ListNode? {
+        if head == nil || head?.next == nil {
+            return head
+        }
+        var arr = [ListNode]()
+        var baseHead = head
+        while baseHead != nil {
+            arr.append(baseHead!)
+            baseHead = baseHead!.next
+        }
+        return arr[arr.count / 2]
+    }
+    //方案三: 快慢指针 用两个指针 slow 与 fast 一起遍历链表。
+    //slow 一次走一步，fast 一次走两步。那么当 fast 到达链表的末尾时，slow 必然位于中间。
+    func middleNode2(_ head: ListNode?) -> ListNode? {
+        if head == nil || head?.next == nil {
+            return head
+        }
+        var slow = head
+        var fast = head
+        
+        while fast != nil && fast?.next != nil {
+            slow = slow?.next
+            fast = fast?.next?.next
+        }
+        return slow
+    }
+    
+    
+    /*
+     02.01. 移除重复节点 编写代码，移除未排序链表中的重复节点。保留最开始出现的节点。
+     https://leetcode-cn.com/problems/remove-duplicate-node-lcci/
+     链表长度在[0, 20000]范围内。
+     链表元素在[0, 20000]范围内。
+     [1,1,2]
+    */
+    func removeDuplicateNodes(_ head: ListNode?) -> ListNode? {
+        if head == nil || head?.next == nil {
+            return head
+        }
+        //将头节点插入到set集合中
+        var set:Set<Int> = []
+        var baseNode = head
+        set.insert(baseNode!.val)
+        //遍历链表
+        while baseNode?.next != nil {
+            //若集合中包含该元素，则删除该元素对应的节点
+            if set.contains((baseNode?.next?.val)!) {
+                baseNode?.next = baseNode?.next?.next
+            }else {
+                set.insert((baseNode?.next?.val)!)
+                baseNode = baseNode?.next
+            }
+        }
+        return head
+    }
     
 }
+
+

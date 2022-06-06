@@ -4,9 +4,11 @@
     Objective-C  -->  C/C++  -->  汇编语言  --> 机器语言
 
 #### 如何证明OC中的类、对象是基于C/C++中的结构体来实现的那? 我们就需要将OC的代码转为类、对象是基于C/C++的语言
+    //这个命令是将main.m文件转位cpp文件，但是内容比较大，因为这个命令可能转成其它平台(ios/模拟器/mac),所以我们要制定平台如下,可以将.cpp文件大小变小
+    //clang -rewrite-objc main.m -o main.cpp  
     xcrun -sdk iphoneos clang -arch arm64 -rewrite-objc WGMain.m -o WGMain.cpp
     //创建WGMain.m文件
-    #import <Foundation/Foundation.h>
+    import <Foundation/Foundation.h>
     int main(int argc, const char * argv[]) {
         @autoreleasepool {
             NSObject *objc = [[NSObject alloc]init];

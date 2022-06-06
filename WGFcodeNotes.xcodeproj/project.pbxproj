@@ -11,7 +11,6 @@
 		300845CC24456B3A00055737 /* NSOperation.md in Resources */ = {isa = PBXBuildFile; fileRef = 30C7D40C2439C05000EA99C6 /* NSOperation.md */; };
 		300D51442700607600BBFC4C /* 抓包工具.md in Resources */ = {isa = PBXBuildFile; fileRef = 300D51432700607600BBFC4C /* 抓包工具.md */; };
 		3015810D245577A600EC6001 /* WGMonitorManage.m in Sources */ = {isa = PBXBuildFile; fileRef = 3015810C245577A600EC6001 /* WGMonitorManage.m */; };
-		30160A2924A75A970074FB82 /* BinaryTree.m in Sources */ = {isa = PBXBuildFile; fileRef = 30160A2824A75A970074FB82 /* BinaryTree.m */; };
 		30179F9A24401E8000EED9BD /* Note.md in Resources */ = {isa = PBXBuildFile; fileRef = 30179F9924401E8000EED9BD /* Note.md */; };
 		301CF1BC2452BE310024EC69 /* WGFirstVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 301CF1BB2452BE310024EC69 /* WGFirstVC.m */; };
 		301CF1BF2452F1750024EC69 /* runLoop1.png in Resources */ = {isa = PBXBuildFile; fileRef = 301CF1BE2452F1750024EC69 /* runLoop1.png */; };
@@ -33,6 +32,7 @@
 		30A7DC8124348703008DDCF9 /* lock1.png in Resources */ = {isa = PBXBuildFile; fileRef = 30A7DC8024348703008DDCF9 /* lock1.png */; };
 		30A7DC832434A43E008DDCF9 /* lock2.png in Resources */ = {isa = PBXBuildFile; fileRef = 30A7DC822434A43E008DDCF9 /* lock2.png */; };
 		30AACDD9262D7FC500132AF5 /* Swift对象本质.md in Resources */ = {isa = PBXBuildFile; fileRef = 30AACDD8262D7FC500132AF5 /* Swift对象本质.md */; };
+		30AB3011284DE529009EC03C /* 常见面试题.md in Resources */ = {isa = PBXBuildFile; fileRef = 30AB3010284DE529009EC03C /* 常见面试题.md */; };
 		30BB26BB244BF62B00255288 /* NSNotification.md in Resources */ = {isa = PBXBuildFile; fileRef = 30BB26BA244BF62B00255288 /* NSNotification.md */; };
 		30C1F2B82431F0C7003B30B3 /* face.md in Resources */ = {isa = PBXBuildFile; fileRef = 30C1F2B72431F0C7003B30B3 /* face.md */; };
 		30D0895B278BCED6003EAFAC /* WGDynamicArray.m in Sources */ = {isa = PBXBuildFile; fileRef = 30D08958278BCED6003EAFAC /* WGDynamicArray.m */; };
@@ -169,8 +169,6 @@
 		300D51432700607600BBFC4C /* 抓包工具.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "抓包工具.md"; sourceTree = "<group>"; };
 		3015810B245577A600EC6001 /* WGMonitorManage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WGMonitorManage.h; sourceTree = "<group>"; };
 		3015810C245577A600EC6001 /* WGMonitorManage.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WGMonitorManage.m; sourceTree = "<group>"; };
-		30160A2724A75A970074FB82 /* BinaryTree.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BinaryTree.h; sourceTree = "<group>"; };
-		30160A2824A75A970074FB82 /* BinaryTree.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BinaryTree.m; sourceTree = "<group>"; };
 		30179F9924401E8000EED9BD /* Note.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Note.md; sourceTree = "<group>"; };
 		301CF1BA2452BE310024EC69 /* WGFirstVC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WGFirstVC.h; sourceTree = "<group>"; };
 		301CF1BB2452BE310024EC69 /* WGFirstVC.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WGFirstVC.m; sourceTree = "<group>"; };
@@ -1758,6 +1756,7 @@
 		30A7DC8024348703008DDCF9 /* lock1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = lock1.png; sourceTree = "<group>"; };
 		30A7DC822434A43E008DDCF9 /* lock2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = lock2.png; sourceTree = "<group>"; };
 		30AACDD8262D7FC500132AF5 /* Swift对象本质.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Swift对象本质.md"; sourceTree = "<group>"; };
+		30AB3010284DE529009EC03C /* 常见面试题.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "常见面试题.md"; sourceTree = "<group>"; };
 		30BB26BA244BF62B00255288 /* NSNotification.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = NSNotification.md; sourceTree = "<group>"; };
 		30C1F2B72431F0C7003B30B3 /* face.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = face.md; sourceTree = "<group>"; };
 		30C7D40C2439C05000EA99C6 /* NSOperation.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = NSOperation.md; sourceTree = "<group>"; };
@@ -4941,8 +4940,6 @@
 				548F332A24F2B87300AB3540 /* Person.m */,
 				544008872606DB1F00233364 /* Car.h */,
 				544008882606DB1F00233364 /* Car.m */,
-				30160A2724A75A970074FB82 /* BinaryTree.h */,
-				30160A2824A75A970074FB82 /* BinaryTree.m */,
 				30D3DF70245E74790012F803 /* WGTestModel.h */,
 				30D3DF71245E74790012F803 /* WGTestModel.m */,
 				301CF1BA2452BE310024EC69 /* WGFirstVC.h */,
@@ -4954,7 +4951,6 @@
 				548AC968242F4B3200EEE11C /* WGFcodeNotesTests */,
 				548AC973242F4B3200EEE11C /* WGFcodeNotesUITests */,
 				548AC950242F4B3100EEE11C /* Products */,
-				30FD75F524357E3800431678 /* WGFcodeNotes-Bridging-Header.h */,
 				30D566A3253C6DFF007B45F1 /* Frameworks */,
 			);
 			sourceTree = "<group>";
@@ -4978,6 +4974,7 @@
 				548AC984242F4C9200EEE11C /* WGReadMe */,
 				548AC952242F4B3100EEE11C /* AppDelegate.swift */,
 				548AC954242F4B3100EEE11C /* SceneDelegate.swift */,
+				30FD75F524357E3800431678 /* WGFcodeNotes-Bridging-Header.h */,
 				548AC956242F4B3100EEE11C /* ViewController.swift */,
 				548AC958242F4B3100EEE11C /* Main.storyboard */,
 				548AC95B242F4B3200EEE11C /* Assets.xcassets */,
@@ -5053,6 +5050,7 @@
 				548AC985242F4CAD00EEE11C /* WG.sh */,
 				309A2DB32665D97900212257 /* swift面试题.md */,
 				300D51432700607600BBFC4C /* 抓包工具.md */,
+				30AB3010284DE529009EC03C /* 常见面试题.md */,
 			);
 			path = WGReadMe;
 			sourceTree = "<group>";
@@ -5198,6 +5196,7 @@
 				548AC98F242F4CAD00EEE11C /* iOS管理第三方库工具.md in Resources */,
 				30BB26BB244BF62B00255288 /* NSNotification.md in Resources */,
 				30DD858B244F00C100897144 /* block.jpeg in Resources */,
+				30AB3011284DE529009EC03C /* 常见面试题.md in Resources */,
 				30FD76012435CD3100431678 /* NSThread.md in Resources */,
 				5422AC59244F3E8E000CB747 /* block2.png in Resources */,
 				30C1F2B82431F0C7003B30B3 /* face.md in Resources */,
@@ -5286,7 +5285,6 @@
 				30D08982278BCF83003EAFAC /* Queue.swift in Sources */,
 				30D0895B278BCED6003EAFAC /* WGDynamicArray.m in Sources */,
 				30D08977278BCF61003EAFAC /* WGStack.m in Sources */,
-				30160A2924A75A970074FB82 /* BinaryTree.m in Sources */,
 				30D08998278BD06A003EAFAC /* WGBinaryHeap.m in Sources */,
 				54E1965B250A70A90064027B /* WGThread.m in Sources */,
 				30D0898E278BCFD4003EAFAC /* BinaryTree.swift in Sources */,
@@ -5517,7 +5515,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = WG.WGFcodeNotes;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_OBJC_BRIDGING_HEADER = "WGFcodeNotes-Bridging-Header.h";
+				SWIFT_OBJC_BRIDGING_HEADER = "WGFcodeNotes/WGFcodeNotes-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -5545,7 +5543,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = WG.WGFcodeNotes;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_OBJC_BRIDGING_HEADER = "WGFcodeNotes-Bridging-Header.h";
+				SWIFT_OBJC_BRIDGING_HEADER = "WGFcodeNotes/WGFcodeNotes-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};

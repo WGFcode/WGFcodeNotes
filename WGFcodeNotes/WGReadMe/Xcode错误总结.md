@@ -110,3 +110,5 @@ ld: framework not found XWPushSDK
 结果发现XWPushSDK.framework是动态库，所以会出现错误，添加动态库的方法不是添加到Link Binary with Libraries，而是在General -> Frameworks, Libraries,and Embedded Content,直接将动态库拖到这里面即可，这时工程目录下的Frameworks会出现该库，并且在Link Binary with Libraries下也有该库
 11. 运行项目报错：xxx has conflicting provisioning settings，问题分析：勾选了Automatically manage signing，xcode会自动管理描述文件和证书等，但是由于项目原来的描述文件被设置为其他的值，所有会出现这个报错，提示描述文件冲突！解决方案：选择xxx.xcodeproj，显示包内容，找到project.pbxproj，打开，全局搜索被设定的描述文件，把指定行全部删除保存（可提前备份以备不时之需），重启xcode就好了为了安全，可以先把指定行备份！
 
+12. 继承友盟统计导入SDK后报错 28 duplicate symbols for architecture arm64
+#### 友盟统计SDK和项目中个推SDK和极光SDK有冲突，Other Linker Flags增加-ObjC这个是集成友盟时需要添加的，把这个-ObjC去掉后就不会再有冲突了

@@ -9,6 +9,8 @@
 #import "WGFirstVC.h"
 #import "WGMainObjcVC.h"
 #import "WGTargetProxy.h"
+#import "WGSort.h"
+
 
 @interface WGFirstVC()
 @property(nonatomic, strong) CADisplayLink *link;
@@ -21,14 +23,17 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.view.backgroundColor = UIColor.lightGrayColor;
+    WGSort *sort = [[WGSort alloc] init];
+    [sort sort_quick];
+    
     
 //    self.timer = [NSTimer timerWithTimeInterval:1 target:self selector:@selector(test) userInfo:nil repeats:YES];
 //    [[NSRunLoop currentRunLoop] addTimer:self.timer forMode:NSRunLoopCommonModes];
     
     //self.timer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(test) userInfo:nil repeats:YES];
     
-    self.timer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:[WGTargetProxy proxyWithTarget:self] selector:@selector(test) userInfo:nil repeats:YES];
-
+    //self.timer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:[WGTargetProxy proxyWithTarget:self] selector:@selector(test) userInfo:nil repeats:YES];
+    
 }
 
 -(void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {

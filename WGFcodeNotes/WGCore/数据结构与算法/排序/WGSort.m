@@ -85,11 +85,13 @@
 */
 /// 选择排序
 -(void)sort_select {
-    NSMutableArray *arr = [NSMutableArray arrayWithArray:@[@1,@34,@45,@6,@80,@90,@123,@230]];
+    //NSMutableArray *arr = [NSMutableArray arrayWithArray:@[@1,@34,@45,@6,@80,@90,@123,@230]];
+//    NSMutableArray *arr = [NSMutableArray arrayWithArray:@[@4,@5,@6,@1,@2,@3]];
+    NSMutableArray *arr = [NSMutableArray arrayWithArray:@[@1,@2,@3,@2,@5,@6]];
     for (int end = (int)arr.count - 1; end > 0; end--) {
         int maxIndex = 0;  //初始值代表最大值为arr[0]元素
         for (int begin = 1; begin <= end; begin++) {
-            if ([arr[begin-1] intValue] < [arr[begin] intValue]) { //谁大就保存谁的下标
+            if ([arr[maxIndex] intValue] < [arr[begin] intValue]) { //谁大就保存谁的下标
                 maxIndex = begin;
             }
         }
@@ -138,6 +140,7 @@
         int cur = begin;
         //先备份待插入的元素
         id waitInsert = arr[cur];
+        // 1 34 45
         //如果待插入的元素比前面元素小，那么就让前面元素向后移动一位
         while (cur > 0 && [arr[cur-1] intValue] > [waitInsert intValue]) {
             arr[cur] = arr[cur-1];
@@ -228,8 +231,10 @@
 */
 /// 快速排序
 -(void)sort_quick {
-    NSMutableArray *arr = [NSMutableArray arrayWithArray:@[@123,@230,@1,@34,@45,@6,@80,@90]];
+    //NSMutableArray *arr = [NSMutableArray arrayWithArray:@[@123,@230,@1,@34,@45,@6,@80,@90]];
+    NSMutableArray *arr = [NSMutableArray arrayWithArray:@[@1,@2,@3,@2,@5,@6]];
     [self sortQuickWithBeginIndex:0 withEndIndex:(int)arr.count withArr:arr];
+    [self printElement:arr];
 }
 // 对[begin, end)范围的元素进行快速排序 0 1 2
 -(void)sortQuickWithBeginIndex:(int)begin withEndIndex:(int)end withArr:arr {
@@ -244,6 +249,7 @@
 }
 // 构造出[begin, end)范围的轴点元素 return轴点元素的位置下标
 -(int)pivotIndexWithBegin:(int)begin withEnd:(int)end withArr:(NSMutableArray *)arr {
+
     //备份begin元素的元素(首先就是让begin位置作为轴点)
     id pivotElement = arr[begin];
     //end指向最后一个元素的下标
@@ -258,6 +264,7 @@
                 //但是我们已经备份过了pivotElement，所以不用担心，此时end位置应该已经空置出来了 ，然后让begin++,
                 arr[begin] = arr[end];
                 begin++;
+                break;
             }
         }
         while (begin < end) {
@@ -267,6 +274,7 @@
             }else { //左边元素 >= 轴点元素,
                 arr[end] = arr[begin];
                 end--;
+                break;
             }
         }
     }
