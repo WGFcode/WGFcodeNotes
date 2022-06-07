@@ -354,14 +354,16 @@ void _object_set_associative_reference(id object, void *key, id value, uintptr_t
     if (old_association.hasValue()) ReleaseValue()(old_association);
 }
 
-//MARK:⚠️销毁关联对象
+
+//_object_remove_assocations会将对象包含的所有关联对象加入到一个vector中，删除AssociationsHashMap中对应的节点，然后对所有的 ObjcAssociation对象调用 ReleaseValue()，释放不再被需要的值。
+//MARK: ⚠️dealloc销毁对象第5⃣️.2⃣️步 销毁关联对象
 void _object_remove_assocations(id object) {
     vector< ObjcAssociation,ObjcAllocator<ObjcAssociation> > elements;
     {
         AssociationsManager manager;
         AssociationsHashMap &associations(manager.associations());
         if (associations.size() == 0) return;
-        disguised_ptr_t disguised_object = DISGUISE(object);
+        disguised_ptr_t disguised_object = DISGUISE(object);  //DISGUISE函数其实仅仅对object做了位运算
         //根据对象disguised_object找到AssociationsHashMap哈希表中的ObjectAssociationMap哈希表，将其销毁
         AssociationsHashMap::iterator i = associations.find(disguised_object);
         if (i != associations.end()) {
@@ -375,6 +377,32 @@ void _object_remove_assocations(id object) {
             associations.erase(i);
         }
     }
+    //遍历清除ObjcAssociation（对应的策略+value）
     // the calls to releaseValue() happen outside of the lock.
     for_each(elements.begin(), elements.end(), ReleaseValue());
 }
+/*
+ 一个实例对象就对应一个ObjectAssociationMap，而ObjectAssociationMap中存储着多个此实例对象的关联对象的key以及ObjcAssociation，ObjcAssociation中存储着关联对象的value和policy策略。
+ 关联对象并不是存储在原来的对象中，而是自己维护了一个全局的map用来存放每一个对象及其对应关联属性表格。
+ 关联对象并不是存储在被关联对象本身内存中；关联对象存储在全局的统一的一个AssociationsManager中
+ 设置关联对象为nil，就相当于是移除关联对象
+ 
+  -----AssociationsManager-----
+    AssociationsHashMap *_map
+                          |
+          ---------AssociationsHashMap---------
+          disguised_ptr_t : ObjectAssociationMap ----------->
+          ...             : ...
+          对应object
+                                      |
+                          ---ObjectAssociationMap---
+                            void * : ObjcAssociation
+                            ...    : ...     |
+                            对应key
+                                  ------ObjcAssociation------
+                                      uintptr_t _policy   对应策略
+                                      id _value           对应Value
+ 
+ 
+ 
+ */

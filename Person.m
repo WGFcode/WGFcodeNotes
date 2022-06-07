@@ -45,6 +45,9 @@
 //    [coder encodeObject:self.name forKey:@"name"];
 //}
 
+-(void)dealloc {
+    NSLog(@"%s",__func__);
+}
 @end
 
 

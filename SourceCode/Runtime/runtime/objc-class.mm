@@ -483,6 +483,7 @@ static void object_cxxDestructFromClass(id obj, Class cls)
 * Call C++ destructors on obj, if any.
 * Uses methodListLock and cacheUpdateLock. The caller must hold neither.
 **********************************************************************/
+//MARK: ⚠️dealloc销毁对象第5⃣️.1⃣️步 有析构函数就释放（清除成员变量）
 void object_cxxDestruct(id obj)
 {
     if (!obj) return;

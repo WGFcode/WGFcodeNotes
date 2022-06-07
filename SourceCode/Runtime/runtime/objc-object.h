@@ -400,8 +400,10 @@ inline void
 objc_object::clearDeallocating() {
     if (slowpath(!isa.nonpointer)) {  //⚠️判断isa是否优化过，arm64架构后都优化过了，所以结果就是都优化过了
         // Slow path for raw pointer isa.
+        //isa指针没有被优化过
         sidetable_clearDeallocating();
     }else if (slowpath(isa.weakly_referenced  ||  isa.has_sidetable_rc)) { //⚠️判断是否有弱引用或者引用计数
+        //优化过的isa指针，并且有若引用表或
         // Slow path for non-pointer isa with weak refs and/or side table data.
         clearDeallocating_slow();  //⚠️全局搜素 objc_object::clearDeallocating_slow()
     }

@@ -1733,21 +1733,25 @@ objc_object::sidetable_release(bool performDealloc)
     return do_dealloc;
 }
 
-//MARK: ⚠️dealloc销毁对象第6⃣️.1⃣️步
+//MARK: ⚠️dealloc销毁对象第6⃣️.1⃣️步 isa指针没有被优化过
 void 
 objc_object::sidetable_clearDeallocating()
 {
-    SideTable& table = SideTables()[this];
+    SideTable& table = SideTables()[this];  //拿到对象的地址通过hash算法获取到SideTable
 
     // clear any weak table items
     // clear extra retain count and deallocating bit
     // (fixme warn or abort if extra retain count == 0 ?)
     table.lock();
+    //通过对象拿到引用计数表：OC对象引用计数Map（key为对象，value为引用计数）-引用计数表
     RefcountMap::iterator it = table.refcnts.find(this);
+    //遍历引用计数表，
     if (it != table.refcnts.end()) {
-        if (it->second & SIDE_TABLE_WEAKLY_REFERENCED) {
+        if (it->second & SIDE_TABLE_WEAKLY_REFERENCED) {  //如果有若引用表，则处理
+            //对象被销毁的时候处理所有弱引用指针的方法，将指向该对象的弱引用指针置为nil
             weak_clear_no_lock(&table.weak_table, (id)this);
         }
+        //从refcnts引用计数表中删除该对象的引用计数
         table.refcnts.erase(it);
     }
     table.unlock();
@@ -2522,7 +2526,7 @@ void arr_init(void)
 
 
 /*
- ⚠️ 调用dealloc方法的执行流程
+ ⚠️dealloc执行流程 调用dealloc方法的执行流程
  1. 调用dealloc方法，首先会调用_objc_rootDealloc方法
  2. 在_objc_rootDealloc方法中，会调用rootDealloc方法，在该方法中判断对象是否是TaggedPointer，若是则直接返回不做处理；因为TaggedPointer并不是真正的OC对象，不涉及到内存管理的东西；然后判断对象【1.是否优化过isa2.是否存在弱引用指向3.是否设置过关联对象4.是否有cpp的析构函数5.引用计数器是否过大无法存储在isa中】是否满足上面这5种情况，若满足则直接调用free方法快速释放对象；若不满足条件，则继续调用object_dispose方法
  3. object_dispose方法中，会再调用objc_destructInstance方法，objc_destructInstance方法里面会判断【1.有析构函数就清除2.有关联对象就移除】，然后再调用clearDeallocating方法
