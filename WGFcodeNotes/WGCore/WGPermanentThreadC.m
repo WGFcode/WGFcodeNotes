@@ -65,6 +65,7 @@
     if (self.innerThread == nil || task == nil) {
         return;
     }
+    
     // 将任务作为参数传递到innerExecuteTask内部方法中 waitUntilDone:这里可以设置为NO,这样就不会阻塞外部线程,让任务异步执行
     [self performSelector:@selector(innerExecuteTask:) onThread:self.innerThread withObject:task waitUntilDone:NO];
 }

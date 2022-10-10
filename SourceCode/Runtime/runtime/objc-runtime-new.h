@@ -34,7 +34,7 @@ typedef uintptr_t cache_key_t;
 struct swift_class_t;
 
 
-//存放在方法缓存数组中的散列表
+//MARK: 存放在方法缓存数组中的散列表
 struct bucket_t {  //散列表
 private:
     cache_key_t _key;   //SEL作为Key
@@ -1307,13 +1307,13 @@ struct objc_class : objc_object {
     uint32_t alignedInstanceStart() {
         return word_align(unalignedInstanceStart());
     }
-    //⚠️ class_getInstanceSize底层第3⃣️步 获取对象实际占用的内存大小
+    //MARK: ⚠️ class_getInstanceSize底层第3⃣️步 获取类对应的实例对象的成员变量占用的内存大小
     // May be unaligned depending on class's ivars.
     uint32_t unalignedInstanceSize() {
         assert(isRealized());
         return data()->ro->instanceSize;
     }
-    //⚠️ class_getInstanceSize底层第2⃣️步 获取对象实际占用的内存大小
+    //MAEK: ⚠️ class_getInstanceSize底层第2⃣️步 获取类对应的实例对象的成员变量占用的内存大小
     // Class's ivar size rounded up to a pointer-size boundary. 类成员变量所占用的大小
     uint32_t alignedInstanceSize() {
         return word_align(unalignedInstanceSize());

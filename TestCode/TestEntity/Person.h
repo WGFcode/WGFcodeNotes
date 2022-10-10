@@ -20,7 +20,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 
 @interface Person : NSObject
-@property(nonatomic, strong) NSString *name;
+
+-(void)run;
+
++(int)thisClassMethod:(NSString *)name;
+
 @end
 
 

@@ -112,3 +112,15 @@ ld: framework not found XWPushSDK
 
 12. 继承友盟统计导入SDK后报错 28 duplicate symbols for architecture arm64
 #### 友盟统计SDK和项目中个推SDK和极光SDK有冲突，Other Linker Flags增加-ObjC这个是集成友盟时需要添加的，把这个-ObjC去掉后就不会再有冲突了
+
+12. ld: warning: directory not found for option '-F/Users/baicai/Desktop/WLKProject/WLK/Carthage/Build/iOS'
+#### 依次 Project -> targets -> Build Setting -> Framework Search Paths 删除里面的路径即可消除警告
+
+13. directory not found for option '-L/Users/baicai/Desktop/WLKProject/WLK/WGWLK/WGLib/Lib-noidfa'
+#### 依次 Project -> targets -> Build Setting -> Library Search Paths 删除里面的路径
+
+14.NXYMer 运行项目到模拟器报错
+could not find module 'WLKBaseTool' for target 'arm64-apple-ios-simulator'; found: x86_64-apple-ios-simulator, armv7-apple-ios, i386-apple-ios-simulator, arm64-apple-ios, at: /Users/baicai/Desktop/WLKProject/NXYMerchantsProject/NXY/WGLib/WGCustomSDK/WLKBaseTool.framework/Modules/WLKBaseTool.swiftmodule
+原来xcode里面的VALID_ARCHS选项：arm64e armv7 armv7s arm64
+修改后xcode里面的VALID_ARCHS选项：arm64e armv7 armv7s arm64 x86_64
+然后运行模拟器就可以了

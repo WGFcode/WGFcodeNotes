@@ -85,11 +85,15 @@ typedef DisguisedPtr<objc_object *> weak_referrer_t;
  4.存储效率更高，可读性更强，可以提高代码的可读性，可以使用位运算提高数据的存储效率
  */
 //⚠️weak_entry_t底层结构
+/*弱引用实体,一个对象对应一个weak_entry_t,保存对象的弱引用;
+保存弱应用的是个联合体,当弱引用小于等于4个的时候,直接用inline_referrers数组保存
+大于四个时用referrers动态数组
+ */
 struct weak_entry_t { //对应关系是[referent weak指针的数组]
-    DisguisedPtr<objc_object> referent;   //对象地址
+    DisguisedPtr<objc_object> referent;   //被弱引用的对象
     union { //联合体（共用体）共用体的所有成员占用同一段内存
         struct {
-            weak_referrer_t *referrers;  //指向 referent 对象的weak指针数组。动态数组
+            weak_referrer_t *referrers;  //指向 referent 对象的weak指针数组。动态数组保存弱引用的指针
             uintptr_t        out_of_line_ness : 2;     //这里标记是否超过内联边界, 下面会提到
             uintptr_t        num_refs : PTR_MINUS_2;   //数组中已占用的大小
             uintptr_t        mask;          //数组下标最大值(数组大小 - 1)
@@ -97,7 +101,7 @@ struct weak_entry_t { //对应关系是[referent weak指针的数组]
         };
         struct {
             // out_of_line_ness field is low bits of inline_referrers[1]
-            //这是一个取名叫内联引用的数组，WEAK_INLINE_COUNT宏定义值为4
+            //这是一个取名叫内联引用的数组，WEAK_INLINE_COUNT宏定义值为4 初始化时默认使用的数组
             weak_referrer_t  inline_referrers[WEAK_INLINE_COUNT];  //静态数组
         };
     };

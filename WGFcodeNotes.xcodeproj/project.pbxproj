@@ -20,7 +20,22 @@
 		304011B026734C0B00845393 /* WGTestKVCEntity.m in Sources */ = {isa = PBXBuildFile; fileRef = 304011AF26734C0B00845393 /* WGTestKVCEntity.m */; };
 		304727C62750E70F00BF3AFC /* WGLeetCode.m in Sources */ = {isa = PBXBuildFile; fileRef = 304727C52750E70F00BF3AFC /* WGLeetCode.m */; };
 		305188F7265661DA00923282 /* 冷知识.md in Resources */ = {isa = PBXBuildFile; fileRef = 305188F6265661DA00923282 /* 冷知识.md */; };
+		3052130F28F2D08400271C3B /* WGBaseTestLock.m in Sources */ = {isa = PBXBuildFile; fileRef = 3052130E28F2D08400271C3B /* WGBaseTestLock.m */; };
+		3052131228F2D3AD00271C3B /* OSSpinLockTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 3052131128F2D3AD00271C3B /* OSSpinLockTest.m */; };
 		3066E0F02435DD48004C71F7 /* GCD.md in Resources */ = {isa = PBXBuildFile; fileRef = 3066E0EF2435DD48004C71F7 /* GCD.md */; };
+		306C693F28F3ADDA00285592 /* OSUnfairLockTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 306C693E28F3ADDA00285592 /* OSUnfairLockTest.m */; };
+		306C694228F3B16800285592 /* MutexLockTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 306C694128F3B16800285592 /* MutexLockTest.m */; };
+		306C694528F3B79500285592 /* MutexRecursiveLockTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 306C694428F3B79500285592 /* MutexRecursiveLockTest.m */; };
+		306C694828F3C18C00285592 /* MutextConditionLock.m in Sources */ = {isa = PBXBuildFile; fileRef = 306C694728F3C18C00285592 /* MutextConditionLock.m */; };
+		306C694B28F3CA1B00285592 /* NSLockTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 306C694A28F3CA1B00285592 /* NSLockTest.m */; };
+		306C694E28F3CA4100285592 /* NSRecursiveLockTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 306C694D28F3CA4100285592 /* NSRecursiveLockTest.m */; };
+		306C695128F3E71300285592 /* NSConditionTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 306C695028F3E71300285592 /* NSConditionTest.m */; };
+		306C695428F3EE6200285592 /* SynchronizedTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 306C695328F3EE6200285592 /* SynchronizedTest.m */; };
+		306C695728F3EEDC00285592 /* NSConditionLockTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 306C695628F3EEDC00285592 /* NSConditionLockTest.m */; };
+		306C695A28F3F38000285592 /* DispatchSerialQueueTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 306C695928F3F38000285592 /* DispatchSerialQueueTest.m */; };
+		306C695D28F3F65300285592 /* DispatchSemaphoreTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 306C695C28F3F65300285592 /* DispatchSemaphoreTest.m */; };
+		306C696028F4081900285592 /* ReadWriteLockTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 306C695F28F4081900285592 /* ReadWriteLockTest.m */; };
+		306C696328F40E4400285592 /* ReadWriteLockTest1.m in Sources */ = {isa = PBXBuildFile; fileRef = 306C696228F40E4400285592 /* ReadWriteLockTest1.m */; };
 		3078C069251C366B00A73E54 /* 传值方式.md in Resources */ = {isa = PBXBuildFile; fileRef = 3078C068251C366B00A73E54 /* 传值方式.md */; };
 		307A0E7B24456BD3006E5429 /* RunLoop.md in Resources */ = {isa = PBXBuildFile; fileRef = 307A0E7A24456BD3006E5429 /* RunLoop.md */; };
 		307A0E7D24456BE4006E5429 /* RunTime.md in Resources */ = {isa = PBXBuildFile; fileRef = 307A0E7C24456BE4006E5429 /* RunTime.md */; };
@@ -35,6 +50,7 @@
 		30AB3011284DE529009EC03C /* 常见面试题.md in Resources */ = {isa = PBXBuildFile; fileRef = 30AB3010284DE529009EC03C /* 常见面试题.md */; };
 		30BB26BB244BF62B00255288 /* NSNotification.md in Resources */ = {isa = PBXBuildFile; fileRef = 30BB26BA244BF62B00255288 /* NSNotification.md */; };
 		30C1F2B82431F0C7003B30B3 /* face.md in Resources */ = {isa = PBXBuildFile; fileRef = 30C1F2B72431F0C7003B30B3 /* face.md */; };
+		30CAB9E82852EA980030BF1C /* iOS包体积优化.md in Resources */ = {isa = PBXBuildFile; fileRef = 30CAB9E72852EA980030BF1C /* iOS包体积优化.md */; };
 		30D0895B278BCED6003EAFAC /* WGDynamicArray.m in Sources */ = {isa = PBXBuildFile; fileRef = 30D08958278BCED6003EAFAC /* WGDynamicArray.m */; };
 		30D0895C278BCED6003EAFAC /* DynamicArray.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30D08959278BCED6003EAFAC /* DynamicArray.swift */; };
 		30D08964278BCF0A003EAFAC /* WGSingleList.m in Sources */ = {isa = PBXBuildFile; fileRef = 30D0895D278BCF0A003EAFAC /* WGSingleList.m */; };
@@ -64,6 +80,7 @@
 		30D089A3278BD0F5003EAFAC /* LeetCodeInterview.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30D089A2278BD0F5003EAFAC /* LeetCodeInterview.swift */; };
 		30D3DF72245E74790012F803 /* WGTestModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 30D3DF71245E74790012F803 /* WGTestModel.m */; };
 		30D5D08D2627CD1700F5A4EF /* Swift基础语法.md in Resources */ = {isa = PBXBuildFile; fileRef = 30D5D08C2627CD1700F5A4EF /* Swift基础语法.md */; };
+		30D67A8928A384310041FDB5 /* Xcode配置信息作用描述.md in Resources */ = {isa = PBXBuildFile; fileRef = 30D67A8828A384310041FDB5 /* Xcode配置信息作用描述.md */; };
 		30DD858B244F00C100897144 /* block.jpeg in Resources */ = {isa = PBXBuildFile; fileRef = 30DD858A244F00C100897144 /* block.jpeg */; };
 		30E9226F26EB331F008D151A /* WGSwiftMethodDispatch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30E9226E26EB331F008D151A /* WGSwiftMethodDispatch.swift */; };
 		30ECA52024580E9000E3D312 /* Response.md in Resources */ = {isa = PBXBuildFile; fileRef = 30ECA51F24580E9000E3D312 /* Response.md */; };
@@ -182,7 +199,37 @@
 		304727C42750E70F00BF3AFC /* WGLeetCode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WGLeetCode.h; sourceTree = "<group>"; };
 		304727C52750E70F00BF3AFC /* WGLeetCode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WGLeetCode.m; sourceTree = "<group>"; };
 		305188F6265661DA00923282 /* 冷知识.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = "冷知识.md"; sourceTree = "<group>"; };
+		3052130D28F2D08400271C3B /* WGBaseTestLock.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WGBaseTestLock.h; sourceTree = "<group>"; };
+		3052130E28F2D08400271C3B /* WGBaseTestLock.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WGBaseTestLock.m; sourceTree = "<group>"; };
+		3052131028F2D3AD00271C3B /* OSSpinLockTest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OSSpinLockTest.h; sourceTree = "<group>"; };
+		3052131128F2D3AD00271C3B /* OSSpinLockTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OSSpinLockTest.m; sourceTree = "<group>"; };
 		3066E0EF2435DD48004C71F7 /* GCD.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = GCD.md; sourceTree = "<group>"; };
+		306C693D28F3ADDA00285592 /* OSUnfairLockTest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OSUnfairLockTest.h; sourceTree = "<group>"; };
+		306C693E28F3ADDA00285592 /* OSUnfairLockTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OSUnfairLockTest.m; sourceTree = "<group>"; };
+		306C694028F3B16800285592 /* MutexLockTest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MutexLockTest.h; sourceTree = "<group>"; };
+		306C694128F3B16800285592 /* MutexLockTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MutexLockTest.m; sourceTree = "<group>"; };
+		306C694328F3B79500285592 /* MutexRecursiveLockTest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MutexRecursiveLockTest.h; sourceTree = "<group>"; };
+		306C694428F3B79500285592 /* MutexRecursiveLockTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MutexRecursiveLockTest.m; sourceTree = "<group>"; };
+		306C694628F3C18C00285592 /* MutextConditionLock.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MutextConditionLock.h; sourceTree = "<group>"; };
+		306C694728F3C18C00285592 /* MutextConditionLock.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MutextConditionLock.m; sourceTree = "<group>"; };
+		306C694928F3CA1B00285592 /* NSLockTest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NSLockTest.h; sourceTree = "<group>"; };
+		306C694A28F3CA1B00285592 /* NSLockTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NSLockTest.m; sourceTree = "<group>"; };
+		306C694C28F3CA4100285592 /* NSRecursiveLockTest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NSRecursiveLockTest.h; sourceTree = "<group>"; };
+		306C694D28F3CA4100285592 /* NSRecursiveLockTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NSRecursiveLockTest.m; sourceTree = "<group>"; };
+		306C694F28F3E71300285592 /* NSConditionTest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NSConditionTest.h; sourceTree = "<group>"; };
+		306C695028F3E71300285592 /* NSConditionTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NSConditionTest.m; sourceTree = "<group>"; };
+		306C695228F3EE6200285592 /* SynchronizedTest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SynchronizedTest.h; sourceTree = "<group>"; };
+		306C695328F3EE6200285592 /* SynchronizedTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SynchronizedTest.m; sourceTree = "<group>"; };
+		306C695528F3EEDC00285592 /* NSConditionLockTest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NSConditionLockTest.h; sourceTree = "<group>"; };
+		306C695628F3EEDC00285592 /* NSConditionLockTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NSConditionLockTest.m; sourceTree = "<group>"; };
+		306C695828F3F38000285592 /* DispatchSerialQueueTest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DispatchSerialQueueTest.h; sourceTree = "<group>"; };
+		306C695928F3F38000285592 /* DispatchSerialQueueTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DispatchSerialQueueTest.m; sourceTree = "<group>"; };
+		306C695B28F3F65300285592 /* DispatchSemaphoreTest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DispatchSemaphoreTest.h; sourceTree = "<group>"; };
+		306C695C28F3F65300285592 /* DispatchSemaphoreTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DispatchSemaphoreTest.m; sourceTree = "<group>"; };
+		306C695E28F4081900285592 /* ReadWriteLockTest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ReadWriteLockTest.h; sourceTree = "<group>"; };
+		306C695F28F4081900285592 /* ReadWriteLockTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ReadWriteLockTest.m; sourceTree = "<group>"; };
+		306C696128F40E4400285592 /* ReadWriteLockTest1.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ReadWriteLockTest1.h; sourceTree = "<group>"; };
+		306C696228F40E4400285592 /* ReadWriteLockTest1.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ReadWriteLockTest1.m; sourceTree = "<group>"; };
 		307005CB2637ACD400E1DF19 /* CompatibilityOverride.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CompatibilityOverride.h; sourceTree = "<group>"; };
 		307005CC2637ACD400E1DF19 /* CompatibilityOverrideConcurrency.def */ = {isa = PBXFileReference; lastKnownFileType = text; path = CompatibilityOverrideConcurrency.def; sourceTree = "<group>"; };
 		307005CD2637ACD400E1DF19 /* CompatibilityOverrideRuntime.def */ = {isa = PBXFileReference; lastKnownFileType = text; path = CompatibilityOverrideRuntime.def; sourceTree = "<group>"; };
@@ -1760,6 +1807,7 @@
 		30BB26BA244BF62B00255288 /* NSNotification.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = NSNotification.md; sourceTree = "<group>"; };
 		30C1F2B72431F0C7003B30B3 /* face.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = face.md; sourceTree = "<group>"; };
 		30C7D40C2439C05000EA99C6 /* NSOperation.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = NSOperation.md; sourceTree = "<group>"; };
+		30CAB9E72852EA980030BF1C /* iOS包体积优化.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = "iOS包体积优化.md"; sourceTree = "<group>"; };
 		30D08958278BCED6003EAFAC /* WGDynamicArray.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WGDynamicArray.m; sourceTree = "<group>"; };
 		30D08959278BCED6003EAFAC /* DynamicArray.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DynamicArray.swift; sourceTree = "<group>"; };
 		30D0895A278BCED6003EAFAC /* WGDynamicArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WGDynamicArray.h; sourceTree = "<group>"; };
@@ -1808,10 +1856,12 @@
 		30D3DF70245E74790012F803 /* WGTestModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WGTestModel.h; sourceTree = "<group>"; };
 		30D3DF71245E74790012F803 /* WGTestModel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WGTestModel.m; sourceTree = "<group>"; };
 		30D5D08C2627CD1700F5A4EF /* Swift基础语法.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Swift基础语法.md"; sourceTree = "<group>"; };
+		30D67A8828A384310041FDB5 /* Xcode配置信息作用描述.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Xcode配置信息作用描述.md"; sourceTree = "<group>"; };
 		30DD858A244F00C100897144 /* block.jpeg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = block.jpeg; sourceTree = "<group>"; };
 		30E9226E26EB331F008D151A /* WGSwiftMethodDispatch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WGSwiftMethodDispatch.swift; sourceTree = "<group>"; };
 		30E9227026EB3672008D151A /* WGSwiftMethodDispatchSIL.sil */ = {isa = PBXFileReference; lastKnownFileType = text; path = WGSwiftMethodDispatchSIL.sil; sourceTree = "<group>"; };
 		30ECA51F24580E9000E3D312 /* Response.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Response.md; sourceTree = "<group>"; };
+		30F47E6A28DD4FC60086C9EF /* Student.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Student.cpp; sourceTree = "<group>"; };
 		30F7186B24F7AB020025AD98 /* 设计模式.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "设计模式.md"; sourceTree = "<group>"; };
 		30F8F49D243F142900968177 /* ThreadSummary.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = ThreadSummary.md; sourceTree = "<group>"; };
 		30FCCF83256F8DB000AEC012 /* Mems.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Mems.swift; sourceTree = "<group>"; };
@@ -2204,6 +2254,8 @@
 		3015810A2455778B00EC6001 /* WGCore */ = {
 			isa = PBXGroup;
 			children = (
+				30313DC0253829F600941BE5 /* WGTargetProxy.h */,
+				30313DC1253829F600941BE5 /* WGTargetProxy.m */,
 				30D089A0278BD0D8003EAFAC /* 数据结构与算法 */,
 				30E9227026EB3672008D151A /* WGSwiftMethodDispatchSIL.sil */,
 				30FCCF82256F8D9100AEC012 /* MJMemoryTool */,
@@ -2312,6 +2364,73 @@
 				304727C52750E70F00BF3AFC /* WGLeetCode.m */,
 			);
 			path = LeetCode;
+			sourceTree = "<group>";
+		};
+		3052130B28F2CECA00271C3B /* TestCode */ = {
+			isa = PBXGroup;
+			children = (
+				306C696428F41AD400285592 /* TestEntity */,
+				3052130C28F2CED500271C3B /* TestThreadLock */,
+			);
+			path = TestCode;
+			sourceTree = "<group>";
+		};
+		3052130C28F2CED500271C3B /* TestThreadLock */ = {
+			isa = PBXGroup;
+			children = (
+				3052130D28F2D08400271C3B /* WGBaseTestLock.h */,
+				3052130E28F2D08400271C3B /* WGBaseTestLock.m */,
+				3052131028F2D3AD00271C3B /* OSSpinLockTest.h */,
+				3052131128F2D3AD00271C3B /* OSSpinLockTest.m */,
+				306C693D28F3ADDA00285592 /* OSUnfairLockTest.h */,
+				306C693E28F3ADDA00285592 /* OSUnfairLockTest.m */,
+				306C694028F3B16800285592 /* MutexLockTest.h */,
+				306C694128F3B16800285592 /* MutexLockTest.m */,
+				306C694328F3B79500285592 /* MutexRecursiveLockTest.h */,
+				306C694428F3B79500285592 /* MutexRecursiveLockTest.m */,
+				306C694628F3C18C00285592 /* MutextConditionLock.h */,
+				306C694728F3C18C00285592 /* MutextConditionLock.m */,
+				306C694928F3CA1B00285592 /* NSLockTest.h */,
+				306C694A28F3CA1B00285592 /* NSLockTest.m */,
+				306C694C28F3CA4100285592 /* NSRecursiveLockTest.h */,
+				306C694D28F3CA4100285592 /* NSRecursiveLockTest.m */,
+				306C694F28F3E71300285592 /* NSConditionTest.h */,
+				306C695028F3E71300285592 /* NSConditionTest.m */,
+				306C695528F3EEDC00285592 /* NSConditionLockTest.h */,
+				306C695628F3EEDC00285592 /* NSConditionLockTest.m */,
+				306C695828F3F38000285592 /* DispatchSerialQueueTest.h */,
+				306C695928F3F38000285592 /* DispatchSerialQueueTest.m */,
+				306C695B28F3F65300285592 /* DispatchSemaphoreTest.h */,
+				306C695C28F3F65300285592 /* DispatchSemaphoreTest.m */,
+				306C695228F3EE6200285592 /* SynchronizedTest.h */,
+				306C695328F3EE6200285592 /* SynchronizedTest.m */,
+				306C695E28F4081900285592 /* ReadWriteLockTest.h */,
+				306C695F28F4081900285592 /* ReadWriteLockTest.m */,
+				306C696128F40E4400285592 /* ReadWriteLockTest1.h */,
+				306C696228F40E4400285592 /* ReadWriteLockTest1.m */,
+			);
+			path = TestThreadLock;
+			sourceTree = "<group>";
+		};
+		306C696428F41AD400285592 /* TestEntity */ = {
+			isa = PBXGroup;
+			children = (
+				304011AE26734C0B00845393 /* WGTestKVCEntity.h */,
+				304011AF26734C0B00845393 /* WGTestKVCEntity.m */,
+				543110AF251CD966007D0061 /* Student+WGStudent.h */,
+				542D3D90251A48F500394130 /* Student+StudentCategory.h */,
+				542D3D91251A48F500394130 /* Student+StudentCategory.m */,
+				30F47E6A28DD4FC60086C9EF /* Student.cpp */,
+				542D3D8D251A48CC00394130 /* Student.h */,
+				542D3D8E251A48CC00394130 /* Student.m */,
+				548F332924F2B87300AB3540 /* Person.h */,
+				548F332A24F2B87300AB3540 /* Person.m */,
+				544008872606DB1F00233364 /* Car.h */,
+				544008882606DB1F00233364 /* Car.m */,
+				30D3DF70245E74790012F803 /* WGTestModel.h */,
+				30D3DF71245E74790012F803 /* WGTestModel.m */,
+			);
+			path = TestEntity;
 			sourceTree = "<group>";
 		};
 		307001E72637A9D800E1DF19 /* SwiftSourceCode */ = {
@@ -4918,8 +5037,7 @@
 		548AC946242F4B3100EEE11C = {
 			isa = PBXGroup;
 			children = (
-				304011AE26734C0B00845393 /* WGTestKVCEntity.h */,
-				304011AF26734C0B00845393 /* WGTestKVCEntity.m */,
+				3052130B28F2CECA00271C3B /* TestCode */,
 				542CD1E426075AE2006A6D1D /* NSMutableDictionary+WGHookMutableDictionary.h */,
 				542CD1E526075AE2006A6D1D /* NSMutableDictionary+WGHookMutableDictionary.m */,
 				542CD1E126075822006A6D1D /* NSMutableArray+WGHookMutableArray.h */,
@@ -4929,19 +5047,6 @@
 				542CD1D926074284006A6D1D /* NSObject+WGJson.h */,
 				542CD1DA26074284006A6D1D /* NSObject+WGJson.m */,
 				5409CDD325CAEDE300E704CF /* SourceCode */,
-				30313DC0253829F600941BE5 /* WGTargetProxy.h */,
-				30313DC1253829F600941BE5 /* WGTargetProxy.m */,
-				543110AF251CD966007D0061 /* Student+WGStudent.h */,
-				542D3D90251A48F500394130 /* Student+StudentCategory.h */,
-				542D3D91251A48F500394130 /* Student+StudentCategory.m */,
-				542D3D8D251A48CC00394130 /* Student.h */,
-				542D3D8E251A48CC00394130 /* Student.m */,
-				548F332924F2B87300AB3540 /* Person.h */,
-				548F332A24F2B87300AB3540 /* Person.m */,
-				544008872606DB1F00233364 /* Car.h */,
-				544008882606DB1F00233364 /* Car.m */,
-				30D3DF70245E74790012F803 /* WGTestModel.h */,
-				30D3DF71245E74790012F803 /* WGTestModel.m */,
 				301CF1BA2452BE310024EC69 /* WGFirstVC.h */,
 				301CF1BB2452BE310024EC69 /* WGFirstVC.m */,
 				30179F9924401E8000EED9BD /* Note.md */,
@@ -5006,6 +5111,7 @@
 		548AC984242F4C9200EEE11C /* WGReadMe */ = {
 			isa = PBXGroup;
 			children = (
+				30CAB9E72852EA980030BF1C /* iOS包体积优化.md */,
 				305188F6265661DA00923282 /* 冷知识.md */,
 				30D5D08C2627CD1700F5A4EF /* Swift基础语法.md */,
 				30AACDD8262D7FC500132AF5 /* Swift对象本质.md */,
@@ -5051,6 +5157,7 @@
 				309A2DB32665D97900212257 /* swift面试题.md */,
 				300D51432700607600BBFC4C /* 抓包工具.md */,
 				30AB3010284DE529009EC03C /* 常见面试题.md */,
+				30D67A8828A384310041FDB5 /* Xcode配置信息作用描述.md */,
 			);
 			path = WGReadMe;
 			sourceTree = "<group>";
@@ -5209,11 +5316,13 @@
 				30FD75FC243596BB00431678 /* lock4.png in Resources */,
 				548AC98B242F4CAD00EEE11C /* WG.sh in Resources */,
 				543C213325485B44000212B6 /* NewBlock.md in Resources */,
+				30CAB9E82852EA980030BF1C /* iOS包体积优化.md in Resources */,
 				540ED63C246990B600C6DAF7 /* KeyWord.md in Resources */,
 				3066E0F02435DD48004C71F7 /* GCD.md in Resources */,
 				5405874B2614AEEA0047AD5E /* 逆向工程.md in Resources */,
 				54C118BE2584EF8B00B39379 /* LLVM.md in Resources */,
 				548AC95F242F4B3200EEE11C /* LaunchScreen.storyboard in Resources */,
+				30D67A8928A384310041FDB5 /* Xcode配置信息作用描述.md in Resources */,
 				30F7186C24F7AB020025AD98 /* 设计模式.md in Resources */,
 				54347D3224F69F1C006EE9F2 /* 数据结构.md in Resources */,
 				300845CB24456B2800055737 /* KVC.md in Resources */,
@@ -5273,35 +5382,50 @@
 				30D08964278BCF0A003EAFAC /* WGSingleList.m in Sources */,
 				57070507270F36B3002A2ACC /* 斐波那契数.swift in Sources */,
 				30313DC2253829F600941BE5 /* WGTargetProxy.m in Sources */,
+				306C693F28F3ADDA00285592 /* OSUnfairLockTest.m in Sources */,
 				548AC957242F4B3100EEE11C /* ViewController.swift in Sources */,
 				54E19661250E750B0064027B /* WGProxy.m in Sources */,
 				30D08980278BCF83003EAFAC /* WGQueue.m in Sources */,
 				30D08972278BCF3B003EAFAC /* WGDoubleCycleList.m in Sources */,
+				306C694E28F3CA4100285592 /* NSRecursiveLockTest.m in Sources */,
 				30D08981278BCF83003EAFAC /* WGDoubleQueue.m in Sources */,
 				542CD1E326075822006A6D1D /* NSMutableArray+WGHookMutableArray.m in Sources */,
+				306C695A28F3F38000285592 /* DispatchSerialQueueTest.m in Sources */,
+				306C696028F4081900285592 /* ReadWriteLockTest.m in Sources */,
+				306C695428F3EE6200285592 /* SynchronizedTest.m in Sources */,
 				30D08965278BCF0A003EAFAC /* WGSingleCycleList.m in Sources */,
+				306C694528F3B79500285592 /* MutexRecursiveLockTest.m in Sources */,
+				3052131228F2D3AD00271C3B /* OSSpinLockTest.m in Sources */,
 				30D08966278BCF0A003EAFAC /* WGNode.m in Sources */,
 				542D3D8F251A48CC00394130 /* Student.m in Sources */,
 				30D08982278BCF83003EAFAC /* Queue.swift in Sources */,
 				30D0895B278BCED6003EAFAC /* WGDynamicArray.m in Sources */,
 				30D08977278BCF61003EAFAC /* WGStack.m in Sources */,
+				306C694228F3B16800285592 /* MutexLockTest.m in Sources */,
 				30D08998278BD06A003EAFAC /* WGBinaryHeap.m in Sources */,
+				306C696328F40E4400285592 /* ReadWriteLockTest1.m in Sources */,
+				306C695728F3EEDC00285592 /* NSConditionLockTest.m in Sources */,
 				54E1965B250A70A90064027B /* WGThread.m in Sources */,
 				30D0898E278BCFD4003EAFAC /* BinaryTree.swift in Sources */,
 				54E19658250909050064027B /* WGRunLoopVC.m in Sources */,
 				30E9226F26EB331F008D151A /* WGSwiftMethodDispatch.swift in Sources */,
+				3052130F28F2D08400271C3B /* WGBaseTestLock.m in Sources */,
 				548F332B24F2B87300AB3540 /* Person.m in Sources */,
 				30D08994278BD02C003EAFAC /* WGSort.m in Sources */,
 				304727C62750E70F00BF3AFC /* WGLeetCode.m in Sources */,
+				306C694B28F3CA1B00285592 /* NSLockTest.m in Sources */,
 				548AC983242F4C7100EEE11C /* WGMainVC.swift in Sources */,
 				30D0898F278BCFD4003EAFAC /* RedBlackTree.swift in Sources */,
 				30D08967278BCF0A003EAFAC /* SingleList.swift in Sources */,
 				304011B026734C0B00845393 /* WGTestKVCEntity.m in Sources */,
+				306C695D28F3F65300285592 /* DispatchSemaphoreTest.m in Sources */,
 				30FD75F824357E3800431678 /* WGMainObjcVC.m in Sources */,
+				306C695128F3E71300285592 /* NSConditionTest.m in Sources */,
 				54E1965E250A7BDC0064027B /* WGRunLoopSecondVC.m in Sources */,
 				30D08976278BCF61003EAFAC /* Stack.swift in Sources */,
 				30FCCF84256F8DB000AEC012 /* Mems.swift in Sources */,
 				3015810D245577A600EC6001 /* WGMonitorManage.m in Sources */,
+				306C694828F3C18C00285592 /* MutextConditionLock.m in Sources */,
 				30D08970278BCF3B003EAFAC /* WGDoubleList.m in Sources */,
 				30D0898C278BCFD4003EAFAC /* WGBinarySearchTree.m in Sources */,
 				30D0898D278BCFD4003EAFAC /* AVLTree.swift in Sources */,

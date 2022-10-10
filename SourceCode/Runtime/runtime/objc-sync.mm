@@ -277,11 +277,16 @@ BREAKPOINT_FUNCTION(
     void objc_sync_nil(void)
 );
 
+// MARK: ⚠️ @synchronized(objc)底层原理 加锁
+/*
+ 通过objc获取一把锁，底层是一个哈希表，存放对象key和对应的锁value
+ 
+ */
 
 // Begin synchronizing on 'obj'. 
 // Allocates recursive mutex associated with 'obj' if needed.
 // Returns OBJC_SYNC_SUCCESS once lock is acquired.  
-int objc_sync_enter(id obj)
+int objc_sync_enter(id obj)     //一个对象对应一把锁
 {
     int result = OBJC_SYNC_SUCCESS;
 
@@ -301,6 +306,7 @@ int objc_sync_enter(id obj)
 }
 
 
+// MARK: ⚠️ @synchronized(objc)底层原理 解锁
 // End synchronizing on 'obj'. 
 // Returns OBJC_SYNC_SUCCESS or OBJC_SYNC_NOT_OWNING_THREAD_ERROR
 int objc_sync_exit(id obj)

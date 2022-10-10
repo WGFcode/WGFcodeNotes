@@ -419,11 +419,11 @@ objc_object::rootDealloc() {
     //⚠️若是TaggedPointer指针，则直接返回，因为TaggedPointer指针指向的并不是真正的OC对象，它不涉及到内存管理的东西
     if (isTaggedPointer()) return;  // fixme necessary?
     //⚠️ 判断是否满足快速释放的条件：
-    if (fastpath(isa.nonpointer  &&             //是否优化过isa
+    if (fastpath(isa.nonpointer  &&             //是否优化过isa (1:优化过 0:普通指针)
                  !isa.weakly_referenced  &&     //是否存在弱引用指向
                  !isa.has_assoc  &&             //是否设置过关联对象
                  !isa.has_cxx_dtor  &&          //是否有cpp的析构函数
-                 !isa.has_sidetable_rc)) {      //引用计数器是否过大无法存储在isa中，而是存储在sideTable中；若是1则表示存储在sideTable中，若是0则引用计数存储在isa指针中
+                 !isa.has_sidetable_rc)) {       //引用计数器是否过大无法存储在isa中，而是存储在sideTable中；若是1则表示存储在sideTable中，若是0则引用计数存储在isa指针中
         assert(!sidetable_present());
         free(this);  //若5种情况同时满足，则调用C语言的释放对象方法快速释放，这种对象释放速度最快
     } else {  //否则调用object_dispose
@@ -707,17 +707,19 @@ objc_object::rootAutorelease()
 }
 
 
+//MARK: ⚠️获取对象的引用计数 第2⃣️步
 inline uintptr_t 
 objc_object::rootRetainCount()
 {
-    if (isTaggedPointer()) return (uintptr_t)this;
+    if (isTaggedPointer()) return (uintptr_t)this;  //如果是tarredPointer，则直接返回
 
     sidetable_lock();
     isa_t bits = LoadExclusive(&isa.bits);
     ClearExclusive(&isa.bits);
-    if (bits.nonpointer) {
+    if (bits.nonpointer) {  //如果是优化过的isa指针，则引用计数存储在isa指针中(8个字节，其中拿19位来存储引用计数)
+        //获取到引用计数 然后进行+1操作
         uintptr_t rc = 1 + bits.extra_rc;
-        if (bits.has_sidetable_rc) {
+        if (bits.has_sidetable_rc) {  //如果为真，说明isa指针不够存储引用计数了，引用计数存储在全局哈希表Sidetable中的引用计数表中
             rc += sidetable_getExtraRC_nolock();
         }
         sidetable_unlock();

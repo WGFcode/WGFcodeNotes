@@ -449,7 +449,7 @@ Ivar object_getInstanceVariable(id obj, const char *name, void **value)
     return nil;
 }
 
-
+//MARK: ⚠️dealloc销毁对象第5⃣️.2⃣️步 有析构函数就释放（清除/销毁实例变量/成员变量）
 /***********************************************************************
 * object_cxxDestructFromClass.
 * Call C++ destructors on obj, starting with cls's 
@@ -472,6 +472,7 @@ static void object_cxxDestructFromClass(id obj, Class cls)
                 _objc_inform("CXX: calling C++ destructors for class %s", 
                              cls->nameForLogging());
             }
+            // 执行的其实是 SEL_cxx_destruct 这个SEL标记的函数；SEL对应的正是之前看到的 .cxx_destruct 方法
             (*dtor)(obj);
         }
     }
@@ -483,7 +484,7 @@ static void object_cxxDestructFromClass(id obj, Class cls)
 * Call C++ destructors on obj, if any.
 * Uses methodListLock and cacheUpdateLock. The caller must hold neither.
 **********************************************************************/
-//MARK: ⚠️dealloc销毁对象第5⃣️.1⃣️步 有析构函数就释放（清除成员变量）
+//MARK: ⚠️dealloc销毁对象第5⃣️.1⃣️步 有析构函数就释放（清除/销毁实例变量/成员变量）
 void object_cxxDestruct(id obj)
 {
     if (!obj) return;
@@ -920,7 +921,7 @@ BOOL class_isMetaClass(Class cls)
     return cls->isMetaClass();
 }
 
-//⚠️ class_getInstanceSize底层第1⃣️步 获取对象实际占用的内存大小
+//MARK: ⚠️ class_getInstanceSize底层第1⃣️步 获取类对应的实例对象的成员变量占用的内存大小
 size_t class_getInstanceSize(Class cls)
 {
     if (!cls) return 0;

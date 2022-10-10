@@ -65,7 +65,7 @@ namespace {
 #endif
 
 /// WGRunTimeSourceCode 源码阅读
-//MARK:isa底层结构->采用了共用体的结构，利用位域技术来存储更多信息
+//MARK: isa底层结构->采用了共用体的结构，利用位域技术来存储更多信息
 union isa_t 
 {
     isa_t() { }
@@ -174,7 +174,7 @@ union isa_t
  在arm64架构之前,isa就是一个普通的指针,存储着Class、Meta_Class对象的内存地址,而从arm64位架构开始,对isa进行了优化,变成了一个共用体(union)结构,还使用位域来存储更多的信息
  如果我们想获取一个OC对象的类对象的地址，得通过 isa  & ISA_MASK 才能得到类对象/元类对象的地址
  */
-//MARK:OC对象的底层结构
+//MARK: OC对象的底层结构
 struct objc_object {
 private:
     isa_t isa;
@@ -878,7 +878,7 @@ template<typename T>
  }
  */
 //MARK:SideTables结构实际的类型StripedMap，可以存放64个SideTable
-//⚠️StripedMap底层结构
+//MARK: StripedMap底层结构
 class StripedMap {
 
     enum { CacheLineSize = 64 };

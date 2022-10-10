@@ -1565,7 +1565,7 @@ objc_object::sidetable_subExtraRC_nolock(size_t delta_rc)
     return delta_rc;
 }
 
-
+// 从sideTable的引用计数表中获取引用计数
 size_t 
 objc_object::sidetable_getExtraRC_nolock()
 {
@@ -1573,7 +1573,7 @@ objc_object::sidetable_getExtraRC_nolock()
     SideTable& table = SideTables()[this];
     RefcountMap::iterator it = table.refcnts.find(this);
     if (it == table.refcnts.end()) return 0;
-    else return it->second >> SIDE_TABLE_RC_SHIFT;
+    else return it->second >> SIDE_TABLE_RC_SHIFT;  //#define SIDE_TABLE_RC_SHIFT 2
 }
 
 
@@ -2498,6 +2498,7 @@ void arr_init(void)
     return ULONG_MAX;
 }
 
+//MARK: ⚠️获取对象的引用计数 第1⃣️步
 - (NSUInteger)retainCount {
     return ((id)self)->rootRetainCount();
 }

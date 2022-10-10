@@ -20,11 +20,19 @@
 
 @implementation WGFirstVC
 
+-(NSTimer *)timer {
+    if (_timer == nil) {
+        _timer = [[NSTimer alloc]init];
+    }
+    return _timer;
+}
+
+
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.view.backgroundColor = UIColor.lightGrayColor;
-    WGSort *sort = [[WGSort alloc] init];
-    [sort sort_quick];
+//    WGSort *sort = [[WGSort alloc] init];
+//    [sort sort_quick];
     
     
 //    self.timer = [NSTimer timerWithTimeInterval:1 target:self selector:@selector(test) userInfo:nil repeats:YES];
@@ -38,6 +46,9 @@
 
 -(void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
    // [self.timer invalidate];
+    
+    WGMainObjcVC *vc = [[WGMainObjcVC alloc]init];
+    [self.navigationController pushViewController:vc animated:YES];
 }
 
 -(void)dealloc {

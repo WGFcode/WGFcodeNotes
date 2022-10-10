@@ -10,7 +10,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 /*
- 通过C语言去保住线程的名,就不需要额外增加一个属性来控制是否要销毁掉RunLoop,更加的精简
+ 通过C语言去保住线程的命,就不需要额外增加一个属性来控制是否要销毁掉RunLoop,更加的精简
  */
 
 typedef void (^WGPermanentThreadTaskC)(void);

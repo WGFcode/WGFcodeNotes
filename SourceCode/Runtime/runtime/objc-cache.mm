@@ -86,7 +86,7 @@
 #include "objc-private.h"
 #include "objc-cache.h"
 
-
+//MARK: ⚠️初始化方法缓存容量 其实默认容量是 1左移2位是4，即默认的方法缓存列表可以存放4个元素
 /* Initial cache bucket count. INIT_CACHE_SIZE must be a power of two. */
 enum {
     INIT_CACHE_SIZE_LOG2 = 2,
@@ -165,7 +165,7 @@ static inline mask_t cache_next(mask_t i, mask_t mask) {
 /*
 例如第一次找到的下标是3，如果下标3没找到对应的IMP，那么就继续找下标为2的元素、下标为1的元素、小标为0的元素，如果下标为0仍然没有找到，就直接找到散列表的最后一位进行查找，即下标为散列表长度-1，继续进行查找
  */
-//⚠️遍历散列表时寻找方法是按照小标递减(index-1)进行寻找的
+//⚠️遍历散列表时寻找方法是按照下标递减(index-1)进行寻找的
 static inline mask_t cache_next(mask_t i, mask_t mask) {
     return i ? i-1 : mask;
 }
@@ -230,11 +230,11 @@ static inline mask_t cache_next(mask_t i, mask_t mask) {
 // Class points to cache. SEL is key. Cache buckets store SEL+IMP.
 // Caches are never built in the dyld shared cache.
 
-//⚠️将方法名@selector(name)作为key，然后与散列表的长度-1进行按位与&，然后获取到对应的小标
+//MARK: ⚠️将方法名@selector(name)作为key，然后与散列表的长度-1进行按位与&，然后获取到对应的小标
 static inline mask_t cache_hash(cache_key_t key, mask_t mask) {
     return (mask_t)(key & mask);
 }
-//⚠️通过cls对象获取到改对象结构里面的方法缓存列表
+//⚠️通过cls对象获取到该类对象结构里面的方法缓存列表
 cache_t *getCache(Class cls) {
     assert(cls);
     return &cls->cache;
@@ -467,8 +467,8 @@ void cache_t::bad_cache(id receiver, SEL sel, Class isa){
 }
 
 
-/// WGRunTimeSourceCode 源码阅读
-//MARK:将方法添加到缓存列表第1⃣️步
+//MARK:  WGRunTimeSourceCode 源码阅读
+//MARK: 将方法添加到缓存列表第1⃣️步
 void cache_fill(Class cls, SEL sel, IMP imp, id receiver) {
 #if !DEBUG_TASK_THREADS
     mutex_locker_t lock(cacheUpdateLock);
@@ -491,7 +491,7 @@ void cache_fill(Class cls, SEL sel, IMP imp, id receiver) {
      IMP _imp;           //函数的内存地址
  }
  */
-//MARK:将方法添加到缓存列表第2⃣️步
+//MARK: 将方法添加到缓存列表第2⃣️步
 static void cache_fill_nolock(Class cls, SEL sel, IMP imp, id receiver) {
     cacheUpdateLock.assertLocked();     //mutex_t cacheUpdateLock; 互斥锁
 
@@ -531,7 +531,7 @@ static void cache_fill_nolock(Class cls, SEL sel, IMP imp, id receiver) {
     bucket->set(key, imp);
 }
 
-//MARK:扩容->扩容为原容量的2倍
+//MARK: 扩容->扩容为原容量的2倍
 void cache_t::expand() {
     cacheUpdateLock.assertLocked();
     uint32_t oldCapacity = capacity();

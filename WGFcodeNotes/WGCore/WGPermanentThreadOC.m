@@ -72,7 +72,7 @@
         return;
     }
     //切记 waitUntilDone参数要设置为YES
-    [self performSelector:@selector(innerThread) onThread:self.innerThread withObject:nil waitUntilDone:YES];
+    [self performSelector:@selector(innerStop) onThread:self.innerThread withObject:nil waitUntilDone:YES];
 }
 
 
@@ -87,6 +87,7 @@
 #pragma mark private method 内部方法来停用RunLoop
 -(void)innerStop {
     self.stopped = YES;
+    //只能够停掉Runloop循环中的某一次循环事件，即停不掉[[NSRunLoop currentRunLoop] run]，因为它是一个无限死循环
     CFRunLoopStop(CFRunLoopGetCurrent());
     self.innerThread = nil;
 }

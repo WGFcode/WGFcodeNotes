@@ -8,7 +8,7 @@
 
 /*
  MJ底层原理班封装--永久线程类
- 1. 为什么不是继承自NSThread,而是NSObject? 如果继承自NSThread,那么外部调用就有可能会调用NSThread的API,破会封装性
+ 1. 为什么不是继承自NSThread,而是NSObject? 如果继承自NSThread,那么外部调用就有可能会调用NSThread的API,破坏封装性
  */
 #import <Foundation/Foundation.h>
 

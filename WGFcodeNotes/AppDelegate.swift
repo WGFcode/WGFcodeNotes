@@ -46,7 +46,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         super.touchesBegan(touches, with: event)
-        NSLog("AppDelegate1111111")
+        //NSLog("AppDelegate1111111")
     }
 
 }

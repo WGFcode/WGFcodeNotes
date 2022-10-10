@@ -92,3 +92,73 @@
 * 不要使用过多的局部变量，控制局部变量的大小；
 * 避免分配占用空间太大的对象，并及时释放;
 * 实在不行，适当的情景下调用系统API修改线程的堆栈大小；
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#### 6.iOS程序的内存布局(从低到高)
+*  保留
+*  代码段：编译之后的代码
+*  数据段
+   字符串常量: 比如NSString *str = @"111"
+   已初始化数据:已初始化的全局变量/静态变量 
+   未初始化数据:未初始化的全局变量/静态变量   
+*  堆：从低到高分配内存；通过alloc/malloc,calloc等动态分配的空间，分配的内存空间地址越来约大
+*  栈：从高到低分配内存；汉书还调用开销，比如局部变量。分配的内存空间地址越来越小
+
+#### 7.字符串NSString总结，类型有以下三种
+* __NSCFConstantString: alloc/字面值创建出来的；以字面量方式生成的，retainCount是-1；无论copy或者retain都不会变化retainCount的。相当于指针指向一个常量地址。
+* NSTaggedPointerString： 通过类方法stringWithFormat方法创建出来的(mac平台最低有效位是1，ios平台最高有效位是1)
+* __NSCFString: 通过类方法stringWithFormat方法创建出来的(字符位数比较多)
+        NSString *str1 = [NSString stringWithFormat:@"111111111"];  //0xd14b741d98e6e005 NSTaggedPointerString  mac平台最低有效位是1
+        
+        NSString *str2 = [NSString stringWithFormat:@"111111111111"]; //0x0000000101d04640 __NSCFString  局部变量在栈区
+        
+        NSString *str3 = [[NSString alloc]initWithString:@"111111111"];  //0x0000000100004050 __NSCFConstantString  字符串常量
+        
+        NSString *str4 = [[NSString alloc]initWithString:@"111111111111"]; //0x0000000100004070 __NSCFConstantString  字符串常量
+        
+        NSString *str5 = [[NSString alloc]init];   
+        //0x00007ff852cb0148 __NSCFConstantString  

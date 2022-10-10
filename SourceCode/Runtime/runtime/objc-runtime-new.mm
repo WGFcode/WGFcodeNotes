@@ -4582,7 +4582,7 @@ log_and_fill_cache(Class cls, IMP imp, SEL sel, id receiver, Class implementer)
 **********************************************************************/
 /// WGRunTimeSourceCode 源码阅读
 // （对象、方法名称、类对象）默认对象已经初始化、没有方法缓存列表、已经动态解析过了
-//MARK:查找方法流程第1⃣️步
+//MARK: 查找方法流程第1⃣️步
 IMP _class_lookupMethodAndLoadCache3(id obj, SEL sel, Class cls)
 {
     return lookUpImpOrForward(cls, sel, obj, 
@@ -4603,7 +4603,7 @@ IMP _class_lookupMethodAndLoadCache3(id obj, SEL sel, Class cls)
 *   If you don't want forwarding at all, use lookUpImpOrNil() instead.
 **********************************************************************/
 /// WGRunTimeSourceCode 源码阅读
-//MARK:查找方法流程第2⃣️步
+//MARK: 查找方法流程第2⃣️步
 IMP lookUpImpOrForward(Class cls, SEL sel, id inst, 
                        bool initialize, bool cache, bool resolver)
 {
@@ -6320,6 +6320,7 @@ object_copyFromZone(id oldObj, size_t extraBytes, void *zone)
 void *objc_destructInstance(id obj) {
     if (obj) {
         // Read all of the flags at once for performance.
+        //当对象中拥有属性时，编辑器默认会插入方法.cxx_destruct，该方法就是用来释放对象的属性的(实例变量)
         bool cxx = obj->hasCxxDtor();                //是否有析构函数
         bool assoc = obj->hasAssociatedObjects();    //是否有关联对象
 

@@ -506,7 +506,7 @@ weak_clear_no_lock(weak_table_t *weak_table, id referent_id)
         referrers = entry->inline_referrers;
         count = WEAK_INLINE_COUNT;  //WEAK_INLINE_COUNT = 4
     }
-    //遍历存放弱引用的数组，若若引用的地址指向该对象，则将该弱引用置为nil
+    //遍历存放弱引用的数组，若弱引用的地址指向该对象，则将该弱引用置为nil
     for (size_t i = 0; i < count; ++i) {
         objc_object **referrer = referrers[i];
         if (referrer) {
