@@ -572,6 +572,7 @@ public:
   }
 };
 
+
 template<typename KeyT, typename ValueT,
          bool ZeroValuesArePurgeable = false, 
          typename KeyInfoT = DenseMapInfo<KeyT> >

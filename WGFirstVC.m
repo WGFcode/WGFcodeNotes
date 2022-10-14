@@ -11,51 +11,29 @@
 #import "WGTargetProxy.h"
 #import "WGSort.h"
 
+//typedef void(^WGBlock)(void);
 
 @interface WGFirstVC()
 @property(nonatomic, strong) CADisplayLink *link;
 @property(nonatomic, strong) NSTimer *timer;
-
+@property(nonatomic, strong) NSObject *observerName;
+@property(nonatomic, assign) int age;
 @end
 
 @implementation WGFirstVC
 
--(NSTimer *)timer {
-    if (_timer == nil) {
-        _timer = [[NSTimer alloc]init];
-    }
-    return _timer;
-}
 
 
 - (void)viewDidLoad {
+    
     [super viewDidLoad];
-    self.view.backgroundColor = UIColor.lightGrayColor;
-//    WGSort *sort = [[WGSort alloc] init];
-//    [sort sort_quick];
-    
-    
-//    self.timer = [NSTimer timerWithTimeInterval:1 target:self selector:@selector(test) userInfo:nil repeats:YES];
-//    [[NSRunLoop currentRunLoop] addTimer:self.timer forMode:NSRunLoopCommonModes];
-    
-    //self.timer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(test) userInfo:nil repeats:YES];
-    
-    //self.timer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:[WGTargetProxy proxyWithTarget:self] selector:@selector(test) userInfo:nil repeats:YES];
-    
+    self.view.backgroundColor = UIColor.whiteColor;
+
 }
 
--(void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
-   // [self.timer invalidate];
-    
-    WGMainObjcVC *vc = [[WGMainObjcVC alloc]init];
-    [self.navigationController pushViewController:vc animated:YES];
-}
 
 -(void)dealloc {
     NSLog(@"---%s",__func__);
 }
 
--(void)test{
-    NSLog(@"-----%s-----",__func__);
-}
 @end

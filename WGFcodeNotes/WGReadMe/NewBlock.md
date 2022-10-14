@@ -887,7 +887,7 @@
 #### 6.2 __block本质
 1. __block可以用于解决block内部无法修改auto变量值的问题
 2. __block不能修改全局变量、静态变量(static)
-3. 编译器会将__block修改的变量包装成一个对象 
+3. 编译器会将__block修饰的变量包装成一个对象 
 #### 接着上面的例子,来分析下它的C++代码
 
     int main(int argc, const char * argv[]) {

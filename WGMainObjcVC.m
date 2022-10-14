@@ -22,6 +22,58 @@
  
  */
 
+/*
+ Swift
+ Swift中struct和class有什么区别？
+ Swift中的方法调用有哪些形式？
+ Swift和OC有什么区别？
+ 从OC向Swift迁移的时候遇到过什么问题？
+ 怎么理解面向协议编程？
+ OC语法
+ Block是如何实现的？Block对应的数据结构是什么样子的？__block的作用是什么？它对应的数据结构又是什么样子的？
+ GCD中的Block是在堆上还是栈上？
+ NSCoding协议是干什么用的？
+ KVO的实现原理
+ NSOperation有哪些特性比着GCD有哪些优点，它有哪些API？
+ NSNotificaiton是同步还是异步的，如果发通知时在子线程，接收在哪个线程？
+
+ 
+ UI
+ 事件响应链是如何传递的？
+ 什么是异步渲染？
+ layoutsubviews是在什么时机调用的？
+ 一张图片的展示经历了哪些步骤？
+ 什么是离屏渲染，什么情况会导致离屏渲染？
+ CoreAnimation这个框架的作用什么，它跟UIKit的关系是什么？
+ 
+ 引用计数
+ ARC方案的原理是什么？它是在什么时候做的隐式添加release操作？
+ 循环引用有哪些场景，如何避免？
+ 为什么当我们在使用block时外面是weak 声明一个weakSelf，还要在block内部使用strong再持有一下？
+ Autoreleasepool是实现机制是什么？它是什么时候释放内部的对象的？它内部的数据结构是什么样的？当我提到哨兵对象时，会继续问哨兵对象的作用是什么，为什么要设计它？
+ 哪些对象会放入到Autoreleasepool中？
+ weak的实现原理是什么？当引用对象销毁是它是如何管理内部的Hash表的？（这里要参阅weak源码）
+ 
+ Runtime
+ 消息发送的流程是怎样的？
+ 关联对象时什么情况下会导致内存泄露？
+ 消息转发的流程是什么？
+ category能否添加属性，为什么？能否添加实例变量，为什么？
+ 元类的作用是什么？
+ 类方法是存储到什么地方的？类属性呢？
+ 讲几个runtime的应用场景
+ 
+ Runloop
+ 讲一下对Runloop的理解？
+ 可以用Runloop实现什么功能？
+ 性能优化
+ 对TableView进行性能优化有哪些方式？
+ Xcode的Instruments都有哪些调试的工具？
+ 讲一下你做过的性能优化的事情。
+ 如何检测卡顿，都有哪些方法？
+ 缩小包体积有哪些方案
+ */
+
 #import "WGMainObjcVC.h"
 #import <UIKit/UIKit.h>
 #import <objc/runtime.h>
@@ -45,6 +97,8 @@
 
 #import "Person.h"
 #import "Student.h"
+#import "Car.h"
+#import "WGFirstVC.h"
 
 
 
@@ -53,24 +107,83 @@
 
 @interface WGMainObjcVC()
 
+
 @end
 
 @implementation WGMainObjcVC
 
+/*
 
+
+ */
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    
     self.view.backgroundColor = UIColor.lightGrayColor;
-    NSLog(@"---start");
-    //串行队列
-    dispatch_queue_t queue = dispatch_queue_create("queue", DISPATCH_QUEUE_SERIAL);
-    dispatch_sync(queue, ^{
-        NSLog(@"111111");
-    });
-    NSLog(@"----end");
+    /*
+     类方法是存储到什么地方的？类属性呢？
+     
+     //类class属性，编译器不会生成类属性的setter/getter方法;⚠️必须我们自己实现，否则在使用的时候会报错
+     @property(nonatomic, strong, class) NSString *name;
+     // 对象属性，默认编译器会生成属性的setter/getter方法声明、实现、带下划线(_parentName)的成员变量
+     @property(nonatomic, strong) NSString *parentName;
+
+     类方法、类属性都存储在元类对象中
+     
+    */
+
+    
+    
+    
+    /*
+      person
+      block  --------> block
+                ----weak person----
+                内部又有个block对weak person是强引用
+                   
+     
+     
+     */
+    
+    
+//    Car *car = [[Car alloc]init];
+//    car.name = @"张三";
+//    __weak Car *weakCar = car;
+//    car.block = ^{
+//        NSLog(@"11111");
+//        __strong Car *strongCar = weakCar;
+//        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2.0 *NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+//            //NSLog(@"2222--%@",weakCar.name);
+//            NSLog(@"2222--%@",strongCar.name);
+//        });
+//        //NSLog(@"2222--%@",weakCar.name);
+//        NSLog(@"3333");
+//    };
+//    car.block();
 }
+
+
+-(void)test1 {
+    Person *person = [[Person alloc]init];
+    person.age = 18;
+    __weak Person *weakPerson = person;
+    person.personBlock = ^{
+        __strong Person *strongPerson = weakPerson;
+        NSLog(@"1111");
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2.0*NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            NSLog(@"person age is %d",strongPerson.age);
+        });
+        NSLog(@"2222");
+    };
+    person.personBlock();
+}
+
+
+
+-(void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+    [self.navigationController pushViewController:[[WGFirstVC alloc]init] animated:YES];
+}
+
 
 
 

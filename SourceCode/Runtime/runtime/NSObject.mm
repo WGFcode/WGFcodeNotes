@@ -132,14 +132,71 @@ namespace {
 #define SIDE_TABLE_RC_SHIFT 2
 #define SIDE_TABLE_FLAG_MASK (SIDE_TABLE_RC_ONE-1)
 
+//MARK: ⚠️RefcountMap 引用计数表底层结构
 /*
- ⚠️RefcountMap 引用计数表底层结构
  引用计数Map,其实就是个以objc_object为key的hash表，value值对应的就是该对象的引用计数
  三个参数对应的就是：key类型、value类型、是否需要在value=0时释放掉响应的hash节点，这里写的是true
  */
 // RefcountMap disguises its pointers because we 
 // don't want the table to act as a root for `leaks`.
 typedef objc::DenseMap<DisguisedPtr<objc_object>,size_t,true> RefcountMap;
+
+
+/*
+ DenseMap 又是一个模板类   【从其他地方搬过来的 方便在当前页面查看】
+ 1. ZeroValuesArePurgeable默认是false，但是RefcountMap引用计数表指定其初始化为true；意思就是是否可以使用值为0(引用计数为 1)的桶
+ 因为空桶存的初始值就是 0, 所以值为 0 的桶和空桶没什么区别.如果允许使用值为 0 的桶, 查找桶时如果没有找到对象对应的桶, 也没有找到墓碑桶,
+ 就会优先使用值为 0 的桶.
+ 2. Buckets 指针管理一段连续内存空间, 也就是数组，元素类型是BucketT类型，BucketT类型其实就类似swift中的元素(对象地址,引用计数)；在申请空间后会进行初始化
+ 在所有位置上都放上空桶（桶的 key 为 EmptyKey 时是空桶),之后对引用计数的操作, 都要依赖于桶;这里苹果把BucketT叫桶，
+ 实际上Buckets数组才叫桶，苹果把数组中的元素称为桶应该是为了形象一些
+ 3.NumEntries 记录数组中已使用的非空的桶的个数
+ 4.NumTombstones, Tombstone 直译为墓碑, 当一个对象的引用计数为0, 要从桶中取出时, 其所处的位置会被标记为 Tombstone. NumTombstones 就是数组中的墓碑的个数；
+ 当一个对象A引用计数为0时，被释放掉后，就会将该位置(例如下标3)的桶标记为墓碑，下次如果有新的对象B加入，哈希算法后找到的下标就是墓碑所在的下标（下标3），会将这个位置（下标3）记录下来，
+ 然后继续哈希算法查找位置，如果查找到空桶，就说明在桶数组中之前没有对象B，那么就将墓碑所在的下标（下标3）来存储对象B，这样就可以利用到已经释放的位置了
+ 5.NumBuckets 桶的数量, 因为数组中始终都充满桶, 所以可以理解为数组大小
+ 
+ 大概执行流程：
+ 1.通过哈希函数计算出对象地址的哈希值(下标)，然后通过哈希值(下标)从Sidetables哈希表中找到SideTable,哈希值重复的对象的引用计数存储在同一个 SideTable 里.
+ 2.在SideTable中获取到引用计数标后，通过对象地址查找到对应的桶，然后对引用计数进行【加】或者【减】
+ */
+template<typename KeyT, typename ValueT,
+         bool ZeroValuesArePurgeable = false,
+         typename KeyInfoT = DenseMapInfo<KeyT> >
+class DenseMap
+    : public DenseMapBase<DenseMap<KeyT, ValueT, ZeroValuesArePurgeable, KeyInfoT>,
+                          KeyT, ValueT, KeyInfoT, ZeroValuesArePurgeable> {
+  // Lift some types from the dependent base class into this class for
+  // simplicity of referring to them.
+  typedef DenseMapBase<DenseMap, KeyT, ValueT, KeyInfoT, ZeroValuesArePurgeable> BaseT;
+  typedef typename BaseT::BucketT BucketT;
+  friend class DenseMapBase<DenseMap, KeyT, ValueT, KeyInfoT, ZeroValuesArePurgeable>;
+
+  BucketT *Buckets;
+  unsigned NumEntries;
+  unsigned NumTombstones;
+  unsigned NumBuckets;
+  ......
+                              
+  template<typename InputIt>
+  DenseMap(const InputIt &I, const InputIt &E) {
+    init(NextPowerOf2(std::distance(I, E)));
+    this->insert(I, E);
+  }
+                              
+  // 这是对应 64 位的提供数组大小的方法, 需要为桶数组开辟空间时, 会由这个方法来决定数组大小
+  //⚠️简单理解就是桶数组的大小会是 2^n.为什么数组的大小是这个规律，是为了哈希出来的哈希值通过映射后，能够均匀的分布到数组中
+  inline uint64_t NextPowerOf2(uint64_t A) {
+    A |= (A >> 1);
+    A |= (A >> 2);
+    A |= (A >> 4);
+    A |= (A >> 8);
+    A |= (A >> 16);
+    A |= (A >> 32);
+    return A + 1;
+  }
+}
+                              
 
 
 // Template parameters.
@@ -508,7 +565,7 @@ objc_storeWeakOrNil(id *location, id newObj)
  1.在初始化阶段：Runtime会调用objc_initWeak方法，这个方法首先判断传入的对象是否为nil，若为nil，
  则直接将弱引用的指针设置为nil，并直接返回nil；若不为nil，则会初始化一个新的weak指针指向对象的地址。
  2.添加引用阶段：objc_initWeak方法会调用storeWeak方法，在storeWeak方法中，更新指针指向，创建对应的弱引用表，将弱引用指针添加到弱引用表中
- 3.释放时
+ 3.释放时调用clearDeallocating函数。clearDeallocating函数首先根据对象地址获取所有weak指针地址的数组，然后遍历这个数组把其中的数据设为nil，最后把这个entry从weak表中删除，清理对象的记录
  
  spinlock_t slock;           //自旋锁：用于上锁/解锁SideTable
  RefcountMap refcnts;        //OC对象引用计数Map（key为对象，value为引用计数）

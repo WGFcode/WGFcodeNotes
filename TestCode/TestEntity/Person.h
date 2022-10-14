@@ -18,8 +18,11 @@ NS_ASSUME_NONNULL_BEGIN
 //extern NSString *const name2;   //声明全局常量-外部不能修改
 
 
+typedef void(^WGBlock)(void);
 
 @interface Person : NSObject
+@property(nonatomic, assign) int age;
+@property(nonatomic, copy) WGBlock personBlock;
 
 -(void)run;
 
