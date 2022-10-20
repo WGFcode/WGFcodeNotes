@@ -817,7 +817,8 @@ struct magic_t {
 };
 /*
  1. 每个AutoreleasePoolPage占用4096个字节，除了用来存放它内部的成员变量外，剩下的空间用来存放autorelease对象的地址
- AutoreleasePoolPage内部成员变量有7个，成员变量占用56个字节，剩下的4040个字节用来存放autorelease对象
+ AutoreleasePoolPage内部成员变量有7个，成员变量占用56个字节，剩下的4040个字节用来存放autorelease对象，第一页最多存放【504个对象】，
+ 从第二页开始最多存储【505个对象】
  2. 所有的AutoreleasePoolPage对象都是通过双向链表的形式连接在一起
  3. 一个AutoreleasePoolPage的空间被占满时，会新建一个新的AutoreleasePoolPage对象，连接链表，后来的autorelease对象加入到新的page
  4. 调用push方法时，会先将一个POOL_BOUNDARY(哨兵对象/边界对象)入栈POOL_BOUNDARY，值为nil，作为边界，然后返回这个边界对象POOL_BOUNDARY
@@ -897,11 +898,13 @@ class AutoreleasePoolPage
         mprotect(this, SIZE, PROT_READ | PROT_WRITE);
 #endif
     }
-
+    // 构造函数
     AutoreleasePoolPage(AutoreleasePoolPage *newParent) 
-        : magic(), next(begin()), thread(pthread_self()),
+        : magic(),
+          next(begin()),   //开始存储的位置
+          thread(pthread_self()), //传的是当前线程，
           parent(newParent), child(nil), 
-          depth(parent ? 1+parent->depth : 0), 
+          depth(parent ? 1+parent->depth : 0),  //如果是第一页深度为0，往后是前一个的深度+1
           hiwat(parent ? parent->hiwat : 0)
     { 
         if (parent) {
@@ -914,6 +917,7 @@ class AutoreleasePoolPage
         protect();
     }
 
+    //析构函数
     ~AutoreleasePoolPage() 
     {
         check();
@@ -959,15 +963,14 @@ class AutoreleasePoolPage
 #endif
     }
 
-    
+    //页的开始位置
     id * begin() {
         return (id *) ((uint8_t *)this+sizeof(*this));
     }
-    
+    //页的结束位置
     id * end() {
         return (id *) ((uint8_t *)this+SIZE);
     }
-    
     //⚠️当 next == begin() 时，表示 AutoreleasePoolPage 为空
     bool empty() {
         return next == begin();
@@ -976,43 +979,43 @@ class AutoreleasePoolPage
     bool full() { 
         return next == end();
     }
-
+    //页的存储是否少于空间的一半
     bool lessThanHalfFull() {
         return (next - begin() < (end() - begin()) / 2);
     }
-
-
-    void releaseAll() 
-    {
+    // 释放所有对象 知道开始位置(哨兵对象所在的位置)
+    void releaseAll() {
         releaseUntil(begin());
     }
-
-    void releaseUntil(id *stop) 
-    {
+    //释放到stop位置之前的所有对象
+    void releaseUntil(id *stop) {
         // Not recursive: we don't want to blow out the stack 
         // if a thread accumulates a stupendous amount of garbage
-        
+        //判断下一个对象是否等于stop，如果不等于，则进入while循环
         while (this->next != stop) {
             // Restart from hotPage() every time, in case -release 
             // autoreleased more objects
+            //获取当前操作页面，即hot页面
             AutoreleasePoolPage *page = hotPage();
-
+            
+            //如果当前页是空的
             // fixme I think this `while` can be `if`, but I can't prove it
             while (page->empty()) {
-                page = page->parent;
-                setHotPage(page);
+                page = page->parent; //将page赋值为父节点页
+                setHotPage(page);    //并设置当前页为父节点页
             }
 
             page->unprotect();
+            //next进行--操作，即出栈
             id obj = *--page->next;
+            //将页索引位置置为SCRIBBLE，表示已经被释放
             memset((void*)page->next, SCRIBBLE, sizeof(*page->next));
             page->protect();
-
-            if (obj != POOL_BOUNDARY) {
-                objc_release(obj);
+            if (obj != POOL_BOUNDARY) { //只要obj不是哨兵对象，就一直遍历然后进行release操作
+                objc_release(obj); //释放
             }
         }
-
+        //设置当前页
         setHotPage(this);
 
 #if DEBUG
@@ -1022,29 +1025,30 @@ class AutoreleasePoolPage
         }
 #endif
     }
-
-    void kill() 
-    {
+    //销毁当前页，将当前页赋值为父节点页，并将父节点页的child对象指针置为nil
+    void kill() {
         // Not recursive: we don't want to blow out the stack 
         // if a thread accumulates a stupendous amount of garbage
         AutoreleasePoolPage *page = this;
+        //获取最后一个页
         while (page->child) page = page->child;
 
         AutoreleasePoolPage *deathptr;
         do {
             deathptr = page;
+            //子节点 变成 父节点
             page = page->parent;
             if (page) {
                 page->unprotect();
+                //子节点为nil
                 page->child = nil;
                 page->protect();
             }
             delete deathptr;
         } while (deathptr != this);
     }
-
-    static void tls_dealloc(void *p) 
-    {
+    //释放本地线程存储空间
+    static void tls_dealloc(void *p) {
         if (p == (void*)EMPTY_POOL_PLACEHOLDER) {
             // No objects or pool pages to clean up here.
             return;
@@ -1065,56 +1069,48 @@ class AutoreleasePoolPage
         // clear TLS value so TLS destruction doesn't loop
         setHotPage(nil);
     }
-
-    static AutoreleasePoolPage *pageForPointer(const void *p) 
-    {
+    //获取AutoreleasePoolPage
+    static AutoreleasePoolPage *pageForPointer(const void *p) {
         return pageForPointer((uintptr_t)p);
     }
-
-    static AutoreleasePoolPage *pageForPointer(uintptr_t p) 
-    {
+    //获取AutoreleasePoolPage
+    static AutoreleasePoolPage *pageForPointer(uintptr_t p)  {
         AutoreleasePoolPage *result;
         uintptr_t offset = p % SIZE;
-
         assert(offset >= sizeof(AutoreleasePoolPage));
-
         result = (AutoreleasePoolPage *)(p - offset);
         result->fastcheck();
-
         return result;
     }
 
-
-    static inline bool haveEmptyPoolPlaceholder()
-    {
+    //是否有空池占位符
+    static inline bool haveEmptyPoolPlaceholder(){
         id *tls = (id *)tls_get_direct(key);
         return (tls == EMPTY_POOL_PLACEHOLDER);
     }
-
-    static inline id* setEmptyPoolPlaceholder()
-    {
+    //设置空池占位符
+    static inline id* setEmptyPoolPlaceholder(){
         assert(tls_get_direct(key) == nil);
         tls_set_direct(key, (void *)EMPTY_POOL_PLACEHOLDER);
         return EMPTY_POOL_PLACEHOLDER;
     }
-
-    static inline AutoreleasePoolPage *hotPage() 
-    {
+    //获取当前操作页
+    static inline AutoreleasePoolPage *hotPage() {
+        //获取当前页
         AutoreleasePoolPage *result = (AutoreleasePoolPage *)
             tls_get_direct(key);
+        //如果是一个空池，则返回nil，否则，返回当前线程的自动释放池
         if ((id *)result == EMPTY_POOL_PLACEHOLDER) return nil;
         if (result) result->fastcheck();
         return result;
     }
-    //设置当前可操作的page
-    static inline void setHotPage(AutoreleasePoolPage *page) 
-    {
+    //设置当前操作页
+    static inline void setHotPage(AutoreleasePoolPage *page) {
         if (page) page->fastcheck();
         tls_set_direct(key, (void *)page);
     }
-
-    static inline AutoreleasePoolPage *coldPage() 
-    {
+    //获取coldPage
+    static inline AutoreleasePoolPage *coldPage() {
         AutoreleasePoolPage *result = hotPage();
         if (result) {
             while (result->parent) {
@@ -1126,88 +1122,103 @@ class AutoreleasePoolPage
     }
     
     //MARK: ⚠️autoreleasePool自动释放池第2⃣️步
+    /*判断是否有pool，
+      有则通过autoreleaseFast压栈【哨兵】对象
+      没有则通过autoreleaseNewPage方法创建；
+     */
     static inline void *push()
     {
         id *dest;
-        if (DebugPoolAllocation) {  //区别Debug模式
+        if (DebugPoolAllocation) { //判断是否有pool
             // Each autorelease pool starts on a new pool page.
-            //调试模式下，将新建一个链表结点，并将哨兵对象POOL_BOUNDARY加入链表栈中
+            //如果没有，则创建
             dest = autoreleaseNewPage(POOL_BOUNDARY);
         } else {
-            //将哨兵对象POOL_BOUNDARY加入链表栈中
+            //压栈一个POOL_BOUNDARY，即压栈哨兵
             dest = autoreleaseFast(POOL_BOUNDARY);
         }
         assert(dest == EMPTY_POOL_PLACEHOLDER || *dest == POOL_BOUNDARY);
         return dest;
     }
     
-    //MARK: ⚠️autoreleasePool自动释放池第2⃣️.1⃣️步
-    //新建一个链表，并将哨兵对象加入链表栈中
+    //MARK: ⚠️autoreleasePool自动释放池第2⃣️.1⃣️步 创建新页
+    /* 通过hotPage获取当前页，判断当前页是否存在
+     如果存在，则通过 autoreleaseFullPage 方法压栈对象
+     如果不存在，则通过 autoreleaseNoPage 方法创建页
+     */
     static __attribute__((noinline))
-    id *autoreleaseNewPage(id obj)
-    {
+    id *autoreleaseNewPage(id obj) {
+        //获取当前操作页
         AutoreleasePoolPage *page = hotPage();   //获取当前最新的page，即当前可操作的page
-        if (page) {  //若page不为nil，但是page已经满了，则新建一个page
+        if (page) { //如果存在，则压栈对象
             return autoreleaseFullPage(obj, page);
-        }else {  //若没有page,则新建page
+        }else {  //如果不存在，则创建页
             return autoreleaseNoPage(obj);
         }
     }
 
-    //MARK: ⚠️autoreleasePool自动释放池第3⃣️步
-    static inline id *autoreleaseFast(id obj)
-    {
-        AutoreleasePoolPage *page = hotPage(); //获取最新的page,即链表上最新的结点
+    //MARK: ⚠️autoreleasePool自动释放池第3⃣️步 压栈对象
+    static inline id *autoreleaseFast(id obj) {
+        //获取当前操作页
+        AutoreleasePoolPage *page = hotPage();
+        //判断页是否满了
         if (page && !page->full()) { //page不为nil且没有装满，则直接将autorelease对象添加到栈中
+            //如果未满，则压栈
             return page->add(obj);
         } else if (page) { //若page装满了，则新建一个page,将autorelease对象添加到新创建的page栈中
+            //如果满了，则安排新的页面
             return autoreleaseFullPage(obj, page);
         } else { //在没有page的情况下，则新建一个page,将autorelease对象添加到新创建的page栈中
+            //页不存在，则新建页
             return autoreleaseNoPage(obj);
         }
     }
     
-    //MARK: ⚠️autoreleasePool自动释放池第4⃣️步
+    //MARK: ⚠️autoreleasePool自动释放池第4⃣️步 添加释放对象
     id *add(id obj) //入栈操作，将autorelease对象加入AutoreleasePoolPage栈中
     {
         assert(!full());
         unprotect();     //解除保护
+        //传入对象存储的位置
         id *ret = next;  // faster than `return next-1` because of aliasing
+        //将obj压栈到next指针位置，然后next进行++，即下一个对象存储的位置
         *next++ = obj;  //将obj入栈，并重新定位栈定(next就是栈顶，即可以存放下一个对象的地方)
         protect();  //添加保护
         return ret;   //返回当前next地址，用于传递给pop方法参数，就是当前page中最后添加对象的地址
     }
     
-    //MARK: ⚠️autoreleasePool自动释放池第5⃣️步
+    //MARK: ⚠️autoreleasePool自动释放池第5⃣️步  添加自动释放对象，当页满的时候调用这个方法
     static __attribute__((noinline))
-    id *autoreleaseFullPage(id obj, AutoreleasePoolPage *page)
-    {
+    id *autoreleaseFullPage(id obj, AutoreleasePoolPage *page) {
         // The hot page is full. 
         // Step to the next non-full page, adding a new page if necessary.
         // Then add the object to that page.
         assert(page == hotPage());
         assert(page->full()  ||  DebugPoolAllocation);
-
+        //do-while遍历循环查找界面是否满了
         do {
+            //如果子页面存在，则将页面替换为子页面
             if (page->child) {  //若当前page的下一个page(b)不为空，则将当前page的child指向下一个page(b),让page(b)作为当前可操作的page
                 page = page->child;
             }else {  //若当前page的下一个page为nil，则需要建建一个page，作为当前可操作的page
+                //如果子页面不存在，则新建页面
                 page = new AutoreleasePoolPage(page);
             }
         } while (page->full());
-        //设置当前最新的page（即当前可操作的page）
+        //设置为当前操作页（即当前可操作的page）
         setHotPage(page);
+        //对象压栈
         return page->add(obj);  //将autorelease对象入栈
     }
 
-    //MARK: ⚠️autoreleasePool自动释放池第6⃣️步
+    //MARK: ⚠️autoreleasePool自动释放池第6⃣️步 添加自动释放对象，当没页的时候使用这个方法
     static __attribute__((noinline))
-    id *autoreleaseNoPage(id obj)
-    {
+    id *autoreleaseNoPage(id obj) {
         // "No page" could mean no pool has been pushed
         // or an empty placeholder pool has been pushed and has no contents yet
         assert(!hotPage());
 
+        //判断是否有空占位符，如果有，则压栈哨兵标识符置为YES
         bool pushExtraBoundary = false;
         if (haveEmptyPoolPlaceholder()) {
             // We are pushing a second pool over the empty placeholder pool
@@ -1216,6 +1227,7 @@ class AutoreleasePoolPage
             // that is currently represented by the empty placeholder.
             pushExtraBoundary = true;
         }
+        //如果对象不是哨兵对象，且没有Pool，则报错
         else if (obj != POOL_BOUNDARY  &&  DebugMissingPools) {
             // We are pushing an object with no pool in place, 
             // and no-pool debugging was requested by environment.
@@ -1227,29 +1239,34 @@ class AutoreleasePoolPage
             objc_autoreleaseNoPool(obj);
             return nil;
         }
+        //如果对象是哨兵对象，且没有申请自动释放池内存，则设置一个空占位符存储在tls中，其目的是为了节省内存
         else if (obj == POOL_BOUNDARY  &&  !DebugPoolAllocation) {
             // We are pushing a pool with no pool in place,
             // and alloc-per-pool debugging was not requested.
             // Install and return the empty pool placeholder.
-            return setEmptyPoolPlaceholder();
+            return setEmptyPoolPlaceholder(); //设置空的占位符
         }
 
         // We are pushing an object or a non-placeholder'd pool.
         
         // Install the first page.
+        // 初始化第一页
         AutoreleasePoolPage *page = new AutoreleasePoolPage(nil);  //新创建一个page，
+        //设置page为当前操作页
         setHotPage(page);   //并设置该page为当前可操作的page
         
         // Push a boundary on behalf of the previously-placeholder'd pool.
+        // 压栈哨兵的标识符为YES，则压栈哨兵对象
         if (pushExtraBoundary) {
             page->add(POOL_BOUNDARY);   //然后将哨兵对象POOL_BOUNDARY压入栈中
         }
         //先将哨兵对象POOL_BOUNDARY压入栈中，然后将对象添加到page栈中
         // Push the requested object or pool.
+        //压栈对象
         return page->add(obj);
     }
 
-
+    //自动释放
 public:
     static inline id autorelease(id obj)
     {
@@ -1286,13 +1303,15 @@ public:
     }
     
     //执行pop出栈时，会传入push操作的返回值，即POOL_BOUNDARY的内存地址token，根据token找到哨兵对象所在，并释放之前的对象，next指针--
+    //【哨兵对象】目的就是为了：其目的是避免出栈混乱，防止将别的对象出栈
     //MARK: ⚠️autoreleasePool自动释放池第8⃣️步
     static inline void pop(void *token) 
     {
         AutoreleasePoolPage *page;
         id *stop;
-
+        // 判断对象是否是空占位符
         if (token == (void*)EMPTY_POOL_PLACEHOLDER) {
+            //如果是空占位符，获取当前页
             // Popping the top-level placeholder pool.
             if (hotPage()) {
                 // Pool was used. Pop its contents normally.
@@ -1300,19 +1319,24 @@ public:
                 pop(coldPage()->begin());
             } else {
                 // Pool was never used. Clear the placeholder.
+                //如果当前页不存在，则清除空占位符
                 setHotPage(nil);
             }
             return;
         }
         //根据传入的哨兵对象地址，找到对应的可操作的page
+        //获取token所在的页
         page = pageForPointer(token);
         stop = (id *)token;
+        //判断最后一个位置，是否是哨兵
         if (*stop != POOL_BOUNDARY) {
             if (stop == page->begin()  &&  !page->parent) {
+                // 如果是第一个位置，且没有父节点，什么也不做
                 // Start of coldest page may correctly not be POOL_BOUNDARY:
                 // 1. top-level pool is popped, leaving the cold page in place
                 // 2. an object is autoreleased with no pool
             } else {
+                //如果是第一个位置，且有父节点，则出现了混乱
                 // Error. For bincompat purposes this is not 
                 // fatal in executables built with old SDKs.
                 return badPop(token);

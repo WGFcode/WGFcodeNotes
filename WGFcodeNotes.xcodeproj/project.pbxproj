@@ -50,6 +50,8 @@
 		30AB3011284DE529009EC03C /* 常见面试题.md in Resources */ = {isa = PBXBuildFile; fileRef = 30AB3010284DE529009EC03C /* 常见面试题.md */; };
 		30BB26BB244BF62B00255288 /* NSNotification.md in Resources */ = {isa = PBXBuildFile; fileRef = 30BB26BA244BF62B00255288 /* NSNotification.md */; };
 		30C1F2B82431F0C7003B30B3 /* face.md in Resources */ = {isa = PBXBuildFile; fileRef = 30C1F2B72431F0C7003B30B3 /* face.md */; };
+		30C4AC4528FD5A5800B1EE03 /* Car+Car1.m in Sources */ = {isa = PBXBuildFile; fileRef = 30C4AC4428FD5A5800B1EE03 /* Car+Car1.m */; };
+		30C4AC4828FD5A6900B1EE03 /* Car+Car2.m in Sources */ = {isa = PBXBuildFile; fileRef = 30C4AC4728FD5A6900B1EE03 /* Car+Car2.m */; };
 		30CAB9E82852EA980030BF1C /* iOS包体积优化.md in Resources */ = {isa = PBXBuildFile; fileRef = 30CAB9E72852EA980030BF1C /* iOS包体积优化.md */; };
 		30D0895B278BCED6003EAFAC /* WGDynamicArray.m in Sources */ = {isa = PBXBuildFile; fileRef = 30D08958278BCED6003EAFAC /* WGDynamicArray.m */; };
 		30D0895C278BCED6003EAFAC /* DynamicArray.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30D08959278BCED6003EAFAC /* DynamicArray.swift */; };
@@ -1806,6 +1808,10 @@
 		30AB3010284DE529009EC03C /* 常见面试题.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "常见面试题.md"; sourceTree = "<group>"; };
 		30BB26BA244BF62B00255288 /* NSNotification.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = NSNotification.md; sourceTree = "<group>"; };
 		30C1F2B72431F0C7003B30B3 /* face.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = face.md; sourceTree = "<group>"; };
+		30C4AC4328FD5A5800B1EE03 /* Car+Car1.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Car+Car1.h"; sourceTree = "<group>"; };
+		30C4AC4428FD5A5800B1EE03 /* Car+Car1.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Car+Car1.m"; sourceTree = "<group>"; };
+		30C4AC4628FD5A6900B1EE03 /* Car+Car2.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Car+Car2.h"; sourceTree = "<group>"; };
+		30C4AC4728FD5A6900B1EE03 /* Car+Car2.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Car+Car2.m"; sourceTree = "<group>"; };
 		30C7D40C2439C05000EA99C6 /* NSOperation.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = NSOperation.md; sourceTree = "<group>"; };
 		30CAB9E72852EA980030BF1C /* iOS包体积优化.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = "iOS包体积优化.md"; sourceTree = "<group>"; };
 		30D08958278BCED6003EAFAC /* WGDynamicArray.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WGDynamicArray.m; sourceTree = "<group>"; };
@@ -2429,6 +2435,10 @@
 				544008882606DB1F00233364 /* Car.m */,
 				30D3DF70245E74790012F803 /* WGTestModel.h */,
 				30D3DF71245E74790012F803 /* WGTestModel.m */,
+				30C4AC4328FD5A5800B1EE03 /* Car+Car1.h */,
+				30C4AC4428FD5A5800B1EE03 /* Car+Car1.m */,
+				30C4AC4628FD5A6900B1EE03 /* Car+Car2.h */,
+				30C4AC4728FD5A6900B1EE03 /* Car+Car2.m */,
 			);
 			path = TestEntity;
 			sourceTree = "<group>";
@@ -5377,8 +5387,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				30C4AC4528FD5A5800B1EE03 /* Car+Car1.m in Sources */,
 				30D08971278BCF3B003EAFAC /* WGDoubleNode.m in Sources */,
 				30D0895C278BCED6003EAFAC /* DynamicArray.swift in Sources */,
+				30C4AC4828FD5A6900B1EE03 /* Car+Car2.m in Sources */,
 				30D08964278BCF0A003EAFAC /* WGSingleList.m in Sources */,
 				57070507270F36B3002A2ACC /* 斐波那契数.swift in Sources */,
 				30313DC2253829F600941BE5 /* WGTargetProxy.m in Sources */,

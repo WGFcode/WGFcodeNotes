@@ -22,6 +22,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 
 @property(nonatomic, copy) WGBlock block;
+
+
+-(void)test;
 @end
 
 NS_ASSUME_NONNULL_END

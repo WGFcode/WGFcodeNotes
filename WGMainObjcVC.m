@@ -121,46 +121,30 @@
     [super viewDidLoad];
     self.view.backgroundColor = UIColor.lightGrayColor;
     /*
-     类方法是存储到什么地方的？类属性呢？
+     内存泄漏:
+     动态分配内存的对象，在使用完后没有被系统回收内存，导致对象一直占据着内存，属于内存管理出错
+     僵尸对象:
+     已经被销毁的对象(不能再使用的对象),内存已经被回收的对象,引用计数为0对象被释放后就变成僵尸对象了
+     野指针:
+     野指针[悬挂指针]，出现的原因是因为【指针没有赋值】【指针指向的对象已经释放了, 比如指向僵尸对象】
+     野指针可能会指向一块垃圾内存,给野指针发送消息会导致程序崩溃
+     空指针:是一个没有指向任何内存的指针,空指针是有效指针,值为nil,NULL,Nil,0等,给空指针发送消息不会报错,不会响应消息
+     内存溢出:
+     当程序在申请内存时，没有足够的内存空间供其使用,比如申请了一个int,但给它存了long才能存下的数，那就是内存溢出
      
-     //类class属性，编译器不会生成类属性的setter/getter方法;⚠️必须我们自己实现，否则在使用的时候会报错
-     @property(nonatomic, strong, class) NSString *name;
-     // 对象属性，默认编译器会生成属性的setter/getter方法声明、实现、带下划线(_parentName)的成员变量
-     @property(nonatomic, strong) NSString *parentName;
+     
 
-     类方法、类属性都存储在元类对象中
+   
      
     */
-
-    
-    
-    
-    /*
-      person
-      block  --------> block
-                ----weak person----
-                内部又有个block对weak person是强引用
-                   
-     
-     
-     */
-    
-    
-//    Car *car = [[Car alloc]init];
-//    car.name = @"张三";
-//    __weak Car *weakCar = car;
-//    car.block = ^{
-//        NSLog(@"11111");
-//        __strong Car *strongCar = weakCar;
-//        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2.0 *NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-//            //NSLog(@"2222--%@",weakCar.name);
-//            NSLog(@"2222--%@",strongCar.name);
-//        });
-//        //NSLog(@"2222--%@",weakCar.name);
-//        NSLog(@"3333");
-//    };
-//    car.block();
+    NSMutableArray *arr = [NSMutableArray new];
+    [arr addObject:nil];
 }
+
+
+-(void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+}
+
 
 
 -(void)test1 {
@@ -180,9 +164,9 @@
 
 
 
--(void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
-    [self.navigationController pushViewController:[[WGFirstVC alloc]init] animated:YES];
-}
+//-(void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+//    [self.navigationController pushViewController:[[WGFirstVC alloc]init] animated:YES];
+//}
 
 
 
