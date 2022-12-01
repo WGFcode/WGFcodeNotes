@@ -43,6 +43,15 @@
 		30975816260C2DF800709A73 /* Person+PersonAAAAA.m in Sources */ = {isa = PBXBuildFile; fileRef = 30975815260C2DF800709A73 /* Person+PersonAAAAA.m */; };
 		309A2DB42665D97900212257 /* swift面试题.md in Resources */ = {isa = PBXBuildFile; fileRef = 309A2DB32665D97900212257 /* swift面试题.md */; };
 		309F9D682435D98700FFB705 /* ThreadLock.md in Resources */ = {isa = PBXBuildFile; fileRef = 309F9D672435D98700FFB705 /* ThreadLock.md */; };
+		30A6D11A293876550064B18A /* WGEncrypt.m in Sources */ = {isa = PBXBuildFile; fileRef = 30A6D119293876550064B18A /* WGEncrypt.m */; };
+		30A6D128293885150064B18A /* rsaCert.crt in Resources */ = {isa = PBXBuildFile; fileRef = 30A6D120293885140064B18A /* rsaCert.crt */; };
+		30A6D129293885150064B18A /* rsa_public_key.pem in Resources */ = {isa = PBXBuildFile; fileRef = 30A6D121293885140064B18A /* rsa_public_key.pem */; };
+		30A6D12A293885150064B18A /* pkcs8_private_key.pem in Resources */ = {isa = PBXBuildFile; fileRef = 30A6D122293885140064B18A /* pkcs8_private_key.pem */; };
+		30A6D12B293885150064B18A /* private_key.pem in Resources */ = {isa = PBXBuildFile; fileRef = 30A6D123293885140064B18A /* private_key.pem */; };
+		30A6D12C293885150064B18A /* private_key.p12 in Resources */ = {isa = PBXBuildFile; fileRef = 30A6D124293885140064B18A /* private_key.p12 */; };
+		30A6D12D293885150064B18A /* 保存的密码.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 30A6D125293885140064B18A /* 保存的密码.rtf */; };
+		30A6D12E293885150064B18A /* public_key.der in Resources */ = {isa = PBXBuildFile; fileRef = 30A6D126293885150064B18A /* public_key.der */; };
+		30A6D12F293885150064B18A /* rsaCerReq.csr in Resources */ = {isa = PBXBuildFile; fileRef = 30A6D127293885150064B18A /* rsaCerReq.csr */; };
 		30A73F332447F14A00C86BB8 /* kvc1.png in Resources */ = {isa = PBXBuildFile; fileRef = 30A73F322447F14A00C86BB8 /* kvc1.png */; };
 		30A7DC8124348703008DDCF9 /* lock1.png in Resources */ = {isa = PBXBuildFile; fileRef = 30A7DC8024348703008DDCF9 /* lock1.png */; };
 		30A7DC832434A43E008DDCF9 /* lock2.png in Resources */ = {isa = PBXBuildFile; fileRef = 30A7DC822434A43E008DDCF9 /* lock2.png */; };
@@ -1801,6 +1810,16 @@
 		30975815260C2DF800709A73 /* Person+PersonAAAAA.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Person+PersonAAAAA.m"; sourceTree = "<group>"; };
 		309A2DB32665D97900212257 /* swift面试题.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "swift面试题.md"; sourceTree = "<group>"; };
 		309F9D672435D98700FFB705 /* ThreadLock.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = ThreadLock.md; sourceTree = "<group>"; };
+		30A6D118293876550064B18A /* WGEncrypt.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WGEncrypt.h; sourceTree = "<group>"; };
+		30A6D119293876550064B18A /* WGEncrypt.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WGEncrypt.m; sourceTree = "<group>"; };
+		30A6D120293885140064B18A /* rsaCert.crt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = rsaCert.crt; sourceTree = "<group>"; };
+		30A6D121293885140064B18A /* rsa_public_key.pem */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = rsa_public_key.pem; sourceTree = "<group>"; };
+		30A6D122293885140064B18A /* pkcs8_private_key.pem */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = pkcs8_private_key.pem; sourceTree = "<group>"; };
+		30A6D123293885140064B18A /* private_key.pem */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = private_key.pem; sourceTree = "<group>"; };
+		30A6D124293885140064B18A /* private_key.p12 */ = {isa = PBXFileReference; lastKnownFileType = file; path = private_key.p12; sourceTree = "<group>"; };
+		30A6D125293885140064B18A /* 保存的密码.rtf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; path = "保存的密码.rtf"; sourceTree = "<group>"; };
+		30A6D126293885150064B18A /* public_key.der */ = {isa = PBXFileReference; lastKnownFileType = file; path = public_key.der; sourceTree = "<group>"; };
+		30A6D127293885150064B18A /* rsaCerReq.csr */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = rsaCerReq.csr; sourceTree = "<group>"; };
 		30A73F322447F14A00C86BB8 /* kvc1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = kvc1.png; sourceTree = "<group>"; };
 		30A7DC8024348703008DDCF9 /* lock1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = lock1.png; sourceTree = "<group>"; };
 		30A7DC822434A43E008DDCF9 /* lock2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = lock2.png; sourceTree = "<group>"; };
@@ -2260,6 +2279,7 @@
 		3015810A2455778B00EC6001 /* WGCore */ = {
 			isa = PBXGroup;
 			children = (
+				30A6D11B2938803D0064B18A /* Encrypt */,
 				30313DC0253829F600941BE5 /* WGTargetProxy.h */,
 				30313DC1253829F600941BE5 /* WGTargetProxy.m */,
 				30D089A0278BD0D8003EAFAC /* 数据结构与算法 */,
@@ -4600,6 +4620,23 @@
 			path = GNUstepBase;
 			sourceTree = "<group>";
 		};
+		30A6D11B2938803D0064B18A /* Encrypt */ = {
+			isa = PBXGroup;
+			children = (
+				30A6D125293885140064B18A /* 保存的密码.rtf */,
+				30A6D122293885140064B18A /* pkcs8_private_key.pem */,
+				30A6D124293885140064B18A /* private_key.p12 */,
+				30A6D123293885140064B18A /* private_key.pem */,
+				30A6D126293885150064B18A /* public_key.der */,
+				30A6D121293885140064B18A /* rsa_public_key.pem */,
+				30A6D127293885150064B18A /* rsaCerReq.csr */,
+				30A6D120293885140064B18A /* rsaCert.crt */,
+				30A6D118293876550064B18A /* WGEncrypt.h */,
+				30A6D119293876550064B18A /* WGEncrypt.m */,
+			);
+			path = Encrypt;
+			sourceTree = "<group>";
+		};
 		30A7DC7D24348382008DDCF9 /* WGScreenshots */ = {
 			isa = PBXGroup;
 			children = (
@@ -5317,7 +5354,9 @@
 				30FD76012435CD3100431678 /* NSThread.md in Resources */,
 				5422AC59244F3E8E000CB747 /* block2.png in Resources */,
 				30C1F2B82431F0C7003B30B3 /* face.md in Resources */,
+				30A6D12F293885150064B18A /* rsaCerReq.csr in Resources */,
 				54CBAE2824FFE4E500AEA0E5 /* iOS内存分区.md in Resources */,
+				30A6D128293885150064B18A /* rsaCert.crt in Resources */,
 				5463C26424B0115D008F9C9A /* CoreAnimal.md in Resources */,
 				545638D324B36CE5007D5447 /* HTTPTCPUDP.md in Resources */,
 				307A0E7B24456BD3006E5429 /* RunLoop.md in Resources */,
@@ -5329,6 +5368,7 @@
 				30CAB9E82852EA980030BF1C /* iOS包体积优化.md in Resources */,
 				540ED63C246990B600C6DAF7 /* KeyWord.md in Resources */,
 				3066E0F02435DD48004C71F7 /* GCD.md in Resources */,
+				30A6D12A293885150064B18A /* pkcs8_private_key.pem in Resources */,
 				5405874B2614AEEA0047AD5E /* 逆向工程.md in Resources */,
 				54C118BE2584EF8B00B39379 /* LLVM.md in Resources */,
 				548AC95F242F4B3200EEE11C /* LaunchScreen.storyboard in Resources */,
@@ -5346,13 +5386,17 @@
 				548F332024F15E8F00AB3540 /* Memory.md in Resources */,
 				3027FD3A2512197500E512FE /* Swift内存对齐问题.md in Resources */,
 				30FD94D4243DDE8400EAFAA3 /* error1.png in Resources */,
+				30A6D12E293885150064B18A /* public_key.der in Resources */,
 				548AC98D242F4CAD00EEE11C /* PackageIpaWithShell.md in Resources */,
 				543110B42530A23D007D0061 /* OC对象的本质.md in Resources */,
 				548AC990242F4CAD00EEE11C /* Framework.md in Resources */,
+				30A6D12B293885150064B18A /* private_key.pem in Resources */,
 				542D3D832518E61300394130 /* 分类扩展关联对象.md in Resources */,
 				548AC95C242F4B3200EEE11C /* Assets.xcassets in Resources */,
 				309F9D682435D98700FFB705 /* ThreadLock.md in Resources */,
+				30A6D12C293885150064B18A /* private_key.p12 in Resources */,
 				309A2DB42665D97900212257 /* swift面试题.md in Resources */,
+				30A6D12D293885150064B18A /* 保存的密码.rtf in Resources */,
 				30AACDD9262D7FC500132AF5 /* Swift对象本质.md in Resources */,
 				548F332424F2B13E00AB3540 /* 属性修饰符.md in Resources */,
 				300845CC24456B3A00055737 /* NSOperation.md in Resources */,
@@ -5363,6 +5407,7 @@
 				548AC95A242F4B3100EEE11C /* Main.storyboard in Resources */,
 				5406AA77259A144D0053E251 /* iOS签名机制.md in Resources */,
 				305188F7265661DA00923282 /* 冷知识.md in Resources */,
+				30A6D129293885150064B18A /* rsa_public_key.pem in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -5454,6 +5499,7 @@
 				30D0897F278BCF83003EAFAC /* WGLeetCodeQueue.m in Sources */,
 				301CF1BC2452BE310024EC69 /* WGFirstVC.m in Sources */,
 				5438813425445D6F00F5E4D1 /* WGGCDTimer.m in Sources */,
+				30A6D11A293876550064B18A /* WGEncrypt.m in Sources */,
 				30D08991278BCFD4003EAFAC /* WGSearchTreeNode.m in Sources */,
 				548AC953242F4B3100EEE11C /* AppDelegate.swift in Sources */,
 				30D0896F278BCF3B003EAFAC /* DoubleList.swift in Sources */,

@@ -124,3 +124,30 @@ could not find module 'WLKBaseTool' for target 'arm64-apple-ios-simulator'; foun
 原来xcode里面的VALID_ARCHS选项：arm64e armv7 armv7s arm64
 修改后xcode里面的VALID_ARCHS选项：arm64e armv7 armv7s arm64 x86_64
 然后运行模拟器就可以了
+
+
+14. Xcode14.1 运行项目报错
+swift Module compiled with Swift 5.6 cannot be imported by the Swift 5.7.1 compiler:
+
+解决方式如下:
+1. 去https://swift.org/download/#releases网站下载(swift-5.7.1-RELEASE)，下载完成后安装即可
+2. 重新利用新的Xcode编辑第三方库: cd 到工程目录，然后执行如下命令去重新编辑第三方库
+   carthage build --use-xcframeworks --platform iOS 
+   
+⚠️:执行carthage build过程中，出现了如下问题
+A shell task (/usr/bin/xcrun xcodebuild -project /Users/baicai/Desktop/WLKProject/WLK/Carthage/Checkouts/MJRefresh/Examples/MJRefreshExample/MJRefreshExample.xcodeproj -scheme MJRefreshFramework -configuration Release CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY= CARTHAGE=YES archive -showBuildSettings -skipUnavailableActions) failed with exit code 6: 
+.....  
+Thread:   <_NSMainThread: 0x600002d28500>{number = 1, name = main}
+Hints: 
+
+Backtrace:
+  0   -[DVTAssertionHandler handleFailureInMethod:object:fileName:lineNumber:assertionSignature:messageFormat:arguments:] (in DVTFoundation)
+  1   _DVTAssertionHandler (in DVTFoundation)
+  2   _DVTAssertionFailureHandler (in DVTFoundation)
+  3   +[IDERunDestinationCLI resolveRunDestinationsWithWorkspace:scheme:buildAction:schemeCommand:schemeTask:destinationSpecifications:architectures:timeout:runDestinationManager:deviceManager:fallbackPreferredSDK:fallbackPreferredArchitectures:skipUnsupportedDestinations:shouldSkipRunDestinationValidation:didDisambiguate:disambiguatedMatches:disambiguatedMatchesDescription:error:] (in IDEFoundation)
+  4   -[Xcode3CommandLineBuildTool _resolveRunDestinationsForBuildAction:] (in Xcode3Core)
+  5   -[Xcode3CommandLineBuildTool _resolveInputOptionsWithTimingSection:] (in Xcode3Core)
+  6   -[Xcode3CommandLineBuildTool run] (in Xcode3Core)
+  7   XcodeBuildMain (in libxcodebuildLoader.dylib)
+  8   start (in dyld)
+#### 解决方法：将carthage中的MJRefresh第三方库删除，并且将Build和Checkouts文件下有关MJRefresh第三方库也删除就可以了

@@ -2,13 +2,14 @@
 ## 一.配置
 1. 在本地创建一个新的工程项目，项目名称:WGGitLearnProject，打开命令行，cd到该目录下 
 2. git init                                                                              :初始化一个空的git仓库
-3. git config --global user.name "baiaicaiai"                       :配置github的用户名称
+3. git config --global user.name "WGFcode"                       :配置github的用户名称
 4. git config --global user.emial "1813061716@qq.com"   :配置github的用户邮箱
 5. git add .                                                                           :将本地项目添加到git的暂存区  
 6. git commit -m "功能描述"                   :初始化本地项目并添加到git本地仓库" 
 7. git remote add origin https://github.com/WGFcode/WGFcodeNotes.git   :初次添加到GitHub上需要和Github上的项目地址绑定
-8. git push -u origin master                       :将项目推送的远程仓库
-9. 如果是从仓库中拷贝代码到本地，在本地创建空的文件，然后使用git clone https://github.com/WGFcode/WGFcodeNotes.git 将远程仓库代码拷贝到本地创建的空文件中
+8.git branch -M main           :新版本的主分支都叫main，而不是master
+9. git push -u origin master                       :将项目推送的远程仓库
+10. 如果是从仓库中拷贝代码到本地，在本地创建空的文件，然后使用git clone https://github.com/WGFcode/WGFcodeNotes.git 将远程仓库代码拷贝到本地创建的空文件中
 
 #3. 命令行释意
 #工作区

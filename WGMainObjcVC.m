@@ -100,7 +100,7 @@
 #import "Car.h"
 #import "WGFirstVC.h"
 
-
+#import "WGEncrypt.h"
 
 
 
@@ -112,63 +112,12 @@
 
 @implementation WGMainObjcVC
 
-/*
-
-
- */
 
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.view.backgroundColor = UIColor.lightGrayColor;
-    /*
-     内存泄漏:
-     动态分配内存的对象，在使用完后没有被系统回收内存，导致对象一直占据着内存，属于内存管理出错
-     僵尸对象:
-     已经被销毁的对象(不能再使用的对象),内存已经被回收的对象,引用计数为0对象被释放后就变成僵尸对象了
-     野指针:
-     野指针[悬挂指针]，出现的原因是因为【指针没有赋值】【指针指向的对象已经释放了, 比如指向僵尸对象】
-     野指针可能会指向一块垃圾内存,给野指针发送消息会导致程序崩溃
-     空指针:是一个没有指向任何内存的指针,空指针是有效指针,值为nil,NULL,Nil,0等,给空指针发送消息不会报错,不会响应消息
-     内存溢出:
-     当程序在申请内存时，没有足够的内存空间供其使用,比如申请了一个int,但给它存了long才能存下的数，那就是内存溢出
-     
-     
 
-   
-     
-    */
-    NSMutableArray *arr = [NSMutableArray new];
-    [arr addObject:nil];
 }
-
-
--(void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
-}
-
-
-
--(void)test1 {
-    Person *person = [[Person alloc]init];
-    person.age = 18;
-    __weak Person *weakPerson = person;
-    person.personBlock = ^{
-        __strong Person *strongPerson = weakPerson;
-        NSLog(@"1111");
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2.0*NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-            NSLog(@"person age is %d",strongPerson.age);
-        });
-        NSLog(@"2222");
-    };
-    person.personBlock();
-}
-
-
-
-//-(void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
-//    [self.navigationController pushViewController:[[WGFirstVC alloc]init] animated:YES];
-//}
-
-
 
 
 
