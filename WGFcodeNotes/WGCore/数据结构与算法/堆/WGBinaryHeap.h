@@ -1,9 +1,9 @@
 //
 //  WGHeap.h
-//  ZJKBank
+//  appName
 //
 //  Created by 白菜 on 2021/12/14.
-//  Copyright © 2021 buybal. All rights reserved.
+//  Copyright © 2021 baicai. All rights reserved.
 // ⚠️ 验证通过
 /* 设计一种数据结构，用来存放整数，要求提供3个接口：添加元素、获取最大值、删除最大值
                      获取最大值    删除最大值   添加元素

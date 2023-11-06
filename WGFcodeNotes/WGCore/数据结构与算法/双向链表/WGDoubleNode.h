@@ -1,9 +1,9 @@
 //
 //  WGDoubleNode.h
-//  ZJKBank
+//  appName
 //
 //  Created by 白菜 on 2021/11/17.
-//  Copyright © 2021 buybal. All rights reserved.
+//  Copyright © 2021 baicai. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>

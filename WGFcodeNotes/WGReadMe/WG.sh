@@ -12,7 +12,7 @@
 # 使用方法:
 # step1: 将该脚本放在工程的根目录下（跟.xcworkspace文件或者 .xcodeproj文件同目录）
 # step2: 根据情况修改下面的参数
-# step3: 打开终端，执行脚本bash WGWLK.sh 或者sh WGWLK.sh
+# step3: 打开终端，执行脚本bash WGAppName.sh 或者sh WGAppName.sh
 
 
 # =============项目自定义部分(自定义好下列参数后再执行该脚本)=================== #
@@ -35,11 +35,11 @@
 #false:用Xcode默认创建的.xcodeproj
 is_Workspace="true"
 # .xcworkspace的名字,若is_workspace为true，则必须填写，否则可不填
-workspace_Name="WGWLK"
+workspace_Name="WGAppName"
 # .xcodeproj的名字，如果is_workspace为false，则必须填。否则可不填
 project_Name=""
 # 指定项目的Scheme名称（也就是工程Target名称），必填
-scheme_Name="WGWLK"
+scheme_Name="WGAppName"
 # 指定要打包编译的方式: Release,Debug。一般用Release,必填
 build_Configuration="Release"
 # 指定打包的方式. 分别有development, ad-hoc, app-store, enterprise，必填，需要根据这个值去生成ExportOptions.plist文件
@@ -110,13 +110,13 @@ project_Path=$shell_Path
 
 # 时间
 start_time=$(date "+%Y-%m-%d-%H:%M:%S")
-# 指定输出导出文件夹路径 根目录/WGPackage/APPStoreWGWLK-2019-12-25-11:20:30/
+# 指定输出导出文件夹路径 根目录/WGPackage/APPStoreWGAppName-2019-12-25-11:20:30/
 export_Path=$project_Path/WGPackage/$fileHeader-$scheme_Name-$start_time
-# 指定输出归档文件的路径 根目录/WGPackage/WGWLK-2019-12-25-11:20:30/WGWLK.xcarchive
+# 指定输出归档文件的路径 根目录/WGPackage/WGAppName-2019-12-25-11:20:30/WGAppName.xcarchive
 export_archive_Path=$export_Path/$scheme_Name.xcarchive
-# 指定输出ipa文件夹路径 根目录/WGPackage/WGWLK-2019-12-25-11:20:30/
+# 指定输出ipa文件夹路径 根目录/WGPackage/WGAppName-2019-12-25-11:20:30/
 export_ipa_Path=$export_Path
-# 指定导出ipa包需要用到的plist配置文件的路径 根目录/WGPackage/WGWLK-2019-12-25-11:20:30/ExportOptions.plist
+# 指定导出ipa包需要用到的plist配置文件的路径 根目录/WGPackage/WGAppName-2019-12-25-11:20:30/ExportOptions.plist
 export_options_plist_Path=$export_Path/ExportOptions.plist
 
 
@@ -197,7 +197,7 @@ else
 fi
 
 
-# 根据参数生成export_options_plist文件 ，根目录/WGPackage/WGWLK-2019-12-25-11:20:30/ExportOptions.plist
+# 根据参数生成export_options_plist文件 ，根目录/WGPackage/WGAppName-2019-12-25-11:20:30/ExportOptions.plist
 /usr/libexec/PlistBuddy -c  "Add :method String ${method}"  $export_options_plist_Path
 /usr/libexec/PlistBuddy -c  "Add :provisioningProfiles:"  $export_options_plist_Path
 
@@ -321,16 +321,16 @@ fi
 #project_Package="appStoreAndAdHoc"
 #
 ## TODOscheme名
-#project_scheme_name="WGWLK"
+#project_scheme_name="WGAppName"
 #
 ## TODO 项目名称 一般跟scheme名称一致
-#project_name="WGWLK"
+#project_name="WGAppName"
 #
 ##编译模式 Debug或者Release
 #project_build_type=Debug
 #
 ##TODO workspace名(xxx.xcworkspace) 或者project名(xxx.xcodeproj)
-#project_WorkSpace_name="WGWLK.xcworkspace"
+#project_WorkSpace_name="WGAppName.xcworkspace"
 #
 
 
@@ -352,10 +352,10 @@ fi
 ##包名后缀 AppStore AdHoc
 #project_channel_Type="AppStore"
 #
-## archive_path 编辑出来的文件路径 存放在工程目录/appStoreAndAdHoc/WGWLK.archive
+## archive_path 编辑出来的文件路径 存放在工程目录/appStoreAndAdHoc/WGAppName.archive
 #project_archive_path=${project_path}/${project_Package}/${project_channel_Type}${temp_time}
 #
-##ipa文件存放路径 存放在工程目录/appStoreAndAdHoc/WGWLK.ipa
+##ipa文件存放路径 存放在工程目录/appStoreAndAdHoc/WGAppName.ipa
 #project_export_ipa_path=${project_path}/${project_Package}/${project_channel_Type}${temp_time}
 ##TODO ExportOptions.plist路径(plist文件内容可以根据需要进行配置)目前appStoreAndAdHoc文件下放了AdHocExportOptions.plist和AppStoreExportOptions.plist两个文件
 #project_export_options_plist=${project_path}/${project_Package}/AdHocExportOptions.plist
@@ -439,7 +439,7 @@ fi
 ##上传ipa包到appStore
 #funcUploadAppStore() {
 #    echo "————————————————————————上传到AppStore————————————————————————"
-#    AppStore_userName="wlkapple@chinanums.com"
+#    AppStore_userName="苹果开发者账号邮箱"
 #    AppStore_apiKey="RVV6XL677X"
 #    AppStore_apiIssuer="69a6de7d-ec44-47e3-e053-5b8c7c11a4d1"
 #    #验证包
@@ -574,14 +574,14 @@ fi
 ##--apiIssuer <issuer_id>}
 ##altool --validate-app -f <file> -t <platform> -u <username> {[-p <password>] | --apiKey <api_key> --apiIssuer <issuer_id>}
 ##altool --upload-app -f <file> -t <platform> -u <username> {[-p <password>] | --apiKey <api_key> --apiIssuer <issuer_id>}
-##AppStore_userName="wlkapple@chinanums.com"
+##AppStore_userName="苹果开发者账号邮箱"
 ##AppStore_pwd="Bai3KFZZH6bo"
 ##验证包
 ##xcrun altool --validate-app -f $project_export_ipa_path/$project_scheme_name.ipa -t iOS -u ${AppStore_userName} -p ${AppStore_pwd}
 ##上传包
 ##xcrun altool --upload-app -f $project_export_ipa_path/$project_scheme_name.ipa -t iOS -u ${AppStore_userName} -p ${AppStore_pwd}
 ##使用开发者账号的用户名和密码进行上传的时候，会报下面的错误信息，大意就是说你的我们现在采用了新的验证方式,不是你输入的密码不对,而是你需要用上面命令中的--apiKey --apiIssuer
-##Error: Unable to validate archive '/Users/baicai/Desktop/WLKProject/WLK/appStoreAndAdHoc/WGWLK_2019-12-24_14:45:43/WGWLK.ipa': (
+##Error: Unable to validate archive '/Users/baicai/Desktop/XXX/appStoreAndAdHoc/WGAppName_2019-12-24_14:45:43/WGAppName.ipa': (
 ##"Error Domain=ITunesSoftwareServiceErrorDomain Code=-22020 \"We are unable to create an authentication session.\" UserInfo={NSLocalizedDescription=We are unable to create an authentication session., NSLocalizedFailureReason=Unable to validate your application.}"
 #
 ##使用--apiKey --apiIssuer进行验证和上传

@@ -1,9 +1,9 @@
 //
 //  WGSort.h
-//  ZJKBank
+//  appName
 //
 //  Created by 白菜 on 2021/12/1.
-//  Copyright © 2021 buybal. All rights reserved.
+//  Copyright © 2021 baicai. All rights reserved.
 //
 /*
  1.排序算法的稳定性: 如果相等的2个元素，在排序前后，相对位置保持不变，那么就是稳定的排序算法

@@ -93,7 +93,7 @@
 
 #### 1.打开主工程 File -> New -> Workspace 名称和工程名称一致，创建完成后，主工程路径下会出现新的文件夹 (主工程名.xcworkspace)
 #### 2.  File -> Add Files to "主工程名"... ,然后选择主工程下的(主工程名.xcodeproj)  
-#### 遇到错误Multiple commands produce '/Users/baicai/Library/Developer/Xcode/DerivedData/WGBuyBalProject-cfdbrczbjbbauxcnpicupdbicyze/Build/Products/Release-iphoneos/WGWLK.app/Info.plist':
+#### 遇到错误Multiple commands produce '/Users/baicai/Library/Developer/Xcode/DerivedData/WGbaicaiProject-cfdbrczbjbbauxcnpicupdbicyze/Build/Products/Release-iphoneos/XXX.app/Info.plist':
 #### 解决:File -> Workspace Settings.... -> Shared Workspace Seetings: -> Build System -> Legacy Build System ->Done
 #### 3.打开 “主工程名.xcworkspace”,File -> New -> Project -> iOS->Framework & Library -> Framework,注意Team选择None（即不参与签名）,Next,Add to: 和 Group:  都选择主工程(这个主工程是图标为蓝白色的xcworkspace)
 #### 4.设置制作静态库所需的配置，添加shell脚本进行合并
@@ -140,23 +140,23 @@
 
 
 #### 2. 一个framework如何区分是动态库还是动态库?
-    例如WGBaseTool.framework和Alamofire.framework
-    打开终端输入: file xxx/xxx/WGBaseTool.framework/WGBaseTool 
+    例如XXX.framework和Alamofire.framework
+    打开终端输入: file xxx/xxx/XXX.framework/XXX 
     //静态库
-    /Users/baicai/Desktop/WLKProject/WLKOrder/WLKOrder/WLKLib/WGBaseTool.framework/WGBaseTool: 
+    /Users/baicai/Desktop/XXX.framework/XXX: 
     Mach-O universal binary with 4 architectures: [arm_v7:current ar archive] [i386:current ar 
     archive] [x86_64:current ar archive] [arm64:current ar archive]
     
-    /Users/baicai/Desktop/WLKProject/WLKOrder/WLKOrder/WLKLib/WGBaseTool.framework/WGBaseTool 
+    /Users/baicai/Desktop/XXX.framework/XXX 
     (for architecture armv7):    current ar archive
     
-    /Users/baicai/Desktop/WLKProject/WLKOrder/WLKOrder/WLKLib/WGBaseTool.framework/WGBaseTool 
+    /Users/baicai/Desktop/XXX.framework/XXX 
     (for architecture i386):    current ar archive
     
-    /Users/baicai/Desktop/WLKProject/WLKOrder/WLKOrder/WLKLib/WGBaseTool.framework/WGBaseTool 
+    /Users/baicai/Desktop/XXX.framework/XXX 
     (for architecture x86_64):    current ar archive
     
-    /Users/baicai/Desktop/WLKProject/WLKOrder/WLKOrder/WLKLib/WGBaseTool.framework/WGBaseTool 
+    /Users/baicai/Desktop/XXX.framework/XXX 
     (for architecture arm64):    current ar archive
     
     //动态库

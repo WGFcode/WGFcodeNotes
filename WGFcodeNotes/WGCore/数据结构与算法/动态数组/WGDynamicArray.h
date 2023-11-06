@@ -1,9 +1,9 @@
 //
 //  WGCustomArray.h
-//  ZJKBank
+//  appName
 //
 //  Created by 白菜 on 2021/11/9.
-//  Copyright © 2021 buybal. All rights reserved.
+//  Copyright © 2021 baicai. All rights reserved.
 //
 /* ⚠️验证通过
  这里我们自定义的数组，就是可以实现动态扩容、缩容，类似NSMutableArray

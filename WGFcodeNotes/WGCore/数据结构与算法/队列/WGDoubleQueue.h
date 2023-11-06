@@ -1,9 +1,9 @@
 //
 //  WGDoubleQueue.h
-//  ZJKBank
+//  appName
 //
 //  Created by 白菜 on 2021/11/30.
-//  Copyright © 2021 buybal. All rights reserved.
+//  Copyright © 2021 baicai. All rights reserved.
 //
 /* 双端队列： 能在头尾两端进行添加、删除操作
  

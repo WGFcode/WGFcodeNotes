@@ -3,7 +3,7 @@
 1. 在本地创建一个新的工程项目，项目名称:WGGitLearnProject，打开命令行，cd到该目录下 
 2. git init                                                                              :初始化一个空的git仓库
 3. git config --global user.name "WGFcode"                       :配置github的用户名称
-4. git config --global user.emial "1813061716@qq.com"   :配置github的用户邮箱
+4. git config --global user.email "1813061716@qq.com"   :配置github的用户邮箱
 5. git add .                                                                           :将本地项目添加到git的暂存区  
 6. git commit -m "功能描述"                   :初始化本地项目并添加到git本地仓库" 
 7. git remote add origin https://github.com/WGFcode/WGFcodeNotes.git   :初次添加到GitHub上需要和Github上的项目地址绑定
@@ -164,17 +164,17 @@
     
 
 ### 2. 本地只有一个master分支，然后想撤销对上一次push到远程仓库的提交，即回退到指定的commitId
-    localhost:NXYMerchantsProject baicai$ git log
+    localhost: baicai$ git log
     commit 98d79a2b006375c6d0e3af140355dc8bbcd96905 (HEAD->master,origin/master,origin/HEAD,checkWeekPwd)
-    Author: baiaicaiai <wugong@buybal.com>
+    Author: baiaicaiai <wugong@baicai.com>
     Date:   Tue Jul 28 17:37:18 2020 +0800
         NXYS 2.3.2
     commit eb2cb5e27f0285e031828e79bb2249f4fb88a56e
-    Author: baiaicaiai <wugong@buybal.com>
+    Author: baiaicaiai <wugong@baicai.com>
     Date:   Mon Jul 27 15:15:54 2020 +0800
         YKYG 2.2.3
     commit 6a76e3b3f2bc9def0dd2988095cdd9f9dc375acb
-    Author: baiaicaiai <wugong@buybal.com>
+    Author: baiaicaiai <wugong@baicai.com>
     Date:   Fri Jul 24 16:46:06 2020 +0800
         2.3.1 1.1Version
 #### 假如想回退到commitID: eb2cb5e27f0285e031828e79bb2249f4fb88a56e(YKYG 2.2.3),但是又可能这个最新的提交可能还会有用处，那么就先创建并切换一个新的分支（这样我们就将之前master分支代码copy到新的分支上了，以后要是需要的话可以从这个分支上取或者看就行了），然后提交到远程仓库，然后再切换到master分支，将master分支上的代码回滚到指定的commitID上，然后再提交到远程仓库就行了，提交过程会有错误提示，需要特别注意，这个地方需要强制更新到远程仓库，具体代码如下：
@@ -184,7 +184,7 @@
       git reset --hard eb2cb5e27f0285e031828e79bb2249f4fb88a56e //将代码回滚到该commitID的版本
       git push  //提交远程仓库会报错
        ! [rejected]        master -> master (non-fast-forward)
-      error: failed to push some refs to 'http://192.168.1.242/iOS/nxy/NXYMerchantsProject.git'
+      error: failed to push some refs to 'http://XXX.git'
       hint: Updates were rejected because the tip of your current branch is behind
       hint: its remote counterpart. Integrate the remote changes (e.g.
       hint: 'git pull ...') before pushing again.
@@ -199,19 +199,19 @@
     2. git branch -D master  删除本地的master分支（如果用-d会提示删除不成功，需要-D来强制删除）
     3. git push origin -d master  //删除远程仓库的master分支，这里会报错
         error: src refspec master does not match any
-        error: failed to push some refs to 'http://192.168.1.242/iOS/default/WLK.git'
+        error: failed to push some refs to 'http://...XXX.git'
     4.原因是我们使用GitLab代码管理默认的保护分支是master分支，所以需要更改GitLab的设置，具体如下。  
         选择远程仓库 -> 最左边Setting -> Repository -> Default Branch ->选择指定的分支为master分支
     继续 git push origin -d master 
     报错：remote: GitLab: You can only delete protected branches using the web interface.  
-        To http://192.168.1.242/iOS/default/WLK.git
+        To http://...XXX.git
         ! [remote rejected] master (pre-receive hook declined)
-        error: failed to push some refs to 'http://192.168.1.242/iOS/default/WLK.git'
+        error: failed to push some refs to 'http://...XXX.git'
     原因：master分支是受保护的分支，所以需要在 Setting -> Repository -> Protected  
     Branches中设置不受保护,同时也可以设置操作的权限Maintainers/Developers
         
     继续 git push origin -d master 
-        To http://192.168.1.242/iOS/default/WLK.git
+        To http://...XXX.git
         - [deleted]         master
     删除成功
     5.在本地创建新的分支并取名为master分支
@@ -244,7 +244,7 @@
     2.显示出所有有差异的文件列表
     git diff 分支A 分支B --stat
     3.显示指定文件的详细差异
-    git diff Refund WLKM 文件路径
+    git diff Refund AppNameM 文件路径
 
 #### 7. git reset 和git revert区别
 #### 两者的作用都是撤销上一次commit操作

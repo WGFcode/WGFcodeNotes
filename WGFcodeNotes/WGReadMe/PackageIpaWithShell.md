@@ -8,16 +8,16 @@
 ## xcodebuild命令行打包(cd到工程目录,注意是基于工程自动签名而非手动管理)
 ####  1.清理工程 xcodebuild clean -workspace <xxx.workspace> -scheme <schemeName> -configuration <Debug|Release>
 
-#### 根据是工程承载的是project还是workspace进行clean 案例如:xcodebuild clean -workspace WGWLK.xcworkspace -scheme WGWLK -configuration Release  或者 xcodebuild clean -peoject WGWLK.xcodeproj -scheme WGWLK -configuration Release 
+#### 根据是工程承载的是project还是workspace进行clean 案例如:xcodebuild clean -workspace WGAppName.xcworkspace -scheme WGAppName -configuration Release  或者 xcodebuild clean -peoject WGAppName.xcodeproj -scheme WGAppName -configuration Release 
 
 #### 2.编译并生成.xcarchive包 xcodebuild archive -archivePath <archivePath> -workspace <workspaceName>
 -scheme <schemeName> -configuration <Debug或者Release>
 
-#### 编辑成功之后，桌面上会出现WLK.xcarchive文件 案例如: xcodebuild archive -archivePath /Users/baicai/Desktop/WLK -workspace WGWLK.xcworkspace -scheme WGWLK -configuration Release
+#### 编辑成功之后，桌面上会出现AppName.xcarchive文件 案例如: xcodebuild archive -archivePath /Users/baicai/Desktop/AppName -workspace WGAppName.xcworkspace -scheme WGAppName -configuration Release
 
 
 #### 3.生成的.archive包导出成ipa文件 xcodebuild -exportArchive -archivePath <xcarchivepath> -exportPath <destinationpath> -exportOptionsPlist <plistpath>。这个plist文件可以通过打一次ipa包里面去获取ExportOptions.plist，类型有以下4种，Appstore/蒲公英等需要Ad-Hoc/Development/企业内容包enterprise,因为账号和实际需要，只需要appstore和Ad-Hoc
-#### 案例如下 xcodebuild -exportArchive -archivePath /Users/baicai/Desktop/WLK.xcarchive -exportPath /Users/baicai/Desktop/wlkIPA -exportOptionsPlist /Users/baicai/Desktop/WLKProject/网联客脚本打包资料/Ad-hoc/adhoc/ExportOptions.plist
+#### 案例如下 xcodebuild -exportArchive -archivePath /Users/baicai/Desktop/AppName.xcarchive -exportPath /Users/baicai/Desktop/AppNameIPA -exportOptionsPlist /Users/baicai/Desktop/XXX/aa脚本打包资料/Ad-hoc/adhoc/ExportOptions.plist
 
 #### 4. ,Xcodebuild命令介绍https://www.cnblogs.com/liuluoxing/p/8622108.html 。xcodebuild -list 查看工程中的Targets、Configurations和Schemes等信息
 

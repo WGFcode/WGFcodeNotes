@@ -16,6 +16,7 @@
 		301CF1BF2452F1750024EC69 /* runLoop1.png in Resources */ = {isa = PBXBuildFile; fileRef = 301CF1BE2452F1750024EC69 /* runLoop1.png */; };
 		3027FD3A2512197500E512FE /* Swift内存对齐问题.md in Resources */ = {isa = PBXBuildFile; fileRef = 3027FD392512197500E512FE /* Swift内存对齐问题.md */; };
 		30313DC2253829F600941BE5 /* WGTargetProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 30313DC1253829F600941BE5 /* WGTargetProxy.m */; };
+		3035772C2964239E008313E9 /* Xcode清理.md in Resources */ = {isa = PBXBuildFile; fileRef = 3035772B2964239E008313E9 /* Xcode清理.md */; };
 		303D7ABC2539731F00EB6052 /* Xcode错误总结.md in Resources */ = {isa = PBXBuildFile; fileRef = 303D7ABB2539731F00EB6052 /* Xcode错误总结.md */; };
 		304011B026734C0B00845393 /* WGTestKVCEntity.m in Sources */ = {isa = PBXBuildFile; fileRef = 304011AF26734C0B00845393 /* WGTestKVCEntity.m */; };
 		304727C62750E70F00BF3AFC /* WGLeetCode.m in Sources */ = {isa = PBXBuildFile; fileRef = 304727C52750E70F00BF3AFC /* WGLeetCode.m */; };
@@ -204,6 +205,7 @@
 		3027FD392512197500E512FE /* Swift内存对齐问题.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Swift内存对齐问题.md"; sourceTree = "<group>"; };
 		30313DC0253829F600941BE5 /* WGTargetProxy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WGTargetProxy.h; sourceTree = "<group>"; };
 		30313DC1253829F600941BE5 /* WGTargetProxy.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WGTargetProxy.m; sourceTree = "<group>"; };
+		3035772B2964239E008313E9 /* Xcode清理.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Xcode清理.md"; sourceTree = "<group>"; };
 		303D7ABB2539731F00EB6052 /* Xcode错误总结.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Xcode错误总结.md"; sourceTree = "<group>"; };
 		304011AE26734C0B00845393 /* WGTestKVCEntity.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WGTestKVCEntity.h; sourceTree = "<group>"; };
 		304011AF26734C0B00845393 /* WGTestKVCEntity.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WGTestKVCEntity.m; sourceTree = "<group>"; };
@@ -5205,6 +5207,7 @@
 				300D51432700607600BBFC4C /* 抓包工具.md */,
 				30AB3010284DE529009EC03C /* 常见面试题.md */,
 				30D67A8828A384310041FDB5 /* Xcode配置信息作用描述.md */,
+				3035772B2964239E008313E9 /* Xcode清理.md */,
 			);
 			path = WGReadMe;
 			sourceTree = "<group>";
@@ -5348,6 +5351,7 @@
 				30A73F332447F14A00C86BB8 /* kvc1.png in Resources */,
 				54330A4F25C1B40E00055C66 /* NewRunloop.md in Resources */,
 				548AC98F242F4CAD00EEE11C /* iOS管理第三方库工具.md in Resources */,
+				3035772C2964239E008313E9 /* Xcode清理.md in Resources */,
 				30BB26BB244BF62B00255288 /* NSNotification.md in Resources */,
 				30DD858B244F00C100897144 /* block.jpeg in Resources */,
 				30AB3011284DE529009EC03C /* 常见面试题.md in Resources */,

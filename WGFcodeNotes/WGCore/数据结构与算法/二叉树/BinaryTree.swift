@@ -1,9 +1,9 @@
 //
 //  BinaryTree.swift
-//  ZJKBank
+//  appName
 //
 //  Created by 白菜 on 2021/12/28.
-//  Copyright © 2021 buybal. All rights reserved.
+//  Copyright © 2021 baicai. All rights reserved.
 //
 /*
  1.树的基本概念 【节点、根节点、父节点、子节点、兄弟节点、子树、左子树、右子树】

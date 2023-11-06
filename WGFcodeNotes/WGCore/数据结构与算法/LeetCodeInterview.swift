@@ -1,9 +1,9 @@
 //
 //  LeetCodeInvertTree.swift
-//  ZJKBank
+//  appName
 //
 //  Created by 白菜 on 2021/12/4.
-//  Copyright © 2021 buybal. All rights reserved.
+//  Copyright © 2021 baicai. All rights reserved.
 //
 /* https://leetcode-cn.com/problems/invert-binary-tree/
  226. 翻转二叉树 保证所有节点的左右子树交换位置

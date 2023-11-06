@@ -1,9 +1,9 @@
 //
 //  WGSearchTree.h
-//  ZJKBank
+//  appName
 //
 //  Created by 白菜 on 2021/12/1.
-//  Copyright © 2021 buybal. All rights reserved.
+//  Copyright © 2021 baicai. All rights reserved.
 //
 /* 二叉搜索树
  是二叉树的一种，是应用非常广泛的一种二叉树，英文简称为BST，又被称为二叉查找树、二叉排序树，可以大大提高搜索数据的效率

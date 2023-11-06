@@ -1,9 +1,9 @@
 //
 //  232. 用栈实现队列.h
-//  ZJKBank
+//  appName
 //
 //  Created by 白菜 on 2021/11/30.
-//  Copyright © 2021 buybal. All rights reserved.
+//  Copyright © 2021 baicai. All rights reserved.
 //
 /*232. 用栈实现队列
   请你仅使用两个栈实现先入先出队列。队列应当支持一般队列支持的所有操作（push、pop、peek、empty）：

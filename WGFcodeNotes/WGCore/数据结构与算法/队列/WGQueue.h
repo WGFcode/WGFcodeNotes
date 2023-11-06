@@ -1,9 +1,9 @@
 //
 //  WGQueue.h
-//  ZJKBank
+//  appName
 //
 //  Created by 白菜 on 2021/11/30.
-//  Copyright © 2021 buybal. All rights reserved.
+//  Copyright © 2021 baicai. All rights reserved.
 //
 /* 队列
  1. 队列是一种特殊的线性表，只能在头尾两端进行操作

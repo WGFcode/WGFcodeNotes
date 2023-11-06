@@ -1,9 +1,9 @@
 //
 //  WGHashTab.h
-//  ZJKBank
+//  appName
 //
 //  Created by 白菜 on 2021/12/16.
-//  Copyright © 2021 buybal. All rights reserved.
+//  Copyright © 2021 baicai. All rights reserved.
 //
 /* 哈希表: 哈希表也叫散列表；哈希函数也叫散列函数；哈希表是【空间换时间】的典型应用；
  哈希表内部的数组元素也叫做桶(Bucket),整个数组叫做Buckets或者Bucket Array

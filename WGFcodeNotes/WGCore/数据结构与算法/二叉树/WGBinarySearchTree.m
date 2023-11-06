@@ -1,9 +1,9 @@
 //
 //  WGSearchTree.m
-//  ZJKBank
+//  appName
 //
 //  Created by 白菜 on 2021/12/1.
-//  Copyright © 2021 buybal. All rights reserved.
+//  Copyright © 2021 baicai. All rights reserved.
 //
 /*
  ⚠️二叉搜索树中的元素必须具备可比较性，这里我们都是用的int类型元素，比如可能存在自定义类型Person，

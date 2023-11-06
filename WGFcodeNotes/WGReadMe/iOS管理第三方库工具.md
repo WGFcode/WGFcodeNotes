@@ -104,9 +104,7 @@
 ### 2.`open -a Xcode Cartfile` 打开Cartfile文件
 ### 3.在Github上找到需要的第三方库,例如`github "Alamofire/Alamofire" ~> 4.7`复制到Cartfile文件中
 ### 4.执行`carthage update`:更新包含了iOS/mac的库 `carthage update --platform iOS`: 更新了只包含iOS的库;或者 `carthage update --platform iOS --use-xcframeworks `使用最新的xcframeworks格式进行导入 第三方库已经导入到了,此时项目路径下会自动创建Carthage文件夹,更新完成后会出现checkout和Build两个文件夹(Carthage可以删除的,删除后相当于重新倒入第三方库,然后update即可)
-### 5.导入第三方库(Alamofire)到项目中,在Target—>Build Phases —>”+”—>New Run Script Phase—>添加脚本`/usr/local/bin/carthage copy-frameworks`
-### 6.添加文件`Input Files—>添加路径＂$(SRCROOT)/Carthage/Build/iOS/Alamofire.framework＂`
-### 7.在TARGETS->General->Embedded Binaries->"+"->"Add Other..."->找到`Alamofire.framework`并添加即可,同时项目根目录下/General->Linked Frameworks with Libraries/Build Phases->Embed Frameworks/Build Phases->Linked Binary with Libraries也会出现添加的框架 
+### 5.导入第三方库(Alamofire)到项目中,在Target—>General->Frameworks, Libraries, and Embedded Content—>”+”—>add file —>选择/Carthage/Build下的第三方库即可 
 ## 3.创建桥接文件
 ### 1.New file-> Header File -> WGNoteBridgeHeader
 ### 2.在Build Setting -> Objective-C Bridging Header中添加桥接文件的路径,然后在桥接文件中y引入项目中用到的第三方文件
@@ -191,11 +189,11 @@
       Debug-iphoneos/SnapKit.framework/Modules/SnapKit.swiftmodule/arm64-apple-ios.swiftmodule
 ### 解决方法就是更新第三方库： carthage update --platform iOS --use-xcframeworks，这个过程比较扯淡，老是访问失败，只能慢慢尝试，多运行几次了，或者利用carthage update SnapKit --platform iOS --use-xcframeworks一个库一个库的更新接口，但是更新完成后运行项目又报如下错误
     <unknown>:0: error: module compiled with Swift 5.3.2 cannot be imported by the Swift 5.4 compiler:  
-    /Users/baicai/Desktop/WLKProject/NXYMerchantsProject/NXY/WGLib/WGCustomSDK/WGBaseTool.framework  
-    /Modules/WGBaseTool.swiftmodule/arm64-apple-ios.swiftmodule
+    /Users/baicai/Desktop/XXX.../XXX.framework  
+    /Modules/XXX.swiftmodule/arm64-apple-ios.swiftmodule
 #### ⚠️最好的方式就是删除项目目录下的Carthage和Cartfile.resolved文件，然后重新carthage update --platform iOS --use-xcframeworks，失败了就多重试几次；
 #### ⚠️如果项目中有多个分支，切记要在主分支上进行更新第三方库，这样再切换到其他分支，就不需要重新更新第三方库了
-#### 原因是WGBaseTool是我自定义的framework，所以也要对WGBaseTool所在的项目用Xcode12.5进行运行编译然后再合并模拟器和真机下的framework，然后保存在WLKProject/WLK/WGBaseTool/WGBaseTool/BaseFramework文件夹下
-#### 合并真机SDK的流程如下：先选择WGBaseTool，然后分别选择真机和模拟器，在Xcode->WGBaseTool->Products下
-Show in Finder，然后将真机和模拟器的WGBaseTool.framework保存下来，利用lipo -create 真机SDK 模拟器SDK -output /Users/baicai/Desktop/111111/WGBaseTool，将生成的WGBaseTool保存到桌面的111111文件夹下，然后将真机SDK中的WGBaseTool用111111文件下的WGBaseTool文件进行替换，将模拟器中的Modules/WGBaseTool.swiftmodule中内容拷贝到真机对应的Modules/WGBaseTool.swiftmodule文件中，但是模拟器中的Modules/WGBaseTool.swiftmodule/Project文件可以不用拷贝，然后直接将合并完成的真机SDK保存到WLKProject/WLK/WGBaseTool/WGBaseTool/BaseFramework文件夹下供其他项目使用
+#### 原因是XXX是我自定义的framework，所以也要对XXX所在的项目用Xcode12.5进行运行编译然后再合并模拟器和真机下的framework，然后保存在XXX/BaseFramework文件夹下
+#### 合并真机SDK的流程如下：先选择XXX，然后分别选择真机和模拟器，在Xcode->XXX->Products下
+Show in Finder，然后将真机和模拟器的XXX.framework保存下来，利用lipo -create 真机SDK 模拟器SDK -output /Users/baicai/Desktop/111111/XXX，将生成的XXX保存到桌面的111111文件夹下，然后将真机SDK中的XXX用111111文件下的XXX文件进行替换，将模拟器中的Modules/XXX.swiftmodule中内容拷贝到真机对应的Modules/XXX.swiftmodule文件中，但是模拟器中的Modules/XXX.swiftmodule/Project文件可以不用拷贝，然后直接将合并完成的真机SDK保存到XXX/BaseFramework文件夹下供其他项目使用
 
