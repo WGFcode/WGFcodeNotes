@@ -177,4 +177,9 @@ dyld[2112]: Library not loaded: @rpath/libXCTestSwiftSupport.dylib
 
 18 xcode15运行报错
     Assertion failed: (false && "compact unwind compressed function offset doesn't fit in 24 bits"), function operator(), file Layout.cpp, line 5758.
-解决方法: 在Build Settings -> Other linker flags中添加"-ld64"
+解决方法: 在Build Settings -> Other linker flags中添加"-ld_classic"
+
+
+19.代码统计： find . -name "*.swift" | xargs wc -l 
+            find . -name "*.h" | xargs wc -l
+            find . -name "*.m" | xargs wc -l
