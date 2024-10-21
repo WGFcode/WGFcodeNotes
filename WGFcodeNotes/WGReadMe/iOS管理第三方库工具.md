@@ -197,3 +197,11 @@
 #### 合并真机SDK的流程如下：先选择XXX，然后分别选择真机和模拟器，在Xcode->XXX->Products下
 Show in Finder，然后将真机和模拟器的XXX.framework保存下来，利用lipo -create 真机SDK 模拟器SDK -output /Users/baicai/Desktop/111111/XXX，将生成的XXX保存到桌面的111111文件夹下，然后将真机SDK中的XXX用111111文件下的XXX文件进行替换，将模拟器中的Modules/XXX.swiftmodule中内容拷贝到真机对应的Modules/XXX.swiftmodule文件中，但是模拟器中的Modules/XXX.swiftmodule/Project文件可以不用拷贝，然后直接将合并完成的真机SDK保存到XXX/BaseFramework文件夹下供其他项目使用
 
+#### 升级Xcode16后 carthage出现各种问题并且太慢了 开始采用新的SPM来管理第三方库，但是SPM太慢了，开启ClashX Pro也不行，因为Xcode中的git是不会走代理的，方法就是在终端开启代理，先关闭Xcode
+    git config --global http.proxy “http://127.0.0.1:7890” 
+    git config --global https.proxy “http://127.0.0.1:7890”
+    然后open -a Xcode.app打开Xcode即可
+    取消代理
+    git config --global --unset http.proxy
+    git config --global --unset https.proxy
+    

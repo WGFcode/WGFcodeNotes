@@ -475,8 +475,8 @@
 #### 3.5 block类型区分总结
              block类型                          环境
     全局block:__NSGlobalBlock__(数据区)  没有访问auto变量(不访问变量/访问static变量/访问全局变量)
-    栈block:__NSStackBlock__(栈区)      访问了auto变量
-    堆block:__NSMallocBlock__(堆区)     __NSStackBlock__调用了copy
+    栈block:__NSStackBlock__(栈区)      访问了auto变量(在Block内部使用局部变量或者OC属性，并且赋值给强引用或者Copy修饰的变量)
+    堆block:__NSMallocBlock__(堆区)     __NSStackBlock__调用了copy(与 MallocBlock一样，可以在内部使用局部变量或者OC属性。但是不能赋值给强引用或者Copy修饰的变)
 
 #### 每种block调用copy后的结果
              block类型                  副本源的配置存储域     copy复制效果
