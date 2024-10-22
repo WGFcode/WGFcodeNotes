@@ -20,13 +20,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 typedef void(^WGBlock)(void);
 
+NSString *WG_student;
+extern bool sex;
+
 @interface Person : NSObject
-@property(nonatomic, assign) int age;
-@property(nonatomic, copy) WGBlock personBlock;
 
--(void)run;
-
-+(int)thisClassMethod:(NSString *)name;
+//显式声明extern表明其不是成员变量，而是全局变量
+extern NSString *name;
+extern int age;
 
 @end
 

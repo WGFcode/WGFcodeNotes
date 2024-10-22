@@ -1,6 +1,6 @@
 ##  iOS开发中常用关键字(含swift)
 ### 1.extern
-#### extern,翻译过来是“外面的、外部的”，作用就是声明外部全局变量或常量；需要注意extern只能声明，不能用于实现；开发中我们通常会单独创建一个类来管理一些全局的变量或常量，例如管理通过通知名称
+#### extern,翻译过来是“外面的、外部的”，作用就是声明外部全局变量或常量；需要注意extern只能声明，不能用于实现；开发中我们通常会单独创建一个类来管理一些全局的变量或常量，例如管理通过通知名称；extern只能用来修饰全局常量或变量
 
     /*
      extern都是写在.h文件中，声明全局变量或常量；这里仅仅是声明，实现是在.m文件中
@@ -10,6 +10,9 @@
     extern NSString *const name2;   //声明全局常量-外部不能修改
 
     @interface Person : NSObject
+        //显式声明extern表明其不是成员变量，而是全局变量
+        extern NSString *name;
+        extern int age;
     @end
     
     #import "Person.h"
@@ -20,6 +23,8 @@
     NSString *const name2 = @"lisi";
 
     @implementation Person
+        NSString *name = "zhangsan";
+        age = 18;
     @end
 
     #import "WGMainObjcVC.h"
@@ -38,8 +43,17 @@
     打印结果: 修改前--全局变量name1:zhangsan
             修改后--全局变量name1:zhangsan11111
             修改前--全局常量name2:lisi
-#### 使用场景：我们在WGMainObjcVC文件中想要访问Person文件的全局变量/常量，而不需要导入Person的头文件就可以访问，只需要Person的.h文件中的全局变量/常量用extern修饰即可
 #### 分析，extern用来修饰全局变量或常量，一般在.h文件中声明，因为extern仅仅负责声明，而实现部分是需要我们在.m文件中实现的，如果不实现,外部使用变量/常量时会报错的;extern作用是用来获取全局变量或常量的，而不能用于定义变量；
+#### 如何引用：Person类中定义了全局变量，如果在WGBaseVC类中想要使用就需要import Person的.h文件或者Person有子类的话 import Person的子类Student的头文件都可以访问Person类中定义的全局变量； 第二种方式是通过不导入头文件的方式进行调用，通过extern调用，来获取全局变量的值
+    @implementation WGMainObjcVC
+    - (void)viewDidLoad {
+        [super viewDidLoad];
+        //只是用来获取全局变量(包括全局静态变量)的值，不能用于定义变量
+        extern NSString *name1;
+        NSLog(@"获取到的全局变量值是:%@",name1);
+    }
+    @end
+
 
 
 ### 2.static
@@ -49,10 +63,13 @@
 * 局部变量： 在函数或者说代码块内部声明的变量叫局部变量，局部变量存储在栈区，它的生命周期和作用域都是整个代码块
 
 1. static修饰局部变量
-* 修饰的局部变量只会初始化一次
-* 局部变量在程序中只有一份内存
+* 存储区由栈区变为静态区
+* 修饰的局部变量只会初始化一次;局部变量在程序中只有一份内存
 * 不会改变局部变量的作用域，仅仅改变了局部变量的生命周期(只有程序结束，这个局部变量才会销毁)
 * 保证局部变量只会被初始化一次,在程序运行过程中,只会分配一次内存,生命周期类似全局变量,但作用域不变
+* 好处: 定义后只会存在一份值，只会初始化一次，每次调用都是使用的同一个对象内存地址的值，并没有重新创建，节省空间
+* 坏处: 存在的生命周期长，从定义直到程序结束
+
 
         - (void)viewDidLoad {
             [super viewDidLoad];
@@ -93,9 +110,14 @@
 * 将全局变量的作用域限制在当前文件中，在其它文件中无法访问
 * 全局变量的作用域仅限于当前文件内部，即当前文件内部才能访问该全局变量
 * ⚠️: 若全局变量在A文件的.h头文件中定义，那么在B文件中如果想访问，则impot A的头文件，则一样可以访问A文件中的静态全局变量，但是如果静态全局变量定义在A文件的.m文件中，则即便导入impot A的头文件也无法访问的
+* 好处:定义后只会指向固定的指针地址，供当前文件使用,同一源程序的其他文件中可以使用相同名字的变量，不会发生冲突
+* 坏处: 存在的生命周期长，从定义直到程序结束
+* 建议: 内存优化和程序编译的角度来说,尽量少用全局静态变量，因为存在的生命周期长，一直占用空间;
+* 程序运行时会单独加载一次全局静态变量，过多的全局静态变量会造成程序启动慢
 
 4. 修饰函数
 * 被修饰的函数被称为静态函数，使得外部文件无法访问这个函数，仅本文件可以访问
+* 同一源程序的其他文件中可以使用相同名字的函数，不会发生冲突；编译器可对static静态函数进行更多的优化，因为已知该函数不会在其他源文件中使用
 
 5. static修饰全局变量和修饰局部变量共同点
 * 被static修饰后，无论全局变量还是局部变量，都会存储在全局数据区(全局变量原本都存储在全局数据区，即使不加static)
@@ -177,7 +199,7 @@
             self.name = @"zhangsan";
         }
         @end
-#### @dynamic name; 告诉编译器，不要自动生成对应属性name的getter/setter方法实现，方法实现需要我们程序员自己实现，如果我们没有实现，那么在访问属性过程中程序就会crash
+#### @dynamic name; 告诉编译器，不要自动生成对应属性name的getter/setter方法实现，同时也不会自动生成属性对应的成员变量，方法实现需要我们程序员自己实现，如果我们没有实现，那么在访问属性过程中程序就会crash
         @interface WGMainObjcVC : UIViewController
         @property(nonatomic, copy) NSString *name;
         @end
@@ -195,7 +217,7 @@
 
 
 ### 6. synchronized
-#### synchronized是递归锁，使用该关键字，可以将一段代码限制在一个线程内使用，其它线程想要访问，就必须等上一个线程访问完后才能访问，即保证了线程安全
+#### synchronized是递归锁(@synchronized关键字在多线程环境中还具备递归锁定的能力。这意味着同一线程可以多次获取同一把锁，而不会导致死锁的产生，极大地提升了递归调用的安全性和可行性)，使用该关键字，可以将一段代码限制在一个线程内使用，其它线程想要访问，就必须等上一个线程访问完后才能访问，即保证了线程安全
         @interface WGMainObjcVC()
         @property(nonatomic, assign) int totalTicket;  //总票数
         @end
@@ -239,6 +261,11 @@
                 NSLog(@"当前剩余票数:%d",_totalTicket);
             }
         }
+#### @synchronized关键字是实现线程同步和递归锁定的关键技术,内部实现原理基于Objective-C的运行时（Runtime）和底层的锁机制;
+#### @synchronized关键字在编译时会被转换成Objective-C运行时库中的一个函数调用，即objc_sync_enter(获取锁)和objc_sync_exit(释放锁)
+#### @synchronized关键字的递归锁定能力是通过在运行时维护一个线程到锁计数器的映射来实现的。当同一线程多次进入同一个@synchronized代码块时，锁计数器会递增，而不是重新获取锁。这样，即使线程多次进入临界区，也不会导致死锁。当线程离开@synchronized代码块时，锁计数器会递减，直到计数器归零，此时锁才会被释放，允许其他线程进入临界区https://www.51cto.com/article/795665.html
+#### OC中的@synchronized在swift中已经被删除了，swift用objc_sync_enter/objc_sync_exit代替；
+#### @synchronized内部为每一个obj分配一把recursive_mutex递归互斥锁。针对每个obj，通过这个recursive_mutex递归互斥锁进行加锁、解锁
 
 ## swift中关键词
 ### 1. fallthrough

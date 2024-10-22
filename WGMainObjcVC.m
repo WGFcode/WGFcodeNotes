@@ -95,12 +95,12 @@
 #import "ReadWriteLockTest.h"
 #import "ReadWriteLockTest1.h"
 
-#import "Person.h"
-#import "Student.h"
-#import "Car.h"
-#import "WGFirstVC.h"
+//#import "Person.h"
+//#import "Student.h"
+//#import "Car.h"
+//#import "WGFirstVC.h"
 
-#import "WGEncrypt.h"
+//#import "WGEncrypt.h"
 
 
 
@@ -116,7 +116,7 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.view.backgroundColor = UIColor.lightGrayColor;
-
+    
 }
 
 

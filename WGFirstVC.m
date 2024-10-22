@@ -8,10 +8,11 @@
 
 #import "WGFirstVC.h"
 #import "WGMainObjcVC.h"
-#import "WGTargetProxy.h"
+//#import "WGTargetProxy.h"
 #import "WGSort.h"
 
 //typedef void(^WGBlock)(void);
+//#import "Person.h"
 
 @interface WGFirstVC()
 @property(nonatomic, strong) CADisplayLink *link;
@@ -28,7 +29,7 @@
     
     [super viewDidLoad];
     self.view.backgroundColor = UIColor.whiteColor;
-
+    
 }
 
 
