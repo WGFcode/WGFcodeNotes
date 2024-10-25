@@ -12,6 +12,7 @@
 		300D51442700607600BBFC4C /* 抓包工具.md in Resources */ = {isa = PBXBuildFile; fileRef = 300D51432700607600BBFC4C /* 抓包工具.md */; };
 		3015810D245577A600EC6001 /* WGMonitorManage.m in Sources */ = {isa = PBXBuildFile; fileRef = 3015810C245577A600EC6001 /* WGMonitorManage.m */; };
 		30179F9A24401E8000EED9BD /* Note.md in Resources */ = {isa = PBXBuildFile; fileRef = 30179F9924401E8000EED9BD /* Note.md */; };
+		30196F932CCB43BD00B09D5D /* init.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 30196F922CCB43BD00B09D5D /* init.jpg */; };
 		301CF1BC2452BE310024EC69 /* WGFirstVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 301CF1BB2452BE310024EC69 /* WGFirstVC.m */; };
 		301CF1BF2452F1750024EC69 /* runLoop1.png in Resources */ = {isa = PBXBuildFile; fileRef = 301CF1BE2452F1750024EC69 /* runLoop1.png */; };
 		3027FD3A2512197500E512FE /* Swift内存对齐问题.md in Resources */ = {isa = PBXBuildFile; fileRef = 3027FD392512197500E512FE /* Swift内存对齐问题.md */; };
@@ -199,6 +200,7 @@
 		3015810B245577A600EC6001 /* WGMonitorManage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WGMonitorManage.h; sourceTree = "<group>"; };
 		3015810C245577A600EC6001 /* WGMonitorManage.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WGMonitorManage.m; sourceTree = "<group>"; };
 		30179F9924401E8000EED9BD /* Note.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Note.md; sourceTree = "<group>"; };
+		30196F922CCB43BD00B09D5D /* init.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = init.jpg; sourceTree = "<group>"; };
 		301CF1BA2452BE310024EC69 /* WGFirstVC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WGFirstVC.h; sourceTree = "<group>"; };
 		301CF1BB2452BE310024EC69 /* WGFirstVC.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WGFirstVC.m; sourceTree = "<group>"; };
 		301CF1BE2452F1750024EC69 /* runLoop1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = runLoop1.png; sourceTree = "<group>"; };
@@ -4643,6 +4645,7 @@
 			isa = PBXGroup;
 			children = (
 				301CF1BE2452F1750024EC69 /* runLoop1.png */,
+				30196F922CCB43BD00B09D5D /* init.jpg */,
 				5422AC58244F3E8E000CB747 /* block2.png */,
 				30DD858A244F00C100897144 /* block.jpeg */,
 				30A73F322447F14A00C86BB8 /* kvc1.png */,
@@ -5366,6 +5369,7 @@
 				307A0E7B24456BD3006E5429 /* RunLoop.md in Resources */,
 				30FD75FA24358F1E00431678 /* lock3.png in Resources */,
 				548AC98E242F4CAD00EEE11C /* KeyWords.md in Resources */,
+				30196F932CCB43BD00B09D5D /* init.jpg in Resources */,
 				30FD75FC243596BB00431678 /* lock4.png in Resources */,
 				548AC98B242F4CAD00EEE11C /* WG.sh in Resources */,
 				543C213325485B44000212B6 /* NewBlock.md in Resources */,

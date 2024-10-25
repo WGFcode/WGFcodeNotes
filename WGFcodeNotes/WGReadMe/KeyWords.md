@@ -289,8 +289,12 @@
                                                         成绩不及格
                                                         成绩优秀
 ### 2. typealias 
-#### 给已有类型重新定义名称，方便代码阅读
+#### 给已有类型重新定义名称，方便代码阅读;
     typealias Location = CGPoint
+* 类型别名允许您为程序中的现有数据类型提供新名称。声明类型别名后，可以在整个程序中使用别名代替现有类型
+* 类型别名不会创建新类型。它们只是为现有类型提供一个新名称
+* typealias 的主要目的是使我们的代码更具可读性，并且在上下文中更清晰易懂，以供人类理解
+
 
 ### 3. associatedtype
 #### associatedtype关联类型，关联类型为协议中的某个类型提供了一个占位名，其代表的实际类型在协议被遵守时才会被指定
@@ -311,8 +315,26 @@
         typealias GenderType = Int
         var sex: GenderType = 0
     }
+* 在 Swift 中 associatedtype 是一种与协议（Protocol）相关的高级特性
+* 它允许协议在定义时包含一个或多个占位类型，而不具体指明这些类型是什么，留待采用协议的具体类型来定义
+* associatedtype 用于定义协议中的一个或多个关联类型;它们作为占位符，用来表示协议中某些属性或方法的类型，
+但这些类型在协议定义时是不确定的。关联类型的具体类型由遵循协议的类型在实现时提供。
+* associatedtype 只能在 protocol 中使用，class 中应该使用typealias进行代替。
+* associatedtype 在协议中引入了一种灵活性，使得协议可以用于更广泛的类型，而不需要在协议定义时明确具体类型
+* 协议中不支持泛型，如果在协议中需要达到泛型这种类似的效果,可以使用 associatedtype 关键字
+        //错误例子: protocol 不支持范型，需要使用 associatedtype 来代替
+        protocol Stack<Element> {
+
+        }
+        //正确例子： associatedtype 支持在 protocol 中实现范型的功能。
+        protocol Stack {
+            associatedtype Element
+            func push(e: Element) -> Void
+            func pop() -> Element
+        }
+
 ### 4. mutating
-#### mutating关键字指的是可变即可修改。用在结构体struct和枚举enum中,虽然结构体和枚举可以定义自己的方法，但是默认情况下，实例方法中是不可以修改值类型的属性的。为了能够在实例方法中修改属性值，可以在方法定义前添加关键字mutating。本质上mutating这个关键字就做了一件事情，默认给结构体LGStack添加了一个intou关键字，这个inout关键字传递的过程中传递的就是所谓的引用
+#### mutating关键字指的是可变即可修改。用在结构体struct和枚举enum中,虽然结构体和枚举可以定义自己的方法，但是默认情况下，实例方法中是不可以修改值类型的属性的(值类型的属性不能被自身的实例方法修改)。为了能够在实例方法中修改属性值，可以在方法定义前添加关键字mutating。本质上mutating这个关键字就做了一件事情，默认给结构体LGStack添加了一个intou关键字，这个inout关键字传递的过程中传递的就是所谓的引用
         struct MyStruct {
             var name = ""
             var age = 0
@@ -331,9 +353,15 @@
         打印结果: age:18
         
 #### 默认情况下,不能在实例方法中修改值类型的属性.若在实例方法中使用 mutating关键字,不仅可以在实例方法中修改值类型的属性,而且会在方法实现结束时将其写回到原始结构.
+* Swift的结构体或者枚举的方法中，如果方法中需要修改当前结构体或者枚举的属性值，则需要再func前面加上mutating关键字，否则编译器会直接报错
+* 普通函数传值参数是值传递，加mutating关键字后参数会变成地址传递
+* mutating关键字本质是包装了inout关键字，加上mutating关键字后参数值会变成地址传递。
+类对象是指针，传递的本身就是地址值，所以 mutating关键字对类是透明的，加不加效果都一样
+
+
+
 ### 5. final 
 #### final关键字可以在class、func和var前修饰,表示**不可重写**，可以将类或者类中的部分实现保护起来,从而避免子类破坏；
-final用在swift中，可以指定函数派发机制，若用final修饰，通过final可以显示的指定函数的派发机制采用**直接派发**的方式，即直接调用函数地址进行方法调用
 
         class WGMyClass {
             final var name = ""
@@ -341,6 +369,8 @@ final用在swift中，可以指定函数派发机制，若用final修饰，通�
                 NSLog("WGMyClass->testFunc")
             }
         }
+* final关键字表示不允许对其修饰的内容进行继承或者重新操作(重写)
+* final在swift中，可以指定函数派发机制，通过final可以显示的指定函数的派发机制采用**直接派发**的方式，即直接调用函数地址进行方法调用
 
 ### 6. static
 #### static关键字声明静态变量或者函数，它保证在对应的作用域当中只有一份, 同时也不需要依赖实例化,用static关键字指定的方法是类方法，他是不能被子类重写的
