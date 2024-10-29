@@ -443,7 +443,14 @@ mutating关键字只能用于值类型，mutating关键字本质是包装了inou
 
 #### final 修饰符允许类中的函数使用 直接派发。final 修饰符会让函数失去动态性。任何函数都可以使用 final 修饰符，包括 extension 中原本就是直接派发的函数
 #### dynamic 修饰符允许类中的函数使用 消息派发。使用 dynamic 修饰符之前，必须导入 Foundation 框架，因为框架中包含了 NSObject 和 Objective-C 的运行时。dynamic 修饰符可以修饰所有的 NSObject 子类和 Swift 原生类
+dynamic 修饰符可以让扩展声明（extension）中的函数也能够被 override
+#### @objc 典型的用法就是给 selector 一个命名空间 @objc(xxx_methodName)，从而允许该函数可以被 Objective-C 的运行时捕获到
+#### @nonobjc： 会改变派发方式，可以禁用消息派发，从而阻止函数注册到 Objective-C 的运行时中。
+@nonobjc 的效果类似于 final，使用的场景几乎也是一样，个人猜测，@nonobjc 主要是用于兼容 Objective-C，
+final 则是作为原生修饰符，以用于让 Swift 写服务端之类的代码
 
+####final+@objc： 在使用 final 修饰符的同时，可以使用 @objc 修饰符让函数可以使用消息派发。同时使用这两个修饰符的结果是：调用函数时会使用直接派发，但也会在 Objective-C 运行时中注册响应的 selector。函数可以响应 perform(seletor:) 以及别的 Objective-C 特性，但在直接调用时又可以具有直接派发的性能
+#### @inline 修饰符告诉编译器函数可以使用直接派发。
 
 
 
@@ -504,6 +511,7 @@ try!: 类似于可选型中的强制解包，它不会对错误进行处理，�
 函数式编程的好处：代码简洁，开发迅速；接近自然语言，易于理解；更方便的代码管理；易于"并发编程"；
 
 #### 21. associatedtype 的作用
+#### 为了解决协议支持泛型问题Swift提供 关联类型(associatetype) 以完善其语法体系
 #### 简单来说就是 protocol 使用的泛型
 
         protocol ListProtcol {
@@ -736,6 +744,39 @@ Existential Container 对具体类型进行封装，从而实现存储一致性
 #### 采用 thunk 技术，我们把泛型协议封装成的具体类型，其本质就是对泛型协议进行了 类型擦除（Type Erase），从而解决了泛型类型的存储问题
 #### 关于类型擦除，在 Swift 标准库的实现中，一般会创建一个包装类型（class 或 struct）
 将遵循了协议的对象进行封装。包装类型本身也遵循协议，它会将对协议方法的调用传递到内部的对象中
+
+
+#### 25. Swift中的any、some区别
+#### some比any更高效，some函数调用采用静态派发;any为动态派发
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
