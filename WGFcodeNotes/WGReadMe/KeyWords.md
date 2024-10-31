@@ -449,3 +449,515 @@
 
 ### 14. throws 和 rethrows 
 #### throws 用在函数上, 表示这个函数会抛出错误； rethrows 与 throws 类似, 不过只适用于参数中有函数, 且函数会抛出异常的情况, rethrows可以用throws 替换, 反过来不行
+
+
+## OC & swift 关键词
+### swift和OC相比最大的优势是什么?
+1. swift语法简洁,类型安全的语言.swift在编译期会进行类型检查,使我们开发过程中更早的发现问题
+2. swift多了元组/反射的概念
+3. swift面向协议编程,函数式编程,面向对象编程,swift函数是一等公民(函数可以作为变量,可以作为其它函数的参数,可以作为其它函数的返回值)
+4. swift中值类型增强,swift中的struct/enum/元组等都是值类型;使用值类型好处就是它的不可变性/独立性
+5. swift中的枚举增强,枚举可以使用整型/浮点型/字符串等,枚举还可以拥有属性和方法,还支持范型/协议/扩展等
+6. swift支持泛型,也支持泛型约束,swift支持可选类型
+7. swift的协议和扩展更丰富,扩展性更好. swift中的结构体+协议可以模拟class继承
+
+
+## 属性修饰符
+#### 一 iOS中属性修饰符主要有以下几种
+1. copy
+2. assign
+3. strong
+4. weak
+5. readonly
+6. readwrite
+7. automic
+8. nonautomic
+9. retain
+
+#### 如果按照ARC和MRC来区分的话，主要方式如下
+    MRC手动管理（7个）: assign/retain/copy/readwrite/readonly/nonatomic/atomic  
+    ARC自定管理（8个）: assign/strong/copy/readwrite/readonly/nonatomic/atomic/weak
+
+### 1. assign修饰符
+#### assign修饰符一般用来修饰基本数据类型(NSInteger/CGFloat/Int/Float/Double等)，被assign修饰的属性的setter方法是直接赋值的，不会进行任何retain操作,在MRC和ARC下都可以使用assign, 它的setter方法如下
+    直接进行赋值操作
+    -(void)setAge:(NSInteger)age {
+        _age = age;
+    }
+#### 如果用assign修饰对象类型会如何？
+    @interface WGMainObjcVC()
+    @property(nonatomic, assign) Person *p1;
+    @end
+
+    @implementation WGMainObjcVC
+    - (void)viewDidLoad {
+        [super viewDidLoad];
+        self.p1 = nil;
+        {
+            Person *p0 = [[Person alloc]init];
+            //p1是用assign修饰的，所以既不持有对象的强引用也不持有对象的弱引用
+            self.p1 = p0;
+            NSLog(@"p1的地址是：%@---p0的地址是:%@",self.p1, p0);
+        }
+        NSLog(@"p1的地址是：%@",self.p1);
+    }
+    @end
+        
+    打印结果: p1的地址是：<Person: 0x600003438430>---p0的地址是:<Person: 0x600003438430>
+            编辑可以通过，但是在运行的时候会报错，报错信息如下
+            message sent to deallocated instance 0x600003438430
+#### 分析: 出了代码块后，p0因为超出作用域，所以会被销毁，那么p0指针指向的对象也会被销毁，而p1和p0指向了同一块内存，所以此时p1指针指向的对象也就跟着被销毁了，此时p1就是个野指针
+* 野指针：指针指向的对象/内容已经被销毁了，即指针指向了一块“垃圾内存”；给野指针发消息会crash的，野指针并不是nil指针；
+* 空指针：指的是没有存储任何内存地址的指针；给空指针发消息不会报错的；
+* 僵尸对象： 一个OC对象引用计数为0被释放后就变成僵尸对象了，僵尸对象的内存已经被系统回收，虽然可能该对象还存在，数据依然在内存中，但僵尸对象已经是不稳定对象了，不可以再访问或者使用，它的内存是随时可能被别的对象申请而占用的。
+#### 总结：assign一般用来修饰基本数据类型，若修饰对象，会出现野指针的问题；assign和weak的区别：就是weak在对象销毁的时，会自动将对象置为nil，而assign不会从而导致野指针问题（对象销毁了，指针指向了一个垃圾内存）;另外一个原因就是assgin修饰的基本数据类型，内存是分配在栈上的，栈内存的分配和销毁是由系统控制的，而对象类型的数据是分配在堆上的，用assign修饰的对象，在对象销毁时，对象的指针地址是还存在的，也就是说指针并没有被置为nil,
+
+#### 2. atomic(原子属性)和nonatomic(非原子属性)
+#### atomic原子属性是线程安全的，即多线程访问能够保证数据的完整性，为什么是线程安全的？因为系统在atomic属性的setter方法中添加了自旋锁来保证多线程访问的安全性，但是这样就耗费了系统资源。使用atomic原子属性并不都是线程安全的，因为atomic属性只有在setter/getter方法中是原子操作，是安全的，但是在setter/getter方法外不是原子操作的，例如++/--运算符情况下
+#### nonatomic非原子属性，不是线程安全的，因为系统没有在属性的setter方法中添加自旋锁，它的特点是多线程并发访问性能高但不安全，所以nonatomic要注意多线程间通信的线程安全，项目中我们仍然会大量使用nonatomic非原子属性的原因也是因为访问性能高
+
+    Runtime源代码 
+    id objc_getProperty(id self, SEL _cmd, ptrdiff_t offset, BOOL atomic) {
+        if (offset == 0) {
+            return object_getClass(self);
+        }
+
+        // Retain release world
+        id *slot = (id*) ((char*)self + offset);
+        if (!atomic) return *slot;
+
+        // Atomic retain release world
+        spinlock_t& slotlock = PropertyLocks[slot];
+        slotlock.lock();   //加锁
+        id value = objc_retain(*slot);
+        slotlock.unlock();  //解锁
+        
+        //for performance, we (safely) issue the autorelease OUTSIDE of the spinlock.
+        return objc_autoreleaseReturnValue(value);
+    }
+
+    using spinlock_t = mutex_tt<LOCKDEBUG>;
+    class mutex_tt : nocopy_t {
+        os_unfair_lock mLock;  //这是iOS10之后用到的互斥锁
+    }
+#### iOS 10之前atomic是用的自旋锁, iOS 10之后使用的是os_unfair_lock，这是一把互斥锁！(因为自旋锁会导致优先级反转问题)，那么自旋锁和互斥锁的区别是什么那？
+* 自旋锁: 自旋锁会忙等: 所谓忙等，即在访问被锁资源时，调用者线程不会休眠，而是不停循环在那里，直到被锁资源释放锁。自旋锁的优点在于，因为自旋锁不会引起调用者睡眠，所以不会进行线程调度、CPU时间片轮转等耗时操作。所有如果能在很短的时间内获得锁，自旋锁的效率远高于互斥锁,缺点在于，自旋锁一直占用CPU，他在未获得锁的情况下，一直运行－－自旋，所以占用着CPU，如果不能在很短的时 间内获得锁，这无疑会使CPU效率降低。自旋锁不能实现递归调用。
+* 互斥锁: 互斥锁会休眠: 所谓休眠，即在访问被锁资源时，调用者线程会休眠，此时CPU可以调度其他线程工作。直到被锁资源释放锁。此时会唤醒休眠线程。互斥锁可以传入不同参数，实现递归锁
+
+#### 3. retain
+#### MRC下使用的，会使引用计数+1，但在ARC下已经被舍弃了，改用strong来修饰了,如果我们在ARC环境的工程中想让某些文件支持MRC，可以在Build Phaes—>Compile Sources—>XXX文件 找到对应文件配置 -fno-objc-arc来支持MRC
+
+    setter方法释放旧对象，retain新对象
+    -(void)setName:(NSString *)name {
+        if (_name != name) {
+            [_name release];
+            _name = [name retain];
+        }
+    }
+        
+#### 4. strong
+#### ARC环境下才使用的，对应MRC环境下的retain。表示对对象的强引用，对象的引用计数+1，只要有一个strong指针指向对象，该对象就不会被销毁，ARC 下不显式指定任何属性关键字时，基本数据默认的关键字是 atomic、readwrite、assign，普通的OC对象: atomic、readwrite、strong。strong只能用来修饰对象类型，如果修饰基本数据类型，编译器会报错
+
+
+#### 5. readonly/readwrite
+#### readonly声明你的属性是只读的，并且告诉编译器不用自动生成setter方法；当你尝试给一个readonly的属性赋值时，会Xcode提示错误； readwrite声明的属性是可读可写的，编译器会自动生成setter/getter方法；readwrite是默认的；
+
+#### 关于属性的setter/getter方法问题
+#### 一般我们声明@property属性时，系统会自动为我们生成对应的成员变量(也叫实例变量)+setter/getter方法的声明和实现，当我们使用@dynamic XXX，此时系统就不会自动生成XXX对应的setter/getter方法实现，也不会生成对应的成员变量，但是不影响setter/getter方法的声明，如果我们自己又没有手动实现setter/getter方法，那么在调用存取方法时程序运行就会crash（编译期不会报错）；@synthesize XXX = _XXX,当我们@dynamic和@synthesize都没有写时，@property默认是@synthesize XXX = _XXX，@synthesize表示如果属性没有手动实现setter和getter方法，编译器会自动加上这两个方法，如果我们手动实现了setter/getter，那么系统就不会再自动生成setter/getter
+    @interface Person : NSObject
+    @property(nonatomic, strong) NSString *name;
+    @end
+    
+    //@dynamic 告诉编辑器不自动生成name属性的getter和setter方法实现和对应的成员变量
+    @implementation Person
+    @dynamic name;   
+    @end
+
+    - (void)viewDidLoad {
+        [super viewDidLoad];
+        Person *p = [[Person alloc]init];
+        //程序编译期不会报错，但在运行时会报错：因为@dynamic的声明，系统没有生成对应的setter/getter方法
+        //reason: '-[Person setName:]: unrecognized selector sent to instance 0x600001d6a9a0'
+        p.name = @"zhangsan";
+    }
+        
+* @dynamic name1
+#### 作用：告诉编译器不再生成成员变量_name1;不再生成name1属性的getter/setter的实现；但是不影响name1属性的setter/getter方法声明
+
+* @synthesize name1 = _name1
+
+#### 作用：告诉编译器生成成员变量_name1;生成name1属性的getter/setter的声明;生成name1属性的getter/setter的实现，如果自己手动实现了setter/getter方法，那么@synthesize就告诉编译器不再生成setter/getter方法的实现了,Xcode中我们编写属性后，默认就是这种模式，@synthesize的另一个作用就是给自定义生成成员变量的名称
+        
+#### 6. weak 
+#### ARC环境下才会使用，weak弱引用不增加引用计数也不持有对象，适用于NSObject对象，weak修饰的对象在释放之后，指针地址会被置为nil，weak弱引用作用可以用来解决循环引用问题，并且weak不会造成野指针的问题
+    weak修饰基本数据类型时，编译器会报错，weak只能用于对象类型
+    @property(nonatomic, weak) NSInteger age;
+    Property with 'weak' attribute must be of object type
+        
+#### weak是如何自动为释放了的对象的指针置为nil的？
+#### Runtime维护了一个全局weak引用表(weak_table_t)，存储是以Id类型的对象作为key,用weak_entry_t结构体作为Value值来存储的
+    /**
+     * The global weak references table. Stores object ids as keys,
+     * and weak_entry_t structs as their values.
+     */
+    
+    struct weak_table_t {
+        weak_entry_t *weak_entries;       //保存了所有指向指定对象的weak指针
+        size_t    num_entries;            //weak对象的存储空间
+        uintptr_t mask;                   //参与判断引用计数辅助量
+        uintptr_t max_hash_displacement;  //hash key 最大偏移值
+    };
+    
+    //weak全局表中存储weak定义的对象的表结构weak_entry_t,它负责维护和存储指向一个对象的所有弱引用hash表
+    struct weak_entry_t {
+        //是对泛型对象的指针做了一个封装,通过这个泛型类来解决内存泄漏的问题
+        DisguisedPtr<objc_object> referent; 
+        union {
+            struct {
+                weak_referrer_t *referrers;
+                uintptr_t        out_of_line_ness : 2;
+            uintptr_t        num_refs : PTR_MINUS_2;
+            uintptr_t        mask;
+            uintptr_t        max_hash_displacement;
+        };
+        struct {
+            // out_of_line_ness field is low bits of inline_referrers[1]
+            weak_referrer_t  inline_referrers[WEAK_INLINE_COUNT];
+        };
+    };
+    ...
+    }
+        
+#### weak_table_t(weak全局表)，采用hash哈希表的方式，来存储所有引用weak的对象，用weak指向的对象的内存地址作为key，用weak指针的地址(这个地址的值是所指对象指针的地址)数组作为Value来存储了,为什么value是数组？因为一个对象可能被多个弱引用指针指向
+
+#### 6.1 weak底层实现原理及步骤
+1. 初始化时，Runtime会调用objc_initWeak函数，初始化一个新的weak指针指向对象的地址。
+ 
+        objc_initWeak(id *location, id newObj) {
+            if (!newObj) {  //查看对象实例是否有效,无效对象直接导致指针释放
+                *location = nil;
+                return nil;
+            }
+            //对象实例有效，则通过storeWeak函数，对象实例被注册为一个指向value的__weak对象
+            return storeWeak<DontHaveOld, DoHaveNew, DoCrashIfDeallocating>
+                (location, (objc_object*)newObj);
+        }
+2. 添加引用时，objc_initWeak函数会调用 objc_storeWeak() 函数， objc_storeWeak() 的作用是更新指针指向，创建对应的弱引用表。
+3. 释放时，调用clearDeallocating函数。clearDeallocating函数首先根据对象地址获取所有weak指针地址的数组，然后遍历这个数组把其中的数据设为nil，最后把这个entry从weak表中删除，最后清理对象的记录。
+
+#### 6.2 weak对象释放自动置为nil的过程
+1. 调用objc_release
+2. 因为对象的引用计数为0，所以执行dealloc
+3. 在dealloc中，调用了_objc_rootDealloc函数
+4. 在_objc_rootDealloc中，调用了object_dispose函数
+5. 调用objc_destructInstance
+6. 最后调用objc_clear_deallocating。
+7. 对象准备释放时，调用clearDeallocating函数。clearDeallocating函数首先根据对象地址获取所有weak指针地址的数组，然后遍历这个数组把其中的数据设为nil，最后把这个entry从weak表中删除，最后清理对象的记录。
+
+#### 总结： weak是Runtime维护了一个全局的哈希表，用来存放指向某个对象的所有weak指针，weak表其实是一个hash（哈希）表，Key是所指对象的地址，Value是weak指针的地址（这个地址的值是所指对象指针的地址）数组。
+
+
+#### 7. copy/mutableCopy
+
+    源对象类型        拷贝方法         副本对象类型      是否产生新对象      拷贝类型
+    NSString         copy           NSString           NO         浅拷贝(指针拷贝)
+                     mutableCopy    NSMutableString    YES        深拷贝(内容拷贝)
+                                     
+    NSMutableString  copy           NSString           YES        深拷贝(内容拷贝)
+                     mutableCopy    NSMutableString    YES        深拷贝(内容拷贝)
+                                     
+    NSArray          copy           NSArray             NO        浅拷贝(指针拷贝)
+                     mutableCopy    NSMutableArray      YES       深拷贝(内容拷贝)
+                                     
+    NSMutableArray   copy           NSArray             YES       深拷贝(内容拷贝)
+                     mutableCopy    NSMutableArray      YES       深拷贝(内容拷贝)
+                                     
+    NSXXXX           copy           NSXXXX              NO        浅拷贝(指针拷贝)
+                     mutableCopy    NSMutableArray      YES       深拷贝(内容拷贝)
+                                      
+    NSMutableXXXX    copy           NSXXXX              YES       深拷贝(内容拷贝)                         
+                     mutableCopy    NSMutableXXXX       YES       深拷贝(内容拷贝)
+                                     
+#### iOS中对象拷贝有2种类型：深拷贝+浅拷贝，浅拷贝不会产生新的对象，深拷贝会产生新的对象
+     array1    浅拷贝    array2      array1   深拷贝    array2   深拷贝        
+       0------->A<--------0           0------->A        0------->A
+       1------->B<--------1           1------->B        1------->B
+       2------->C<--------2           2------->C        2------->C
+       3------->D<--------3           3------->D        3------->D
+
+#### copy关键字有两个需要注意的地方，第一是什么时候使用Copy?第二是深拷贝浅拷贝问题；
+#### 7.1什么时候用copy? 
+1. 修饰block，在MRC下，copy可用来修饰block,block内部的代码块是在栈区的，使用copy关键字可以把它放在堆区；在ARC环境下，使用strong和copy效果是一样的
+2. 修饰NSString、NSArray、NSDictionary
+
+#### 7.2 修饰不可变字符串
+    //.m文件
+    @interface WGMainObjcVC()
+    @property(nonatomic, strong) NSString *strongStr;
+    @property(nonatomic, copy) NSString *copyyStr;
+    @end
+
+    @implementation WGMainObjcVC
+    - (void)viewDidLoad {
+        [super viewDidLoad];
+        //1. 用不可变字符串赋值操作, 无论strong或者copy，其指向的地址都是baseStr的地址，即copy拷贝的是对象的地址
+        NSString *baseStr = [NSString stringWithFormat:@"123"];
+        _strongStr = baseStr;
+        _copyyStr = baseStr;
+        NSLog(@"baseStr对象地址: %p,对象的指针地址:%p, 值:%@",baseStr,&baseStr,baseStr);
+        NSLog(@"strongStr对象地址: %p,对象的指针地址:%p, 值:%@",_strongStr,&_strongStr,_strongStr);
+        NSLog(@"copyyStr对象地址: %p,对象的指针地址:%p, 值:%@",_copyyStr,&_copyyStr,_copyyStr);
+    }
+    @end
+        
+    打印结果: baseStr对象地址: 0x8c43b6f85e3255c4,对象的指针地址:0x7ffee68ae790, 值:123
+            strongStr对象地址: 0x8c43b6f85e3255c4,对象的指针地址:0x7f9726c08790, 值:123
+            copyyStr对象地址: 0x8c43b6f85e3255c4,对象的指针地址:0x7f9726c08798, 值:123
+#### 总结，对于用不可变的源对象NSString/NSArray/NSDictionary来给copy和strong修饰的对象进行赋值操作，都是对源对象的地址拷贝并没有开辟新的内存，即指针都是指向了源对象，copy进行的是浅拷贝
+    //1. 用不可变字符串赋值操作, 无论strong或者copy，其指向的地址都是baseStr的地址，即copy拷贝的是对象的地址
+    NSString *baseStr = [NSString stringWithFormat:@"123"];
+    NSLog(@"baseStr对象地址: %p,对象的指针地址:%p, 值:%@",baseStr,&baseStr,baseStr);
+    _strongStr = baseStr;
+    _copyyStr = baseStr;
+    //当重新对baseStr进行赋值时，因为baseStr是不可变字符串，为了保持不可变性，系统会另外开辟内存空间来存放变更后的内容
+    //但是这并不会影响copy和strong修饰的对象
+    baseStr = @"456";
+    NSLog(@"baseStr对象地址: %p,对象的指针地址:%p, 值:%@",baseStr,&baseStr,baseStr);
+    NSLog(@"strongStr对象地址: %p,对象的指针地址:%p, 值:%@",_strongStr,&_strongStr,_strongStr);
+    NSLog(@"copyyStr对象地址: %p,对象的指针地址:%p, 值:%@",_copyyStr,&_copyyStr,_copyyStr);
+    
+    打印结果: baseStr对象地址: 0xf113747087f4ecf8,对象的指针地址:0x7ffee2874790, 值:123
+            baseStr对象地址: 0x10d390610,对象的指针地址:0x7ffee2874790, 值:456
+            strongStr对象地址: 0xf113747087f4ecf8,对象的指针地址:0x7f8391a0e980, 值:123
+            copyyStr对象地址: 0xf113747087f4ecf8,对象的指针地址:0x7f8391a0e988, 值:123
+
+
+#### 7.3 数组拷贝
+#### 数据拷贝规则：
+1. 不可变数组1->copy=不可变数组2，不可变数组1和不可变数组2的地址是一样的，即浅拷贝
+2. 不可变数组1->mutableCopy=可变数组2，不可变数组1和可变数组2的地址是不一样的，即深拷贝
+3. 可变数组1->copy=不可变数组2，可变数组1和不可变数组2的地址是不一样的，即深拷贝
+4. 可变数组1->mutableCopy=可变数组2，可变数组1和可变数组2的地址是不一样的，即深拷贝
+#### 数组里面装的元素是基本数据类型时，遵循上面的规则；如果数据里面装的是模型数据，同样遵循上面的规则，但是模型元素不会进行深拷贝
+    Person *p1 = [[Person alloc]init];
+    Person *p2 = [[Person alloc]init];
+    Person *p3 = [[Person alloc]init];
+
+    NSArray *baseArr = @[p1, p2, p3];
+    NSArray *copyArr = [baseArr copy];
+    NSMutableArray *mutableCopyArr = [baseArr mutableCopy];
+
+    NSLog(@"\n源数组地址:%p\n---元素1:%p\n---元素2:%p\n---元素3:%p\n",baseArr,baseArr[0],baseArr[1],baseArr[2]);
+    NSLog(@"\n浅拷贝copy后数组地址:%p\n---元素1:%p\n---元素2:%p\n---元素3:%p\n",copyArr,copyArr[0],copyArr[1],copyArr[2]);
+    NSLog(@"\n深拷贝copy后数组地址:%p\n---元素1:%p\n---元素2:%p\n---元素3:%p\n",mutableCopyArr,mutableCopyArr[0],mutableCopyArr[1],mutableCopyArr[2]);
+        
+    打印结果: 源数组地址:0x600000045eb0
+                ---元素1:0x60000001ecf0
+                ---元素2:0x60000001ed20
+                ---元素3:0x60000001ed40
+            浅拷贝copy后数组地址:0x600000045eb0
+                ---元素1:0x60000001ecf0
+                ---元素2:0x60000001ed20
+                ---元素3:0x60000001ed40
+            深拷贝copy后数组地址:0x600000046000
+                ---元素1:0x60000001ecf0
+                ---元素2:0x60000001ed20
+                ---元素3:0x60000001ed40
+#### 如果数组里面装的是模型数据，那么经过copy和mutableCopy后仍然遵守上面的拷贝规则，但是深拷贝后，数组中的模型数据的地址仍然指向的是之前的模型元素对象，即深拷贝中，模型数据是不会进行深拷贝的； 如果我们想深拷贝的时候，也把模型数据拷贝一份，该如何解决？
+
+
+#### 存放模型元素的数组如何进行深拷贝，达到数组中的模型元素也进行深拷贝？
+#### 方案1：数组拷贝时不再调用mutableCopy，而是调用initWithArray:baseArr copyItems:YES 方法，该方法要求数组中的元素要遵守NSCopying协议 ，实现copyWithZone方法
+
+    @interface Person : NSObject
+    @property(nonatomic, strong) NSString *name;
+    @end
+
+    @interface Person()<NSCopying>
+    @end
+
+
+    @implementation Person
+    -(id)copyWithZone:(NSZone *)zone {
+        Person *p = [[self class] allocWithZone:zone];
+        p.name = [_name copy];
+        return p;
+    }
+    @end
+
+    Person *p1 = [[Person alloc]init];
+    Person *p2 = [[Person alloc]init];
+    Person *p3 = [[Person alloc]init];
+
+    NSArray *baseArr = @[p1, p2, p3];
+    NSArray *copyArr = [baseArr copy];
+    NSMutableArray *mutableCopyArr = [[NSMutableArray alloc]initWithArray:baseArr copyItems:YES];
+
+    NSLog(@"\n源数组地址:%p\n---元素1:%p\n---元素2:%p\n---元素3:%p\n",  
+    baseArr,baseArr[0],baseArr[1],baseArr[2]);
+    NSLog(@"\n浅拷贝copy后数组地址:%p\n---元素1:%p\n---元素2:%p\n---元素3:%p\n",  
+    copyArr,copyArr[0],copyArr[1],copyArr[2]);
+    NSLog(@"\n深拷贝copy后数组地址:%p\n---元素1:%p\n---元素2:%p\n---元素3:%p\n",  
+    mutableCopyArr,mutableCopyArr[0],mutableCopyArr[1],mutableCopyArr[2]);
+
+    打印结果: 源数组地址:0x610000055ea0
+                ---元素1:0x610000006180
+                ---元素2:0x610000006190
+                ---元素3:0x6100000061a0
+            浅拷贝copy后数组地址:0x610000055ea0
+                ---元素1:0x610000006180
+                ---元素2:0x610000006190
+                ---元素3:0x6100000061a0
+            深拷贝copy后数组地址:0x610000055ff0
+                ---元素1:0x6100000061b0
+                ---元素2:0x6100000061c0
+                ---元素3:0x6100000061d0
+
+#### 如果模型中含有模型数据，怎么办？ (如person中含有stu模型)
+* 那么Student类也要遵守NSCopying协议并实现copyWithZone方法，这样就是开辟了新的空间，实现了内容的深拷贝
+
+        @interface Person : NSObject
+        @property(nonatomic, strong) NSString *name;
+        @property(nonatomic, strong) Student *stu;
+        @end
+#### 结论：生成新的Student模型，开辟新的存储空间，Student模型基本元素相互不影响。
+#### 如果模型中数组属性含有模型，怎么办？(如person中属性studentArr存放的是Student模型)
+        @interface Person : NSObject
+        @property(nonatomic, strong) NSString *name;
+        @property(nonatomic, strong) NSArray *studentArr;
+        @end
+#### 结论：主模型(Person)数组(studentArr)中的模型(Student)不会开辟新的内存空间，仍然是同一个对象。
+
+#### 方案2 归档和解档
+#### 模型遵守NSCoding协议，并实现协议方法，如下
+    @interface Person : NSObject
+    @property(nonatomic, strong) NSString *name;
+    @end
+
+    @interface Person()<NSCoding>
+    @end
+
+    @implementation Person
+    -(instancetype)initWithCoder:(NSCoder *)coder {
+        self = [super init];
+        if (self) {
+            self.name = [coder decodeObjectForKey:@"name"];
+        }
+        return self;
+    }
+    -(void)encodeWithCoder:(NSCoder *)coder {
+        [coder encodeObject:self.name forKey:@"name"];
+    }
+    @end
+        
+    Person *p1 = [[Person alloc]init];
+    Person *p2 = [[Person alloc]init];
+    Person *p3 = [[Person alloc]init];
+    NSArray *baseArr = @[p1, p2, p3];
+    NSArray *copyArr = [baseArr copy];
+
+    //2、归档和解档
+    //归档
+    NSData *data = [NSKeyedArchiver archivedDataWithRootObject:baseArr];
+    //接档
+    NSMutableArray *mutableCopyArr = [NSKeyedUnarchiver unarchiveObjectWithData:data];
+
+    NSLog(@"\n源数组地址:%p\n---元素1:%p\n---元素2:%p\n---元素3:%p\n",  
+    baseArr,baseArr[0],baseArr[1],baseArr[2]);
+    NSLog(@"\n浅拷贝copy后数组地址:%p\n---元素1:%p\n---元素2:%p\n---元素3:%p\n",  
+    copyArr,copyArr[0],copyArr[1],copyArr[2]);
+    NSLog(@"\n深拷贝copy后数组地址:%p\n---元素1:%p\n---元素2:%p\n---元素3:%p\n",  
+    mutableCopyArr,mutableCopyArr[0],mutableCopyArr[1],mutableCopyArr[2]);
+    
+    打印结果：源数组地址:0x600000243300
+                ---元素1:0x60000000ea80
+                ---元素2:0x60000000ea90
+                ---元素3:0x60000000eaa0
+            浅拷贝copy后数组地址:0x600000243300
+                ---元素1:0x60000000ea80
+                ---元素2:0x60000000ea90
+                ---元素3:0x60000000eaa0
+            深拷贝copy后数组地址:0x600000243900
+                ---元素1:0x60000000eab0
+                ---元素2:0x60000000eaf0
+                ---元素3:0x60000000eb00
+
+#### 归档解档能够完美完成数组中模型对象的深拷贝，无论是模型嵌套模型还是模型中数组属性包含模型都可以实现深拷贝
+
+#### 数组中元素是模型数据，实现深拷贝方案总结：
+1. initWithArray:copyItems：模型遵守NSCopying(对象可以copy)或NSMutableCopying(对象可以mutableCopy)协议，并实现copyWithZone和mutableCopyWithZone方法，
+
+        @interface Person : NSObject
+        @property(nonatomic, strong) NSString *name;
+        @property(nonatomic, assign) NSInteger age;
+        @end
+
+        @interface Person()<NSCopying,NSMutableCopying>  
+        @end
+
+        @implementation Person
+        -(id)copyWithZone:(NSZone *)zone {
+            Person *p = [[[self class] allocWithZone:zone]init];
+            p.name = [_name copy];
+            p.age = _age;
+            return p;
+        }
+        -(id)mutableCopyWithZone:(NSZone *)zone {
+            Person *p = [[[self class] allocWithZone:zone]init];
+            p.name = [_name mutableCopy];
+            p.age = _age;
+            return p;
+        }
+        @end
+
+2. 归档解档：模型遵守NSCoding协议，并实现initWithCoder和encodeWithCoder方法
+
+        @interface Person : NSObject
+        @property(nonatomic, strong) NSString *name;
+        @property(nonatomic, assign) NSInteger age;
+        @end
+
+        @interface Person()<NSCoding> 
+        @end
+
+        @implementation Person
+        -(instancetype)initWithCoder:(NSCoder *)coder {
+            self = [super init];
+            if (self) {
+                self.name = [coder decodeObjectForKey:@"name"];
+                self.age = (int)[coder decodeObjectForKey:@"age"];
+            }
+            return self;
+        }
+        -(void)encodeWithCoder:(NSCoder *)coder {
+            [coder encodeObject:self.name forKey:@"name"];
+            [coder encodeInteger:self.age forKey:@"age"];
+        }
+        @end
+3. 两种方式中，initWithArray:copyItems方式只能对一级模型进行拷贝，如果模型中含有数组模型，它就无能为力了；而利用归档和解档就不存在这个问题
+
+
+### 8 案例题目
+#### 为什么NSString、NSArray、NSDictionary等一般用copy修饰？
+
+    @interface WGMainObjcVC : UIViewController
+    @property(nonatomic, strong) NSArray *arr;
+    @end
+    
+    - (void)viewDidLoad {
+        [super viewDidLoad];
+        
+        NSMutableArray *sourceArr = [NSMutableArray arrayWithObject:@"123"];
+        //用可变的数组给arr进行赋值
+        self.arr = sourceArr;
+        
+        //修改sourceArr的元素
+        [sourceArr addObject:@"123"];
+        
+        NSLog(@"arr地址:---%p----arr元素:---%@",self.arr,self.arr);
+        NSLog(@"sourceArr地址:---%p----sourceArr元素:---%@",sourceArr,sourceArr);
+    }
+    
+    打印结果: arr地址:---0x600000059a70----arr元素:---(123, 123)
+                sourceArr地址:---0x600000059a70----sourceArr元素:---(123, 123)
+#### 若用strong关键字来修饰NSArray属性，当外部源数组是可变类型时，并且对数组进行赋值，其实是个浅拷贝，就是数组和外部的数组的地址是一样的，如果此时修改外部数组的元素(添加或删除)，那么当前的属性数组的内容就也会跟着改变，这在开发中是不允许的；而用copy修饰的话，即使外部的源数组是可变的，但是copy修饰的数组被外部可变数组赋值后是深拷贝，即重新生成了一份新的对象，即使修改外部可变数组的元素(添加或删除)，也不会影响当前的属性数组的内容，所以**开发中，NSString、NSArray、NSDictionary类型一般用copy修饰**

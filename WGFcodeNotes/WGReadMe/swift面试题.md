@@ -747,6 +747,46 @@ Existential Container 对具体类型进行封装，从而实现存储一致性
 
 
 #### 25. Swift中的any、some区别
+#### 在swift中，any、some关键字是在处理泛型和协议时常用的概念；它们的作用是让我们能够在编写代码的时候处理未知类型的值
+* any表示可以是任意类型(包括值类型/引用类型/函数类型等)，它引入了"抽象类型"的概念
+* some用于表示返回某种特定类型，它引入了"具体类型"的概念；
+* some和any都用于类型擦除和泛型的实现
+
+
+        protocol WGAAA {
+            //计算面积
+            func area() -> Double
+        }
+
+        struct WGBBB : WGAAA {
+            var radius: Double
+            func area() -> Double {
+                return Double.pi * radius * radius
+            }
+        }
+
+        //函数返回任意实现了WGAAA协议的类型： 使用any实现抽象类型
+        func calculateAny(radius: Double) -> any WGAAA {
+            return WGBBB(radius: radius)
+        }
+
+        @available(iOS 13.0.0, *)
+        //函数返回一些实现了WGAAA协议的具体类型: 使用some实现具体类型
+        func calculateSome(radius: Double) -> some WGAAA {
+            return WGBBB(radius: radius)
+        }
+
+#### some常用于泛型代码中；用于表示"某种类型的值"，也可以称为"不透明类型"；
+在函数返回值或协议关联类型中，使用some类型可以隐藏具体的类型信息，提供更加抽象的接口
+
+
+
+
+
+
+
+
+
 #### some比any更高效，some函数调用采用静态派发;any为动态派发
 
 

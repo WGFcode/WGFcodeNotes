@@ -15,13 +15,9 @@
 		30196F932CCB43BD00B09D5D /* init.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 30196F922CCB43BD00B09D5D /* init.jpg */; };
 		301CF1BC2452BE310024EC69 /* WGFirstVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 301CF1BB2452BE310024EC69 /* WGFirstVC.m */; };
 		301CF1BF2452F1750024EC69 /* runLoop1.png in Resources */ = {isa = PBXBuildFile; fileRef = 301CF1BE2452F1750024EC69 /* runLoop1.png */; };
-		3027FD3A2512197500E512FE /* Swift内存对齐问题.md in Resources */ = {isa = PBXBuildFile; fileRef = 3027FD392512197500E512FE /* Swift内存对齐问题.md */; };
 		30313DC2253829F600941BE5 /* WGTargetProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 30313DC1253829F600941BE5 /* WGTargetProxy.m */; };
-		3035772C2964239E008313E9 /* Xcode清理.md in Resources */ = {isa = PBXBuildFile; fileRef = 3035772B2964239E008313E9 /* Xcode清理.md */; };
-		303D7ABC2539731F00EB6052 /* Xcode错误总结.md in Resources */ = {isa = PBXBuildFile; fileRef = 303D7ABB2539731F00EB6052 /* Xcode错误总结.md */; };
 		304011B026734C0B00845393 /* WGTestKVCEntity.m in Sources */ = {isa = PBXBuildFile; fileRef = 304011AF26734C0B00845393 /* WGTestKVCEntity.m */; };
 		304727C62750E70F00BF3AFC /* WGLeetCode.m in Sources */ = {isa = PBXBuildFile; fileRef = 304727C52750E70F00BF3AFC /* WGLeetCode.m */; };
-		305188F7265661DA00923282 /* 冷知识.md in Resources */ = {isa = PBXBuildFile; fileRef = 305188F6265661DA00923282 /* 冷知识.md */; };
 		3052130F28F2D08400271C3B /* WGBaseTestLock.m in Sources */ = {isa = PBXBuildFile; fileRef = 3052130E28F2D08400271C3B /* WGBaseTestLock.m */; };
 		3052131228F2D3AD00271C3B /* OSSpinLockTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 3052131128F2D3AD00271C3B /* OSSpinLockTest.m */; };
 		3066E0F02435DD48004C71F7 /* GCD.md in Resources */ = {isa = PBXBuildFile; fileRef = 3066E0EF2435DD48004C71F7 /* GCD.md */; };
@@ -38,9 +34,7 @@
 		306C695D28F3F65300285592 /* DispatchSemaphoreTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 306C695C28F3F65300285592 /* DispatchSemaphoreTest.m */; };
 		306C696028F4081900285592 /* ReadWriteLockTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 306C695F28F4081900285592 /* ReadWriteLockTest.m */; };
 		306C696328F40E4400285592 /* ReadWriteLockTest1.m in Sources */ = {isa = PBXBuildFile; fileRef = 306C696228F40E4400285592 /* ReadWriteLockTest1.m */; };
-		3078C069251C366B00A73E54 /* 传值方式.md in Resources */ = {isa = PBXBuildFile; fileRef = 3078C068251C366B00A73E54 /* 传值方式.md */; };
 		307A0E7B24456BD3006E5429 /* RunLoop.md in Resources */ = {isa = PBXBuildFile; fileRef = 307A0E7A24456BD3006E5429 /* RunLoop.md */; };
-		307A0E7D24456BE4006E5429 /* RunTime.md in Resources */ = {isa = PBXBuildFile; fileRef = 307A0E7C24456BE4006E5429 /* RunTime.md */; };
 		30975813260C27D100709A73 /* Person+PersonTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 30975812260C27D100709A73 /* Person+PersonTest.m */; };
 		30975816260C2DF800709A73 /* Person+PersonAAAAA.m in Sources */ = {isa = PBXBuildFile; fileRef = 30975815260C2DF800709A73 /* Person+PersonAAAAA.m */; };
 		309A2DB42665D97900212257 /* swift面试题.md in Resources */ = {isa = PBXBuildFile; fileRef = 309A2DB32665D97900212257 /* swift面试题.md */; };
@@ -60,7 +54,6 @@
 		30AACDD9262D7FC500132AF5 /* Swift对象本质.md in Resources */ = {isa = PBXBuildFile; fileRef = 30AACDD8262D7FC500132AF5 /* Swift对象本质.md */; };
 		30AB3011284DE529009EC03C /* 常见面试题.md in Resources */ = {isa = PBXBuildFile; fileRef = 30AB3010284DE529009EC03C /* 常见面试题.md */; };
 		30BB26BB244BF62B00255288 /* NSNotification.md in Resources */ = {isa = PBXBuildFile; fileRef = 30BB26BA244BF62B00255288 /* NSNotification.md */; };
-		30C1F2B82431F0C7003B30B3 /* face.md in Resources */ = {isa = PBXBuildFile; fileRef = 30C1F2B72431F0C7003B30B3 /* face.md */; };
 		30C4AC4528FD5A5800B1EE03 /* Car+Car1.m in Sources */ = {isa = PBXBuildFile; fileRef = 30C4AC4428FD5A5800B1EE03 /* Car+Car1.m */; };
 		30C4AC4828FD5A6900B1EE03 /* Car+Car2.m in Sources */ = {isa = PBXBuildFile; fileRef = 30C4AC4728FD5A6900B1EE03 /* Car+Car2.m */; };
 		30CAB9E82852EA980030BF1C /* iOS包体积优化.md in Resources */ = {isa = PBXBuildFile; fileRef = 30CAB9E72852EA980030BF1C /* iOS包体积优化.md */; };
@@ -93,7 +86,7 @@
 		30D089A3278BD0F5003EAFAC /* LeetCodeInterview.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30D089A2278BD0F5003EAFAC /* LeetCodeInterview.swift */; };
 		30D3DF72245E74790012F803 /* WGTestModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 30D3DF71245E74790012F803 /* WGTestModel.m */; };
 		30D5D08D2627CD1700F5A4EF /* Swift基础语法.md in Resources */ = {isa = PBXBuildFile; fileRef = 30D5D08C2627CD1700F5A4EF /* Swift基础语法.md */; };
-		30D67A8928A384310041FDB5 /* Xcode配置信息作用描述.md in Resources */ = {isa = PBXBuildFile; fileRef = 30D67A8828A384310041FDB5 /* Xcode配置信息作用描述.md */; };
+		30D67A8928A384310041FDB5 /* Xcode相关.md in Resources */ = {isa = PBXBuildFile; fileRef = 30D67A8828A384310041FDB5 /* Xcode相关.md */; };
 		30DD858B244F00C100897144 /* block.jpeg in Resources */ = {isa = PBXBuildFile; fileRef = 30DD858A244F00C100897144 /* block.jpeg */; };
 		30E9226F26EB331F008D151A /* WGSwiftMethodDispatch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30E9226E26EB331F008D151A /* WGSwiftMethodDispatch.swift */; };
 		30ECA52024580E9000E3D312 /* Response.md in Resources */ = {isa = PBXBuildFile; fileRef = 30ECA51F24580E9000E3D312 /* Response.md */; };
@@ -108,7 +101,6 @@
 		30FD94D4243DDE8400EAFAA3 /* error1.png in Resources */ = {isa = PBXBuildFile; fileRef = 30FD94D3243DDE8400EAFAA3 /* error1.png */; };
 		5405874B2614AEEA0047AD5E /* 逆向工程.md in Resources */ = {isa = PBXBuildFile; fileRef = 5405874A2614AEEA0047AD5E /* 逆向工程.md */; };
 		5406AA77259A144D0053E251 /* iOS签名机制.md in Resources */ = {isa = PBXBuildFile; fileRef = 5406AA76259A144D0053E251 /* iOS签名机制.md */; };
-		540ED63C246990B600C6DAF7 /* KeyWord.md in Resources */ = {isa = PBXBuildFile; fileRef = 540ED63B246990B600C6DAF7 /* KeyWord.md */; };
 		5422AC59244F3E8E000CB747 /* block2.png in Resources */ = {isa = PBXBuildFile; fileRef = 5422AC58244F3E8E000CB747 /* block2.png */; };
 		542CD1DB26074284006A6D1D /* NSObject+WGJson.m in Sources */ = {isa = PBXBuildFile; fileRef = 542CD1DA26074284006A6D1D /* NSObject+WGJson.m */; };
 		542CD1E0260751E4006A6D1D /* UIControl+WGHookMethod.m in Sources */ = {isa = PBXBuildFile; fileRef = 542CD1DF260751E4006A6D1D /* UIControl+WGHookMethod.m */; };
@@ -118,7 +110,6 @@
 		542D3D8F251A48CC00394130 /* Student.m in Sources */ = {isa = PBXBuildFile; fileRef = 542D3D8E251A48CC00394130 /* Student.m */; };
 		542D3D92251A48F500394130 /* Student+StudentCategory.m in Sources */ = {isa = PBXBuildFile; fileRef = 542D3D91251A48F500394130 /* Student+StudentCategory.m */; };
 		543110B42530A23D007D0061 /* OC对象的本质.md in Resources */ = {isa = PBXBuildFile; fileRef = 543110B32530A23D007D0061 /* OC对象的本质.md */; };
-		54330A4F25C1B40E00055C66 /* NewRunloop.md in Resources */ = {isa = PBXBuildFile; fileRef = 54330A4E25C1B40E00055C66 /* NewRunloop.md */; };
 		54347D3224F69F1C006EE9F2 /* 数据结构.md in Resources */ = {isa = PBXBuildFile; fileRef = 54347D3124F69F1C006EE9F2 /* 数据结构.md */; };
 		5438813425445D6F00F5E4D1 /* WGGCDTimer.m in Sources */ = {isa = PBXBuildFile; fileRef = 5438813325445D6F00F5E4D1 /* WGGCDTimer.m */; };
 		543C213325485B44000212B6 /* NewBlock.md in Resources */ = {isa = PBXBuildFile; fileRef = 543C213225485B44000212B6 /* NewBlock.md */; };
@@ -127,7 +118,7 @@
 		544008892606DB1F00233364 /* Car.m in Sources */ = {isa = PBXBuildFile; fileRef = 544008882606DB1F00233364 /* Car.m */; };
 		545638D324B36CE5007D5447 /* HTTPTCPUDP.md in Resources */ = {isa = PBXBuildFile; fileRef = 545638D224B36CE5007D5447 /* HTTPTCPUDP.md */; };
 		5463C26424B0115D008F9C9A /* CoreAnimal.md in Resources */ = {isa = PBXBuildFile; fileRef = 5463C26324B0115D008F9C9A /* CoreAnimal.md */; };
-		5483CFEC25D3B95400613F40 /* NewRunTime.md in Resources */ = {isa = PBXBuildFile; fileRef = 5483CFEB25D3B95400613F40 /* NewRunTime.md */; };
+		5483CFEC25D3B95400613F40 /* RunTime.md in Resources */ = {isa = PBXBuildFile; fileRef = 5483CFEB25D3B95400613F40 /* RunTime.md */; };
 		548AC953242F4B3100EEE11C /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 548AC952242F4B3100EEE11C /* AppDelegate.swift */; };
 		548AC955242F4B3100EEE11C /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 548AC954242F4B3100EEE11C /* SceneDelegate.swift */; };
 		548AC957242F4B3100EEE11C /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 548AC956242F4B3100EEE11C /* ViewController.swift */; };
@@ -138,16 +129,12 @@
 		548AC975242F4B3200EEE11C /* WGFcodeNotesUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 548AC974242F4B3200EEE11C /* WGFcodeNotesUITests.swift */; };
 		548AC983242F4C7100EEE11C /* WGMainVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 548AC982242F4C7100EEE11C /* WGMainVC.swift */; };
 		548AC98B242F4CAD00EEE11C /* WG.sh in Resources */ = {isa = PBXBuildFile; fileRef = 548AC985242F4CAD00EEE11C /* WG.sh */; };
-		548AC98C242F4CAD00EEE11C /* git.md in Resources */ = {isa = PBXBuildFile; fileRef = 548AC986242F4CAD00EEE11C /* git.md */; };
-		548AC98D242F4CAD00EEE11C /* PackageIpaWithShell.md in Resources */ = {isa = PBXBuildFile; fileRef = 548AC987242F4CAD00EEE11C /* PackageIpaWithShell.md */; };
+		548AC98C242F4CAD00EEE11C /* gitCocoaPodsCarthage.md in Resources */ = {isa = PBXBuildFile; fileRef = 548AC986242F4CAD00EEE11C /* gitCocoaPodsCarthage.md */; };
 		548AC98E242F4CAD00EEE11C /* KeyWords.md in Resources */ = {isa = PBXBuildFile; fileRef = 548AC988242F4CAD00EEE11C /* KeyWords.md */; };
-		548AC98F242F4CAD00EEE11C /* iOS管理第三方库工具.md in Resources */ = {isa = PBXBuildFile; fileRef = 548AC989242F4CAD00EEE11C /* iOS管理第三方库工具.md */; };
 		548AC990242F4CAD00EEE11C /* Framework.md in Resources */ = {isa = PBXBuildFile; fileRef = 548AC98A242F4CAD00EEE11C /* Framework.md */; };
-		548F332024F15E8F00AB3540 /* Memory.md in Resources */ = {isa = PBXBuildFile; fileRef = 548F331F24F15E8F00AB3540 /* Memory.md */; };
-		548F332424F2B13E00AB3540 /* 属性修饰符.md in Resources */ = {isa = PBXBuildFile; fileRef = 548F332324F2B13E00AB3540 /* 属性修饰符.md */; };
 		548F332B24F2B87300AB3540 /* Person.m in Sources */ = {isa = PBXBuildFile; fileRef = 548F332A24F2B87300AB3540 /* Person.m */; };
 		54C118BE2584EF8B00B39379 /* LLVM.md in Resources */ = {isa = PBXBuildFile; fileRef = 54C118BD2584EF8B00B39379 /* LLVM.md */; };
-		54CBAE2824FFE4E500AEA0E5 /* iOS内存分区.md in Resources */ = {isa = PBXBuildFile; fileRef = 54CBAE2724FFE4E500AEA0E5 /* iOS内存分区.md */; };
+		54CBAE2824FFE4E500AEA0E5 /* iOS内存相关.md in Resources */ = {isa = PBXBuildFile; fileRef = 54CBAE2724FFE4E500AEA0E5 /* iOS内存相关.md */; };
 		54DA257225B47ADC00E1B980 /* 性能优化.md in Resources */ = {isa = PBXBuildFile; fileRef = 54DA257125B47ADC00E1B980 /* 性能优化.md */; };
 		54E19658250909050064027B /* WGRunLoopVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 54E19657250909050064027B /* WGRunLoopVC.m */; };
 		54E1965B250A70A90064027B /* WGThread.m in Sources */ = {isa = PBXBuildFile; fileRef = 54E1965A250A70A90064027B /* WGThread.m */; };
@@ -204,16 +191,12 @@
 		301CF1BA2452BE310024EC69 /* WGFirstVC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WGFirstVC.h; sourceTree = "<group>"; };
 		301CF1BB2452BE310024EC69 /* WGFirstVC.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WGFirstVC.m; sourceTree = "<group>"; };
 		301CF1BE2452F1750024EC69 /* runLoop1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = runLoop1.png; sourceTree = "<group>"; };
-		3027FD392512197500E512FE /* Swift内存对齐问题.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Swift内存对齐问题.md"; sourceTree = "<group>"; };
 		30313DC0253829F600941BE5 /* WGTargetProxy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WGTargetProxy.h; sourceTree = "<group>"; };
 		30313DC1253829F600941BE5 /* WGTargetProxy.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WGTargetProxy.m; sourceTree = "<group>"; };
-		3035772B2964239E008313E9 /* Xcode清理.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Xcode清理.md"; sourceTree = "<group>"; };
-		303D7ABB2539731F00EB6052 /* Xcode错误总结.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Xcode错误总结.md"; sourceTree = "<group>"; };
 		304011AE26734C0B00845393 /* WGTestKVCEntity.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WGTestKVCEntity.h; sourceTree = "<group>"; };
 		304011AF26734C0B00845393 /* WGTestKVCEntity.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WGTestKVCEntity.m; sourceTree = "<group>"; };
 		304727C42750E70F00BF3AFC /* WGLeetCode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WGLeetCode.h; sourceTree = "<group>"; };
 		304727C52750E70F00BF3AFC /* WGLeetCode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WGLeetCode.m; sourceTree = "<group>"; };
-		305188F6265661DA00923282 /* 冷知识.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = "冷知识.md"; sourceTree = "<group>"; };
 		3052130D28F2D08400271C3B /* WGBaseTestLock.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WGBaseTestLock.h; sourceTree = "<group>"; };
 		3052130E28F2D08400271C3B /* WGBaseTestLock.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WGBaseTestLock.m; sourceTree = "<group>"; };
 		3052131028F2D3AD00271C3B /* OSSpinLockTest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OSSpinLockTest.h; sourceTree = "<group>"; };
@@ -1804,9 +1787,7 @@
 		3071641B26E0B33B00DDCE9A /* GSLock.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GSLock.h; sourceTree = "<group>"; };
 		3071641C26E0B33B00DDCE9A /* NSString+GNUstepBase.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSString+GNUstepBase.h"; sourceTree = "<group>"; };
 		3071641D26E0B33B00DDCE9A /* GSIMap.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GSIMap.h; sourceTree = "<group>"; };
-		3078C068251C366B00A73E54 /* 传值方式.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "传值方式.md"; sourceTree = "<group>"; };
 		307A0E7A24456BD3006E5429 /* RunLoop.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = RunLoop.md; sourceTree = "<group>"; };
-		307A0E7C24456BE4006E5429 /* RunTime.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = RunTime.md; sourceTree = "<group>"; };
 		307A0E7E24456BF8006E5429 /* Block.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Block.md; sourceTree = "<group>"; };
 		30975811260C27D100709A73 /* Person+PersonTest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Person+PersonTest.h"; sourceTree = "<group>"; };
 		30975812260C27D100709A73 /* Person+PersonTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Person+PersonTest.m"; sourceTree = "<group>"; };
@@ -1830,7 +1811,6 @@
 		30AACDD8262D7FC500132AF5 /* Swift对象本质.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Swift对象本质.md"; sourceTree = "<group>"; };
 		30AB3010284DE529009EC03C /* 常见面试题.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "常见面试题.md"; sourceTree = "<group>"; };
 		30BB26BA244BF62B00255288 /* NSNotification.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = NSNotification.md; sourceTree = "<group>"; };
-		30C1F2B72431F0C7003B30B3 /* face.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = face.md; sourceTree = "<group>"; };
 		30C4AC4328FD5A5800B1EE03 /* Car+Car1.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Car+Car1.h"; sourceTree = "<group>"; };
 		30C4AC4428FD5A5800B1EE03 /* Car+Car1.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Car+Car1.m"; sourceTree = "<group>"; };
 		30C4AC4628FD5A6900B1EE03 /* Car+Car2.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Car+Car2.h"; sourceTree = "<group>"; };
@@ -1885,7 +1865,7 @@
 		30D3DF70245E74790012F803 /* WGTestModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WGTestModel.h; sourceTree = "<group>"; };
 		30D3DF71245E74790012F803 /* WGTestModel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WGTestModel.m; sourceTree = "<group>"; };
 		30D5D08C2627CD1700F5A4EF /* Swift基础语法.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Swift基础语法.md"; sourceTree = "<group>"; };
-		30D67A8828A384310041FDB5 /* Xcode配置信息作用描述.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Xcode配置信息作用描述.md"; sourceTree = "<group>"; };
+		30D67A8828A384310041FDB5 /* Xcode相关.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Xcode相关.md"; sourceTree = "<group>"; };
 		30DD858A244F00C100897144 /* block.jpeg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = block.jpeg; sourceTree = "<group>"; };
 		30E9226E26EB331F008D151A /* WGSwiftMethodDispatch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WGSwiftMethodDispatch.swift; sourceTree = "<group>"; };
 		30E9227026EB3672008D151A /* WGSwiftMethodDispatchSIL.sil */ = {isa = PBXFileReference; lastKnownFileType = text; path = WGSwiftMethodDispatchSIL.sil; sourceTree = "<group>"; };
@@ -2071,7 +2051,6 @@
 		5409CE7925CAEE9800E704CF /* CFDictionary.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = CFDictionary.c; sourceTree = "<group>"; };
 		5409CE7A25CAEE9800E704CF /* CFUUID.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = CFUUID.c; sourceTree = "<group>"; };
 		5409CE7B25CAEE9800E704CF /* CFURL.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CFURL.h; sourceTree = "<group>"; };
-		540ED63B246990B600C6DAF7 /* KeyWord.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = KeyWord.md; sourceTree = "<group>"; };
 		5422AC58244F3E8E000CB747 /* block2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = block2.png; sourceTree = "<group>"; };
 		542CD1D926074284006A6D1D /* NSObject+WGJson.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSObject+WGJson.h"; sourceTree = "<group>"; };
 		542CD1DA26074284006A6D1D /* NSObject+WGJson.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSObject+WGJson.m"; sourceTree = "<group>"; };
@@ -2088,7 +2067,6 @@
 		542D3D91251A48F500394130 /* Student+StudentCategory.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Student+StudentCategory.m"; sourceTree = "<group>"; };
 		543110AF251CD966007D0061 /* Student+WGStudent.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Student+WGStudent.h"; sourceTree = "<group>"; };
 		543110B32530A23D007D0061 /* OC对象的本质.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "OC对象的本质.md"; sourceTree = "<group>"; };
-		54330A4E25C1B40E00055C66 /* NewRunloop.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = NewRunloop.md; sourceTree = "<group>"; };
 		54347D3124F69F1C006EE9F2 /* 数据结构.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "数据结构.md"; sourceTree = "<group>"; };
 		5438813225445D6F00F5E4D1 /* WGGCDTimer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WGGCDTimer.h; sourceTree = "<group>"; };
 		5438813325445D6F00F5E4D1 /* WGGCDTimer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WGGCDTimer.m; sourceTree = "<group>"; };
@@ -2101,7 +2079,7 @@
 		544008882606DB1F00233364 /* Car.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Car.m; sourceTree = "<group>"; };
 		545638D224B36CE5007D5447 /* HTTPTCPUDP.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = HTTPTCPUDP.md; sourceTree = "<group>"; };
 		5463C26324B0115D008F9C9A /* CoreAnimal.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = CoreAnimal.md; sourceTree = "<group>"; };
-		5483CFEB25D3B95400613F40 /* NewRunTime.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = NewRunTime.md; sourceTree = "<group>"; };
+		5483CFEB25D3B95400613F40 /* RunTime.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = RunTime.md; sourceTree = "<group>"; };
 		5483CFEE25D3C0B500613F40 /* interposable.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = interposable.txt; sourceTree = "<group>"; };
 		5483CFEF25D3C0B500613F40 /* APPLE_LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = APPLE_LICENSE; sourceTree = "<group>"; };
 		5483CFF025D3C0B500613F40 /* libobjc.order */ = {isa = PBXFileReference; lastKnownFileType = text; path = libobjc.order; sourceTree = "<group>"; };
@@ -2232,17 +2210,13 @@
 		548AC976242F4B3200EEE11C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		548AC982242F4C7100EEE11C /* WGMainVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WGMainVC.swift; sourceTree = "<group>"; };
 		548AC985242F4CAD00EEE11C /* WG.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = WG.sh; sourceTree = "<group>"; };
-		548AC986242F4CAD00EEE11C /* git.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = git.md; sourceTree = "<group>"; };
-		548AC987242F4CAD00EEE11C /* PackageIpaWithShell.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = PackageIpaWithShell.md; sourceTree = "<group>"; };
+		548AC986242F4CAD00EEE11C /* gitCocoaPodsCarthage.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = gitCocoaPodsCarthage.md; sourceTree = "<group>"; };
 		548AC988242F4CAD00EEE11C /* KeyWords.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = KeyWords.md; sourceTree = "<group>"; };
-		548AC989242F4CAD00EEE11C /* iOS管理第三方库工具.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = "iOS管理第三方库工具.md"; sourceTree = "<group>"; };
 		548AC98A242F4CAD00EEE11C /* Framework.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = Framework.md; sourceTree = "<group>"; };
-		548F331F24F15E8F00AB3540 /* Memory.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Memory.md; sourceTree = "<group>"; };
-		548F332324F2B13E00AB3540 /* 属性修饰符.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "属性修饰符.md"; sourceTree = "<group>"; };
 		548F332924F2B87300AB3540 /* Person.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Person.h; sourceTree = "<group>"; };
 		548F332A24F2B87300AB3540 /* Person.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Person.m; sourceTree = "<group>"; };
 		54C118BD2584EF8B00B39379 /* LLVM.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = LLVM.md; sourceTree = "<group>"; };
-		54CBAE2724FFE4E500AEA0E5 /* iOS内存分区.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "iOS内存分区.md"; sourceTree = "<group>"; };
+		54CBAE2724FFE4E500AEA0E5 /* iOS内存相关.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "iOS内存相关.md"; sourceTree = "<group>"; };
 		54DA257125B47ADC00E1B980 /* 性能优化.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "性能优化.md"; sourceTree = "<group>"; };
 		54E19656250909050064027B /* WGRunLoopVC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WGRunLoopVC.h; sourceTree = "<group>"; };
 		54E19657250909050064027B /* WGRunLoopVC.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WGRunLoopVC.m; sourceTree = "<group>"; };
@@ -5164,10 +5138,8 @@
 			isa = PBXGroup;
 			children = (
 				30CAB9E72852EA980030BF1C /* iOS包体积优化.md */,
-				305188F6265661DA00923282 /* 冷知识.md */,
 				30D5D08C2627CD1700F5A4EF /* Swift基础语法.md */,
 				30AACDD8262D7FC500132AF5 /* Swift对象本质.md */,
-				548F332324F2B13E00AB3540 /* 属性修饰符.md */,
 				548AC988242F4CAD00EEE11C /* KeyWords.md */,
 				300845CA24456B1700055737 /* KVC.md */,
 				300845CD24456B4C00055737 /* KVO.md */,
@@ -5181,36 +5153,25 @@
 				30C7D40C2439C05000EA99C6 /* NSOperation.md */,
 				309F9D672435D98700FFB705 /* ThreadLock.md */,
 				30F8F49D243F142900968177 /* ThreadSummary.md */,
-				548F331F24F15E8F00AB3540 /* Memory.md */,
 				543110B32530A23D007D0061 /* OC对象的本质.md */,
 				542D3D822518E61300394130 /* 分类扩展关联对象.md */,
-				307A0E7C24456BE4006E5429 /* RunTime.md */,
-				5483CFEB25D3B95400613F40 /* NewRunTime.md */,
+				5483CFEB25D3B95400613F40 /* RunTime.md */,
 				307A0E7A24456BD3006E5429 /* RunLoop.md */,
-				54330A4E25C1B40E00055C66 /* NewRunloop.md */,
-				54CBAE2724FFE4E500AEA0E5 /* iOS内存分区.md */,
+				54CBAE2724FFE4E500AEA0E5 /* iOS内存相关.md */,
 				5406AA76259A144D0053E251 /* iOS签名机制.md */,
-				548AC986242F4CAD00EEE11C /* git.md */,
-				548AC989242F4CAD00EEE11C /* iOS管理第三方库工具.md */,
+				548AC986242F4CAD00EEE11C /* gitCocoaPodsCarthage.md */,
 				548AC98A242F4CAD00EEE11C /* Framework.md */,
 				54DA257125B47ADC00E1B980 /* 性能优化.md */,
 				30F7186B24F7AB020025AD98 /* 设计模式.md */,
 				54347D3124F69F1C006EE9F2 /* 数据结构.md */,
 				54C118BD2584EF8B00B39379 /* LLVM.md */,
 				545638D224B36CE5007D5447 /* HTTPTCPUDP.md */,
-				303D7ABB2539731F00EB6052 /* Xcode错误总结.md */,
-				30C1F2B72431F0C7003B30B3 /* face.md */,
 				5405874A2614AEEA0047AD5E /* 逆向工程.md */,
-				540ED63B246990B600C6DAF7 /* KeyWord.md */,
-				3078C068251C366B00A73E54 /* 传值方式.md */,
-				3027FD392512197500E512FE /* Swift内存对齐问题.md */,
-				548AC987242F4CAD00EEE11C /* PackageIpaWithShell.md */,
 				548AC985242F4CAD00EEE11C /* WG.sh */,
 				309A2DB32665D97900212257 /* swift面试题.md */,
 				300D51432700607600BBFC4C /* 抓包工具.md */,
 				30AB3010284DE529009EC03C /* 常见面试题.md */,
-				30D67A8828A384310041FDB5 /* Xcode配置信息作用描述.md */,
-				3035772B2964239E008313E9 /* Xcode清理.md */,
+				30D67A8828A384310041FDB5 /* Xcode相关.md */,
 			);
 			path = WGReadMe;
 			sourceTree = "<group>";
@@ -5347,22 +5308,17 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				303D7ABC2539731F00EB6052 /* Xcode错误总结.md in Resources */,
 				30A7DC832434A43E008DDCF9 /* lock2.png in Resources */,
 				300D51442700607600BBFC4C /* 抓包工具.md in Resources */,
-				548AC98C242F4CAD00EEE11C /* git.md in Resources */,
+				548AC98C242F4CAD00EEE11C /* gitCocoaPodsCarthage.md in Resources */,
 				30A73F332447F14A00C86BB8 /* kvc1.png in Resources */,
-				54330A4F25C1B40E00055C66 /* NewRunloop.md in Resources */,
-				548AC98F242F4CAD00EEE11C /* iOS管理第三方库工具.md in Resources */,
-				3035772C2964239E008313E9 /* Xcode清理.md in Resources */,
 				30BB26BB244BF62B00255288 /* NSNotification.md in Resources */,
 				30DD858B244F00C100897144 /* block.jpeg in Resources */,
 				30AB3011284DE529009EC03C /* 常见面试题.md in Resources */,
 				30FD76012435CD3100431678 /* NSThread.md in Resources */,
 				5422AC59244F3E8E000CB747 /* block2.png in Resources */,
-				30C1F2B82431F0C7003B30B3 /* face.md in Resources */,
 				30A6D12F293885150064B18A /* rsaCerReq.csr in Resources */,
-				54CBAE2824FFE4E500AEA0E5 /* iOS内存分区.md in Resources */,
+				54CBAE2824FFE4E500AEA0E5 /* iOS内存相关.md in Resources */,
 				30A6D128293885150064B18A /* rsaCert.crt in Resources */,
 				5463C26424B0115D008F9C9A /* CoreAnimal.md in Resources */,
 				545638D324B36CE5007D5447 /* HTTPTCPUDP.md in Resources */,
@@ -5374,13 +5330,12 @@
 				548AC98B242F4CAD00EEE11C /* WG.sh in Resources */,
 				543C213325485B44000212B6 /* NewBlock.md in Resources */,
 				30CAB9E82852EA980030BF1C /* iOS包体积优化.md in Resources */,
-				540ED63C246990B600C6DAF7 /* KeyWord.md in Resources */,
 				3066E0F02435DD48004C71F7 /* GCD.md in Resources */,
 				30A6D12A293885150064B18A /* pkcs8_private_key.pem in Resources */,
 				5405874B2614AEEA0047AD5E /* 逆向工程.md in Resources */,
 				54C118BE2584EF8B00B39379 /* LLVM.md in Resources */,
 				548AC95F242F4B3200EEE11C /* LaunchScreen.storyboard in Resources */,
-				30D67A8928A384310041FDB5 /* Xcode配置信息作用描述.md in Resources */,
+				30D67A8928A384310041FDB5 /* Xcode相关.md in Resources */,
 				30F7186C24F7AB020025AD98 /* 设计模式.md in Resources */,
 				54347D3224F69F1C006EE9F2 /* 数据结构.md in Resources */,
 				300845CB24456B2800055737 /* KVC.md in Resources */,
@@ -5389,13 +5344,10 @@
 				54DA257225B47ADC00E1B980 /* 性能优化.md in Resources */,
 				301CF1BF2452F1750024EC69 /* runLoop1.png in Resources */,
 				30D5D08D2627CD1700F5A4EF /* Swift基础语法.md in Resources */,
-				5483CFEC25D3B95400613F40 /* NewRunTime.md in Resources */,
+				5483CFEC25D3B95400613F40 /* RunTime.md in Resources */,
 				30ECA52024580E9000E3D312 /* Response.md in Resources */,
-				548F332024F15E8F00AB3540 /* Memory.md in Resources */,
-				3027FD3A2512197500E512FE /* Swift内存对齐问题.md in Resources */,
 				30FD94D4243DDE8400EAFAA3 /* error1.png in Resources */,
 				30A6D12E293885150064B18A /* public_key.der in Resources */,
-				548AC98D242F4CAD00EEE11C /* PackageIpaWithShell.md in Resources */,
 				543110B42530A23D007D0061 /* OC对象的本质.md in Resources */,
 				548AC990242F4CAD00EEE11C /* Framework.md in Resources */,
 				30A6D12B293885150064B18A /* private_key.pem in Resources */,
@@ -5406,15 +5358,11 @@
 				309A2DB42665D97900212257 /* swift面试题.md in Resources */,
 				30A6D12D293885150064B18A /* 保存的密码.rtf in Resources */,
 				30AACDD9262D7FC500132AF5 /* Swift对象本质.md in Resources */,
-				548F332424F2B13E00AB3540 /* 属性修饰符.md in Resources */,
 				300845CC24456B3A00055737 /* NSOperation.md in Resources */,
 				30179F9A24401E8000EED9BD /* Note.md in Resources */,
-				307A0E7D24456BE4006E5429 /* RunTime.md in Resources */,
 				30A7DC8124348703008DDCF9 /* lock1.png in Resources */,
-				3078C069251C366B00A73E54 /* 传值方式.md in Resources */,
 				548AC95A242F4B3100EEE11C /* Main.storyboard in Resources */,
 				5406AA77259A144D0053E251 /* iOS签名机制.md in Resources */,
-				305188F7265661DA00923282 /* 冷知识.md in Resources */,
 				30A6D129293885150064B18A /* rsa_public_key.pem in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
