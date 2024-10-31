@@ -224,6 +224,7 @@
     let infoWeight: KeyPath<WGAnimalModel, Int?> = \WGAnimalModel.info?.weight
 
 ## Objective-C
+    类属性
     @property (class, readonly) BOOL accessInstanceVariablesDirectly;
     设置值
     - (void)setValue:(nullable id)value forKey:(NSString *)key;
@@ -274,12 +275,12 @@
 
     输出结果: name:张三
 #### KVC赋值比较简单，这里不再累述，现在重点关注一下setValue: forKey: 方法底层是如何查找到对应的Key并赋值的,寻找过程如下，搜索过程已代码验证，这里不再贴代码了
-1. 首先查找setKey方法，找到了就直接赋值；如果没有找到:
+1. 首先查找setKey/_setKey方法，找到了就直接赋值；如果没有找到:
 2. KVC会判断对象是否实现了accessInstanceVariablesDirectly方法，该方法默认返回YES，如果返回NO，则KVC不再去查找，直接调用setValue:forUndefinedKey:抛出异常，使程序crash,如果返回YES(表示KVC可以继续查找):
 3. 查找.h和.m文件(无论是私有的还是可访问的)中有没有对应的成员变量_key(注意如果存在以@property声明的_key属性，KVC是不会去查找也不会赋值的)，如果找到的话，直接赋值；如果没有找到:
 4. KVC会搜索_isKey的成员变量(只会搜索成员变量，@property声明的属性是不会搜索的；_iskey也不会搜索的，只能搜索_isKey)，如果找到就赋值；如果没有找到:
 5. KVC会搜索isKey的属性，如果有就赋值(其实赋给的是属性isKey生成的成员变量_isKey);如果没有就在.h文件和.m文件中找isKey的成员变量，如果找到了就赋值，如果没有找到就调用setValue:forUndefinedKey:抛出异常
-6. 整个搜索流程就是setKey方法->accessInstanceVariablesDirectly方法判断(YES)->_key成员变量->_isKey成员变量->isKey属性->isKey成员变量->setValue:forUndefinedKey:如果想让某个类禁用KVC，在该类中重写accessInstanceVariablesDirectly方法并返回NO即可
+6. 整个搜索流程就是setKey/_setKey方法->accessInstanceVariablesDirectly方法判断(YES)->_key成员变量->_isKey成员变量->isKey属性->isKey成员变量->setValue:forUndefinedKey:如果想让某个类禁用KVC，在该类中重写accessInstanceVariablesDirectly方法并返回NO即可
 #### 当调用valueForKey时，KVC的检索顺序如下
 1. KVC按照getKey->key->isKey的顺序查找getter方法，找到直接调用,如果没有找到：
 2. 查找countOfKey/objectInKeyAtindex/KeyAtindexes格式的方法。如果其中一个方法被找到，那么就会返回一个可以响应NSArray所有方法的代理集合，调用这个代理集合的方法，或者说给这个代理集合发送属于NSArray的方法，就会以countOfKey/objectInKeyAtindex/KeyAtindexes这几个方法组合的形式调用。如果没有找到:
@@ -623,7 +624,9 @@
                                                 直接赋值
 
 #### 2. 面试题
-#### 2.1 通过KVC修改属性会触发KVO吗？会
+#### 2.1 正常情况下，我们通过对象.属性方式对属性进行修改是会触发KVO的；那么通过KVC修改属性会触发KVO吗？会
+#### 对象的属性或者成员变量(包括.m文件中的私有成员变量)都可以通过KVC获取/设置值
+(前提条件就是对属性添加了KVO，然后通过KVC去修改属性的值时是否会触发KVO)
     //Person.h文件
     @interface Person : NSObject
     @property(nonatomic, assign)int age;
@@ -678,7 +681,9 @@
               didChangeValueForKey---begin
 #### 结论：通过KVC对属性进行赋值会触发KVO的，KVC底层内部是也会调用willChangeValueForKey和didChangeValueForKey方法的；
 
-#### 2.2 通过KVC修改成员变量，会触发KVO吗？ 会
+#### 2.2 通过KVC修改成员变量，会触发KVO吗？ 会;(直接修改成员变量,会触发KVO吗？ 不会)，原因就是KVC内部做了监听操作
+#### 
+(前提条件就是对成员变量添加了KVO，然后通过KVC去修改成员变量的值时是否会触发KVO)
 #### 如果通过KVC对成员变量进行赋值，即便没有setter方法同样是会触发KVO的，因为KVC找到成员变量进行赋值时，底层也调用了触发KVO的方法willChangeValueForKey和didChangeValueForKey，但是通过对象->成员变量是无法触发KVO的；验证如下：
     @interface Person : NSObject
     {
@@ -727,3 +732,12 @@
                 old = 0;
               }
               didChangeValueForKey---begin
+
+#### 感悟 
+1. KVC对属性、成员变量(包含私有成员变量)都可以进行设值/取值
+2. 通过KVC对属性、成员变量进行赋值，都会触发KVO的(前提就是对属性、成员变量都添加了KVO观察)
+3. 继承自NSObject的所有类都可以实现KVC; 想关闭KVC就是重写类属性accessInstanceVariablesDirectly且返回NO 
+4. accessInstanceVariablesDirectly是个类属性，重写后就变成了一个类方法
+5. KVC与直接访问属性的区别： 访问方式不同：直接访问属性是在编译器确定的；KVC是在运行时动态确定的
+6. kVC优点: KVC使得代码更加灵活，适用于动态属性访问和序列化/反序列化操作，减少了代码量
+7. KVC缺点: 性能较低(需要在运行时解析键值对，增加了额外的处理时间)，且可能破坏类的封装性和只读属性，增加安全风险‌
