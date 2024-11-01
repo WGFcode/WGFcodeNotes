@@ -73,7 +73,7 @@
         @end
         
         打印结果: NSObject对象占用内存: 8----Person对象占用内存: 16
-#### 结论:OC对象分配的内存空间存放的是isa指针和成员变量, 而NSObject对象存放的只有一个isa指针,即分配8个字节的空间,而OC对象的内存空间是isa指针(8个字节存放isa指针)内存大小+成员变量分配的内存大小
+#### 结论:OC对象分配的内存空间存放的是isa指针和成员变量, 而NSObject对象存放的只有一个isa指针,即分配8个字节的空间,而OC对象的内存空间是isa指针(8个字节存放isa指针)内存大小+存储成员变量的值所分配的内存大小
         
         
 #### 3. 实时查看内存数据
@@ -337,7 +337,7 @@
     isa指针                         isa指针                       isa指针
     superclass                    superclass                    superclass
     类方法                          类方法                         类方法 
-    superclass指针-->Person元类对象  superclass-->NSObject元类对象 superclass-->nil
+    superclass指针-->Person元类对象  superclass-->NSObject元类对象 superclass-->NSObject类对象
     +(void)studentClassMethod     +(void)personClassMethod      +(void)load
 
     [Student studentClassMethod];

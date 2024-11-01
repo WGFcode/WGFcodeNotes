@@ -35,6 +35,8 @@
 		306C696028F4081900285592 /* ReadWriteLockTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 306C695F28F4081900285592 /* ReadWriteLockTest.m */; };
 		306C696328F40E4400285592 /* ReadWriteLockTest1.m in Sources */ = {isa = PBXBuildFile; fileRef = 306C696228F40E4400285592 /* ReadWriteLockTest1.m */; };
 		307A0E7B24456BD3006E5429 /* RunLoop.md in Resources */ = {isa = PBXBuildFile; fileRef = 307A0E7A24456BD3006E5429 /* RunLoop.md */; };
+		307C0B282CD4CD97007AE7C4 /* getter.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 307C0B272CD4CD97007AE7C4 /* getter.jpg */; };
+		307C0B2A2CD4CDF1007AE7C4 /* setter.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 307C0B292CD4CDF1007AE7C4 /* setter.jpg */; };
 		30975813260C27D100709A73 /* Person+PersonTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 30975812260C27D100709A73 /* Person+PersonTest.m */; };
 		30975816260C2DF800709A73 /* Person+PersonAAAAA.m in Sources */ = {isa = PBXBuildFile; fileRef = 30975815260C2DF800709A73 /* Person+PersonAAAAA.m */; };
 		309A2DB42665D97900212257 /* swift面试题.md in Resources */ = {isa = PBXBuildFile; fileRef = 309A2DB32665D97900212257 /* swift面试题.md */; };
@@ -1789,6 +1791,8 @@
 		3071641D26E0B33B00DDCE9A /* GSIMap.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GSIMap.h; sourceTree = "<group>"; };
 		307A0E7A24456BD3006E5429 /* RunLoop.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = RunLoop.md; sourceTree = "<group>"; };
 		307A0E7E24456BF8006E5429 /* Block.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Block.md; sourceTree = "<group>"; };
+		307C0B272CD4CD97007AE7C4 /* getter.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = getter.jpg; sourceTree = "<group>"; };
+		307C0B292CD4CDF1007AE7C4 /* setter.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = setter.jpg; sourceTree = "<group>"; };
 		30975811260C27D100709A73 /* Person+PersonTest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Person+PersonTest.h"; sourceTree = "<group>"; };
 		30975812260C27D100709A73 /* Person+PersonTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Person+PersonTest.m"; sourceTree = "<group>"; };
 		30975814260C2DF800709A73 /* Person+PersonAAAAA.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Person+PersonAAAAA.h"; sourceTree = "<group>"; };
@@ -4618,6 +4622,8 @@
 		30A7DC7D24348382008DDCF9 /* WGScreenshots */ = {
 			isa = PBXGroup;
 			children = (
+				307C0B292CD4CDF1007AE7C4 /* setter.jpg */,
+				307C0B272CD4CD97007AE7C4 /* getter.jpg */,
 				301CF1BE2452F1750024EC69 /* runLoop1.png */,
 				30196F922CCB43BD00B09D5D /* init.jpg */,
 				5422AC58244F3E8E000CB747 /* block2.png */,
@@ -5320,6 +5326,7 @@
 				30A6D12F293885150064B18A /* rsaCerReq.csr in Resources */,
 				54CBAE2824FFE4E500AEA0E5 /* iOS内存相关.md in Resources */,
 				30A6D128293885150064B18A /* rsaCert.crt in Resources */,
+				307C0B282CD4CD97007AE7C4 /* getter.jpg in Resources */,
 				5463C26424B0115D008F9C9A /* CoreAnimal.md in Resources */,
 				545638D324B36CE5007D5447 /* HTTPTCPUDP.md in Resources */,
 				307A0E7B24456BD3006E5429 /* RunLoop.md in Resources */,
@@ -5363,6 +5370,7 @@
 				30A7DC8124348703008DDCF9 /* lock1.png in Resources */,
 				548AC95A242F4B3100EEE11C /* Main.storyboard in Resources */,
 				5406AA77259A144D0053E251 /* iOS签名机制.md in Resources */,
+				307C0B2A2CD4CDF1007AE7C4 /* setter.jpg in Resources */,
 				30A6D129293885150064B18A /* rsa_public_key.pem in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

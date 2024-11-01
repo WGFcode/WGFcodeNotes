@@ -281,12 +281,16 @@
 4. KVC会搜索_isKey的成员变量(只会搜索成员变量，@property声明的属性是不会搜索的；_iskey也不会搜索的，只能搜索_isKey)，如果找到就赋值；如果没有找到:
 5. KVC会搜索isKey的属性，如果有就赋值(其实赋给的是属性isKey生成的成员变量_isKey);如果没有就在.h文件和.m文件中找isKey的成员变量，如果找到了就赋值，如果没有找到就调用setValue:forUndefinedKey:抛出异常
 6. 整个搜索流程就是setKey/_setKey方法->accessInstanceVariablesDirectly方法判断(YES)->_key成员变量->_isKey成员变量->isKey属性->isKey成员变量->setValue:forUndefinedKey:如果想让某个类禁用KVC，在该类中重写accessInstanceVariablesDirectly方法并返回NO即可
+![图片](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGScreenshots/setter.png)
+
 #### 当调用valueForKey时，KVC的检索顺序如下
 1. KVC按照getKey->key->isKey的顺序查找getter方法，找到直接调用,如果没有找到：
 2. 查找countOfKey/objectInKeyAtindex/KeyAtindexes格式的方法。如果其中一个方法被找到，那么就会返回一个可以响应NSArray所有方法的代理集合，调用这个代理集合的方法，或者说给这个代理集合发送属于NSArray的方法，就会以countOfKey/objectInKeyAtindex/KeyAtindexes这几个方法组合的形式调用。如果没有找到:
 
 3. 查找countOfKey/enumeratorOfKey/memberOfKey格式的方法。如果这三个方法都找到，就返回一个可以响应NSSet所有方法的代理集合，给这个代理集合发NSSet的消息，就会以countOfKey/enumeratorOfKey/memberOfKey组合的形式调用。如果没有找到:
 4. 检查accessInstanceVariablesDirectly方法，如果返回YES，会按照_key -> _isKey -> key -> iskey的顺序搜索成员；如果没有找到，调用valueForUndefinedKey方法，抛出异常
+
+![图片](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGScreenshots/getter.png)
 
 ### 2.KVC中KeyPath
 #### 如果一个类的属性是自定义类型或者其它复杂的数据类型，通过KVC获取该属性会比较繁琐，所以KVC提供了KeyPath键路径来简化获取属性的过程;注意如果不小心使用了key而非keyPath，那么KVC就会找Key(teacher.name)没有找到就会抛出异常，所以一定要小心使用。

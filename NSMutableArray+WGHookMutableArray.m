@@ -19,6 +19,7 @@
     Method method1 = class_getInstanceMethod(cls, @selector(insertObject:atIndex:));
     Method method2 = class_getInstanceMethod(cls, @selector(WG_insertObject:atIndex:));
     method_exchangeImplementations(method1, method2);
+
 }
                                              
 -(void)WG_insertObject:(id)anObject atIndex:(NSUInteger)index {

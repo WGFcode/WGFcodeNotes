@@ -165,10 +165,10 @@
         NSKeyValueObservingOptionNew context:(__bridge void * _Nullable)(contextNSString)];
         //方法二
         [self addObserver:self forKeyPath:@"name" options:NSKeyValueObservingOptionOld |  
-        NSKeyValueObservingOptionNew context:(__bridge void * _Nullable)(contextNSString)];
+        NSKeyValueObservingOptionNew context:(__bridge void * _Nullable)(contentNSArray)];
         //方法三
         [self addObserver:self forKeyPath:@"name" options:NSKeyValueObservingOptionNew |  
-        NSKeyValueObservingOptionOld context: @"abcdefg"];
+        NSKeyValueObservingOptionOld context: (__bridge void * _Nullable)(contextNSDictionary)];
         self.name = @"zhangsan";
     }
 
@@ -1159,3 +1159,55 @@
 
 #### 2.2 直接修改成员变量会触发KVO吗?
 #### 不会触发KVO, 因为KVO的本质的Runtime动态生成对象的子类NSKVONotifying_类名称,在子类中重写setter方法,然后调用willChangeValueForKey、原类的setter方法、didChangeValueForKey.而成员变量没有setter方法,所以不会触发,想要触发的话,只能手动触发,在成员变量值改变前后手动添加willChangeValueForKey和didChangeValueForKey方法
+
+#### 感悟
+* KVO是基于Runtime机制实现的，运用了isa-swizzling技术,当对一个对象属性添加观察者时，runtime会动态的创建该对象所属类的派生类
+然后将对象的isa指针指向这个派生类，这个派生类会重写属性的setter方法，在 setter方法内部会调用__NSSetIntValueAndNotify。
+__NSSetIntValueAndNotify内部会调用(1.willChangeValueForKey方法/2.父类(本类)的setter方法/3.didChangeValueForKey，
+didChangeValueForKey方法中又会调用监听方法observeValueForKeyPath)来实现属性监听
+* isa-swizzling技术(类指针交换俗称黑魔法)：通过修改isa指针，从而改变对象所属的类，可以实现对类的动态修改，(isa指针是一个指向对象所属类的指针）
+* 如果想禁用KVO，那么就在类中实现类方法automaticallyNotifiesObserversForKey且返回NO即可
+* KVO监听集合类型时，只能监听到赋值操作时的变化，无法监听增/删/改/查操作；如果想监听增/删/改/查操作有两种方式
+第一种：在集合类型增/删/改/查操作前后添加willChangeValueForKey和didChangeValueForKey
+第二种:自定义个类，把集合作为属性定义在这个自定义类中，然后在使用的类中引入这个自定义类(作为使用类的属性)
+，然后给这个类的集合属性添加观察者，在使用集合时通过KVC中的
+mutableArrayValueForKey/mutableSetValueForKey等方法获取到集合
+* 手动触发KVO: 重写属性的setter方法，在setter方法内部中在对属性赋值前后添加willChangeValueForKey和didChangeValueForKey，并且需要
+实现automaticallyNotifiesObserversForKey类方法返回NO，告诉编译器不需要KVO自动监听了，而是我们手动开启监听属性的变化
+* 如果一个属性的改变是依赖于其他属性的改变而变化的，那么就需要添加键依赖了，通过实现keyPathsForValuesAffectingValueForKey类方法来添加依赖
+* 手动实现KVO和自动实现KVO区别：都能监听到属性的变化；手动实现KVO时，监听方法observeValueForKeyPath:ofObject:change:context中
+change字典中不再包含集合元素变化的类型(插入/删除/替换),而是kind被统一标识为1(设置类型)，也不再包含集合元素改变的索引值(下标)
+* 手动实现KVO好处就是可以在setter中的赋值前后添加自己的条件判断(如只需要监听年龄在10-20岁的动物)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
