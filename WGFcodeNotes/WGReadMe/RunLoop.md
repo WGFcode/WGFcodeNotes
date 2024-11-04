@@ -5,8 +5,11 @@
 * 有消息时，从内核态 -> 用户态; 无消息休眠时，从用户态 -> 内核态
 
 ### 1. RunLoop作用
-1. 保证RunLoop所在的线程不退出(保证程序不退出)
-2. 负责监听事件(触摸事件/时钟事件/网络事件等)
+1. 保证RunLoop所在的线程不退出(保证程序不退出)；
+2. 负责监听事件(触摸事件/时钟事件/网络事件等)；
+3. 保持程序持续运行
+4. 处理app各种事件(定时器Timer/方法调用PerformSelector/GCD Async Main Queue/事件响应、手势识别、界面刷新/网络请求/自动释放池 AutoreleasePool)
+5.节省CPU资源，提高程序性能
 
 
 ### 2. RunLoop类型
@@ -347,7 +350,7 @@
 
 ### 9. Source: 事件源
 #### 从GCD中的Timer案例中,我们知道Timer可以包装成一个Source, 按照函数调用栈可以分为两类
-1. Source0: 非Source1就是Source0
+1. Source0: 触摸事件处理;非Source1就是Source0
 2. Source1: 系统内核事件/基于NSPort端口的事件
 
 
@@ -834,10 +837,11 @@
     
   
 ### 4.RunLoop在项目中应用场景
-* 控制线程的声明周期（线程保活）
-* 解决NSTimer在滚动的时候停止的问题
+* 控制线程的声明周期（线程保活）；常驻线程
+* NSTimer定时器使用/解决NSTimer在滚动的时候停止的问题/
 * 监控应用卡顿
 * 性能优化
+* AutoreleasePool
 
 #### 4.1 线程保活
 #### 为什么要线程保活? 我们知道线程中任务一旦执行完成，线程随之就会销毁，如果我们需要在子线程中频繁的执行任务，那么就要频繁的创建子线程和销毁子线程，这样很消耗性能，所以我们要使用线程保活，让这个线程一旦创建了就不会销毁。最典型的就是网络请求库AFNetworking，每个网络请求都是异步执行的，那么就需要创建多个子线程来执行这些异步任务，为了提高性能，AFNetworking使用线程保活，让每一个网络请求都在同一个子线程中执行，这个子线程不会被销毁
@@ -1609,11 +1613,11 @@
 
 ### 4. RunLoop相关的类
 #### Core Foundation关于RunLoop的5个类
-1. CFRunLoopRef
-2. CFRunLoopModeRef: 代表RunLoop的运行模式
-3. CFRunLoopSourceRef
-4. CFRunLoopTimerRef
-5. CFRunLoopObserverRef
+1. CFRunLoopRef: 是一个CFRunLoop结构体的指针，负责运行循环，处理事件，保持运行
+2. CFRunLoopModeRef: 代表RunLoop的运行模式，模式下对应多个处理源
+3. CFRunLoopSourceRef: [Source0触摸事件处理/ Source1基于Port的线程间通信]
+4. CFRunLoopTimerRef: NSTimer的运用
+5. CFRunLoopObserverRef: 用于监听RunLoop的状态，UI刷新，自动释放池
 
         typedef struct __CFRunLoop * CFRunLoopRef;
         struct __CFRunLoop {

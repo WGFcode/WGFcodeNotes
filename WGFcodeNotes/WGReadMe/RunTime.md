@@ -41,7 +41,7 @@
 
 #### 1.1 isa优化后的内部源码刨析(简化)
     struct objc_object {
-        isa_t isa;
+        isa_t isa;  //联合体+位域的方式存储信息的
     }
     
     union isa_t {  //共用体

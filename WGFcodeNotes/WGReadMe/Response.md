@@ -1,16 +1,37 @@
 ##  响应链及事件传递 & 手势
-### 我们思考一个问题：当我们点击屏幕触发事件的时候，该事件是如何传递和响应的？首先我们需要确定我们点击的是哪个视图吧？即找到第一响应者；然后我们还得确定这个视图能不能响应事件吧，如果不能响应我们怎么办？需要注意的是iOS中只有继承自UIResponder的子类才能够接收和处理事件，我们把这些对象称为响应者对象；所以这里我们需要解释两个问题
-* 点击屏幕之后，如何找到第一响应者？
-* 找到第一响应者之后，如果第一响应者没有处理事件，那么事件该如何传递
+#### 我们思考一个问题：当我们点击屏幕触发事件的时候，该事件是如何传递和响应的？首先我们需要确定我们点击的是哪个视图吧？即找到第一响应者；然后我们还得确定这个视图能不能响应事件吧，如果不能响应我们怎么办？需要注意的是iOS中只有继承自UIResponder的子类才能够接收和处理事件，我们把这些对象称为响应者对象；所以这里我们需要解释两个问题
+* 点击屏幕之后，如何找到第一响应者？【事件传递】
+* 找到第一响应者之后，如果第一响应者没有处理事件，那么事件该如何传递 【事件响应】
 
 
 ### 1. 如何寻找第一响应者？
-#### 当我们点击屏幕的时候，UIKit会生成UIEvent对象来描述触摸事件(包含触碰坐标等信息)，并将该对象放入AppDelegate的事件队列中，AppDelegate会从事件队列中取出触摸事件传递给UIWindow来处理，UIWindow 会通过hitTest:withEvent:方法寻找触碰点所在的视图，找到第一响应者，这个过程称之为hit-test view。首先我们需要先了解UIIVew分类中的两个重要方法
-    //去寻找最适合的View，返回第一响应者，即触碰点的视图
-    -(UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event
-    // 用来判断某一个点击的位置是否在视图范围内，如果在就返回YES,继续遍历该视图的子视图；  
-    如果返回NO，则不再遍历它的子视图；
-    - (BOOL)pointInside:(CGPoint)point withEvent:(UIEvent *)event
+#### 当我们点击屏幕的时候，UIKit会生成UIEvent对象来描述触摸事件(包含触碰坐标等信息)，并将该对象放入AppDelegate的事件队列中，AppDelegate会从事件队列中取出触摸事件传递给UIWindow来处理，UIWindow 会通过hitTest:withEvent:方法寻找触碰点所在的视图，找到第一响应者，这个过程称之为hit-test view,方法目的就是寻找并返回最合适的view(能够响应事件的那个最合适的view)。首先我们需要先了解UIIVew分类中的两个重要方法
+
+        //去寻找最适合的View，返回第一响应者，即触碰点的视图
+        -(UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event
+        // 用来判断某一个点击的位置是否在视图范围内，如果在就返回YES,继续遍历该视图的子视图；  
+        如果返回NO，则不再遍历它的子视图；
+        - (BOOL)pointInside:(CGPoint)point withEvent:(UIEvent *)event
+
+        //hitTest:withEvent:底层实现
+        - (UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event {
+            // 1.判断自己能否接收触摸事件
+            if (self.userInteractionEnabled == NO || self.hidden == YES || self.alpha <= 0.01) return nil;
+            // 2.判断触摸点在不在自己范围内
+            if (![self pointInside:point withEvent:event]) return nil;
+            // 3.从后往前遍历自己的子控件，看是否有子控件更适合响应此事件
+            int count = self.subviews.count;
+            for (int i = count - 1; i >= 0; i--) {
+                UIView *childView = self.subviews[i];
+                CGPoint childPoint = [self convertPoint:point toView:childView];
+                UIView *fitView = [childView hitTest:childPoint withEvent:event];
+                if (fitView) {
+                    return fitView;
+                }
+            }
+            // 没有找到比自己更合适的view
+            return self;
+        }
 
 
 #### 1.1 hit-test view寻找第一响应者过程（假如我们点击了UIWindow->A2->B2）
@@ -349,3 +370,5 @@
 3. delaysTouchesEnded
 4. 添加手势依赖：[A requireGestureRecognizerToFail B] 当手势B失败的时候才会执行手势A，例如单击和双击事件
 5. 手势的代理方法UIGestureRecognizerDelegate
+
+#### 事件的产生和响应

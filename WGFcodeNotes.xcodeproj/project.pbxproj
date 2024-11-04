@@ -55,6 +55,7 @@
 		30A7DC832434A43E008DDCF9 /* lock2.png in Resources */ = {isa = PBXBuildFile; fileRef = 30A7DC822434A43E008DDCF9 /* lock2.png */; };
 		30AACDD9262D7FC500132AF5 /* Swift对象本质.md in Resources */ = {isa = PBXBuildFile; fileRef = 30AACDD8262D7FC500132AF5 /* Swift对象本质.md */; };
 		30AB3011284DE529009EC03C /* 常见面试题.md in Resources */ = {isa = PBXBuildFile; fileRef = 30AB3010284DE529009EC03C /* 常见面试题.md */; };
+		30B4BCCF2CD895DF000DADC1 /* 代理.png in Resources */ = {isa = PBXBuildFile; fileRef = 30B4BCCE2CD895DF000DADC1 /* 代理.png */; };
 		30BB26BB244BF62B00255288 /* NSNotification.md in Resources */ = {isa = PBXBuildFile; fileRef = 30BB26BA244BF62B00255288 /* NSNotification.md */; };
 		30C4AC4528FD5A5800B1EE03 /* Car+Car1.m in Sources */ = {isa = PBXBuildFile; fileRef = 30C4AC4428FD5A5800B1EE03 /* Car+Car1.m */; };
 		30C4AC4828FD5A6900B1EE03 /* Car+Car2.m in Sources */ = {isa = PBXBuildFile; fileRef = 30C4AC4728FD5A6900B1EE03 /* Car+Car2.m */; };
@@ -1814,6 +1815,7 @@
 		30A7DC822434A43E008DDCF9 /* lock2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = lock2.png; sourceTree = "<group>"; };
 		30AACDD8262D7FC500132AF5 /* Swift对象本质.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Swift对象本质.md"; sourceTree = "<group>"; };
 		30AB3010284DE529009EC03C /* 常见面试题.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "常见面试题.md"; sourceTree = "<group>"; };
+		30B4BCCE2CD895DF000DADC1 /* 代理.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "代理.png"; sourceTree = "<group>"; };
 		30BB26BA244BF62B00255288 /* NSNotification.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = NSNotification.md; sourceTree = "<group>"; };
 		30C4AC4328FD5A5800B1EE03 /* Car+Car1.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Car+Car1.h"; sourceTree = "<group>"; };
 		30C4AC4428FD5A5800B1EE03 /* Car+Car1.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Car+Car1.m"; sourceTree = "<group>"; };
@@ -4622,6 +4624,7 @@
 		30A7DC7D24348382008DDCF9 /* WGScreenshots */ = {
 			isa = PBXGroup;
 			children = (
+				30B4BCCE2CD895DF000DADC1 /* 代理.png */,
 				307C0B292CD4CDF1007AE7C4 /* setter.jpg */,
 				307C0B272CD4CD97007AE7C4 /* getter.jpg */,
 				301CF1BE2452F1750024EC69 /* runLoop1.png */,
@@ -5364,6 +5367,7 @@
 				30A6D12C293885150064B18A /* private_key.p12 in Resources */,
 				309A2DB42665D97900212257 /* swift面试题.md in Resources */,
 				30A6D12D293885150064B18A /* 保存的密码.rtf in Resources */,
+				30B4BCCF2CD895DF000DADC1 /* 代理.png in Resources */,
 				30AACDD9262D7FC500132AF5 /* Swift对象本质.md in Resources */,
 				300845CC24456B3A00055737 /* NSOperation.md in Resources */,
 				30179F9A24401E8000EED9BD /* Note.md in Resources */,

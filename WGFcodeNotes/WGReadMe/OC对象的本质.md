@@ -576,7 +576,7 @@
 #### 接下来我们来通过RunTime源码(objc源码)来窥探objc_class结构体,
     struct objc_object {
     private:
-        isa_t isa;
+        isa_t isa;    //联合体+位域的方式存储信息的
         ...其他信息...
     }
 
@@ -595,7 +595,7 @@
         
 #### 其实上面的内容相当于下面的结构体
         struct objc_class {
-            isa_t isa;
+            isa_t isa;     //联合体+位域的方式存储信息的
             Class superclass;
             cache_t cache;             
             class_data_bits_t bits;    
@@ -606,7 +606,7 @@
         }
 #### 通过源码我们可以总结:struct objc_class结构体中有四个成员变量，即类对象中有四个成员变量，分别是isa、superclass、cache、bits,由于类对象和元类对象结构体是一样的，所以元类对象中也有这四个成员变量，只是类信息没有的话，元类对象中对应的成员变量为空，即没有值罢了
         struct objc_class {
-            isa_t isa;
+            isa_t isa;      //联合体+位域的方式存储信息的
             Class superclass;
             cache_t cache;            //方法缓存       
             class_data_bits_t bits;   //用于获取具体的类信息

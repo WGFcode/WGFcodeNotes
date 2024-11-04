@@ -768,7 +768,8 @@
 3. 调用didChangeValueForKey:方法，而这个方法内部又会去调用监听方法observeValueForKeyPath，从而实现属性的监听
 * class方法：如果不重写这个方法，当调用class方法的时候返回的就是runtime动态生成的派生类(NSKVONotifying_WGAnimal),重写这个方法后，返回的就是原本的类(WGAnimal),重写的目的就是隐藏KVO的具体实现细节，或者说是为了避免派生类的信息被暴露
 * dealloc方法：做一些KVO释放内存的工作
-* _isKVOA方法：这是个私有方法，暂不讨论研究
+* _isKVOA方法：这是个私有方法，这个方法可以当做使用了KVO的一个标记；系统可能也是这么用的。如果我们想判断当前类是否是KVO动态生成的类，
+就可以从方法列表中搜索这个方法
 
 
 ### 5. 禁用KVO
