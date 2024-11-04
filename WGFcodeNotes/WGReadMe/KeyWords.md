@@ -322,6 +322,7 @@
 * associatedtype 只能在 protocol 中使用，class 中应该使用typealias进行代替。
 * associatedtype 在协议中引入了一种灵活性，使得协议可以用于更广泛的类型，而不需要在协议定义时明确具体类型
 * 协议中不支持泛型，如果在协议中需要达到泛型这种类似的效果,可以使用 associatedtype 关键字
+
         //错误例子: protocol 不支持范型，需要使用 associatedtype 来代替
         protocol Stack<Element> {
 
