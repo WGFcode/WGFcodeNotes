@@ -525,8 +525,6 @@
 4. __block变量的持有和释放与OC的引用计数很像的,
 5. __forwarding成员变量当在栈上此,指向了__block变量结构体自身的指针, 当复制到堆上后,__forwarding指向了复制到堆上的__block变量结构体的指针, 所以无论Block在堆上还时栈上都可以顺利的访问同一个__block 变量
 
-#### 1.4.6 截获对象
-
 
 ### 1.4.1 Block引用问题
 1. 当Block内部访问了对象类型的auto变量时，是否会强引用？
@@ -586,7 +584,9 @@
 
 ### 2.2 __block变量与__forwarding
 #### 我们知道在copy操作之后,__block变量也会被拷贝到堆中,那么访问该变量访问的是栈上的还是堆上的?
+
 ![图片](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGScreenshots/block2.jpeg)
+
 * 通过__forwarding无论在Block内还是Block外访问__block修饰的变量,也不管该变量在堆上还是栈上,都能顺利的访问同一个__block修饰的变量
 
 
@@ -1205,7 +1205,7 @@
 
 ### 资源练习
 #### 循环引用, 
-#### 解决循环引用主要用到二种方式:
+#### 解决循环引用主要用到三种方式:
 1. 方式一: 使用 __weak+__strong共用来解决
 2. 方式二: 使用__block方式,并且在不需要引用对象的时候,主动置nil,来解决循环引用
 3. 方式三: 将引用变量/对象作为参数传递给Block来解决循环引用,主要就是作用域之间的通讯

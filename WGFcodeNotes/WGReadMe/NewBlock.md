@@ -1,7 +1,7 @@
 ### Block系统性总结
 
 ### 1. block本质及底层结构
-#### 1.1 block本质也是个OC对象,它内部也有isa指针.block是封装了函数调用以及函数环境的OC对象
+#### 1.1 block本质也是个OC对象,它内部也有isa指针.block是封装了函数调用以及函数执行环境的OC对象
     int main(int argc, const char * argv[]) {
         @autoreleasepool {
             void (^block)(void) = ^{
@@ -312,7 +312,7 @@
     全局变量      全局变量            不捕获                 直接访问
 
 ### 3. block类型
-#### 3.1 block有3中类型,可以通过调用**class**方法或isa指针查看具体类型,最终都是继承自NSBlock类型
+#### 3.1 block有3种类型,可以通过调用**class**方法或isa指针查看具体类型,最终都是继承自NSBlock类型
     int main(int argc, const char * argv[]) {
         @autoreleasepool {
         //类型一->继承关系: __NSGlobalBlock__:__NSGlobalBlock:NSBlock:NSObject:(null)
@@ -608,7 +608,7 @@
     };
 #### 分析,用__weak修饰符来修饰auto对象,那么堆上的block对person对象就是个弱引用,所以person对象离开了作用域就销毁了
 
-#### 5.2 block访问对象类型的auto变量,底层结果有哪些变化
+#### 5.2 block访问对象类型的auto变量,底层结构有哪些变化
     struct __main_block_impl_0 {
         struct __block_impl impl;
         struct __main_block_desc_0* Desc;
@@ -1141,7 +1141,8 @@
         //会对objc变量-强引用  如果是__weak NSObject *weakSelf = objc;那么就对objc变量进行的是弱引用
         _Block_object_assign((void*)&dst->objc, (void*)src->objc, 3/*BLOCK_FIELD_IS_OBJECT*/);
         }
-#### 总结: block访问auto类型的对象时,如果对象是强引用修饰(默认的都是Strong),那么block就对外部的auto对象是强引用;如果对象是弱引用(用__weak修饰),那么block对auto对象就是弱引用; 如果block访问的是__block修饰的对象,那么block对修饰的对象就是强引用
+#### 总结: block访问auto类型的对象时,如果对象是强引用修饰(默认的都是Strong),那么block底层结构体就对外部的auto对象是强引用;如果对象是弱引用(用__weak修饰),那么block底层结构体对auto对象就是弱引用;
+#### 如果block访问的是__block修饰的对象,我们知道编译器会将__block修饰的变量包装成一个对象(底层就是个结构体，捕获到的变量是存储在这个包装的结构体中的)，在block底层结构体中有个成员变量指针指向这个包装的结构体，block底层结构对这个包装的结构体是强引用，而这个包装类中捕获的变量是强引用还是弱引用就要看__block修饰的变量外部是strong修饰还是__weak修饰了；
 
 
 #### 6.4 对象类型的auto变量和__block修饰的变量的内存管理
@@ -1187,7 +1188,7 @@
         int __size;
         void (*__Block_byref_id_object_copy)(void*, void*);
         void (*__Block_byref_id_object_dispose)(void*);
-        Person *__strong person;
+        Person *__strong person;  //这里显示的就是强引用
     };
 
     struct __WGMainObjcVC__viewDidLoad_block_impl_0 {
@@ -1247,7 +1248,7 @@
 #### 总结
 1. 当__block变量在栈上时,不会对指向的对象产生强引用
 2. 当__block变量被拷贝到堆上时
-* 会调用__block变量内部的copy函数
+* 会调用__block变量内部(包装的结构体中的dispose/copy函数，而不是block底层结构中成员变量desc中的dispose/copy函数)的copy函数
 * copy函数内部会调用_Block_object_assign函数
 * _Block_object_assign函数会根据所指向对象的修饰符(__strong、__weak、__unsafe_unretained)做出相应的操作,形成强引用(retain)或者弱引用(注意⚠️这里仅限在ARC时会retain,MRC时不会retain)
 3. 如果__block变量从堆上移除
