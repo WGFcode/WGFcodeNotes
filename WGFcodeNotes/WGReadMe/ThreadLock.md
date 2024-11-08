@@ -260,7 +260,9 @@
 #### 不会产生死锁, 虽然block1和block2都在同一个队列中,遇到dispatch_sync同步任务需要立刻执行,但是是在并发队列中,可以同时执行多个任务, 不需要等待上一个任务的完成,所以不存在相互等待
 
 
-#### 总结: 产生死锁情况: 使用sync函数往当前串行队列中添加任务(案例1中主队列中添加任务会发生死锁,但是手动创建的串行队列不会发生死锁,这个要特别注意),会卡住当前的串行队列,产生死锁
+#### 总结: 产生死锁情况:
+* 使用sync函数往当前串行队列中添加任务(案例1中主队列中添加任务会发生死锁,但是手动创建的串行队列不会发生死锁,这个要特别注意),会卡住当前的串行队列,产生死锁
+* NSLock 多次调用lock加锁，会导致死锁
 
 
 #### 3.1 疑问🤔️: 全局队列和创建的队列有什么区别
@@ -418,7 +420,7 @@
 5. dispatch_queue(DISPATCH_QUEUE_SERIAL)
 6. NSLock
 7. NSRecursiveLock
-8. NSCondition
+8. NSCondition: 状态锁：锁：保证在多个线程中资源的同步访问 线程检查器：检查线程是否需要处在阻塞/唤醒状态 wait/signal
 9. NSConditionLock
 10. @synchronized 
 
@@ -864,7 +866,7 @@
 4. pthread_mutex(可以支持iOS8、扩平台) **推荐使用**
 5. dispatch_queue(DISPATCH_QUEUE_SERIAL)
 6. NSLock(对pthread_mutex的封装)
-7. NSCondition
+7. NSCondition 
 8. pthread_mutex(recursive):递归锁
 9. NSRecursiveLock(对pthread_mutex(recursive)的封装)
 10. NSConditionLock
@@ -978,8 +980,14 @@
 3. 同一时间, 不允许既有写的操作,又有读的操作,即读写不能同步进行
 
 #### 9.2 iOS中读写安全的方案有2中
-1. pthread_rwlock: 读写锁
-2. dispatch_barrier_async: 异步栅栏调用
+1. pthread_rwlock: 读写锁 
+    读的代码开始时添加pthread_rwlock_rdlock加锁，结束时添加pthread_rwlock_unlock解锁
+    写的代码开始时添加pthread_rwlock_wrlock加锁，结束时添加pthread_rwlock_unlock解锁
+    切记读写锁要记得调用pthread_rwlock_destroy销毁锁
+2. dispatch_barrier_async: 异步栅栏调用，其实就是利用栅栏函数，我们知道栅栏函数不能用在全局的并发队列，必须是自己创建的并发队列
+    读的时候就是常规操作，将读的代码添加到并发队列中并异步执行即可；dispatch_async(self.queue,^{读操作})
+    写的时候就需要将写的代码添加到并发队列中并调用栅栏函数进行异步执行，即调用dispatch_barrier_async(self.queue,^{写操作})
+    
 
 #### 方案1: 读写锁pthread_rwlock, 等待锁的线程会进入休眠,类似互斥锁
     #import <pthread.h>
@@ -1073,14 +1081,14 @@
 ### 下面是之前的总结
 ## 线程锁
 ### 常用的线程锁一般有
-1. NSLock-普通锁
-2. NSCondition-状态锁
-3. synchronized-同步代码块
-4. NSRecursiveLock-递归锁
-5. NSConditionLock-条件锁
+1. NSLock-普通锁,连续多次加锁会导致死锁
+2. NSCondition-状态锁 由两部分组成：锁：保证在多个线程中资源的同步访问 线程检查器：检查线程是否需要处在阻塞/唤醒状态 wait/signal
+3. synchronized-同步代码块,底层其实是个递归锁
+4. NSRecursiveLock-递归锁 递归锁允许同一个线程多次加锁而不会造成死锁，普通锁多次lock的时候，会造成死锁
+5. NSConditionLock-条件锁 通过设置条件初始化NSConditionLock对象
 6. NSDistributedLock-分布锁(MAC开发下用到的，一般少用)
-7. GCD中信号量-可实现多线程同步(并不属于线程锁)
-
+7. GCD中信号量-可实现多线程同步(并不属于线程锁) 信号量不一定是锁定某一个资源，而是流程上的概念 信号量的初始值不能小于0，否则会发生crash
+8. automic 原子属性，底层是个自旋锁
 
 ### 1.NSLock
 #### 创建NSLock对象，然后调用实例方法lock()和unlock()方法实现加锁和解锁，NSLock也提供了try()方法，来判断是否加锁成功。接下来通过案例来说明
