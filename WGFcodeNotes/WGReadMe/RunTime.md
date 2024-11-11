@@ -84,7 +84,8 @@
 一个是extra_rc，一个是全局哈希表Sidetable中，引用计数首先存储在extra_rc，他的值是引用计数值-1，如果extra_rc不够存储了，才开始存储哈希表Sidetable中
 * extra_rc存放的是可能是对象部分或全部引用计数值减1，因为extra_rc如果存不下的话，会将部分引用计数存储在Sidetable中
 * has_sidetable_rc为一个标志位，值为1时代表 extra_rc的19位内存已经不能存放下对象的retainCount , 需要把一部分retainCount存放地另外的地方
-#### 如果extra_rc溢出了，那么会将extra_rc的值减少一半，然后将减掉的值存储在Sidetable中
+#### 如果extra_rc溢出了，那么会将**extra_rc的最大值+1**减少一半，然后将减掉的一半存储在Sidetable中，为什么是减少一半？？？？？
+#### 因为每次操作SideTable都需要进行一次上锁/解锁，而且还要经过几次哈希运算才能处理对象的引用计数，效率比较低。而且，考虑到release操作，也不能在溢出时把值全部存在SideTable中。因此，为了尽可能多的去操作extra_rc，每当extra_rc溢出时，就各存一半，这样下次进来就还是直接操作extra_rc，会更高效
 
 #### SideTables散列表
 #### SideTables可以理解成一个类型为StripedMap静态全局对象，内部以数组(哈希表)的形式存储了64个SideTable
