@@ -73,10 +73,127 @@
 7. deallocating: 对象是否正在释放
 8. has_sidetable_rc:
 * 引用计数器是否过大无法存储在isa中,如果是1,那么引用计数器就存储在一个叫SideTable的类的属性中
-9. extra_rc: 里面存储的值是引用计数器减1
+9. extra_rc: 里面存储的值是引用计数器减1，最多存储2^19-1个引用计数
 
     
 #### isa优化后,除了存放class、Meta-class的地址,还存放更多的其他信息, 通过上面的源代码,我们知道有33位存储的是class、Meta-class的地址,所以isa现在需要按位与&才能得到class、Meta-class的真实地址
+
+
+#### 1.1.1 引用计数存储在什么地方
+#### arm64架构后，iOS中引用计数存储在优化过的isa指针中，isa采用的是共用体结构存储更多的对象信息，其中有两个成员存储引用计数
+一个是extra_rc，一个是全局哈希表Sidetable中，引用计数首先存储在extra_rc，他的值是引用计数值-1，如果extra_rc不够存储了，才开始存储哈希表Sidetable中
+* extra_rc存放的是可能是对象部分或全部引用计数值减1，因为extra_rc如果存不下的话，会将部分引用计数存储在Sidetable中
+* has_sidetable_rc为一个标志位，值为1时代表 extra_rc的19位内存已经不能存放下对象的retainCount , 需要把一部分retainCount存放地另外的地方
+#### 如果extra_rc溢出了，那么会将extra_rc的值减少一半，然后将减掉的值存储在Sidetable中
+
+#### SideTables散列表
+#### SideTables可以理解成一个类型为StripedMap静态全局对象，内部以数组(哈希表)的形式存储了64个SideTable
+
+        static StripedMap<SideTable>& SideTables() {
+            return *reinterpret_cast<StripedMap<SideTable>*>(SideTableBuf);
+        }
+
+        //MARK: StripedMap底层结构 可以存放64个SideTable
+        class StripedMap {
+            enum { StripeCount = 64 };    //ios设备  StripeCount = 64字节
+        }
+        struct SideTable {
+            spinlock_t slock;           //自旋锁：用于上锁/解锁SideTable
+            RefcountMap refcnts;        //OC对象引用计数Map（key为对象，value为引用计数）-引用计数表
+            weak_table_t weak_table;    //OC对象弱引用Map-弱引用表
+        }
+        
+    
+        //weak_table 是一个哈希表的结构, 根据 weak 指针指向的对象的地址计算哈希值, 哈希值相同的对象按照下标 +1 的形式向后查找可用位置, 
+        是典型的闭散列算法. 最大哈希偏移值即是所有对象中计算出的哈希值和实际插入位置的最大偏移量, 在查找时可以作为循环的上限.
+        //通过对象的地址，可以找到weak_table_t结构中的weak_entry_t
+        //weak_entry_t 中保存了所有指向这个对象的 weak 指针.
+        //⚠️弱引用表底层结构
+        struct weak_table_t {
+            weak_entry_t *weak_entries;         //hash数组(动态数组)
+            size_t    num_entries;              //hash数组中元素的个数
+            uintptr_t mask;                     //hash数组长度-1，而不是元素的个数，一般是做位运算定义的值
+            uintptr_t max_hash_displacement;    //hash冲突的最大次数(最大哈希偏移值)
+        };
+        
+         /* union联合体特点
+         1.联合体中可以定义多个成员，联合体的大小由最大的成员大小决定
+         2.联合体的成员公用一个内存，一次只能使用一个成员
+         3.对某一个成员赋值，会覆盖其他成员的值
+         4.存储效率更高，可读性更强，可以提高代码的可读性，可以使用位运算提高数据的存储效率
+         */
+        //弱引用实体,一个对象对应一个weak_entry_t,保存对象的弱引用;保存弱应用的是个联合体,当弱引用小于等于4个的时候,直接用inline_referrers数组保存
+        大于四个时用referrers动态数组
+        struct weak_entry_t { //对应关系是[referent weak指针的数组]
+            DisguisedPtr<objc_object> referent;   //被弱引用的对象
+            union { //联合体（共用体）共用体的所有成员占用同一段内存
+                struct {
+                    weak_referrer_t *referrers;  //指向 referent 对象的weak指针数组。动态数组保存弱引用的指针
+                    uintptr_t        out_of_line_ness : 2;     //这里标记是否超过内联边界, 下面会提到
+                    uintptr_t        num_refs : PTR_MINUS_2;   //数组中已占用的大小
+                    uintptr_t        mask;          //数组下标最大值(数组大小 - 1)
+                    uintptr_t        max_hash_displacement;  //最大哈希偏移值
+                };
+                struct {
+                    //这是一个取名叫内联引用的数组，WEAK_INLINE_COUNT宏定义值为4 初始化时默认使用的数组
+                    weak_referrer_t  inline_referrers[WEAK_INLINE_COUNT];  //静态数组
+                };
+            };
+            //当指向这个对象的 weak 指针不超过 4 个, 则直接使用数组 inline_referrers, 省去了哈希操作的步骤, 如果 weak 指针个数超过了4个, 就要使用第一个结构体中的动态数组weak_referrer_t *referrers
+            bool out_of_line() {
+                return (out_of_line_ness == REFERRERS_OUT_OF_LINE);
+            }
+
+            weak_entry_t& operator=(const weak_entry_t& other) {
+                memcpy(this, &other, sizeof(other));
+                return *this;
+            }
+
+            weak_entry_t(objc_object *newReferent, objc_object **newReferrer)
+                : referent(newReferent)
+            { //构造方法，里面初始化了静态数组
+                inline_referrers[0] = newReferrer;
+                for (int i = 1; i < WEAK_INLINE_COUNT; i++) {
+                    inline_referrers[i] = nil;
+                }
+            }
+        };
+        
+#### 自旋锁：忙等状态、比较消耗CPU资源、不能递归调用、如果短时间内可以获取到资源，则使用自旋锁比互斥锁效率要高，因为少了互斥锁中的线程调度等操作
+自旋锁比较适用于锁使用者保持锁时间比较短的情况。正是由于自旋锁使用者一般保持锁时间非常短,因此选择自旋而不是睡眠是非常必要的，自旋锁的效率远高于互斥锁。
+
+#### Runtime维护了一个全局的SideTables表，SideTables就是个哈希表，其实就是个数组，里面存放了SideTable结构,SideTables数组中元素的最大数量是64个，
+通过对象可以找到对应SideTable，进而可以找到对应的弱引用表、对应的引用计数表
+
+#### 通过对象地址在Runtime维护的全局SideTables哈希表中(SideTables[this])找到对应的SideTable({slock自旋锁/refcnts引用计数表/weak_table弱引用表})，
+进而找到弱引用表(以对象为key的哈希表)，弱引用表里面其实是个数组，每个对象对应着一个weak_entry_t，即弱引用表中是以对象为key，以weak_entry_t为value的
+weak_entry_t里面拥有数组用来存储弱引用的地址，如果引用个数小于4则用inline_referrers数组存储，如果大于4个则使用动态数组进行存储
+
+
+
+    全局SideTables哈希表                Sidetable              weak_table                  weak_entries       weak_entry_t
+                                      slock自旋锁          weak_entries(hash数组)         [weak_entry_t]--->  referent 弱引用对象地址
+    [Sidetable]  SideTables[对象地址] refcnts引用计数表      num_entries(hash数组中元素的个数) [weak_entry_t]     []数组存放weak指针地址的数组
+    [Sidetable]----------------->   weak_table弱引用表 ----> mask (hash数组长度-1)          [weak_entry_t]
+      ......                           
+    [Sidetable]
+    [Sidetable]
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #### 1.2 扩展知识: 
     #define WGTallMask (1<<0)       1向左移动0位   0000 0001   <<0   0000 0001

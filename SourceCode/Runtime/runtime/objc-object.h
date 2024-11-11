@@ -454,8 +454,8 @@ objc_object::retain()
 // handleOverflow=false is the frameless fast path.
 // handleOverflow=true is the framed slow path including overflow to side table
 // The code is structured this way to prevent duplication.
-
-ALWAYS_INLINE id 
+/// WGRunTimeSourceCode 源码阅读
+ALWAYS_INLINE id
 objc_object::rootRetain()
 {
     return rootRetain(false, false);
@@ -470,6 +470,7 @@ objc_object::rootTryRetain()
 ALWAYS_INLINE id 
 objc_object::rootRetain(bool tryRetain, bool handleOverflow)
 {
+    //isTaggedPointer直接返回指针
     if (isTaggedPointer()) return (id)this;
 
     bool sideTableLocked = false;
@@ -482,6 +483,7 @@ objc_object::rootRetain(bool tryRetain, bool handleOverflow)
         transcribeToSideTable = false;
         oldisa = LoadExclusive(&isa.bits);
         newisa = oldisa;
+        //这里是isa没有经过指针位域优化的情况，直接进入全局变量中找出对应的SideTable类型值操作retainCount
         if (slowpath(!newisa.nonpointer)) {
             ClearExclusive(&isa.bits);
             if (!tryRetain && sideTableLocked) sidetable_unlock();

@@ -359,6 +359,11 @@
 * 检查哪些第三方库有最新的版本更新时，使用**pod outdated**
 * 需要更新库版本时,使用**pod update 库名称**或者**pod update**
 
+### 6. pod install 和pod update区别
+* 当Podfile文件中有“新增”、“删除”、“修改”时，使用pod install，之后会将这些操作添加/删除/修改的信息同步到podfile.lock文件中
+* pod install不会自动更新podfile.lock中已经存在的依赖库
+* pod update会更新库到最新的版本，并将这些更新的版本信息更新到podfile.lock文件中
+
 ##  Carthage使用心得
 ## 1.安装
 ### 安装的前提是你本机已经安装好了`homebrew`,我们使用`brew`来进行安装
@@ -476,3 +481,7 @@ Show in Finder，然后将真机和模拟器的XXX.framework保存下来，利�
     git config --global --unset http.proxy
     git config --global --unset https.proxy
     
+### CocoaPods、Carthage、SPM(Swift Package Manager)是iOS中三种常用的依赖管理工具
+* CocoaPods是一个中心化的依赖管理工具，所有的第三方库都存储在一个中心仓库中；CocoaPods会将其编译成静态库或动态框架，并修改Xcode项目属性配置依赖关系，具有侵入性‌
+* Carthage是一个去中心化的工具，第三方库通常从GitHub或私有Git库中下载，没有中心仓库；Carthage将第三方库编译成动态框架，由开发者自己配置依赖关系，不会修改Xcode项目属性，具有非侵入性‌
+* SPM也是去中心化的，用户可以从任何公开的Git仓库下载依赖‌；SPM同样具有非侵入性，开发者可以自由地添加、移除和管理依赖，而不需要修改项目文件‌

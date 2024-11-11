@@ -410,8 +410,8 @@ template <HaveOld haveOld, HaveNew haveNew,
  6. 调用 weak_register_no_lock 函数分配新值
  7. 解锁两个表，并返回对象
  */
-//MARK:⚠️weak指针存取第2⃣️步
-static id 
+//MARK:⚠️weak指针存取第2⃣️步  更新指针指向，创建对应的弱引用表
+static id
 storeWeak(id *location, objc_object *newObj) { //location 是 weak 指针,newObj 是 weak 指针将要指向的对象
     //模版函数 haveOld、haveNew由编译器传入参数，这里传递的是haveOld=false，haveNew=true
     assert(haveOld  ||  haveNew);
