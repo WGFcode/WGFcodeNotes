@@ -135,6 +135,7 @@
 		30196F932CCB43BD00B09D5D /* init.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 30196F922CCB43BD00B09D5D /* init.jpg */; };
 		301CF1BC2452BE310024EC69 /* WGFirstVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 301CF1BB2452BE310024EC69 /* WGFirstVC.m */; };
 		301CF1BF2452F1750024EC69 /* runLoop1.png in Resources */ = {isa = PBXBuildFile; fileRef = 301CF1BE2452F1750024EC69 /* runLoop1.png */; };
+		302AF2FC2CE5A56900FC041A /* runloop_performSelect.png in Resources */ = {isa = PBXBuildFile; fileRef = 302AF2E72CE5A56900FC041A /* runloop_performSelect.png */; };
 		30313DC2253829F600941BE5 /* WGTargetProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 30313DC1253829F600941BE5 /* WGTargetProxy.m */; };
 		304011B026734C0B00845393 /* WGTestKVCEntity.m in Sources */ = {isa = PBXBuildFile; fileRef = 304011AF26734C0B00845393 /* WGTestKVCEntity.m */; };
 		304154FD2CE4A4450072A278 /* autoreleasepool.png in Resources */ = {isa = PBXBuildFile; fileRef = 304154E82CE4A4450072A278 /* autoreleasepool.png */; };
@@ -610,6 +611,7 @@
 		301CF1BA2452BE310024EC69 /* WGFirstVC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WGFirstVC.h; sourceTree = "<group>"; };
 		301CF1BB2452BE310024EC69 /* WGFirstVC.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WGFirstVC.m; sourceTree = "<group>"; };
 		301CF1BE2452F1750024EC69 /* runLoop1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = runLoop1.png; sourceTree = "<group>"; };
+		302AF2E72CE5A56900FC041A /* runloop_performSelect.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = runloop_performSelect.png; sourceTree = "<group>"; };
 		30313DC0253829F600941BE5 /* WGTargetProxy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WGTargetProxy.h; sourceTree = "<group>"; };
 		30313DC1253829F600941BE5 /* WGTargetProxy.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WGTargetProxy.m; sourceTree = "<group>"; };
 		304011AE26734C0B00845393 /* WGTestKVCEntity.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WGTestKVCEntity.h; sourceTree = "<group>"; };
@@ -5492,6 +5494,7 @@
 			children = (
 				304154FE2CE4A4A70072A278 /* autoreleasepool_push.png */,
 				304155022CE4A4E10072A278 /* autoreleasepool_page.png */,
+				302AF2E72CE5A56900FC041A /* runloop_performSelect.png */,
 				304154E82CE4A4450072A278 /* autoreleasepool.png */,
 				30B4BCCE2CD895DF000DADC1 /* delegate.png */,
 				307C0B292CD4CDF1007AE7C4 /* kvc_setter.jpg */,
@@ -6279,6 +6282,7 @@
 				300C18B52CDDDC1D00DA55DB /* check-order.sh in Resources */,
 				300D51442700607600BBFC4C /* 抓包工具.md in Resources */,
 				300C18C32CDDDC1D00DA55DB /* ClangClCompileRules.cmake in Resources */,
+				302AF2FC2CE5A56900FC041A /* runloop_performSelect.png in Resources */,
 				548AC98C242F4CAD00EEE11C /* gitCocoaPodsCarthage.md in Resources */,
 				30A73F332447F14A00C86BB8 /* kvc_code.png in Resources */,
 				300C18A82CDDDC1D00DA55DB /* dispatch_benchmark.3 in Resources */,

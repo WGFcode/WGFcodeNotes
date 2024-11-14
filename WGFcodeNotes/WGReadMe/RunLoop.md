@@ -598,6 +598,7 @@
     -(void)testPerform{
         NSLog(@"22222");
     }
+![图片](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGScreenshots/runloop_performSelect.png)
 
 #### 11.2 线程保活及保活后的销毁(退出)
 #### 如果项目中我们需要在后台线程频繁的处理任务, 那么我们频繁的创建和销毁线程会导致一定的性能问题, 所以我们需要进行线程保活
@@ -1535,7 +1536,7 @@
 
 #### FPS(Frames Per Second)指画面每秒传输的帧数，每秒传输的帧数越多，所显示的动作或画面就会越流畅，通俗理解成画面“刷新率”(单位是Hz)。FPS值越低就越卡顿，iOS中正常的屏幕刷新率是60Hz,即每秒60次，一般保持在50～60Hz就可以保证有流畅的体验了。**CADisplayLink**可以用来检测FPS的，但是这个只能用来检测app的FPS值，并不能准确定位到哪个方法/页面出现了卡顿，所以我们要利用RunLoop的原理来进行检测
 
-#### RunLoop检测卡顿主要是监控RunLoop的状态来判断是否会出现卡顿；我们需要监测的状态有两个：RunLoop在进入睡眠之前和唤醒后的两个loop状态定义的值，分别是kCFRunLoopBeforeSources 和 kCFRunLoopAfterWaiting
+#### RunLoop检测卡顿主要是监控RunLoop的状态来判断是否会出现卡顿；我们需要监测的状态有两个：RunLoop在进入睡眠之前和唤醒后的两个loop状态定义的值，分别是kCFRunLoopBeforeWaiting 和 kCFRunLoopAfterWaiting
     CFRunLoopObserverRef这是一个观察者，主要用途就是监听RunLoop的状态变化
     /* Run Loop Observer Activities */
     typedef CF_OPTIONS(CFOptionFlags, CFRunLoopActivity) {
@@ -1551,7 +1552,7 @@
 * 创建一个RunLoop的观察者(CFRunLoopObserverContext)
 * 把观察者加入主线程的kCFRunLoopCommonModes模式中，以监测主线程
 *  创建一个持续的子线程来维护观察者进而用来监控主线程的RunLoop状态；
-* 根据主线程RunLoop的状态来判断是否卡顿。一旦发现进入睡眠前的 kCFRunLoopBeforeSources 状态，或者唤醒后的状态 kCFRunLoopAfterWaiting，在设置的时间阈值内一直没有变化，即可判定为卡顿；
+* 根据主线程RunLoop的状态来判断是否卡顿。一旦发现进入睡眠前的 kCFRunLoopBeforeWaiting 状态，或者唤醒后的状态 kCFRunLoopAfterWaiting，在设置的时间阈值内一直没有变化，即可判定为卡顿；
 * dump 出堆栈的信息，从而进一步分析出具体是哪个方法的执行时间过长；
 
 
