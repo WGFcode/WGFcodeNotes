@@ -227,7 +227,7 @@ static void obsFree(Observation *o);
  * of adding and removing observers is speeded up.
  *
  作为对性能的另一个帮助，我们维护了一个映射表的缓存，用于保持通知对象到观察列表的映射，这让我们可以避免在频繁的创建和删除
- 通知观察时创建和小会映射表的开销
+ 通知观察时创建和销毁映射表的开销
  * As another minor aid to performance, we also maintain a cache of
  * the map tables used to keep mappings of notification objects to
  * lists of Observations.  This lets us avoid the overhead of creating
@@ -1094,19 +1094,16 @@ static NSNotificationCenter *default_center = nil;
   /*
    * Find the observers that specified OBJECT, but didn't specify NAME.
    */
-  if (object)
-    {
+  if (object) {
       n = GSIMapNodeForSimpleKey(NAMELESS, (GSIMapKey)object);
-      if (n != 0)
-	{
+      if (n != 0) {
 	  o = purgeCollectedFromMapNode(NAMELESS, n);
-	  while (o != ENDOBS)
-	    {
+	  while (o != ENDOBS) {
 	      GSIArrayAddItem(a, (GSIArrayItem)o);
 	      o = o->next;
 	    }
-	}
-    }
+      }
+  }
 
   /*
    * Find the observers of NAME, except those observers with a non-nil OBJECT

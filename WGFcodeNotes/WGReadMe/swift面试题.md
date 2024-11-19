@@ -1,15 +1,15 @@
 #### 1. Swift 到底是面向对象还是函数式的编程语言？
-#### swift既是面向对象的(因为swift支持类的封装、继承、和多态)，又是函数式的编程语言(Swift 支持 map, reduce, filter, flatmap 这类去除中间状态、数学函数式的方法，更加强调运算结果而不是中间过程)
+#### swift既是面向对象的(因为swift支持类的封装、继承、和多态)，又是函数式的编程语言(Swift 支持闭包、高阶函数map, reduce, filter, flatmap 这类去除中间状态、数学函数式的方法，更加强调运算结果而不是中间过程)
 
 #### 2. swift中class、struct区别
-1. class: 引用类型
-2. struct: 值类型
-3. 二者的本质区别：struct是深拷贝；class是浅拷贝
-4. struct分配在栈中，class分配在堆中。
-5. struct不可以继承，class可以继承。
-6. struct 的 function 要去改变 property 的值的时候要加上 mutating，而 class 不用。
-7. swift的可变内容和不可变内容用var和let来甄别，如果初始为let的变量再去修改会发生编译错误；class不存在这样的问题
-8. 变量赋值方式不同：struct是值拷贝；class是引用拷贝
+1. class: 引用类型 分配在堆中  struct: 值类型 分配在栈中
+2. 二者的本质区别：struct是深拷贝，是线程安全的；class是浅拷贝
+3. ‌class中的每一个成员变量都必须被初始化，否则编译器会报错;而结构体不需要，编译器会自动帮我们生成init函数，给变量赋一个默认值
+4. struct不支持继承，class支持继承。
+5. ‌struct的属性默认是不可变的除非明确指定为可变。struct的函数改变属性时，需要加上mutating关键字;class的属性可以是可变的‌：class不需要mutating关键字来修改属性‌
+6. swift的可变内容和不可变内容用var和let来甄别，如果初始为let的变量再去修改会发生编译错误；class不存在这样的问题
+7. 变量赋值方式不同：struct是值拷贝；class是引用拷贝
+8. ‌struct适用于简单的数据结构;class适用于复杂的逻辑和交互
 
         class WGClassTest{
             var age = 0
@@ -35,7 +35,126 @@
         打印结果:Class:a.age:20----b.age:20
                 struct:a1.age:0----b1.age:30
 
-#### struct 是苹果推荐的，原因在于它在小数据模型传递和拷贝时比 class 要更安全，在多线程和网络请求时尤其好用
+#### struct 是苹果推荐的，原因在于使用struct是值类型，在传递值的时候它会进行值的copy，所以在多线程是安全的；struct存储在栈stack中，操作起来效率更高
+struct没有引用计数器，所以不会因为循环引用导致内存泄漏
+
+#### struct缺点  内存问题+
+#### 值类型 有哪些问题？比如在两个 struct 赋值操作时，可能会发现如下问题： 解决方案：COW(copy-on-write) 写时拷贝机制
+* 内存中可能存在两个巨大的数组；
+* 两个数组数据是一样的；
+* 重复的复制。
+
+#### 写时拷贝 Copy-on-Write
+* Copy-on-Write 是一种用来优化占用内存大的值类型的拷贝操作的机制，写时拷贝只会发生在值类型的集合上
+* 对于Int，Double，String 等基本类型的值类型，它们在赋值的时候就会发生拷贝(内存增加)
+* 对于 Array、Dictionary、Set 类型，当它们赋值的时候不会发生拷贝，只有在修改的之后才会发生拷贝
+* 对于自定义的数据类型不会自动实现COW，可按需实现
+
+        func address(of object: UnsafeRawPointer) {
+            let addr = Int(bitPattern: object)
+            print(String(format: "%p", addr))
+        }
+    
+        //1.基本数据类型 赋值时会发生拷贝
+        var name = "a"
+        var win = name
+        address(of: &name)
+        address(of: &win)
+        
+        0x16af92a98
+        0x16af92a88
+        
+        //2.集合类型 赋值时不会发生拷贝 只有在修改时才会发生拷贝
+        var arr = [1,2,3]
+        var arr1 = arr
+        address(of: &arr)
+        address(of: &arr1)
+        arr.append(5)
+        address(of: &arr)
+        address(of: &arr1)
+        NSLog("arr----\(arr)\narr1:----\(arr1)")
+        
+        //赋值
+        0x302392a20
+        0x302392a20
+        //修改
+        0x30152ad70
+        0x302392a20
+        arr----[1, 2, 3, 5]
+        arr1:----[1, 2, 3]
+
+        //3.struct类型
+        struct WGA {
+            var name: String
+            var age: Int
+        }
+                var a = WGA(name: "1", age: 18)
+        var b = a
+        address(of: &a)
+        address(of: &b)
+        a.age = 1
+        address(of: &a)
+        address(of: &b)
+        NSLog("a.age----\(a.age)\nb:----\(b.age)")
+        
+        //struct结构体类型赋值直接就拷贝，并没有发生写时拷贝机制,即自定义结构体并没有实现写时拷贝
+        0x16d47aaa8
+        0x16d47aa90
+        0x16d47aaa8
+        0x16d47aa90
+        a.age----1
+        b:----18
+        
+        // 自定义实现写时拷贝：主要就是通过isKnownUniquelyReferenced函数用来检查某个实例是不是唯一的引用
+        //final 1.避免类的继承 2.保持引用计数的一致性
+        // 如果 Ref<T> 类是可继承的，其他子类可能会引入对引用计数的修改
+        final class Ref<T> {
+          var val : T
+          init(_ v : T) {val = v}
+        }
+
+        struct Box<T> {
+            var ref : Ref<T>
+            init(_ x : T) { ref = Ref(x) }
+
+            var value: T {
+                get { return ref.val }
+                set {
+                  if (!isKnownUniquelyReferenced(&ref)) {
+                    ref = Ref(newValue)
+                    return
+                  }
+                  ref.val = newValue
+                }
+            }
+        }
+        
+        struct Persion {
+            var name = "oldbirds"
+            var sex: Bool = false
+        }
+        
+        let p = Persion()
+        var box = Box(p)
+        var newBox = box
+        //必须通过ref获取到val，val其实就是结构体Persion
+        address(of: &(box.ref.val))
+        address(of: &(newBox.ref.val))
+        box.value.name = "lisi"
+        address(of: &(box.ref.val))
+        address(of: &(newBox.ref.val))
+        //赋值前
+        0x3038a9d50
+        0x3038a9d50
+        //修改值后
+        0x3038a9cc0
+        0x3038a9d50
+        box.name----lisi-----newBox.name----zhangsan
+#### 写时拷贝机制减少的是内存的增加
+
+
+
+
 #### 3. swift定义常量和OC中定义常量有什么区别
     OC定义常量: const int number = 0;
     swift定义常量: let number = 0
@@ -779,41 +898,241 @@ Existential Container 对具体类型进行封装，从而实现存储一致性
 #### some常用于泛型代码中；用于表示"某种类型的值"，也可以称为"不透明类型"；
 在函数返回值或协议关联类型中，使用some类型可以隐藏具体的类型信息，提供更加抽象的接口
 
-
-
-
-
-
-
-
-
 #### some比any更高效，some函数调用采用静态派发;any为动态派发
 
 
+#### 26 swift高阶函数
+#### 26.1 sort、sorted排序
+#### sort排序的是基于原始集合数据，即不会产生新的集合数据，而是在原始数据集合中进行排序
+#### sorted排序会生成一个新的集合对象存放排好序的数据，不影响原始集合数据
+#### sort、sorted最大区别就是在对原始数据的处理上不同，sort在原始数据中进行排序；sorted将排序好的数据放在新的集合中
 
+        
+        let arr = [100,3,45,99]
+        //方式一: 默认升序
+        let newArr = arr.sorted()
+        //方式二: 完整版 返回一个bool类型
+        //arr.sorted(by: <#T##(Self.Element, Self.Element) -> Bool#>)
+        let newArr1 = arr.sorted { item1, item2 in
+            return item1 < item2
+        }
+        //方式三: 通过 简写方式 降序 升序
+        let newArr2 = arr.sorted(by: >)
+        let newArr3 = arr.sorted(by: <)
+        NSLog("newArr:\(newArr)\nnewArr1:\(newArr1)\nnewArr2:\(newArr2)\nnewArr3:\(newArr3)")
+        
+        newArr:[3, 45, 99, 100]
+        newArr1:[3, 45, 99, 100]
+        newArr2:[100, 99, 45, 3]
+        newArr3:[3, 45, 99, 100]
 
+#### 26.2 map高阶函数
+* 将集合中的每一个元素通过映射转换为另外一个类型。
+* map函数返回一个新的数组，并且数组的类型不要求和原数组类型一致
+* map 函数不会自动帮我们去掉转换失败的 nil 值(可以使用 compactMap 函数)
+        
+        let arr = [100,3,45,99]
+        //将每个元素 + 2
+        let newArr = arr.map({ $0 + 2 })
+        //将每个元素转为字符串类型
+        let newArr1 = arr.map { item in
+            String(item)
+        }
+        NSLog("newArr:\(newArr)\nnewArr1:\(newArr1)")
+        
+        newArr:[102, 5, 47, 101]
+        newArr1:["100", "3", "45", "99"]
+        
+        //map 函数不会自动帮我们去掉转换失败的 nil 值
+        struct WGA {
+            var name: String
+            var age: Int
+            var teacher: String?
+        }
+        let arr = [WGA(name: "zhangsan", age: 18),
+                   WGA(name: "lisi", age: 30, teacher: "wanglaoshi"),
+                   WGA(name: "wangwu", age: 80)]
+        let newArr = arr.map { item in
+            item.teacher
+        }
+        NSLog("newArr:\(newArr)")
+        
+        newArr:[nil, Optional("wanglaoshi"), nil]
 
+        //使用compactMap可以剔除映射结果为nil的数据
+        let newCompactArr = arr.compactMap { item in
+            item.teacher
+        }
+        NSLog("newArr:\(newCompactArr)")
+        
+        newArr:["wanglaoshi"]
 
+#### 26.3 flatMap (flatMap在swift4.1已经被移除了，需要使用compactMap代替)
+#### flatMap和map其实类似，都是对每个元素做转换，返回一个新的集合。不同的是它对每个元素转换的返回值可以是集合类型的，
+并会将所有的结果集合合并成一个；多于用于数组的降维度
+* 能把数组中存有数组的数组（二维数组、N维数组）一同打开变成一个新的数组
+* flatMap也能把两个不同的数组合并成一个数组，这个合并的数组元素个数是前面两个数组元素个数的乘积
 
+        let arr = [1,3,0,2]
+        let newArr = arr.flatMap { item in
+            item + 2
+        }
+        let newArr1 = arr.flatMap { item in
+            String(item)
+        }
+        let newArr2 = arr.flatMap { item in
+            Array.init(repeating: item, count: item)
+        }
+        NSLog("newArr:\(newArr)\nnewArr1:\(newArr1)\nnewArr2:\(newArr2)")
+        
+        newArr:[3, 5, 2, 4]
+        newArr1:["1", "3", "0", "2"]
+        newArr2:[1, 3, 3, 3, 2, 2]
+        
+        //数组的降维度
+        let arr = [1,3,0,2]
+        let newArr = arr.map { item in
+            Array.init(repeating: item, count: item)
+        }
+        let newArr1 = arr.flatMap { item in
+            Array.init(repeating: item, count: item)
+        }
+       
+        NSLog("newArr:\(newArr)\nnewArr1:\(newArr1)")
+        
+        newArr:[[1], [3, 3, 3], [], [2, 2]]
+        newArr1:[1, 3, 3, 3, 2, 2]
+        
+        //flatMap也能把两个不同的数组合并成一个数组
+        let arr1 = [1,2,3]
+        let arr2 = ["apple", "orange"]
+        
+        let newArr = arr1.flatMap { item1 in
+            arr2.map { item2 in
+                return item2 + "\(item1)"
+            }
+        }
+        NSLog("newArr:\(newArr)")
+        
+        newArr:["apple1", "orange1", "apple2", "orange2", "apple3", "orange3"]
 
+#### 26.4 compactMap
+#### compactMap函数作用和 map、flatMap 函数一样，唯一不同的是它会剔除结果集合中转换失败的 nil 值
 
+        let arr = ["1", "orange", "5"]
+        let newArr = arr.map { item in
+            Int(item)
+        }
+        let newArr1 = arr.flatMap { item in
+            Int(item)
+        }
+        let newArr2 = arr.compactMap { item in
+            Int(item)
+        }
+        NSLog("newArr:\(newArr)\nnewArr1:\(newArr1)\nnewArr2:\(newArr2)")
+        
+        newArr:[Optional(1), nil, Optional(5)]
+        newArr1:[1, 5]
+        newArr2:[1, 5]
+        
+        // 过滤nil，并解包返回值
+        let arr = [1, 5, nil, 4]
+        let result = arr.compactMap {
+            $0
+        }
+        // arr的结果：[1, 5, 4]
+        
+        
+        let arr2 = [1, 2, 3, 4, 5, 6, 7, 8]
+        let result2 = arr2.compactMap {
+            $0 % 4 == 0 ? $0 : nil
+        }
+        //arr2结果： [4, 8]  虽然闭包的返回值是可选的，但是这个函数的返回值结果并不是可选的
 
+#### 26.5 filer过滤函数
+#### 它主要用于过滤数组、集合和字典等类型对象中的元素。它接受一个闭包参数，该闭包返回的结果为 true，该元素就会保留，否则就会被移除
 
+        let arr = ["1", "orange", "5"]
+        let newArr = arr.filter { item in
+            return Int(item) == nil
+        }
+        NSLog("newArr:\(newArr)")
+        
+        newArr:["orange"]
 
+#### 26.6 reduce 函数
+#### 基础思想是将一个序列转换为一个不同类型的数据，期间通过一个累加器（Accumulator）来持续记录递增状态
+#### reduce 是 map、flatMap 或 filter 的一种扩展的形式（后三个函数能干嘛，reduce 就能用另外一种方式实现
 
+        initialResult: 初始值
+        Result: 一般是指上次得到的结果之和
+        String: 一般指本次遍历的对象
+        //arr.reduce(<#T##initialResult: Result##Result#>, <#T##nextPartialResult: (Result, String) throws -> Result##(Result, String) throws -> Result##(_ partialResult: Result, String) throws -> Result#>)
+        
+        
+        
+        
+        let arr = [1,4,23,5]
+        //求和
+        let newArr = arr.reduce(0) { partialResult, item in
+            return partialResult + item
+        }
+        let newArr0 = arr.reduce(0, { $0 + $1 })  //等价上面代码
+        let newArr00 = arr.reduce(0, +)           //等价上面代码
+        //求最小值
+        let newArr1 = arr.reduce(0) { partialResult, item in
+            return min(partialResult, item)
+        }
+        let newArr11 = arr.reduce(0) { partialResult, item in
+            return min(item, partialResult)
+        }
+        //求最大值
+        let newArr2 = arr.reduce(0) { partialResult, item in
+            return max(partialResult, item)
+        }
+        let newArr22 = arr.reduce(0) { partialResult, item in
+            return max(item,partialResult)
+        }
+        NSLog("newArr:\(newArr)\nnewArr1:\(newArr1)\nnewArr11:\(newArr11)\nnewArr2:\(newArr2)\nnewArr22:\(newArr22)")
+        
+        newArr:33
+        newArr1:0
+        newArr11:0
+        newArr2:23
+        newArr22:23
 
+#### 26.7 stride 函数
+#### 用于创建一个由指定范围内元素组成的序列
 
+        for i in stride(from: 10, to: 20, by: 2) {
+            NSLog("1-----\(i)")
+        }
+        // 10 12 14 16 18
+        // 创建一个【10，20】,步长为2的序列
+        for i in stride(from: 10, through: 20, by: 2) {
+            NSLog("2-----\(i)")
+        }
+        //10 12 14 16 18 20
 
-
-
-
-
-
-
-
-
-
-
+#### 26.8 partition(by:):  partition(分区)
+#### 将集合划分成两个部分，使得满足某个条件的元素放在前面，不满足条件的放在后面，并返回分界点索引
+        //大于30的放在右边(后面) 不满足条件的放在左边(前面) 40满足条件放在最后边(和10的位置进行交换)
+        var numbers = [30, 40, 20, 30, 30, 60, 10]
+        //分区分界点索引
+        let p = numbers.partition(by: { $0 > 30 })
+        NSLog("p:-----\(p)\nnumbers:-----\(numbers)")
+        
+        p:-----5
+        numbers:-----[30, 10, 20, 30, 30, 60, 40]
+        
+#### 26.9 zip: 
+#### 将两个集合中的元素一一对应起来，组成一个新的元组数组。
+        let numbs = [1, 2, 3]
+        let letters = ["A", "B", "C"]
+        let pairs = zip(numbs, letters)
+        NSLog("pairs:-----\(Array(pairs))")
+        
+        pairs:-----[(1, "A"), (2, "B"), (3, "C")]
 
 
 

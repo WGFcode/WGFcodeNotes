@@ -242,19 +242,29 @@
 4. wildcard其实是一种链表结构，注册观察时没有传入通知名称，也没有传入object，就会被添加到wildcard链表中，注册到这里的观察者能接收到所有的系统通知
 
 ### 2.1 添加观察者流程
-1. 初始化通知中心对象时，会创建一个对象，该对象保存了wildcard、nameless表、named表等信息
-2. 根据传入的参数，生成一个Observation对象，该对象中保存了观察者对象、接收到通知后观察者执行的方法、下个观察者对象的地址
-3. 根据是否传入NotificationName通知名称，选择操作nameless表还是named表
-4. 若传入了通知名称，则会以通知名称为Key在named表中找到对应的value,若找到value，直接取出value；若没有找到，新建一个table(表)，然后以通知名称为Key将这个新建的表添加到named表中，那么value(内层表)如何操作那，如果添加观察者时，携带了object，则以object为key,在内层表中找到对应的链表，然后在链表的尾部插入之前实例化的对象Observation；若添加观察者时没有携带object，则以nil为key找到对应的链接并将之前实例化好的Observation对象作为头节点插入进去
-5. 若没有传入通知名称，则会操作nameless表，若添加观察者时携带了object，则以object为Key，找出对应的链接，在链接尾部插入之前实例化的Observation对象；若没有携带object，则将实例化的对象添加到wildcard链表中
+1.通知中心底层是个结构体，struct NCTbl { wildcard链表，nameless表(哈希表)，named表(哈希表)}
+2.根据name、object这些参数会生成一个Observation对象，该对象中保存了观察者对象、接收到通知后观察者执行的方法、下个观察者对象的地址
+3.根据name(通知名称)、object这些参数选择操作是wildcard链表，nameless表(哈希表)，named表(哈希表)这三种表的哪一种
+    * 若添加观察者时，name、object都为空，则将Observation对象直接存储到wildcard链表的尾部
+    * 若添加观察者时，通知名称name存在，则存储在name表中(以name为key找到name表中的Value)
+    (1)以name为key从name哈希表中找到对应的value,若value没有找到，则以name为key新建一个哈希表,
+    新建的哈希表根据object是否有值来判断；
+        若object不为nil，则以object为key找到对应的链表,将Observation对象添加到链表尾部 [name: [object: Observation]
+        若object为nil，则以nil为key找到对应的链表,将Observation对象以头节点插入进入 [name: [nil: Observation]
+    * 若添加观察者时，通知名称name不存在但object存在，则存储在nameless表中
+        以object为key找到对应的链表，在链接尾部插入Observation对象
 
 ### 2.2 发送通知的流程
 #### 发送通知的流程总体来说是根据NotificationName和object找到对应的链表，然后遍历整个链表，给每个Observation节点中保存的oberver发送对应的SEL消息
+#### 核心就是通过通知名称name和object在wildcard链表/name表/nameless表中找到对应的Observation，然后通过performSelector逐一调用相应方法
 1. 创建一个observerArray数组，用来保存需要通知的观察者observer
 2. 遍历wildcard链表，将observer添加到observerArray数组中
 3. 若发送通知时携带了object，则以object为key在nameless表中，找到链表，然后遍历链表，将observer添加到observerArray数组中
 4. 若发送通知时携带了通知名称，则以通知名称为Key在named表中找到对应的表(内层表)，然后在内层表中以object中key,找到对应的链表，然后遍历链表，将observer添加到observerArray数组中；若object为nil,则以nil为key,找到对应的链表，然后遍历链表，将observer添加到observerArray数组中
 5.  到此所有关于当前通知的observer都已经添加到数组中，然后遍历数组，取出其中的observer节点(包含了观察者对象和selector)进行消息调用
+
+
+
 ### 2.3 移除通知流程
 1. 若NotificationName和object都为nil，则清空wildcard链表。
 2. 若NotificationName为nil，遍历named表，若object为nil,则清空named表；若object不为nil,则以object为key找到对应的链表，然后清空链表；在nameless table中以object为key找到对应的observer链表，然后清空，若object也为nil，则清空nameless table

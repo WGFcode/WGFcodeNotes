@@ -426,7 +426,7 @@
 
 #### 6.2.1 OSSpinLock
 #### OSSpinLock叫做“自旋锁”,等待锁的线程会处于忙等(busy-wait)状态,一直占用CPU资源
-* 目前已经不再安全,可能会出现优先级反转问题
+* 目前已经不再安全,可能会出现优先级反转问题(指高优先级任务需要等待低优先级任务执行完成才能继续执行)
 * 如果等待锁的线程优先级较高, 它会一直占用着CPU资源,优先级较低的线程无法释放锁
 * 需要导入头文件 #import <libkern/OSAtomic.h>
 * iOS10+后因为OSSpinLock不安全就被苹果舍弃了,所以项目中不再建议使用
@@ -759,6 +759,7 @@
         当信号量value值 <= 0时,就休眠等待,知道信号量的值变成 > 0, 然后将value值减1,继续往下执行代码
 * dispatch_semaphore_signal(dispatch_semaphore_t); 使信号量value值加1
 * 通过将信号量初始值设置为1, 可以达到线程同步,即每次只有一个线程在执行任务
+* 使用信号量可能会造成线程优先级反转，且无法避免
 #### 案例1:创建了20个子线程,想让每次执行task的线程只有5个线程在执行,即控制最大线程执行数是5
         
     @interface WGMainObjcVC()
@@ -834,6 +835,29 @@
         //3. 将信号量的值+1
         dispatch_semaphore_signal(_semaphore);
     }
+#### 案例3: 使用信号量可能会造成线程优先级反转
+
+        NSLog("-----start")
+        let queue = DispatchQueue.init(label: "a", attributes: DispatchQueue.Attributes.concurrent)
+        let semp = dispatch_semaphore_t(value: 5)
+        for _ in 0..<10 {
+            queue.async {
+                semp.wait()
+                let time = arc4random() % 10
+                NSLog("当前线程:\(Thread.current)任务执行时间:\(time),线程优先级:\(Thread.current.threadPriority)")
+                Thread.sleep(forTimeInterval: TimeInterval(time))
+                semp.signal()
+            }
+        }
+        NSLog("-----end")
+        
+        程序会crash: Thread running at User-initiated quality-of-service class waiting on a thread without a QoS class specified (base priority 0). Investigate ways to avoid priority inversions
+        //在用户发起的服务质量类上运行的线程在没有指定QoS类的线程上等待（基本优先级为0）。研究避免优先级反转的方法
+#### dispatch_semaphore 不能避免优先级反转的原因
+* 在调用 dispatch_semaphore_wait () 的时候，系统不知道哪个线程会调用 dispatch_semaphore_signal () 方法，
+系统无法知道 owner 信息，无法调整优先级。dispatch_group 和 semaphore 类似，在调用 enter () 方法的时候，
+无法预知谁会 leave ()，所以系统也不知道 owner 信息
+
 
 #### 6.2.10 @synchronized
 #### @synchronized是对mutex递归锁的封装,所以@synchronized就是个递归锁,源码查看: objc4中的objc-sync.mm文件, 底层就是根据@synchronized(对象)传进来的对象找到对应的锁, 每个对象对应一个锁,底层是个Map结构,拿到对应对应的锁后进行加锁解锁操作
