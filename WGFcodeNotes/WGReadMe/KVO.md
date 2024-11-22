@@ -1,5 +1,23 @@
 ## KVO键值观察
 ![图片](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGScreenshots/KVO.png)
+
+### 话术:
+KVO键值观察，对对象的属性通过addObserver添加观察者，当对象属性发生改变时，会触发观察者的observeValueForKeyPath方法，观察者需要在合适的时机
+进行释放；KVO底层原理是基于Runtime运行时的，当对对象属性添加观察者时，系统会创建这个对象的派生类，并将对象的isa指针指向这个派生类，在这个派生类中会
+重写监听属性的setter方法、class方法、_isKOV、dealloc方法，重写class方法就是避免KVO的底层实现细节暴漏给外部。在重写的setter方法中首先会调用
+Foundation框架下的C函数_NSSetXXXValueAndNotify，这个函数内部会调用1，willchangevalueforkey方法 2.监听属性的父类的setter方法
+3.didchangevalueforkey 在didchangevalueforkey方法内部又会调用通知方法observeValueForKeyPath从而实现属性的监听
+如果我们想禁用KVO，可以重写automaticallyNotifiesObserversForKey并返回NO来关闭KVO
+如果想手动KVO，可以通过重写监听属性的setter方法，然后在setter方法赋值前后添加willchangevalueforkey和didchangevalueforkey并且要重写
+automaticallyNotifiesObserversForKey且返回NO
+手动和自动KVO区别:手动KVO时，监听方法observeValueForKeyPath中的change字典中不再包含集合元素变化的类型(插入/删除/替换),
+而是kind被统一标识成了1也不再包含集合元素改变的索引值
+KVO对集合类型属性的监听，只能监听到集合类型的赋值操作，而对于集合类型内部元素的增删改查是监听不到的，如果想监听到有两种方式
+方式一: 通过在集合类型操作(增删改查)前后添加willchangevalueforkey和didchangevalueforkey
+方式二:自定义一个类，然后将集合类型作为这个类的属性进行操作，在控制器中持有这个自定义的类，在获取集合类型时通过
+mutableArrayValueForKeyPath/mutableSetValueForKey获取集合对象，然后进行操作(增删改查)
+
+
 #### KVO(Key-Value Observing)键值观察,就是对对象的属性添加观察，当属性值变化的时候，通过观察者对象实现的KVO接口方法来自动的通知观察者,KVO是基于KVC实现的;在swift中KVO的接口都定义在NSObject的扩展中，在OC中所有的KVO接口都定义在@interface NSObject(NSKeyValueObserving)类别中，也就是所有的NSObject对象都可以实现KVO
 
 ### KVO使用过程注意点

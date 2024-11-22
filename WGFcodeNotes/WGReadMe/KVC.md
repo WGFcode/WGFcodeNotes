@@ -1,4 +1,13 @@
 ## KVC 
+#### 话术:
+KVC是基于运行时的通过字符串key或者keyPath可以直接访问和修改对象的属性(包含私有属性)，
+内部提供了三个方法setValueforundefineKey/setnilValueForKey/valueforUndefineKey来对调用KVC过程中出现的异常进行捕获  
+继承自NSObject的对象都可以实现KVC，如果要关闭KVC可以通过重写类属性accessInstanceVariableDirectly方法并设置为NO来关闭KVC
+通过KVC对对象的属性或成员变量进行赋值修改都是可以触发KVO的，因为KVC内部会调用willchangevalueforkey和didchangevalueforkey
+KVC使用需要注意就是key可能容易拼写错误，KVC优点就是代码更加灵活，适用于动态属性访问和系列化/反序列化操作，减少代码量
+KVC和直接访问属性区别就是：直接访问属性是在编译期确定的，KVC是在动态运行时操作的；因为运行时需要解析键值对增加了处理时间所以性能低
+破坏了类的封装性和只读属性增加安全风险
+
 ### (Key-value coding)键值编码，在iOS中不需要调用明确的setter/getter方法而直接通过字符串Key就可以直接访问对象的属性或者给对象的属性赋值，在运行时动态的访问和赋值，而不需要在编译期确定；所有继承自NSObjct的类型都可以使用KVC;一些纯swift类和结构体不能使用KVC，因为没有继承自NSObjct；
 ### OC中有个显式的NSKeyValueCoding类别名，KVC所有的方法都在这个类别中(@interface NSObject(NSKeyValueCoding))；swift中KVC所有的方法都是在NSObjct的扩展中(extension NSObject),下面是KVC中常用的方法
 
@@ -745,3 +754,5 @@
 5. KVC与直接访问属性的区别： 访问方式不同：直接访问属性是在编译器确定的；KVC是在运行时动态确定的
 6. kVC优点: KVC使得代码更加灵活，适用于动态属性访问和序列化/反序列化操作，减少了代码量
 7. KVC缺点: 性能较低(需要在运行时解析键值对，增加了额外的处理时间)，且可能破坏类的封装性和只读属性，增加安全风险‌
+
+

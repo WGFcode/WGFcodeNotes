@@ -137,6 +137,7 @@
 		301CF1BF2452F1750024EC69 /* runLoop1.png in Resources */ = {isa = PBXBuildFile; fileRef = 301CF1BE2452F1750024EC69 /* runLoop1.png */; };
 		302AF2FC2CE5A56900FC041A /* runloop_performSelect.png in Resources */ = {isa = PBXBuildFile; fileRef = 302AF2E72CE5A56900FC041A /* runloop_performSelect.png */; };
 		30313DC2253829F600941BE5 /* WGTargetProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 30313DC1253829F600941BE5 /* WGTargetProxy.m */; };
+		3033810B2CEDBA89005AE9A3 /* runtime.png in Resources */ = {isa = PBXBuildFile; fileRef = 303380F62CEDBA89005AE9A3 /* runtime.png */; };
 		304011B026734C0B00845393 /* WGTestKVCEntity.m in Sources */ = {isa = PBXBuildFile; fileRef = 304011AF26734C0B00845393 /* WGTestKVCEntity.m */; };
 		304154FD2CE4A4450072A278 /* autoreleasepool.png in Resources */ = {isa = PBXBuildFile; fileRef = 304154E82CE4A4450072A278 /* autoreleasepool.png */; };
 		304154FF2CE4A4A70072A278 /* autoreleasepool_push.png in Resources */ = {isa = PBXBuildFile; fileRef = 304154FE2CE4A4A70072A278 /* autoreleasepool_push.png */; };
@@ -614,6 +615,7 @@
 		302AF2E72CE5A56900FC041A /* runloop_performSelect.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = runloop_performSelect.png; sourceTree = "<group>"; };
 		30313DC0253829F600941BE5 /* WGTargetProxy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WGTargetProxy.h; sourceTree = "<group>"; };
 		30313DC1253829F600941BE5 /* WGTargetProxy.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WGTargetProxy.m; sourceTree = "<group>"; };
+		303380F62CEDBA89005AE9A3 /* runtime.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = runtime.png; sourceTree = "<group>"; };
 		304011AE26734C0B00845393 /* WGTestKVCEntity.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WGTestKVCEntity.h; sourceTree = "<group>"; };
 		304011AF26734C0B00845393 /* WGTestKVCEntity.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WGTestKVCEntity.m; sourceTree = "<group>"; };
 		304154E82CE4A4450072A278 /* autoreleasepool.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = autoreleasepool.png; sourceTree = "<group>"; };
@@ -5492,6 +5494,7 @@
 		30A7DC7D24348382008DDCF9 /* WGScreenshots */ = {
 			isa = PBXGroup;
 			children = (
+				303380F62CEDBA89005AE9A3 /* runtime.png */,
 				304154FE2CE4A4A70072A278 /* autoreleasepool_push.png */,
 				304155022CE4A4E10072A278 /* autoreleasepool_page.png */,
 				302AF2E72CE5A56900FC041A /* runloop_performSelect.png */,
@@ -6354,6 +6357,7 @@
 				300C18B72CDDDC1D00DA55DB /* mig-headers.sh in Resources */,
 				300C18AC2CDDDC1D00DA55DB /* dispatch_io_create.3 in Resources */,
 				30FD75FE2435C88B00431678 /* lock5.png in Resources */,
+				3033810B2CEDBA89005AE9A3 /* runtime.png in Resources */,
 				54DA257225B47ADC00E1B980 /* 性能优化.md in Resources */,
 				301CF1BF2452F1750024EC69 /* runLoop1.png in Resources */,
 				300C189E2CDDDC1D00DA55DB /* dispatch_apply.3 in Resources */,

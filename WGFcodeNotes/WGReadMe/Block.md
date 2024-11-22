@@ -521,9 +521,9 @@
 此时Block持有__block变量,即使在该Block1复制到堆上,复制Block1也对所使用的__block变量没有任何影响;
 2. 当多个Block中使用同一个__block变量时,Block1、Block2, 当Block1从栈复制到堆上时,__block变量也会从栈复制到堆上  
 并被Block1所持有,当Block2也从栈上复制到堆上时,被复制的Block2持有__block变量,并增加__block变量的引用计数
-3. 如果配置在堆上的Block被废弃,那么它所使用的__block变量也会被释放; 如果Block1废弃了,那么持有的__block变量也会被释放,而此时Block1仍然持有__block变量,知道Block1也被废弃,__block变量才会被废弃,因为__block变量已经没有持有者了,
+3. 如果配置在堆上的Block被废弃,那么它所使用的__block变量也会被释放; 如果Block1废弃了,那么持有的__block变量也会被释放,而此时Block2仍然持有__block变量,直到Block2也被废弃,__block变量才会被废弃,因为__block变量已经没有持有者了,
 4. __block变量的持有和释放与OC的引用计数很像的,
-5. __forwarding成员变量当在栈上此,指向了__block变量结构体自身的指针, 当复制到堆上后,__forwarding指向了复制到堆上的__block变量结构体的指针, 所以无论Block在堆上还时栈上都可以顺利的访问同一个__block 变量
+5. __forwarding成员变量当在栈上时,指向了__block变量结构体自身的指针, 当复制到堆上后,__forwarding指向了复制到堆上的__block变量结构体的指针, 所以无论Block在堆上还时栈上都可以顺利的访问同一个__block 变量
 
 
 ### 1.4.1 Block引用问题
@@ -572,15 +572,15 @@
 2. 当Block被copy到堆时，对__block修饰的变量做了什么？
 * 会调用Block内部的copy函数
 * copy函数内部会调用_Block_object_assign函数
-* _Block_object_assign函数会对__block修饰的变量形成强引用(retain)；对于外部对象 assign函数根据外部如何引用而引用
+* _Block_object_assign函数会对__block修饰的变量(底层是个结构体)形成强引用(retain)；对于外部对象 assign函数根据外部如何引用而引用
 3. 当Block从堆中移除时，对__block修饰的变量做了什么？
 * 会调用Block内部的dispose函数
 * dispose函数内部会调用_Block_object_dispose函数
 * _Block_object_dispose函数会自动释放引用的__block修饰的变量(release)
 4. __block修饰的对象类型在Block上如何操作的？
 * 当__block变量在栈上时，不会对指向的对象产生强引用
-* 当__block变量被copy到堆时,会调用__block变量内部的copy函数;copy函数内部会调用_Block_object_assign函数;_Block_object_assign函数会根据所指向对象的修饰符(__strong、__weak、__unsafe_unretained)做出相应的操作，形成强引用或者弱引用
-* 如果__block变量从堆上移除,会调用__block变量内部的dispose函数;dispose函数内部会调用_Block_object_dispose函数;_Block_object_dispose函数会自动释放指向的对象
+* 当__block变量被copy到堆时,会调用__block变量内部(底层是个结构体)的copy函数;copy函数内部会调用_Block_object_assign函数;_Block_object_assign函数会根据所指向对象的修饰符(__strong、__weak、__unsafe_unretained)做出相应的操作，形成强引用或者弱引用
+* 如果__block变量从堆上移除,会调用__block变量内部(底层是个结构体)的dispose函数;dispose函数内部会调用_Block_object_dispose函数;_Block_object_dispose函数会自动释放指向的对象
 
 ### 2.2 __block变量与__forwarding
 #### 我们知道在copy操作之后,__block变量也会被拷贝到堆中,那么访问该变量访问的是栈上的还是堆上的?

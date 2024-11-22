@@ -109,6 +109,28 @@ Debug Workflow
     Reserved
     ClassSize
     ClassAddressPoint
+    
+#### swift中class底层结构如下
+
+struct ClassMetadata {
+    //TargetMetadata
+    kind            //在oc中放的就是isa，在swift中kind大于0x7FF表示的就是类；根据kind获取元数据metadata的类型
+    
+    //TargetAnyClassMetadata
+    Superclass      //父类的Metadata，如果是null说明是最顶级的类了
+    CacheData[2]    //指针数组，总共占16个字节 缓存数据用于某些动态查找，通常需要与Objective-C的使用进行互操作
+    Data
+    
+    //TargetClassMetadata
+    Flags                      
+    InstanceAddressPoint       
+    InstanceSize          //实例对象在堆内存的大小     
+    InstanceAlignMask     //根据这个mask来获取内存中的对齐大小
+    Reserved              //预留给运行时使用
+    ClassSize
+    ClassAddressPoint
+}
+
 
 #### 总结：更详细的底层结构可以看HeapObject.h文件中的分析
 1. swift类对象的底层是个HeapObject结构体，该结构体中包含了两个成员，一个是指向元数据的指针，占用8个字节，一个是引用计数，占用8个字节
@@ -415,6 +437,23 @@ Debug Workflow
   
   
 ### 4. Swift底层原理-属性
+
+* class、struct、enum可以定义存储属性；enum不能定义计算属性(因为枚举实例中要么存储原始值，要么存储关联值，没有位置放存储属性，
+因为关联值和原始值都放在枚举类里面,而不是枚举实例化对象)
+* 存储属性占用实例的内存空间；计算属性不占用实例的内存空间，实际上计算属性本质就是个函数/方法(get/set) 
+* 一个对象占用内存大小，只关注存储属性，不用关注计算属性
+* 存储属性必须设置一个初始值，因为实例对象的内存里面就是存放着存储属性，本质上 swift 想保证实例对象的内存存的值是明确的
+* 计算属性必须用var声明，因为计算属性依赖于其他属性计算所得，计算属性的值是可能发生变化的
+* 类型属性: 严格意义属性分为实例属性:只能通过实例访问(存储实例属性/计算实例属性)和类型属性: 只能通过类型区访问(类型存储属性/类型计算属性)
+* 可以通过static定义类型属性，如果是类，也可以通过class定义类型属性
+* 在init方法中调用set方法是不会触发属性观察器的，因为init方法还没完成初始化；如果init方法先调用了super.init方法，那么再调用set方法是可以
+触发属性观察器的，因为super.init后本对象已经完成了初始化工作了
+* 子类重写父类的属性观察者属性，当给子类的属性设置值时，调用顺序是这样的 子类的willSet 父类的willSet 父类的didSet 子类的didSet
+* 什么属性可以添加属性观察器： 非lazy的存储属性/继承的存储属性/继承的计算属性
+* 属性加上lazy就变成懒加载属性了且实例的内存空间会变大，因为加了lazy，系统会将改属性变成可选类型，在未访问时会变成nil，访问时才会赋值
+可选类型占用16个字节，所以加了lazy后，实例的内存空间会增大8个字节，lazy的本质是可选项Optional，可选项的本质是enum枚举
+
+
 
 #### 4.1 存储属性
 1. 存储属性是一个作为特定类和结构体实例一部分的常量或变量
