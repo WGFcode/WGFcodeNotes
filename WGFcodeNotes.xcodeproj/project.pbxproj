@@ -147,6 +147,7 @@
 		304727C62750E70F00BF3AFC /* WGLeetCode.m in Sources */ = {isa = PBXBuildFile; fileRef = 304727C52750E70F00BF3AFC /* WGLeetCode.m */; };
 		3052130F28F2D08400271C3B /* WGBaseTestLock.m in Sources */ = {isa = PBXBuildFile; fileRef = 3052130E28F2D08400271C3B /* WGBaseTestLock.m */; };
 		3052131228F2D3AD00271C3B /* OSSpinLockTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 3052131128F2D3AD00271C3B /* OSSpinLockTest.m */; };
+		305A80B22CF0755300A0E129 /* swiftARC1.png in Resources */ = {isa = PBXBuildFile; fileRef = 305A809D2CF0755200A0E129 /* swiftARC1.png */; };
 		3066E0F02435DD48004C71F7 /* GCD.md in Resources */ = {isa = PBXBuildFile; fileRef = 3066E0EF2435DD48004C71F7 /* GCD.md */; };
 		306C693F28F3ADDA00285592 /* OSUnfairLockTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 306C693E28F3ADDA00285592 /* OSUnfairLockTest.m */; };
 		306C694228F3B16800285592 /* MutexLockTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 306C694128F3B16800285592 /* MutexLockTest.m */; };
@@ -629,6 +630,7 @@
 		3052130E28F2D08400271C3B /* WGBaseTestLock.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WGBaseTestLock.m; sourceTree = "<group>"; };
 		3052131028F2D3AD00271C3B /* OSSpinLockTest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OSSpinLockTest.h; sourceTree = "<group>"; };
 		3052131128F2D3AD00271C3B /* OSSpinLockTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OSSpinLockTest.m; sourceTree = "<group>"; };
+		305A809D2CF0755200A0E129 /* swiftARC1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = swiftARC1.png; sourceTree = "<group>"; };
 		3066E0EF2435DD48004C71F7 /* GCD.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = GCD.md; sourceTree = "<group>"; };
 		306C693D28F3ADDA00285592 /* OSUnfairLockTest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OSUnfairLockTest.h; sourceTree = "<group>"; };
 		306C693E28F3ADDA00285592 /* OSUnfairLockTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OSUnfairLockTest.m; sourceTree = "<group>"; };
@@ -5494,6 +5496,7 @@
 		30A7DC7D24348382008DDCF9 /* WGScreenshots */ = {
 			isa = PBXGroup;
 			children = (
+				305A809D2CF0755200A0E129 /* swiftARC1.png */,
 				303380F62CEDBA89005AE9A3 /* runtime.png */,
 				304154FE2CE4A4A70072A278 /* autoreleasepool_push.png */,
 				304155022CE4A4E10072A278 /* autoreleasepool_page.png */,
@@ -6334,6 +6337,7 @@
 				3066E0F02435DD48004C71F7 /* GCD.md in Resources */,
 				300C19022CDDDC1D00DA55DB /* Dispatch.apinotes in Resources */,
 				300C18A42CDDDC1D00DA55DB /* dispatch_source_create.3 in Resources */,
+				305A80B22CF0755300A0E129 /* swiftARC1.png in Resources */,
 				30A6D12A293885150064B18A /* pkcs8_private_key.pem in Resources */,
 				300C18C62CDDDC1D00DA55DB /* DispatchCompilerWarnings.cmake in Resources */,
 				5405874B2614AEEA0047AD5E /* 逆向工程.md in Resources */,

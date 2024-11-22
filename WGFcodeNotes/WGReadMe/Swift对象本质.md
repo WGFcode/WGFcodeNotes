@@ -426,23 +426,23 @@ Debug Workflow
             uint32_t FieldOffsetVectorOffset;
         }
         
-    static void initClassVTable(ClassMetadata *self) {
-          //获取Description地址
-          const auto *description = self->getDescription();
-          auto *classWords = reinterpret_cast<void **>(self);
-          if (description->hasVTable()) {
-            auto *vtable = description->getVTableDescriptor();
-            auto vtableOffset = vtable->getVTableOffset(description);
-            auto descriptors = description->getMethodDescriptors();
-            //1.将本类中所有的方法存入到VTable表中
-            for (unsigned i = 0, e = vtable->VTableSize; i < e; ++i) {
-              auto &methodDescription = descriptors[i];
-              swift_ptrauth_init_code_or_data(
-                  &classWords[vtableOffset + i], methodDescription.Impl.get(),
-                  methodDescription.Flags.getExtraDiscriminator(),
-                  !methodDescription.Flags.isAsync());
+        static void initClassVTable(ClassMetadata *self) {
+            //获取Description地址
+            const auto *description = self->getDescription();
+            auto *classWords = reinterpret_cast<void **>(self);
+            if (description->hasVTable()) {
+                auto *vtable = description->getVTableDescriptor();
+                auto vtableOffset = vtable->getVTableOffset(description);
+                auto descriptors = description->getMethodDescriptors();
+                //1.将本类中所有的方法存入到VTable表中
+                for (unsigned i = 0, e = vtable->VTableSize; i < e; ++i) {
+                  auto &methodDescription = descriptors[i];
+                  swift_ptrauth_init_code_or_data(
+                      &classWords[vtableOffset + i], methodDescription.Impl.get(),
+                      methodDescription.Flags.getExtraDiscriminator(),
+                      !methodDescription.Flags.isAsync());
+                }
             }
-          }
 
           if (description->hasOverrideTable()) {
             auto *overrideTable = description->getOverrideTable();
@@ -450,7 +450,7 @@ Debug Workflow
             for (unsigned i = 0, e = overrideTable->NumEntries; i < e; ++i) {
               auto &descriptor = overrideDescriptors[i];
               auto baseClassMethods = baseClass->getMethodDescriptors();
-              //将所有父类允许重载的方法全部加到本类的vtable中
+              //2.将所有父类允许重载的方法全部加到本类的vtable中
               auto baseVTable = baseClass->getVTableDescriptor();
               auto offset = (baseVTable->getVTableOffset(baseClass) +
                              (baseMethod - baseClassMethods.data()));
@@ -461,6 +461,7 @@ Debug Workflow
             }
           }
         }
+        
 #### 虚函数表的内存地址，是 TargetClassDescriptor 中的最后一个成员变量，添加方法的形式是追加到数组的末尾。所以这个虚函数表是按顺序连续存储类的方法的指针
 * VTable虚函数表的内存地址是通过对象底层的元数据metedata找到Descriptors，然后通过内存偏移找到虚函数表
 * VTable虚函数表首先会把当前类的所有方法都放在表中，然后将重载父类的方法也放进表中
@@ -536,7 +537,7 @@ Debug Workflow
 因为关联值和原始值都放在枚举类里面,而不是枚举实例化对象)
 * 存储属性占用实例的内存空间；计算属性不占用实例的内存空间，实际上计算属性本质就是个函数/方法(get/set) 
 * 一个对象占用内存大小，只关注存储属性，不用关注计算属性
-* 存储属性必须设置一个初始值，因为实例对象的内存里面就是存放着存储属性，本质上 swift 想保证实例对象的内存存的值是明确的
+* 存储属性必须设置一个初始值，因为实例对象的内存里面就是存放着存储属性，本质上 swift 想保证实例对象的内存的值是明确的
 * 计算属性必须用var声明，因为计算属性依赖于其他属性计算所得，计算属性的值是可能发生变化的
 * 类型属性: 严格意义属性分为实例属性:只能通过实例访问(存储实例属性/计算实例属性)和类型属性: 只能通过类型区访问(类型存储属性/类型计算属性)
 * 可以通过static定义类型属性，如果是类，也可以通过class定义类型属性
@@ -553,28 +554,30 @@ Debug Workflow
 1. 存储属性是一个作为特定类和结构体实例一部分的常量或变量;类class、结构体struct可以定义存储属性，枚举不能定义存储属性
 2. 存储属性要么是变量存储属性 (由 var 关键字引入)要么是常量存储属性(由 let 关键字引入)
 3. 在类中有一个原则：当类实例被构造完成时，必须保证类中所有的属性都构造或者初始化完成
-4. 会占用分配实例对象的内存空间
+4. 会占用分配实例对象的内存空间    
 
-    class Test {
-        let a: Int = 10
-        var b: Int = 0
-    }
-    
-    生成对应sil文件
-    
-    class Test {
-        @_hasStorage @_hasInitialValue final let a: Int { get }
-        @_hasStorage @_hasInitialValue var b: Int { get set }
-        @objc deinit
-        init()
-    }
-    
-    存储属性存放的位置
-    HeapObject
-      metadata
-      refCounts
-         a
-         b
+
+        class Test {
+            let a: Int = 10
+            var b: Int = 0
+        }
+        
+        生成对应sil文件
+        
+        class Test {
+            @_hasStorage @_hasInitialValue final let a: Int { get }
+            @_hasStorage @_hasInitialValue var b: Int { get set }
+            @objc deinit
+            init()
+        }
+        
+        存储属性存放的位置
+        HeapObject {
+            metadata
+            refCounts
+            a
+            b
+        }
          
 * 存储属性在编译的时候，编译器默认会合成get/set方式，而我们访问/赋值 存储属性的时候，实际上就是调用get/set
 * let声明的属性默认不会提供setter
@@ -583,31 +586,31 @@ Debug Workflow
 1. 类、结构体和枚举也能够定义计算属性，计算属性并不存储值，他们提供 getter 和 setter 来修改和获取值
 2. 对于存储属性来说可以是常量let或变量var，但计算属性必须定义为变量var
 3. 我们定义计算属性时候必须包含类型，因为编译器需要知道返回值是什么
-4. 不占用内存空间，本质是get/set方法的属性
-
-    class Test {
-        var a: Int = 0
-        var b: Int {
-            set {
-                self.a = newValue
-            }
-            get {
-                return 10
+4. 不占用内存空间，本质是get/set方法的属性    
+           
+        class Test {
+            var a: Int = 0
+            var b: Int {
+                set {
+                    self.a = newValue
+                }
+                get {
+                    return 10
+                }
             }
         }
-    }
-    
-    生成对应sil文件
-    
-    class Test {
-        @_hasStorage @_hasInitialValue var a: Int { get set }
-        var b: Int { get set }
-        @objc deinit
-        init()
-    }
+        
+        生成对应sil文件
+        
+        class Test {
+            @_hasStorage @_hasInitialValue var a: Int { get set }
+            var b: Int { get set }
+            @objc deinit
+            init()
+        }
 * a和b虽然后面都有{ get set }，但是前面修饰符有区别，a有@_hasStorage，b没有。说明a是一个可存储的值，b没有存储，只有getter和setter方法
 * b在setter中，成一个名为 newValue 的常量，并且会把外部传进来的值赋值给 newValue，然后调用setter方法，把newValue作为参数传递给setter方法
-* 计算属性根本不会有存储在实例的成员变量，那也就意味着计算属性不占内存
+* 计算属性根本不会有存储实例的成员变量，那也就意味着计算属性不占内存
 
 #### 4.3 延迟属性
 1. 使用 lazy 可以定义一个延迟存储属性，在第一次用到属性的时候才会进行初始化
@@ -617,21 +620,21 @@ Debug Workflow
 这种技术可以提高对象初始化的效率，并且可以减少不必要的开销
 5. lazy属性必须是变量（var修饰符），因为常量属性（let修饰符）必须在初始化之前就有值，所以常量属性不能定义为lazy
 
-    class Test {
-        lazy var a: Int = 20
-    }
-    
-    生成对应sil文件
+        class Test {
+            lazy var a: Int = 20
+        }
         
-    class Test {
-        lazy var a: Int { get set }
-        @_hasStorage @_hasInitialValue final var $__lazy_storage_$_a: Int? { get set }
-        @objc deinit
-        init()
-    }
+        生成对应sil文件
+            
+        class Test {
+            lazy var a: Int { get set }
+            @_hasStorage @_hasInitialValue final var $__lazy_storage_$_a: Int? { get set }
+            @objc deinit
+            init()
+        }
     
 * 存储属性在添加了lazy修饰后，除了拥有存储属性的特性之外，还拥有 final 修饰符，说明 lazy 修饰的属性不能被重写
-* 并且，它是一个可选项。拥有可选项就意味着，其实在初始的时候是有值的，只是这个值是一个nil
+* 并且它是一个可选项。拥有可选项就意味着，其实在初始的时候是有值的，只是这个值是一个nil
 * lazy修饰的属性，底层默认是optional,可选的，没有被访问时，默认是nil，内存中表现就是0x0
 * 延迟属性必须有一个默认值 lazy var name: String?这种写法也不行编译器会报错；lazy var name: String?=nil这种写法可以
 * 只有在第一次被访问时才会赋值，且是线程不安全的
@@ -639,7 +642,7 @@ Debug Workflow
 的内存大小，还需要一个字节用于存储case
 
 #### 4.4 属性观察器
-1.属性观察者会用来观察属性值的变化， willSet 当属性将被改变调用，即使这个值与原有的值相同，而 didSet 在属性已经改变之后调用
+1.属性观察者会用来观察属性值的变化， willSet 当属性将被改变调用，即使这个值与原有的值相同，而 didSet 在属性已经改变之后调用    
 2.在初始化器中设置属性值不会触发 willSet 和 didSet。在属性定义时设置初始值也不会触发 willSet 和 didSet
 
         class Test {
@@ -658,21 +661,21 @@ Debug Workflow
 * 在 init 方法中，如果调用属性，是不会触发属性观察者的； 在定义时设置默认值(即在didSet中调用其他属性值)，也不会触发属性观察者
 
 ##### 哪里可以添加属性观察器？
-1. 类中定义的存储属性
+1. 类中定义的存储属性(非lazy的存储属性)
 2. 通过类继承的存储属性
 3. 通过类继承的计算属性
 
 ##### 子类和父类的计算属性同时存在willSet、didSet，调用顺序是什么?
-1.先调用子类的willSet方法
-2.调用父类的willSet方法
-3.调用父类的didSet方法
-4.调用子类的didSet方法
+1.先调用子类的willSet方法    
+2.调用父类的willSet方法             
+3.调用父类的didSet方法            
+4.调用子类的didSet方法            
 
-##### 子类调用了父类的init方法会触发属性观察器吗？
-##### 会触发属性观察器，因为子类调用父类的init方法已经初始化过了,再次赋值就会触发属性观察器
+#### 子类调用了父类的init方法会触发属性观察器吗？    
+* 会触发属性观察器，因为子类调用父类的init方法已经初始化过了,再次赋值就会触发属性观察器
 
 #### 4.5 类型属性
-1. 严格来说，属性可以分为实例属性和类型属性；使用关键字 static 来定义类型属性
+1. 严格来说，属性可以分为实例属性和类型属性；使用关键字 static 来定义类型属性；如果是类中，也可以使用class定义类型属性
 2. 类型属性在整个程序运行过程中，就只有1份内存（类似于全局变量），且是线程安全的
 3. 不同于存储实例属性，你必须给存储类型属性设定初始值，因为类型没有像实例那样的 init 初始化器来初始化存储属性
 4. 存储类型属性默认就是 lazy ，会在第一次使用的时候才初始化，就算被多个线程同时访问，保证只会初始化一次
@@ -703,66 +706,108 @@ Debug Workflow
 * 类型属性也是一个全局变量
 
 #### 总结
-存储属性： 结构体/类，存储属性可以是变量也可以是常量;
-计算属性：结构体/类/枚举，计算属性只能是变量；计算属性必须声明类型；
-延迟属性: lazy属性必须是变量
-类型属性： 结构体/类/枚举  
+存储属性： 结构体/类，存储属性可以是变量var也可以是常量let;   
+计算属性：结构体/类/枚举，计算属性只能是变量var；计算属性必须声明类型；      
+延迟属性: lazy属性必须是变量,lazy本质是可选项Optional,Optional可选项的本质是枚举enum              
+类型属性： 结构体/类/枚举.类似一个全局变量               
 
 
-### 5. Swift底层原理-属性
+### 5. Swift底层原理-内存管理之引用计数
+* Swift语言延续了和Objective-C语言一样的思路进行内存管理，都是采用引用计数的方式来管理实例的内存空间
+* Swift对象本质是一个HeapObject结构体指针。HeapObject结构中有两个成员变量，metadata 和 refCounts
+* metadata 是指向元数据对象的指针，里面存储着类的信息，比如属性信息，虚函数表等
+* swift本质上存在两种refCounts引用计数            
+        1.如果是强引用,那么就是strong RC + unowned RC + flags
+        2.如果是弱引用,那么就是HeapObjectSideTableEntry          
 
-#### Swift语言延续了和Objective-C语言一样的思路进行内存管理，都是采用引用计数的方式来管理实例的内存空间
-#### Swift对象本质是一个HeapObject结构体指针。HeapObject结构中有两个成员变量，metadata 和 refCounts
+#### 如果是强引用，则引用计数refCounts是通过64位位域计数bits存储  强引用stong+无主引用unowned
+         struct HeapObject {
+             HeapMetadata const *metadata;  是指向元数据对象的指针，里面存储着类的信息，比如属性信息，虚函数表等
+             RefCounts<InlineRefCountBits> refCounts;      它是一个引用计数信息相关的东西
+                         ｜
+                         ｜
+            typedef RefCountBitsT<RefCountIsInline> InlineRefCountBits;
+                         ｜
+                         ｜
+                    class RefCountBitsT {
+                        BitsType bits;  //该属性是由RefCountBitsInt的Type属性定义的
+                    }       ｜
+                            ｜
+                    struct RefCountBitsInt<refcountIsInline, 8> {
+                            //存储的是64位原有的strong RC + unowned RC + flags
+                            //一个 uint64_t 的位域信息，在这个 uint64_t 的位域信息中存储着运行生命周期的相关引用计数
+                            typedef uint64_t Type;      
+                            typedef int64_t SignedType;
+                    }
+                    
+                    最终bits存储信息如下
+                    第0位：标识是否是永久的
+                    第1-31位：存储无主引用         unowned RC
+                    第32位：标识当前类是否正在析构   isDeiniting
+                    第33-62位：标识强引用          strong RC
+                    第63位：是否使用SlowRC
+         }
+         
+![图片](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGScreenshots/swiftARC1.png)
 
+#### 如果是弱引用，则引用计数refCounts不再通过位域来存储引用计数，而是一个指针，指向HeapObjectSideTableEntr散列表
+散列表存储着 weak弱引用，而散列表内部引用计数相关类是继承自RefCountBitsT(通过bits位域存储strong RC + unowned RX)
+所以散列表中存储的就是 weak RC + [strong RC + unowned RC],这也就是说项目中weak和unowned都可用的时候选择unowned效率更高点
+因为weak需要操作散列表来管理引用计数，而unowned直接通过位域来管理
+       
+        struct HeapObject {
+             HeapMetadata const *metadata;  是指向元数据对象的指针，里面存储着类的信息，比如属性信息，虚函数表等
+             HeapObjectSideTableEntry* refCounts;      它是一个引用计数信息相关的东西
+                         ｜
+                         ｜
+             HeapObjectSideTableEntry {       //散列表
+                SideTableRefCounts {
+                    object pointer       ////存着对象的指针
+                    atomic<SideTableRefCountBits> {
+                        strong RC + unowned RC + weak RC + flags
+                    }
+                }   
+             }
+                         ｜
+                         ｜
+                class SideTableRefCountBits : public RefCountBitsT<RefCountNotInline>
+                    uint32_t weakBits;  //32位Weak RC      
+                }
+                class RefCountBitsT {
+                    BitsType bits;  
+                } 
+         }
+     
+#### 总结如下
+         
+        
+        HeapObject {
+          isa
+          InlineRefCounts {
+            atomic<InlineRefCountBits> {
+              strong RC + unowned RC + flags
+              OR
+              HeapObjectSideTableEntry*
+            }
+          }
+        }
 
-     define SWIFT_HEAPOBJECT_NON_OBJC_MEMBERS InlineRefCounts refCounts
-     struct HeapObject {
-         HeapMetadata const *metadata;      是指向元数据对象的指针，里面存储着类的信息，比如属性信息，虚函数表等
-         SWIFT_HEAPOBJECT_NON_OBJC_MEMBERS; 它是一个引用计数信息相关的东西
-     }
-     
-     //InlineRefCounts是一个模版类：RefCounts接收一个InlineRefCountBits类型的范型
-     typedef RefCounts<InlineRefCountBits> InlineRefCounts; 
-     
-     class RefCounts {
-         std::atomic<RefCountBits> refCounts;
-         void incrementSlow(RefCountBits oldbits, uint32_t inc) SWIFT_CC(PreserveMost);
-         void incrementNonAtomicSlow(RefCountBits oldbits, uint32_t inc);
-         bool tryIncrementSlow(RefCountBits oldbits);
-         bool tryIncrementNonAtomicSlow(RefCountBits oldbits);
-         void incrementUnownedSlow(uint32_t inc);
-         public:
-            enum Initialized_t { Initialized };
-            enum Immortal_t { Immortal };
-     }
-     
-     实质上是在操作我们传递的泛型参数InlineRefCountBits
-     它也是一个模板函数，并且也有一个参数 RefCountIsInline
-     typedef RefCountBitsT<RefCountIsInline> InlineRefCountBits;
-     
-     class RefCountBitsT {
-        BitsType bits;  //该属性是由RefCountBitsInt的Type属性定义的
-     }
-     
-     struct RefCountBitsInt<refcountIsInline, 8> {
-         //存储的是64位原有的strong RC + unowned RC + flags
-         typedef uint64_t Type;      //一个 uint64_t 的位域信息，在这个 uint64_t 的位域信息中存储着运行生命周期的相关引用计数
-         typedef int64_t SignedType;
-     };
-     
-     最终bits存储信息如下
-        第0位：标识是否是永久的
-        第1-31位：存储无主引用
-        第32位：标识当前类是否正在析构
-        第33-62位：标识强引用
-        第63位：是否使用SlowRC
-* swift中默认都是强引用，强引用就是通过bits这种位域来实现引用计数的增加、减少的
-* 进行强引用的时候，本质上是调用 refCounts 的 increment 方法，也就是引用计数 +1
+        HeapObjectSideTableEntry {
+          SideTableRefCounts {
+            object pointer         //存着对象的指针
+            atomic<SideTableRefCountBits> {
+              strong RC + unowned RC + weak RC + flags
+            }
+          }   
+        }
+
+* swift中默认都是强引用，强引用就是通过引用计数中的bits这种位域来实现引用计数的增加、减少
 * 引用计数的变化，并不是直接+1，而是refercount存储的信息发生变化(第33-62位)
-    
-#### swift内存管理主要通过ARC(Automatic Reference Counting)自动引用计数机制来实现；ARC 用于管理对象类型（类的实例）的内存分配和释放；
-#### 对于值类型（如枚举、结构体、基础数据类型），他们通常存储在栈上，由编译器负责管理内存，当值类型的变量超出其作用域时，内存会自动释放
-#### 值类型在赋值或传递参数时会进行复制。Swift 采用了 Copy-On-Write（COW，写时复制）优化策略，只有当值类型需要被修改时，Swift 才会进行实际的复制操作
+
+#### swift内存管理主要通过ARC(Automatic Reference Counting)自动引用计数机制来实现；ARC 用于管理对象类型（类的实例）的内存分配和释放；    
+对于值类型（如枚举、结构体、基础数据类型），他们通常存储在栈上，由编译器负责管理内存，当值类型的变量超出其作用域时，内存会自动释放
+值类型在赋值或传递参数时会进行复制，而对于集合类型的值类型采用的是 Copy-On-Write（COW，写时复制）优化策略，只有当值类型需要被修改时，
+Swift 才会进行实际的复制操作
 
 #### swift中没有像Objective-C中那么多涉及内存管理的关键字，所以谈swift内存管理，主要就是谈强引用、弱引用、无主引用
 * 一个新的实例被创建时，传入的是RefCountBits(strongExtraCount: 0，unownedCount: 1)
@@ -774,11 +819,12 @@ Debug Workflow
 #### 5.2 弱引用weak
 #### 在实际开发的过程中，我们大多使用的都是强引用，在某些场景下使用强引用，用不好的话会造成循环引用
 #### 在Swift中我们通过关键字**weak**来表明一个弱引用；
+* weak变量并没有持有被引用对象的指针,而是持有了被引用对象的sidetable,通过访问持有的sidetable的pointer指针间接访问引用的对象
+* 这跟Objective-C的weak实现是有区别的,Objective-C的sidetable是存储在一个全局数组里,而Swift则是每个对象都有自己的sidetable
 * weak关键字的作用是在使用这个实例的时候并不保有此实例的引用
 * 使用weak关键字修饰的引用类型数据在传递时不会使引用计数加1，不会对其引用的实例保持强引用，因此不会阻止ARC释放被引用的实例
-* ARC会在被引用的实例释放时，自动地将弱引用设置为nil。由于弱引用需要允许设置为nil，因此它一定是**可选类型**
-* 用 weak 修饰之后，变量变成了一个可选项，内部会生成WeakReference类型的变量
-* 当对象销毁时，弱引用修饰的对象会自动置为nil
+* 对象强引用计数归零时,并不会处理自己的sidetable,所以weak变量不会自动置为nil.此时如果weak变量去访问指向的对象,
+因为sidetable被标记为对象已经销毁,所以代码会返回nil.这里与Objective-C的自动将weak变量的值变成nil有很大区别
 * swift中弱引用必须是可选类型，因为引用的实例被释放后，ARC会自动将其置为nil
 
         WeakReference *swift::swift_weakInit(WeakReference *ref, HeapObject *value) {
@@ -854,8 +900,8 @@ Debug Workflow
         
         
 #### 从上面可以分析出：在Swift中本质上存在两种引用计数
-1.如果是强引用，那么是strong RC + unowned RC + flags
-2.如果是弱引用，那么是 HeapObjectSideTableEntry
+1.如果是强引用，那么是strong RC + unowned RC + flags。 
+2.如果是弱引用，那么是 HeapObjectSideTableEntry    
 3.一个实例对象在首次初始化的时候，是没有sideTable的，当我们创建一个弱引用的时候，才会创建sideTable
 
 #### 5.3 无主引用unowned
@@ -875,10 +921,12 @@ Debug Workflow
 * 如果其中一个对象销毁，另一个对象也跟着销毁，则使用unowned
 * 使用无主引用时，需要确保对象的生命周期至少与引用它的对象一样长
 
+
 ### 6.Swift底层原理-枚举
 #### 在Swift中可以通过enum 关键字来声明一个枚举；枚举是一种包含自定义类型的数据类型，它是一组有共同特性的数据的集合
 #### 枚举中不能有存储属性，只能有计算属性、实例方法、类型方法
 #### 枚举分为以下三种： 无原始值 有原始值 有关联值
+
 
 #### 6.1 无原始值: 没有指定枚举类型
 
@@ -959,7 +1007,8 @@ Debug Workflow
 * 对于没有添加关联值的枚举，系统会默认帮我们实现**Hashable/Equatable**
 
 #### 6.4 枚举内存分析
-1. 原始值不存储在枚举内存中，不占用枚举内存空间，枚举的原始值是通过编辑器自动遵守**RawRepresentable协议**并实现了其中的rawValue计算属性和init(rawValue:)方法，通过计算属性rawValue来获取原始值的
+1. 原始值不存储在枚举内存中，不占用枚举内存空间，枚举的原始值是通过编辑器自动遵守**RawRepresentable协议**并实现了其中
+的rawValue计算属性和init(rawValue:)方法，通过计算属性rawValue来获取原始值的。  
 2.枚举的内存分析主要从两个方便讨论: 无关联值 有关联值
 * 无关联值： 默认是以一个字节的方式去存储，1个字节可以存储256个case。如果超出这个现实，枚举会升级成2个字节去存储
 
@@ -1052,7 +1101,8 @@ Debug Workflow
 #### 函数类型由形式参数类型和返回类型组成，函数类型的本质就是引用类型；
 #### 函数类型的本质在Swift中是通过TargetFunctionTypeMetadata来表示的，它继承自TargetMetadata
 #### TargetFunctionTypeMetadata拥有自己的Flags和ResultType，以及参数列表的存储空间
-#### 函数是引用类型，意味着函数本身在内存中是通过引用访问的，而不是通过值复制。这使得函数可以作为参数传递或作为返回值
+#### 函数是引用类型，意味着函数本身在内存中是通过引用访问的，而不是通过值复制。这使得函数可以作为参数传递或作为返回值。  
+
 
         //由于TargetFunctionTypeMetadata继承自TargetMetadata，那么它必然有Kind
         struct TargetFunctionTypeMetadata : public TargetMetadata<Runtime> {
