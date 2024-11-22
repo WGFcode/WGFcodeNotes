@@ -49,6 +49,12 @@ Debug Workflow
         }
 #### 到此我们可以知道，swift对象本质是一个HeapObject结构体，占用16个字节，里面有两个成员，一个是指向元数据的指针、一个是引用计数;
 
+        struct HeapObject {
+            HeapMetadata const *metadata;  //8字节
+            InlineRefCounts refCounts      //8字节
+        }
+        
+
 #### 1.1 HeapObject中的元数据HeapMetadata
 
     #define SWIFT_HEAPOBJECT_NON_OBJC_MEMBERS InlineRefCounts refCounts
@@ -109,27 +115,30 @@ Debug Workflow
     Reserved
     ClassSize
     ClassAddressPoint
-    
+    Description
+    IVarDestroyer
 #### swift中class底层结构如下
 
-struct ClassMetadata {
-    //TargetMetadata
-    kind            //在oc中放的就是isa，在swift中kind大于0x7FF表示的就是类；根据kind获取元数据metadata的类型
-    
-    //TargetAnyClassMetadata
-    Superclass      //父类的Metadata，如果是null说明是最顶级的类了
-    CacheData[2]    //指针数组，总共占16个字节 缓存数据用于某些动态查找，通常需要与Objective-C的使用进行互操作
-    Data
-    
-    //TargetClassMetadata
-    Flags                      
-    InstanceAddressPoint       
-    InstanceSize          //实例对象在堆内存的大小     
-    InstanceAlignMask     //根据这个mask来获取内存中的对齐大小
-    Reserved              //预留给运行时使用
-    ClassSize
-    ClassAddressPoint
-}
+        struct ClassMetadata {
+            //TargetMetadata
+            kind  //在oc中放的就是isa，在swift中kind大于0x7FF表示的就是类；根据kind获取元数据metadata的类型
+            
+            //TargetAnyClassMetadata
+            Superclass      //父类的Metadata，如果是null说明是最顶级的类了
+            CacheData[2]    //指针数组，总共占16个字节 缓存数据用于某些动态查找，通常需要与Objective-C的使用进行互操作
+            Data
+            
+            //TargetClassMetadata
+            Flags                      
+            InstanceAddressPoint       
+            InstanceSize          //实例对象在堆内存的大小     
+            InstanceAlignMask     //根据这个mask来获取内存中的对齐大小
+            Reserved              //预留给运行时使用
+            ClassSize
+            ClassAddressPoint
+            Description
+            IVarDestroyer
+        }
 
 
 #### 总结：更详细的底层结构可以看HeapObject.h文件中的分析
@@ -349,6 +358,8 @@ struct ClassMetadata {
         value type        static派发                static派发
         protocol          Vtable派发                static派发
         NSObject          Vtable派发            消息派发(objc_method)
+#### 所有的值类型(结构体、枚举)无论是声明的作用域内方法还是扩展中的方法都是静态派发
+#### 类、协议、继承自NSObject的类在声明的作用域内方法都是函数表派发，在扩展中只有类、协议是静态派发，继承自NSObject的类在扩展中是消息派发
 #### Swift 的一些修饰符可以指定派发方式
 * struct是值类型，其中函数的调度属于直接调用地址，即静态调度；struct的extension的方法依然是直接调用(静态派发)
 * 在Swift中，调用一个结构体的方法是直接拿到函数的地址直接调用，包括初始化方法
@@ -359,7 +370,7 @@ struct ClassMetadata {
 * @objc修饰的函数调度方式是函数表调度，如果OC中需要使用，class还必须继承NSObject
 * dynamic修饰的函数的调度方式是函数表调度，使函数具有动态性
 * @objc + dynamic 组合修饰的函数调度，是执行的是 objc_msgSend流程，即 动态消息转发
-* @inline 告诉编译器可以使用直接派
+* @inline 告诉编译器可以使用直接派发
 #### 2.2 建议
 1. 能用值类型地方就有值类型，不仅仅是因为其拷贝速度快，方法调度也快
 2. 多使用private final 等关键字，一方面提高代码阅读性，编译器内部也对消息调度进行优化
@@ -375,6 +386,88 @@ struct ClassMetadata {
 1. 找到metadata
 2. 确定函数地址（metadata + 偏移量）；函数地址存放在函数表sil_vtable；函数表用来存储类中的方法，存储方式类似于数组，方法连续存放在函数表中
 3. 执行函数
+
+        struct HeapObject {
+            HeapMetadata const *metadata;  //8字节
+            InlineRefCounts refCounts      //8字节
+        }
+        
+        struct Metadata {
+            var kind: Int
+            var superClass: Any.Type
+            var cacheData: (Int, Int)
+            var data: Int
+            var classFlags: Int32
+            var instanceAddressPoint: UInt32
+            var instanceSize: UInt32
+            var instanceAlignmentMask: UInt16
+            var reserved: UInt16
+            var classSize: UInt32
+            var classAddressPoint: UInt32
+            //不管是Class，Struct还是Enum都有自己的Descriptor TargetClassDescriptor 类型的类 VTable虚函数表就是存放在这里的
+            var typeDescriptor: UnsafeMutableRawPointer 
+            var iVarDestroyer: UnsafeRawPointer
+        }
+        
+        // TargetClassDescriptor内部成员变量，发现没有发现vtable相关属性，继续从该类的初始化方法开始查找ClassContextDescriptorBuilder
+        class TargetClassDescriptor {
+            ContextDescriptorFlags Flags;
+            TargetRelativeContextPointer<Runtime> Parent;
+            TargetRelativeDirectPointer<Runtime, const char, /*nullable*/ false> Name;
+            TargetRelativeDirectPointer<Runtime, MetadataResponse(...),
+                                      /*Nullable*/ true> AccessFunctionPtr;
+            TargetRelativeDirectPointer<Runtime, const reflection::FieldDescriptor,
+                                      /*nullable*/ true> Fields;
+            TargetRelativeDirectPointer<Runtime, const char> SuperclassType;
+            uint32_t MetadataNegativeSizeInWords;
+            uint32_t MetadataPositiveSizeInWords;
+            uint32_t NumImmediateMembers;
+            uint32_t NumFields;
+            uint32_t FieldOffsetVectorOffset;
+        }
+        
+    static void initClassVTable(ClassMetadata *self) {
+          //获取Description地址
+          const auto *description = self->getDescription();
+          auto *classWords = reinterpret_cast<void **>(self);
+          if (description->hasVTable()) {
+            auto *vtable = description->getVTableDescriptor();
+            auto vtableOffset = vtable->getVTableOffset(description);
+            auto descriptors = description->getMethodDescriptors();
+            //1.将本类中所有的方法存入到VTable表中
+            for (unsigned i = 0, e = vtable->VTableSize; i < e; ++i) {
+              auto &methodDescription = descriptors[i];
+              swift_ptrauth_init_code_or_data(
+                  &classWords[vtableOffset + i], methodDescription.Impl.get(),
+                  methodDescription.Flags.getExtraDiscriminator(),
+                  !methodDescription.Flags.isAsync());
+            }
+          }
+
+          if (description->hasOverrideTable()) {
+            auto *overrideTable = description->getOverrideTable();
+            auto overrideDescriptors = description->getMethodOverrideDescriptors();
+            for (unsigned i = 0, e = overrideTable->NumEntries; i < e; ++i) {
+              auto &descriptor = overrideDescriptors[i];
+              auto baseClassMethods = baseClass->getMethodDescriptors();
+              //将所有父类允许重载的方法全部加到本类的vtable中
+              auto baseVTable = baseClass->getVTableDescriptor();
+              auto offset = (baseVTable->getVTableOffset(baseClass) +
+                             (baseMethod - baseClassMethods.data()));
+              swift_ptrauth_init_code_or_data(&classWords[offset],
+                                              descriptor.Impl.get(),
+                                              baseMethod->Flags.getExtraDiscriminator(),
+                                              !baseMethod->Flags.isAsync());
+            }
+          }
+        }
+#### 虚函数表的内存地址，是 TargetClassDescriptor 中的最后一个成员变量，添加方法的形式是追加到数组的末尾。所以这个虚函数表是按顺序连续存储类的方法的指针
+* VTable虚函数表的内存地址是通过对象底层的元数据metedata找到Descriptors，然后通过内存偏移找到虚函数表
+* VTable虚函数表首先会把当前类的所有方法都放在表中，然后将重载父类的方法也放进表中
+* 每个类在初始化的时候都会创建一个VTable虚函数表
+* 在类的元数据中，如果存在VTable，会通过元数据描述符Descriptor获取VTable的偏移量，并将类中的方法存入VTable表中。如果存在方法重载表（Override Table），则会将基类和子类的方法也加入到VTable中‌
+
+
 
 #### 3.0 Swift底层原理-类与对象
 #### 3.1 对象的创建流程
@@ -422,18 +515,19 @@ struct ClassMetadata {
 #### 关键字影响函数的派发
 * final： 添加了final关键字的函数无法被写， 使用静态派发， 不会在vtable中出现， 
 且对objc运行时不可见。 如果在实际开发过程中，属性、方法、类不需要被重载的时候，可以添加final关键字
-* dynamic： 函数均可添加dynamic关键字，为非objc类和值类型的函数赋予动态性，但派发方式还是函数表派发
-* @objc： 该关键字可以将swift函数暴露给Objc运行时， 依旧是函数表派发
+* dynamic： 函数均可添加dynamic关键字，为非objc类和值类型的函数赋予动态性，但派发方式还是函数表派发；dynamic是将方法标记为可变方法
+* @objc： 该关键字可以将swift函数暴露给Objc运行时， 依旧是函数表派发；@objc是将该方法暴露给oc使用
 * @objc + dynamic： 消息发送的方式
 
 #### 总结
 * Swift中的方法调用分为静态派发和动态派发两种
 * 值类型中的方法就是静态派发
 * 引用类型中的方法就是动态派发，其中函数的调度是通过V-Table函数表来进行调度的
-     类型        调度方式        extension
-    值类型        静态派发        静态派发
-     类           函数表派发      静态派发
-  NSObject子类    函数表派发      静态派发
+
+         类型        调度方式        extension
+        值类型        静态派发        静态派发
+         类           函数表派发      静态派发
+      NSObject子类    函数表派发      静态派发
   
   
 ### 4. Swift底层原理-属性
@@ -448,18 +542,19 @@ struct ClassMetadata {
 * 可以通过static定义类型属性，如果是类，也可以通过class定义类型属性
 * 在init方法中调用set方法是不会触发属性观察器的，因为init方法还没完成初始化；如果init方法先调用了super.init方法，那么再调用set方法是可以
 触发属性观察器的，因为super.init后本对象已经完成了初始化工作了
-* 子类重写父类的属性观察者属性，当给子类的属性设置值时，调用顺序是这样的 子类的willSet 父类的willSet 父类的didSet 子类的didSet
+* 子类重写父类的属性观察者属性，当给子类的属性设置值时，调用顺序是这样的 子类的willSet-->父类的willSet-->父类的didSet-->子类的didSet
 * 什么属性可以添加属性观察器： 非lazy的存储属性/继承的存储属性/继承的计算属性
-* 属性加上lazy就变成懒加载属性了且实例的内存空间会变大，因为加了lazy，系统会将改属性变成可选类型，在未访问时会变成nil，访问时才会赋值
+* 属性加上lazy就变成懒加载属性了且实例的内存空间会变大，因为加了lazy，系统会将该属性变成可选类型，在未访问时会变成nil，访问时才会赋值
 可选类型占用16个字节，所以加了lazy后，实例的内存空间会增大8个字节，lazy的本质是可选项Optional，可选项的本质是enum枚举
 
 
 
 #### 4.1 存储属性
-1. 存储属性是一个作为特定类和结构体实例一部分的常量或变量
+1. 存储属性是一个作为特定类和结构体实例一部分的常量或变量;类class、结构体struct可以定义存储属性，枚举不能定义存储属性
 2. 存储属性要么是变量存储属性 (由 var 关键字引入)要么是常量存储属性(由 let 关键字引入)
 3. 在类中有一个原则：当类实例被构造完成时，必须保证类中所有的属性都构造或者初始化完成
 4. 会占用分配实例对象的内存空间
+
     class Test {
         let a: Int = 10
         var b: Int = 0
@@ -486,9 +581,10 @@ struct ClassMetadata {
 
 #### 4.2 计算属性
 1. 类、结构体和枚举也能够定义计算属性，计算属性并不存储值，他们提供 getter 和 setter 来修改和获取值
-2. 对于存储属性来说可以是常量或变量，但计算属性必须定义为变量
+2. 对于存储属性来说可以是常量let或变量var，但计算属性必须定义为变量var
 3. 我们定义计算属性时候必须包含类型，因为编译器需要知道返回值是什么
 4. 不占用内存空间，本质是get/set方法的属性
+
     class Test {
         var a: Int = 0
         var b: Int {
@@ -520,6 +616,7 @@ struct ClassMetadata {
 4. 定义延迟初始化的属性。这种属性不会在对象实例化时立即初始化，而是在第一次访问该属性时才进行初始化。
 这种技术可以提高对象初始化的效率，并且可以减少不必要的开销
 5. lazy属性必须是变量（var修饰符），因为常量属性（let修饰符）必须在初始化之前就有值，所以常量属性不能定义为lazy
+
     class Test {
         lazy var a: Int = 20
     }
@@ -616,6 +713,7 @@ struct ClassMetadata {
 
 #### Swift语言延续了和Objective-C语言一样的思路进行内存管理，都是采用引用计数的方式来管理实例的内存空间
 #### Swift对象本质是一个HeapObject结构体指针。HeapObject结构中有两个成员变量，metadata 和 refCounts
+
 
      define SWIFT_HEAPOBJECT_NON_OBJC_MEMBERS InlineRefCounts refCounts
      struct HeapObject {
@@ -784,6 +882,7 @@ struct ClassMetadata {
 
 #### 6.1 无原始值: 没有指定枚举类型
 
+
         enum WGTestA {
             case A
             case B
@@ -795,6 +894,7 @@ struct ClassMetadata {
          
         实际占用内存:------1个字节
         内存对齐占用内存------1个字节  
+        
         
 * 无原始值的枚举，内部没有计算属性rawValue
 * 无原始值的枚举占用的内容大小是1个字节
@@ -1229,6 +1329,7 @@ struct ClassMetadata {
 
 #### 8.1.3 协议可选
 #### 默认情况写，协议中的方法和属性是必须要实现的，但是也可以通过以下方式实现协议可选
+
         protocol WGTest {
             func test1()
             func test2()
@@ -1280,6 +1381,7 @@ struct ClassMetadata {
 #### 8.2 协议的扩展
 #### 协议可以通过extention的方式去实现定义的方法，实现之后，遵循协议的类可以不再实现该方法
 #### 8.2.1 协议中未声明方法，分类中声明并实现
+
         protocol BaseProtocol {
     
         }
@@ -1436,8 +1538,6 @@ struct ClassMetadata {
 
 ### 11 swift中的可选类型
 #### 在变量类型后加问号（?）表示该变量可能有值也可能没有值
-
-
 
 #### 底层Optional是一个包含None和Some(Wrapped)两种类型的泛枚举类型，Optional.None即nil，Optional.Some非nil。
         @frozen public enum Optional<Wrapped> : ExpressibleByNilLiteral {
