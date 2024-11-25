@@ -1284,6 +1284,7 @@ Swift 才会进行实际的复制操作
 #### 7.2.2 逃逸闭包
 #### 当一个闭包作为参数传到一个函数中，但是这个闭包在函数返回之后才被执行，我们称该闭包从函数中逃逸。
 当你定义接受闭包作为参数的函数时，你可以在参数名之前标注@escaping，用来指明这个闭包是允许“逃逸”出这个函数的
+逃逸闭包常见于异步操作，比如网络请求或延时调用
 
 #### 逃逸闭包存在的可能情况？
 * 当闭包被当作属性存储，导致函数完成时闭包生命周期被延长。
@@ -1311,6 +1312,79 @@ Swift 才会进行实际的复制操作
 #### 7.2.3 自动闭包
 #### 自动闭包是一种自动创建的闭包，用于包装传递给函数作为参数的表达式。这种闭包不接受任何参数，当它被调用的时候，
 会返回被包装在其中的表达式的值。这种便利语法让你能够省略闭包的花括号，用一个普通的表达式来代替显式的闭包
+自动闭包常用于延迟表达式的求值，这意味着直到你调用闭包，代码才会执行
+
+        func print(_ condition: Bool, _ message: String){
+            if condition {
+                NSLog("debug-print: \(message)")
+            }
+        }
+        func toDo() -> String{
+            NSLog("to do")
+            return "WG to do"
+        }
+        
+        print(true, toDo())
+        //打印结果: 
+        to do
+        debug-print: WG to do
+        
+        print(false, toDo())
+        //打印结果: 
+        to do
+#### 发现条件为false,也打印了to do，如果toDo方法是个耗时操作，那么就会比较消耗性能了，为了避免这种情况应该使用自动闭包    
+
+        func print(_ condition: Bool, _ message: ()->String ){
+            if condition {
+                NSLog("debug-print: \(message())")
+            }
+        }
+        func toDo() -> String{
+            NSLog("to do")
+            return "WG to do"
+        }
+        
+        //print(<#T##condition: Bool##Bool#>, <#T##message: () -> String##() -> String#>)
+        
+        print(true, toDo)
+        //打印结果: 
+        to do
+        debug-print: WG to do
+        
+        print(false, toDo)
+        //打印结果: 
+        什么都不会打印
+        
+#### 这种方式极大的降低了资源浪费。如果我们传进的是字符串，如何处理？
+#### 可以通过@autoclosure将当前的闭包声明成一个自动闭包，不接收任何参数，返回值是当前内部表达式的值。所以当传入一个String时，
+其实就是将String放入一个闭包表达式中，在调用的时候返回
+
+    func print(_ condition: Bool, _ message: @autoclosure ()->String ){
+        if condition {
+            NSLog("debug-print: \(message())")
+        }
+    }
+    func toDo() -> String{
+        NSLog("to do")
+        return "WG to do"
+    }
+    
+    //print(<#T##condition: Bool##Bool#>, <#T##message: String##String#>)
+    print(true, "wg")
+    //打印结果：
+    debug-print: wg
+    
+    print(true, toDo())
+    //打印结果：
+    to do
+    debug-print: wg
+    
+    print(false, toDo())
+    //打印结果: 
+    什么都不会打印
+
+
+
 
 
 #### 总结
@@ -1526,8 +1600,9 @@ Swift 才会进行实际的复制操作
 
 
 ### 9 Swift底层原理-反射Mirror
-#### 反射：是指可以动态获取类型、成员信息，在运行时可以调用方法、属性等行为的特性
-#### 对于一个纯swift类来说，并不支持直接像OC runtime那样的操作,但是swift标准库依旧提供了反射机制，用来访问成员信息，即Mirror
+#### 反射：是指可以动态获取类型、成员信息，在运行时可以调用方法、属性等行为的特性对于一个纯swift类来说，
+并不支持直接像OC runtime那样的操作,但是swift标准库依旧提供了反射机制，用来访问成员信息，即Mirror
+
 #### 在使⽤OC开发时很少强调其反射概念，因为OC的Runtime要⽐其他语⾔中的反射强⼤的多。但是Swift是⼀⻔类型 安全的语⾔，不⽀持我们像OC那样直接操作，它的标准库仍然提供了反射机制来让我们访问成员信息
 #### Mirror是Swift中的反射机制的实现，它的本质是一个结构体
 
@@ -1572,16 +1647,16 @@ Swift 才会进行实际的复制操作
 
 
 #### 总结： https://www.jianshu.com/p/12efe13e3e20
-1.Mirror通过初始化方法返回一个Mirror实例
-2.这个实例对象根据传入对象的类型去对应的Metadata中找到Description
-3.在Description可以获取name也就是属性的名称
-4.通过内存偏移获取到属性值
-5.还可以通过numFields获取属性的个数
+1.Mirror通过初始化方法返回一个Mirror实例    
+2.这个实例对象根据传入对象的类型去对应的Metadata中找到Description    
+3.在Description可以获取name也就是属性的名称       
+4.通过内存偏移获取到属性值               
+5.还可以通过numFields获取属性的个数              
 
 
 ### 10.Swift底层原理-Codable
-#### Swift 4.0 支持了一个新的语言特性—Codable，其提供了一种非常简单的方式支持模型和数据之间的转换。
-#### Codable能够将程序内部的数据结构序列化成可交换数据，也能够将通用数据格式反序列化为内部使用的数据结构，大大提升对象和其表示之间互相转换的体验
+#### Swift 4.0 支持了一个新的语言特性—Codable，其提供了一种非常简单的方式支持模型和数据之间的转换。Codable能够将
+程序内部的数据结构序列化成可交换数据，也能够将通用数据格式反序列化为内部使用的数据结构，大大提升对象和其表示之间互相转换的体验
 
         typealias Codable = Decodable & Encodable
 
@@ -1606,7 +1681,7 @@ Swift 才会进行实际的复制操作
             case some(Wrapped)
         }
 #### 在Swift中，nil不是指针，而是值缺失的一种特殊类型，任何类型的可选项都可以设置为nil而不仅仅是对象类型
-#### 每个类型的 nil 都是不同的，例如 Int? 的 nil 和 String? 的 nil 是不同的，它们所代表的空值的类型不同
+每个类型的 nil 都是不同的，例如 Int? 的 nil 和 String? 的 nil 是不同的，它们所代表的空值的类型不同
 
 
 
