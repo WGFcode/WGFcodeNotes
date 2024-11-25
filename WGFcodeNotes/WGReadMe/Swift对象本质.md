@@ -742,9 +742,9 @@ Debug Workflow
                     
                     最终bits存储信息如下
                     第0位：标识是否是永久的
-                    第1-31位：存储无主引用         unowned RC
+                    第1-31位：存储无主引用         unowned RC 31位
                     第32位：标识当前类是否正在析构   isDeiniting
-                    第33-62位：标识强引用          strong RC
+                    第33-62位：标识强引用          strong RC 30位
                     第63位：是否使用SlowRC
          }
          
@@ -752,7 +752,7 @@ Debug Workflow
 
 #### 如果是弱引用，则引用计数refCounts不再通过位域来存储引用计数，而是一个指针，指向HeapObjectSideTableEntr散列表
 散列表存储着 weak弱引用，而散列表内部引用计数相关类是继承自RefCountBitsT(通过bits位域存储strong RC + unowned RX)
-所以散列表中存储的就是 weak RC + [strong RC + unowned RC],这也就是说项目中weak和unowned都可用的时候选择unowned效率更高点
+所以散列表中存储的就是 weak RC + 继承而来的[strong RC + unowned RC],这也就是说项目中weak和unowned都可用的时候选择unowned效率更高点
 因为weak需要操作散列表来管理引用计数，而unowned直接通过位域来管理
        
         struct HeapObject {
@@ -776,8 +776,17 @@ Debug Workflow
                 class RefCountBitsT {
                     BitsType bits;  
                 } 
+                当我们用 weak 修饰之后，这个散列表就会存储对象的指针和引用计数信息相关的东西。
          }
-     
+#### 如果是无主引用unowned
+* unowned 不会产生强引用，实例销毁后仍然存储着实例的内存地址（类似于OC中的 unsafe_unretained）。
+需要注意的是试图在实例销毁后访问无主引用，会产生运行时错误（野指针）。
+* weak、unowned 都能解决循环引用的问题，unowned 要比 weak 少一些性能消耗    
+* 如果强引用的双方生命周期没有任何关系，使用weak；如果其中一个对象销毁，另一个对象也跟着销毁，则使用unowned；
+* weak相对于unowned更兼容，更安全，而unowned性能更高；这是因为weak需要操作散列表，而unowned只需要操作64位位域信息；
+在使用unowned的时候，要确保其修饰的属性一定有值
+
+
 #### 总结如下
          
         
@@ -844,10 +853,10 @@ Swift 才会进行实际的复制操作
             else
                 return nullptr;
         }
-        1.取出原来的 refCounts引用计数的信息
-        2.判断原来的 refCounts 是否有散列表，如果有直接返回，如果没有并且正在析构直接返回nil
-        3.创建一个散列表
-        4.对原来的散列表以及正在析构的一些处理
+1.取出原来的 refCounts引用计数的信息
+2.判断原来的 refCounts 是否有散列表，如果有直接返回，如果没有并且正在析构直接返回nil
+3.创建一个散列表（存放weak弱引用的sideTable）
+4.对原来的散列表以及正在析构的一些处理
 
         //没有弱引用情况
         HeapObject {
