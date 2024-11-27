@@ -235,7 +235,50 @@ struct存储在栈stack中，操作起来效率更高struct没有引用计数器
 * cd xxx.framework 然后file xxx 查看静态库包含current ar archive random library 动态库:dynamically linked shared library
 
 
-#### 8.指定构造器和便利构造器有什么区别？
+#### 8.构造器
+
+#### 构造器也就是初始化方法，主要任务是保证新实例在第一次使用前完成正确的初始化，swift的初始化方法和OC初始化方法区别如下 
+* OC初始化方法一定有返回值；swift初始化方法无需返回值
+* OC初始化方法可以自己命名的；swift所有构造方法名都是init(以参数列表里的参数名和参数类型来分区不同的初始化方法-参数标签)
+* OC中所有类都是继承于NSObject的；swift本身没继承任何类的类就叫做基类
+* OC中无论你是否自定义了初始化方法，只要是类都有个叫init的初始化方法；swift中只有所有属性都有默认值且没有定义构造器，
+系统才会默认给你生成个init()的构造器；一旦自定义了构造器，系统就不会给你提供这个init()方法了
+
+#### 属性(特指存储属性，计算属性不需要赋值因为其内部都是通过存储属性计算的)的初值既可以在申明属性时为其设置默认值，也可以在初始化方法内为
+其设置默认值,两者的效果是一样的.但是前者较好,因为申明属性和给其赋初值连在一起系统就能推断出属性的类型，而且对构造器来说也能使其更简洁清晰
+
+        class WGA {
+            let red, green, blue: Double
+            //没有参数标签，调用时系统会自动补上参数标签,参数标签的名称和参数名称一致
+            init(white: Double) {
+                self.red = white
+                self.green = white
+                self.blue = white
+            }
+            //没有参数标签，调用时系统会自动补上参数标签,参数标签的名称和参数名称一致
+            init(red: Double, green: Double, blue: Double) {
+                self.red = red
+                self.green = green
+                self.blue = blue
+            }
+            //用_占位符隐藏参数标签，调用的时候就不会存在参数标签了
+            init(_ red: Double, _ green: Double, _ blue: Double) {
+                self.red = red
+                self.green = green
+                self.blue = blue
+            }
+        }
+        
+        let a1 = WGA(white: <#T##Double#>)
+        let a2 = WGA(red: <#T##Double#>, green: <#T##Double#>, blue: <#T##Double#>)
+        let a3 = WGA.init(<#T##red: Double##Double#>, <#T##green: Double##Double#>, <#T##blue: Double##Double#>)
+        
+        
+
+
+
+
+
 1. 指定构造器: 标配，每个类至少要有一个指定构造器，可以没有便利构造器；初始化类中的所有属性
 2. 便利构造器: 次要、辅助；最终调用本类中的里的指定构造函数；
 
@@ -511,17 +554,23 @@ struct存储在栈stack中，操作起来效率更高struct没有引用计数器
 
 #### inout关键字总结:
 1. 如果实参有物理内存地址，且没有设置属性观察器
-    直接将实参的内存地址传入函数（实参进行引用传递）
+
+        直接将实参的内存地址传入函数（实参进行引用传递）
+        
 2.如果实参是计算属性或设置了属性观察器，采取Copy In Copy Out的做法
-    调用该函数时，先复制实参的值，产生一个副本（局部变量-执行get方法）
-    将副本的内存地址传入函数（副本进行引用传递），在函数内部可以修改副本的值
-    函数返回后，再将副本的值覆盖实参的值（执行set方法）
-3.什么是Copy In Copy Out？先Copy到函数里，修改后再Copy到外面。
-4.inout参数的本质是地址传递 (引用传递)，不管什么情况都是传入一个地址。
+
+        调用该函数时，先复制实参的值，产生一个副本（局部变量-执行get方法）
+        将副本的内存地址传入函数（副本进行引用传递），在函数内部可以修改副本的值
+        函数返回后，再将副本的值覆盖实参的值（执行set方法）
+3.什么是Copy In Copy Out？先Copy到函数里，修改后再Copy到外面。   
+
+4.inout参数的本质是地址传递 (引用传递)，不管什么情况都是传入一个地址。    
+
 5. Swift 值类型中，属性的默认行为是不可变的。mutating关键字，用于在结构体或枚举的方法中修改属性
 使用mutating修饰的方法（func）在修改属性后更新原始值，而不是返回一个新的副本
 mutating关键字只能用于值类型，mutating关键字本质是包装了inout关键字，加上mutating关键字后参数值会变成地址传递。
 类对象是指针，传递的本身就是地址值，所以 mutating关键字对类是透明的，加不加效果都一样
+
 
 #### 11.什么是自动闭包、逃逸闭包、非逃逸闭包？
 #### 11.1 非逃逸闭包: 
