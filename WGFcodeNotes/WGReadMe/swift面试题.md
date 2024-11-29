@@ -113,7 +113,7 @@ struct存储在栈stack中，操作起来效率更高struct没有引用计数器
         
         isKnownUniquelyReferenced函数用于判断一个对象是否只被一个强引用持有，从而决定是否需要进行深拷贝。
         如果对象只被一个强引用持有，返回true；否则返回false
-        // 自定义实现写时拷贝：主要就是通过isKnownUniquelyReferenced函数
+        // 自定义实现写时拷贝：主要就是通过isKnownUniquelyReferenced函数 ⚠️⚠️⚠️这里必须在类Ref中写上final，否则赋值过程两个对象的地址还是不同的
         //final 1.避免类的继承 2.保持引用计数的一致性
         // 如果 Ref<T> 类是可继承的，其他子类可能会引入对引用计数的修改
         final class Ref<T> {
@@ -159,7 +159,7 @@ struct存储在栈stack中，操作起来效率更高struct没有引用计数器
         0x3038a9d50
         box.name----lisi-----newBox.name----zhangsan
 #### 自定义实现Struct写时拷贝步骤
-1. 声明一个final的泛型类
+1. 声明一个final的泛型类，必须是final类型(避免类继承和保持引用计数的一致性)
 2. 定义一个装载泛型类的结构体，在这个结构体中，定义一个存储泛型类的属性
 3. 在这个结构体初始化是对这个泛型类进行初始化，然后定一个get/set属性用来获取外部传进来的结构体对象
 在get/set方法中通过isKnownUniquelyReferenced方法判断是否需要拷贝外部传进来的结构体对象
@@ -280,7 +280,7 @@ struct存储在栈stack中，操作起来效率更高struct没有引用计数器
 
 
 1. 指定构造器: 标配，每个类至少要有一个指定构造器，可以没有便利构造器；初始化类中的所有属性
-2. 便利构造器: 次要、辅助；最终调用本类中的里的指定构造函数；
+2. 便利构造器: 次要、辅助；最终调用本类中的指定构造函数；
 
         public class WGTest {
             var name: String
@@ -298,12 +298,9 @@ struct存储在栈stack中，操作起来效率更高struct没有引用计数器
         }
 #### 类类型的构造器规则
 1. 指定构造器必须调用其直接父类的的指定构造器(若有父类则调用，没有父类则不调用)
-2. 便利构造器必须调用同类中定义的其它构造器
+2. 便利构造器必须调用同类中定义的其它构造器(可以是同类中的便利构造器，也可以是同类的指定构造器)
 3. 便利构造器最后必须调用指定构造器。
-
-*一个更方便记忆的方法是：
-1. 指定构造器必须总是向上代理
-2. 便利构造器必须总是横向代理 
+4. 一个更方便记忆的方法是： (1)指定构造器必须总是向上代理 (2)便利构造器必须总是横向代理 
 
 ![图片](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGScreenshots/init.jpg)
                    
@@ -1003,6 +1000,7 @@ Existential Container 对具体类型进行封装，从而实现存储一致性
 
 
 #### 26 swift高阶函数
+#### sort是排序的；map/compactMap返回的是一个新的集合;reduce返回的是一个结果；reduce(info:)返回的是一个指定类型的数据可以是集合可以是单个值
 #### 26.1 sort、sorted排序
 #### sort排序的是基于原始集合数据，即不会产生新的集合数据，而是在原始数据集合中进行排序
 #### sorted排序会生成一个新的集合对象存放排好序的数据，不影响原始集合数据
@@ -1165,11 +1163,17 @@ Existential Container 对具体类型进行封装，从而实现存储一致性
 #### 基础思想是将一个序列转换为一个不同类型的数据，期间通过一个累加器（Accumulator）来持续记录递增状态
 #### reduce 是 map、flatMap 或 filter 的一种扩展的形式（后三个函数能干嘛，reduce 就能用另外一种方式实现
 
-        initialResult: 初始值
+
+        两种方式的reduce高阶函数
+        initialResult: 初始值(类型和最后函数返回的结果类型是一致的)
         Result: 一般是指上次得到的结果之和
-        String: 一般指本次遍历的对象
-        //arr.reduce(<#T##initialResult: Result##Result#>, <#T##nextPartialResult: (Result, String) throws -> Result##(Result, String) throws -> Result##(_ partialResult: Result, String) throws -> Result#>)
+        Int: 一般指本次遍历集合中的元素
+        let arr = [1,2,43,2]
+        //将集合中的元素组合成一个值，通过应用一个累计的操作。它需要一个初始值和一个合并操作
+        arr.reduce(<#T##initialResult: Result##Result#>, <#T##nextPartialResult: (Result, Int) throws -> Result##(Result, Int) throws -> Result##(_ partialResult: Result, Int) throws -> Result#>)
         
+        //用来将集合的元素聚合成一个新集合
+        arr.reduce(into: <#T##Result#>, <#T##updateAccumulatingResult: (inout Result, Int) throws -> ()##(inout Result, Int) throws -> ()##(_ partialResult: inout Result, Int) throws -> ()#>)
         
         
         
@@ -1201,10 +1205,23 @@ Existential Container 对具体类型进行封装，从而实现存储一致性
         newArr11:0
         newArr2:23
         newArr22:23
+        
+        
+        let arr = [1,2,43,2]
+        //将集合数据合并成
+        let newArr1 = arr.reduce(0) { partialResult, item in
+            return partialResult + item
+        }
+        let newArr2 = arr.reduce(into: [Int]()) { partialResult, item in
+            return partialResult.append(item * 2)
+        }
+        NSLog("newArr:\(newArr)\nnewArr1:\(newArr1)")
+        newArr: 48
+        newArr1: [2, 4, 86, 4]
 
 #### 26.7 stride 函数
 #### 用于创建一个由指定范围内元素组成的序列
-
+        // 创建一个【10，20),步长为2的序列
         for i in stride(from: 10, to: 20, by: 2) {
             NSLog("1-----\(i)")
         }
