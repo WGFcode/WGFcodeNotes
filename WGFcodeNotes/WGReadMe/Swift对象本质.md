@@ -1,5 +1,5 @@
 ## swift对象的本质
-#### 一. swift对象的本质
+#### 一. swift～对象
 * swift类对象的底层是个HeapObject结构体，该结构体中包含了两个成员，一个是指向元数据的指针，占用8个字节，一个是引用计数，占用8个字节
 * 元数据类型是HeapMetadata，它的别名是TargetHeapMetadata类型，继承关系是： TargetHeapMetadata : TargetMetadata
 * TargetMetadata结构体中只有一个kind成员，用来表示该元数据是哪种类型
@@ -162,7 +162,7 @@ swift对象处打断点Debug Workflow
 6. Swift中的引用计数是对象内部由一个refCounts属性存储
 
 
-### 二. swift方法调用/派发
+### 二. swift～方法调用/派发
 ![图片](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGScreenshots/swiftMethod.png)
 #### swift方法调用分两大类
 1.静态派发
@@ -221,6 +221,7 @@ key:函数名，value:子类重写的新的函数地址)，存放的是一个包
 * @objc是将该方法暴露给oc使用；dynamic关键字是将方法标记为可变方法。@objc+dynamic是将方法保留给oc且还可以动态修改
 * 若通过协议调用方法(无论对象是结构体、枚举、class、NSObject子类)都是通过Witness Table函数表派发
 * @inline 告诉编译器可以使用直接派发
+
 ![图片](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGScreenshots/swiftMethod2.png)
     
 #### swift方法调度汇总
@@ -517,7 +518,17 @@ key:函数名，value:子类重写的新的函数地址)，存放的是一个包
 
 
   
-### 4. Swift底层原理-属性
+### 4. Swift～属性
+#### swift属性中涉及到内容如下
+* 存储属性
+* 计算属性
+* 类型属性
+* 延迟属性
+* 属性观察器
+* 属性包装器
+
+![图片](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGScreenshots/属性.png)
+
 
 * class、struct、enum可以定义存储属性；enum不能定义计算属性(因为枚举实例中要么存储原始值，要么存储关联值，没有位置放存储属性，
 因为关联值和原始值都放在枚举类里面,而不是枚举实例化对象)
