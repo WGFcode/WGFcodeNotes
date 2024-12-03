@@ -1253,10 +1253,94 @@ Existential Container 对具体类型进行封装，从而实现存储一致性
         pairs:-----[(1, "A"), (2, "B"), (3, "C")]
 
 
+#### 27 无论是类还是结构体都存在如下规则；以结构体为例
+* 如果协议中有方法声明，则会根据对象的实际类型进行调用; 
+* 如果协议中没有方法声明，则会根据对象的声明类型进行调用。       
+            protocol Chef {
+                func makeFood()
+            }
 
+            extension Chef {
+                func makeFood() {
+                    print("make food")
+                }
+            }
 
+            struct SeafoodChef: Chef {
+                func makeFood() {
+                    print("make seafood")
+                }
+            }
+            
+            let chefOne: Chef = SeafoodChef()        //实际类型SeafoodChef
+            let chefTwo: SeafoodChef = SeafoodChef() //实际类型SeafoodChef
+            chefOne.makeFood()
+            chefTwo.makeFood()
+            
+            打印结果: 
+            make seafood
+            make seafood
+#### 如何将协议中声明的方法去除,则会根据对象的声明类型进行调用
+            protocol Chef {
+            }
 
+            extension Chef {
+                func makeFood() {
+                    print("make food")
+                }
+            }
 
+            struct SeafoodChef: Chef {
+                func makeFood() {
+                    print("make seafood")
+                }
+            }
+            
+            let chefOne: Chef = SeafoodChef()     //声明类型是Chef 调用的是扩展协议中的方法
+            let chefTwo: SeafoodChef = SeafoodChef() //声明类型是SeafoodChef 调用的SeafoodChef中的方法
+            chefOne.makeFood()
+            chefTwo.makeFood()
+            打印结果: 
+            make food
+            make seafood
+    
+#### 28 下面代码会有问题，编译器会报错，因为weak 关键词是ARC环境下，为引用类型提供引用计数这样的内存管理，它是不能被用来修饰值类型的
+        protocol SomeProtocol {
+            func doSomething()
+        }
+
+        class Person {
+            weak var delegate: SomeProtocol?
+        }
+        
+        //修改方法如下
+        方案一 在SomeProtocol之后添加 class 关键词。如此一来就声明该协议只能由类(class)来实现
+        protocol SomeProtocol : AnyObject {
+            func doSomething()
+        } 
+        方案二 在 protocol 前面加上@objc。在OC中协议只能由class来实现，这样一来，weak修饰的对象与OC一样，只不过是class类型
+        @objc protocol SomeProtocol {
+            func doSomething()
+        }  
+        
+#### 29.当声明闭包的时候，捕获列表会创建一份变量的 copy，被捕获到的值是不会改变的，即使外界变量的值发生了改变
+        var car = "Benz" 
+        let closure = { [car] in 
+          print("I drive \(car)")
+        } 
+        car = "Tesla" 
+        closure()
+        打印结果: I drive Benz
+        
+        
+        var car = "Benz" 
+        let closure = {
+          print("I drive \(car)")
+        } 
+        car = "Tesla" 
+        closure()
+        打印结果: I drive Tesla
+#### 如果去掉闭包中的捕获列表，编译器会使用引用代替 copy。在这种情况下，当闭包被调用时，变量的值是可以改变的。所以 clousre 用的还是全局的 car 变量      
 
 
 

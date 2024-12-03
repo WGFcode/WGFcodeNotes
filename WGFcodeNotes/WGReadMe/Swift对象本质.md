@@ -153,18 +153,19 @@ Debug Workflow
 2. Swift中的实例对象本质是结构体，类型是HeapObject，比OC多了一个refCounts
 3. OC中的方法列表存储在objc_class结构体(class_rw_t)的methodList中
 4. Swift中的方法存储在metadata元数据中sil_vtable
-5. OC中的ARC是存储在全局的sidetable中
+5. OC中的ARC是存储在优化过的isa指针中，如果存不下会存储在全局的sidetable中
 6. Swift中的引用计数是对象内部由一个refCounts属性存储
 
 
 ### 2. swift方法调用/派发
 #### swift中方法派发主要分两大类动态派发和静态派发，但是实际上应该有四种：内联inline(最快)、静态派发、动态虚拟表派发、动态消息派发
-* 静态派发 (直接派发): 直接调用函数地址，最快且最高效的一种方法派发类型，编译阶段编译器就已经知道了所有被静态派发的方法在内存中的地址，因而在运行阶段，这些方法可以被立即执行。
+* 静态派发 (直接派发): 直接调用函数地址,函数地址在编译、链接完成后就已经确定了，存放在Mach-O中的__text即代码段中，最快且最高效的一种方法派发类型，
+编译阶段编译器就已经知道了所有被静态派发的方法在内存中的地址，因而在运行阶段，这些方法可以被立即执行。
 * 动态派发：表派发(VTable)和消息派发，方法地址是在运行时确定的
 1. vtable派发 (函数表派发): 编译阶段编译器会为每一个类创建一个vtable,存放的是一个包含若干函数指针的数组，这些函数指针指向这个类中相对应函数的实现代码，运行阶段调用实现代码时，表派发需要比静态派发多执行两个指令(读取该类的vtable和该函数的指针).函数表派发也是一种高效的方式。不过和直接派发相比，编译器对某些含有副作用的函数却无法优化，也是导致函数表派发变慢的原因之一。
 2. 消息派发: objc_method方式，和OC方法调用流程一样，是最动态但也是最慢的一种派发技术。在派发消息后，runtime需要爬遍该类的整个层级体系，才可以确定要执行哪个方法实现。不过这也为在运行阶段改变程序的行为提供了可能，也使得Swizzling技术得以实现。Objective-C非常依赖消息派发，同时，它通过Objective-C runtime为Swift也提供了消息派发这一功能。
 * 内联inline: 内联派发可以理解成不需要进行函数地址跳转，直接运行函数中的代码块
-
+* swift中类的构造器函数init和析构函数deinit都是函数表派发
 
 #### 接下来我们将swift源码通过编译器swiftc获取对应的SIL文件（swift使用的编译器为swiftc，OC使用的为Clang）
     1. 创建swift文件：WGSwiftMethodDispatch.swift
@@ -358,6 +359,11 @@ Debug Workflow
         value type        static派发                static派发
         protocol          Vtable派发                static派发
         NSObject          Vtable派发            消息派发(objc_method)
+#### 静态调用：编译期就确定了函数内存地址，执行效率最高；缺点:因为函数调用的内存地址在编译期已经确定，则无法支持继承等动态修改调用的方式
+#### 函数表调用：每个类都有一份自己的v-table虚函数表，里面是以函数名为key, 函数地址为value;
+如果子类override了父类的方法，那么这个方法名key对应的value就是那个子类重写的新的函数地址
+
+
 #### 所有的值类型(结构体、枚举)无论是声明的作用域内方法还是扩展中的方法都是静态派发
 #### 类、协议、继承自NSObject的类在声明的作用域内方法都是函数表派发，在扩展中只有类、协议是静态派发，继承自NSObject的类在扩展中是消息派发
 #### Swift 的一些修饰符可以指定派发方式
@@ -367,8 +373,8 @@ Debug Workflow
 * class是引用类型，其中函数的调度是通过V-Table函数表来进行调度的，即动态调度
 * extension中的函数调度方式是直接调度
 * final修饰的函数调度方式是直接调度
-* @objc修饰的函数调度方式是函数表调度，如果OC中需要使用，class还必须继承NSObject
-* dynamic修饰的函数的调度方式是函数表调度，使函数具有动态性
+* @objc修饰的函数调度方式是函数表调度，如果OC中需要使用，class还必须继承NSObject(@objc关键字是将swift中的方法暴露给OC)
+* dynamic修饰的函数的调度方式是函数表调度，使函数具有动态性(dynamic的意思是可以动态修改，意味着当类继承自NSObject时，可以使用method-swizzling)
 * @objc + dynamic 组合修饰的函数调度，是执行的是 objc_msgSend流程，即 动态消息转发
 * @inline 告诉编译器可以使用直接派发
 #### 2.2 建议
@@ -379,7 +385,7 @@ Debug Workflow
 5. OC混编时候，使用了一些OC特性的框架（例如KVO），不仅仅只需要对属性或者方法进行@objc 声明，还需要对其进行dynamic修饰才能按照预期的来
 6. Swift 编写函数大部分走的是静态方法，这也就是Swift快的原因所在
 7. 协议继承和类继承确保对象多态性会使用虚函数表进行动态派发
-8. 继承自NSObject对象通过 dynamic/ @objc dynamic 关键字让其走消息机制派发
+8. 继承自NSObject对象通过 @objc + dynamic 关键字让其走消息机制派发
 
 #### 2.3 swift函数调用 https://www.jianshu.com/u/06658dd306de
 #### swift中函数调用分为了3个步骤
