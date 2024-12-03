@@ -24,6 +24,9 @@ swift对象处打断点Debug Workflow
 #### 通过断点查看在创建swift对象过程中的汇编码我们可以发现，创建swift对象底层流程如下：然后通过swift源码全局搜索swift_allocObject，找到对应的底层方法
 1. __allocating_init()
 2. swift_allocObject
+3._swift_allocObject_ 
+4.swift_slowAlloc
+5.malloc
 
         static HeapObject *_swift_allocObject_(HeapMetadata const *metadata, size_t requiredSize, size_t requiredAlignmentMask) {
             //⚠️swift_slowAlloc方法: 通过malloc在堆内存中开辟size大小的内存空间，并返回内存地址
@@ -141,9 +144,13 @@ swift对象处打断点Debug Workflow
             Reserved              //预留给运行时使用
             ClassSize
             ClassAddressPoint
-            Description
+            Description           //TargetClassDescriptor 类型的类
             IVarDestroyer
         }
+* 虚函数表的内存地址，是 TargetClassDescriptor 中的最后一个成员变量，添加方法的形式是追加到数组的末尾。所以这个虚函数表是按顺序连续存储类的方法的指针
+#### swift中class的extension为什么用的是静态派发，而不是写到虚函数表中？
+##### 一方面是类是可以继承的，如果给父类添加extension方法，继承该类的所有子类都可以调用这些方法每个子类都有自己的函数表，
+所以这个时候方法存储就成为问题。为了解决这个问题，直接把extension独立于虚函数表之外，采用静态调用的方式。在程序进行编译的时候，函数的地址就已经知道了
 
 
 #### 1.3 swift对象和OC对象区别
@@ -213,7 +220,7 @@ key:函数名，value:子类重写的新的函数地址)，存放的是一个包
 * @objc修饰在NSObject子类声明位置定义的方法通过VTable函数表派发；修饰在NSObject子类扩展中的方法通过objc_msgSend发送
 * @objc是将该方法暴露给oc使用；dynamic关键字是将方法标记为可变方法。@objc+dynamic是将方法保留给oc且还可以动态修改
 * 若通过协议调用方法(无论对象是结构体、枚举、class、NSObject子类)都是通过Witness Table函数表派发
-
+* @inline 告诉编译器可以使用直接派发
 ![图片](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGScreenshots/swiftMethod2.png)
     
 #### swift方法调度汇总
@@ -228,18 +235,6 @@ key:函数名，value:子类重写的新的函数地址)，存放的是一个包
         遵守协议方法  static派发         Vtable派发                  Vtable派发
      协议类型调用方法  witness Table派发  witness Table派发           witness Table派发
         
-   
-#### Swift 的一些修饰符可以指定派发方式
-* struct是值类型，其中函数的调度属于直接调用地址，即静态调度；struct的extension的方法依然是直接调用(静态派发)
-* 在Swift中，调用一个结构体的方法是直接拿到函数的地址直接调用，包括初始化方法
-* Swift是一门静态语言，许多东西在编译器就已经确定了，所以才可以直接拿到函数的地址进行调用，这个调用的形式也可以称作静态派发
-* class是引用类型，其中函数的调度是通过V-Table函数表来进行调度的，即动态调度
-* extension中的函数调度方式是直接调度
-* final修饰的函数调度方式是直接调度
-* @objc修饰的函数如果在NSObject子类中调度方式是函数表调度，@objc修饰的函数如果在NSObject子类的扩展中调度方式是消息发送
-* dynamic修饰的函数的调度方式是函数表调度，使函数具有动态性(dynamic的意思是可以动态修改，意味着当类继承自NSObject时，可以使用method-swizzling)
-* @objc + dynamic 组合修饰的函数调度，是执行的是 objc_msgSend流程，即 动态消息转发
-* @inline 告诉编译器可以使用直接派发
 ####  建议
 1. 能用值类型地方就有值类型，不仅仅是因为其拷贝速度快，方法调度也快
 2. 多使用private final 等关键字，一方面提高代码阅读性，编译器内部也对消息调度进行优化
@@ -250,8 +245,7 @@ key:函数名，value:子类重写的新的函数地址)，存放的是一个包
 7. 协议继承和类继承确保对象多态性会使用虚函数表进行动态派发
 8. 继承自NSObject对象通过 @objc + dynamic 关键字让其走消息机制派发
 
-#### swift函数调用 https://www.jianshu.com/u/06658dd306de
-#### swift中函数调用分为了3个步骤
+#### swift中函数调用分为了3个步骤 https://www.jianshu.com/u/06658dd306de
 1. 找到metadata
 2. 确定函数地址（metadata + 偏移量）；函数地址存放在函数表sil_vtable；函数表用来存储类中的方法，存储方式类似于数组，方法连续存放在函数表中
 3. 执行函数
@@ -401,10 +395,10 @@ key:函数名，value:子类重写的新的函数地址)，存放的是一个包
     //sil_vtable中只有init和deinit两个方法，没有
     sil_vtable [serialized] WGMethodDispatchStatic {
         // WGMethodDispatchStatic.__allocating_init()
-        #WGMethodDispatchStatic.init!allocator: (WGMethodDispatchStatic.Type) -> () -> 
+        WGMethodDispatchStatic.init!allocator: (WGMethodDispatchStatic.Type) -> () -> 
         WGMethodDispatchStatic : @$s21WGSwiftMethodDispatch08WGMethodC6StaticCACycfC
         // WGMethodDispatchStatic.__deallocating_deinit
-        #WGMethodDispatchStatic.deinit!deallocator: @$s21WGSwiftMethodDispatch08WGMethodC6StaticCfD    
+        WGMethodDispatchStatic.deinit!deallocator: @$s21WGSwiftMethodDispatch08WGMethodC6StaticCfD    
     }
     
 #### 上面的SIL代码重点观察如下代码
@@ -508,79 +502,20 @@ key:函数名，value:子类重写的新的函数地址)，存放的是一个包
 
     sil_vtable [serialized] WGMethodDispatchStatic {
         /1. WGMethodDispatchStatic.__allocating_init()
-        #WGMethodDispatchStatic.init!allocator: (WGMethodDispatchStatic.Type) -> () -> 
+        WGMethodDispatchStatic.init!allocator: (WGMethodDispatchStatic.Type) -> () -> 
         WGMethodDispatchStatic : @$s21WGSwiftMethodDispatch08WGMethodC6StaticCACycfC
         
         //2. WGMethodDispatchStatic.printMethodName()
-        #WGMethodDispatchStatic.printMethodName: (WGMethodDispatchStatic) -> () -> 
+        WGMethodDispatchStatic.printMethodName: (WGMethodDispatchStatic) -> () -> 
         String : @$s21WGSwiftMethodDispatch08WGMethodC6StaticC05printB4NameSSyF   
         
         //3. WGMethodDispatchStatic.__deallocating_deinit
-        #WGMethodDispatchStatic.deinit!deallocator: @$s21WGSwiftMethodDispatch08WGMethodC6StaticCfD    
+        WGMethodDispatchStatic.deinit!deallocator: @$s21WGSwiftMethodDispatch08WGMethodC6StaticCfD    
     }
 #### 分析: **objc_method**关键字表明了方法已经转为了使用OC中的方法派发方式，即消息派发，并且方法签名中，返回类型已经变为了 NSString，vtable中也没有了**getMethodName**方法。
 
 
-#### 3.0 Swift底层原理-类与对象
-#### 3.1 对象的创建流程
-    swift_allocObject --> _swift_allocObject_ --> swift_slowAlloc --> malloc
-#### 最终返回的对象类型是HeapObject,是TargetHeapMetadata的别名
-        define SWIFT_HEAPOBJECT_NON_OBJC_MEMBERS InlineRefCounts refCounts
-        struct HeapObject {
-            HeapMetadata const * metadata;                
-            SWIFT_HEAPOBJECT_NON_OBJC_MEMBERS;  //refCounts是引用计数，和内存管理相关           
-        };
-        
-        using HeapMetadata = TargetHeapMetadata<InProcess>;
-#### 继承关系,
-    TargetHeapMetadata : TargetMetadata
-                           kind成员变量
-    当kind是Class时，会将this强转为TargetClassMetadata类型
-    
-    TargetClassMetadata : TargetAnyClassMetadata : TargetHeapMetadata
-    继承自TargetHeapMetadata，证明类本身也是对象
-    
-#### Class在内存结构由下面三类中的属性所构成
-    TargetClassMetadata属性 + TargetAnyClassMetaData属性 + TargetMetaData属性构成
-    所以得出的metadata的数据结构体如下
-    struct Metadata {
-        var kind: Int
-        var superClass: Any.Type
-        var cacheData: (Int, Int)
-        var data: Int
-        var classFlags: Int32
-        var instanceAddressPoint: UInt32
-        var instanceSize: UInt32
-        var instanceAlignmentMask: UInt16
-        var reserved: UInt16
-        var classSize: UInt32
-        var classAddressPoint: UInt32
-        var typeDescriptor: UnsafeMutableRawPointer //TargetClassDescriptor 类型的类
-        var iVarDestroyer: UnsafeRawPointer
-    }
-* 虚函数表的内存地址，是 TargetClassDescriptor 中的最后一个成员变量，添加方法的形式是追加到数组的末尾。所以这个虚函数表是按顺序连续存储类的方法的指针
-#### swift中class的extension为什么用的是静态派发，而不是写到虚函数表中？
-* 一方面是类是可以继承的，如果给父类添加extension方法，继承该类的所有子类都可以调用这些方法
-* 每个子类都有自己的函数表，所以这个时候方法存储就成为问题
-* 所以为了解决这个问题，直接把 extension 独立于虚函数表之外，采用静态调用的方式。在程序进行编译的时候，函数的地址就已经知道了
 
-#### 关键字影响函数的派发
-* final： 添加了final关键字的函数无法被写， 使用静态派发， 不会在vtable中出现， 
-且对objc运行时不可见。 如果在实际开发过程中，属性、方法、类不需要被重载的时候，可以添加final关键字
-* dynamic： 函数均可添加dynamic关键字，为非objc类和值类型的函数赋予动态性，但派发方式还是函数表派发；dynamic是将方法标记为可变方法
-* @objc： 该关键字可以将swift函数暴露给Objc运行时， 依旧是函数表派发；@objc是将该方法暴露给oc使用
-* @objc + dynamic： 消息发送的方式
-
-#### 总结
-* Swift中的方法调用分为静态派发和动态派发两种
-* 值类型中的方法就是静态派发
-* 引用类型中的方法就是动态派发，其中函数的调度是通过V-Table函数表来进行调度的
-
-         类型        调度方式        extension
-        值类型        静态派发        静态派发
-         类           函数表派发      静态派发
-      NSObject子类    函数表派发      静态派发
-  
   
 ### 4. Swift底层原理-属性
 
