@@ -1,7 +1,12 @@
 ## swift对象的本质
-### 1. swift对象的本质
-#### 通过汇编探究swift对象的创建过程，通过Xcode->Debug->Debug Workflow->Alway show Disassembly打开汇编调试器，然后在创建swift对象处打断点
-Debug Workflow
+#### 一. swift对象的本质
+* swift类对象的底层是个HeapObject结构体，该结构体中包含了两个成员，一个是指向元数据的指针，占用8个字节，一个是引用计数，占用8个字节
+* 元数据类型是HeapMetadata，它的别名是TargetHeapMetadata类型，继承关系是： TargetHeapMetadata : TargetMetadata
+* TargetMetadata结构体中只有一个kind成员，用来表示该元数据是哪种类型
+* 若元数据类型kind是MetadataKind::Class:即纯swift类，则元类对象类型就是TargetClassMetadata，继承关系是: TargetClassMetadata : TargetAnyClassMetadata : TargetHeapMetadata
+ 
+#### 通过汇编探究swift对象的创建过程，通过Xcode->Debug->Debug Workflow->Alway show Disassembly打开汇编调试器，然后在创建
+swift对象处打断点Debug Workflow
 
     class WGMyClass {
         var name = ""
@@ -57,7 +62,7 @@ Debug Workflow
 
 #### 1.1 HeapObject中的元数据HeapMetadata
 
-    #define SWIFT_HEAPOBJECT_NON_OBJC_MEMBERS InlineRefCounts refCounts
+    define SWIFT_HEAPOBJECT_NON_OBJC_MEMBERS InlineRefCounts refCounts
     struct HeapObject {
         //指向元数据的指针-8字节(可以理解为OC中类对象和元类对象)
         HeapMetadata const *__ptrauth_objc_isa_pointer metadata;  
@@ -141,14 +146,7 @@ Debug Workflow
         }
 
 
-#### 总结：更详细的底层结构可以看HeapObject.h文件中的分析
-1. swift类对象的底层是个HeapObject结构体，该结构体中包含了两个成员，一个是指向元数据的指针，占用8个字节，一个是引用计数，占用8个字节
-2. 元数据类型是HeapMetadata，它的别名是TargetHeapMetadata类型，继承关系是： TargetHeapMetadata : TargetMetadata
-3. TargetMetadata结构体中只有一个kind成员，用来表示该元数据是哪种类型
-4. 若元数据类型kind是MetadataKind::Class:即纯swift类，则元类对象类型就是TargetClassMetadata，继承关系是: TargetClassMetadata : TargetAnyClassMetadata : TargetHeapMetadata
- 
-
-### 1.3 swift对象和OC对象区别
+#### 1.3 swift对象和OC对象区别
 1. OC中的实例对象本质是结构体，通过底层的objc_object模版创建，类是继承自objc_class
 2. Swift中的实例对象本质是结构体，类型是HeapObject，比OC多了一个refCounts
 3. OC中的方法列表存储在objc_class结构体(class_rw_t)的methodList中
@@ -167,16 +165,18 @@ Debug Workflow
         函数表派发: VTable + witness Table
         消息派发(objc_msgSend)
 #### 静态派发
-##### 静态派发即直接派发基于编译期；直接调用函数地址进行调用。函数地址在编译、链接完成后就已经确定了，存放在Mach-O中的__text代码段中；是最快最高效的一种方法派发方式；缺点:编译期已经确定了函数地址所以缺乏动态性、不能实现继承；编译器可以对这种直接派发/静态派发方式进行更多优化，比如函数内联inline(在被调用时会直接将代码展开，以避免函数调用的开销)
+##### 静态派发即直接派发基于编译期；直接调用函数地址进行调用。函数地址在编译、链接完成后就已经确定了，存放在Mach-O中
+的__text代码段中；是最快最高效的一种方法派发方式；缺点:编译期已经确定了函数地址所以缺乏动态性、不能实现继承；编译器可
+以对这种直接派发/静态派发方式进行更多优化，比如函数内联inline(在被调用时会直接将代码展开，以避免函数调用的开销)
 
 #### 动态派发是基于运行时的
 ##### Swift 中存在两种函数表，一种是sil_vtable；一种是sil_witness_table
-##### 1.函数表派发,编译阶段编译器会为每一个类创建一个vtable(key:函数名，value:函数地址；若子类override了父类的方法
+##### (1).函数表派发,编译阶段编译器会为每一个类创建一个vtable(key:函数名，value:函数地址；若子类override了父类的方法
 key:函数名，value:子类重写的新的函数地址)，存放的是一个包含若干函数指针的数组，这些函数指针指向这个类中相对应函数的实现代码；
 运行阶段调用方法时，函数表派发需要比静态派发多执行两个指令(通过读取该类的vtable和函数的指针)来进行调用
 
-##### 2.Witness Table Dispatch派发。证明类型实现了协议。是Swift用于协议的动态分派机制。当一个类型遵循某个协议时，
-编译器会为该类生成一个Witness Table，存储该类型对协议中所有方法和属性的具体实现；当通过协议调用方法时，Swift使用Witness Table
+##### (2).Witness Table Dispatch派发。证明类型实现了协议。是Swift用于协议的动态分派机制。当一个类型遵循某个协议时，编译器会
+为该类生成一个Witness Table，存储该类型对协议中所有方法和属性的具体实现；当通过协议调用方法时，Swift使用Witness Table
 查找具体实现: 编译器会为MyClass生成一个Witness Table，调用object.doSomething时，通过Witness Table找到具体实现并调用
 
         protocol MyProtocol {
@@ -192,20 +192,155 @@ key:函数名，value:子类重写的新的函数地址)，存放的是一个包
         object.doSomething()
 
 
-##### 3.消息派发Objc_msgSend方法，和OC方法调用流程一样；是最动态但也是最慢的一种派发技术；缺点就是需要利用runtime遍历该类的整个层级
+##### (3).消息派发Objc_msgSend方法，和OC方法调用流程一样；是最动态但也是最慢的一种派发技术；缺点就是需要利用runtime遍历该类的整个层级
 才能确定要执行哪个方法实现；优点就是在运行阶段可以动态更改使得Swizzling技术(允许我们在运行时改变方法的实现,通过交换方法选择器对应的方法实现，
 来改变方法的行为)得以实现
 
+#### 影响swift方法派发方式因素
+* 声明位置(类型声明所在的作用域内 + Extension扩展声明)
+* 类型: 引用类型、值类型
+* 关键词: final、@objc、dynamic、@inline
 * swift中类的构造器函数init和析构函数deinit都是函数表派发
 
 
 ![图片](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGScreenshots/swiftMethod1.png)
+* 值类型: 无论在声明位置定义的方法、在扩展中定义的方法、遵守协议中的方法，调用都是使用的Static派发
+* 纯swift类: 声明位置定义的方法通过VTable函数表派发；扩展中定义的方法通过Static派发
+* 继承自NSObject的类: 声明位置定义的方法通过VTable函数表派发；扩展中定义的方法通过Static派发
+* final修饰的类、方法都是通过Static派发；static、class修饰的方法调用方式也是通过Static派发
+* Swift 中的类如果要供 Objective-C 调用，必须也继承自NSObject，所以@objc、dynamic只会出现在NSObject的子类中
+* @objc+dynamic组合无论是NSObject子类声明位置定义的方法、还是扩展中定义的方法都走消息发送objc_msgSend
+* @objc修饰在NSObject子类声明位置定义的方法通过VTable函数表派发；修饰在NSObject子类扩展中的方法通过objc_msgSend发送
+* @objc是将该方法暴露给oc使用；dynamic关键字是将方法标记为可变方法。@objc+dynamic是将方法保留给oc且还可以动态修改
+* 若通过协议调用方法(无论对象是结构体、枚举、class、NSObject子类)都是通过Witness Table函数表派发
+
 ![图片](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGScreenshots/swiftMethod2.png)
     
+#### swift方法调度汇总
+#### swift函数可以声明在两个地方，一个是类型声明的作用域，一个是扩展extension中
+        
+                     值类型           引用类型-纯swift类         引用类型-继承自NSObject的类
+        定义方法     static派发   Vtable派发(final时static派发)  Vtable派发(@objc时Vtable派发/dynamic时Vtable派发
+                                                              /final时static派发/@objc+dynamic消息发送)      
+        
+        扩展方法     static派发         static派发                  static派发(@objc/@objc+dynamic消息发送)
+        
+        遵守协议方法  static派发         Vtable派发                  Vtable派发
+     协议类型调用方法  witness Table派发  witness Table派发           witness Table派发
+        
+   
+#### Swift 的一些修饰符可以指定派发方式
+* struct是值类型，其中函数的调度属于直接调用地址，即静态调度；struct的extension的方法依然是直接调用(静态派发)
+* 在Swift中，调用一个结构体的方法是直接拿到函数的地址直接调用，包括初始化方法
+* Swift是一门静态语言，许多东西在编译器就已经确定了，所以才可以直接拿到函数的地址进行调用，这个调用的形式也可以称作静态派发
+* class是引用类型，其中函数的调度是通过V-Table函数表来进行调度的，即动态调度
+* extension中的函数调度方式是直接调度
+* final修饰的函数调度方式是直接调度
+* @objc修饰的函数如果在NSObject子类中调度方式是函数表调度，@objc修饰的函数如果在NSObject子类的扩展中调度方式是消息发送
+* dynamic修饰的函数的调度方式是函数表调度，使函数具有动态性(dynamic的意思是可以动态修改，意味着当类继承自NSObject时，可以使用method-swizzling)
+* @objc + dynamic 组合修饰的函数调度，是执行的是 objc_msgSend流程，即 动态消息转发
+* @inline 告诉编译器可以使用直接派发
+####  建议
+1. 能用值类型地方就有值类型，不仅仅是因为其拷贝速度快，方法调度也快
+2. 多使用private final 等关键字，一方面提高代码阅读性，编译器内部也对消息调度进行优化
+3. 代码分类多使用拓展，拓展中的方法是静态派发（除了定义成运行时方法）
+4. 遵守的协议(这里说的是Swift协议)尽量写在拓展中，如果希望被子类重写的话。建议不要使用类的多态，而是使用协议进行抽象，将需要属性和多种实现的方法抽取到协议中，拓展实现一些共用方法。这样不仅移除对父类的依赖也可以实现‘多继承’
+5. OC混编时候，使用了一些OC特性的框架（例如KVO），不仅仅只需要对属性或者方法进行@objc 声明，还需要对其进行dynamic修饰才能按照预期的来
+6. Swift 编写函数大部分走的是静态方法，这也就是Swift快的原因所在
+7. 协议继承和类继承确保对象多态性会使用虚函数表进行动态派发
+8. 继承自NSObject对象通过 @objc + dynamic 关键字让其走消息机制派发
+
+#### swift函数调用 https://www.jianshu.com/u/06658dd306de
+#### swift中函数调用分为了3个步骤
+1. 找到metadata
+2. 确定函数地址（metadata + 偏移量）；函数地址存放在函数表sil_vtable；函数表用来存储类中的方法，存储方式类似于数组，方法连续存放在函数表中
+3. 执行函数
+
+        struct HeapObject {
+            HeapMetadata const *metadata;  //8字节
+            InlineRefCounts refCounts      //8字节
+        }
+        
+        struct Metadata {
+            var kind: Int
+            var superClass: Any.Type
+            var cacheData: (Int, Int)
+            var data: Int
+            var classFlags: Int32
+            var instanceAddressPoint: UInt32
+            var instanceSize: UInt32
+            var instanceAlignmentMask: UInt16
+            var reserved: UInt16
+            var classSize: UInt32
+            var classAddressPoint: UInt32
+            //不管是Class，Struct还是Enum都有自己的Descriptor TargetClassDescriptor 类型的类 VTable虚函数表就是存放在这里的
+            var typeDescriptor: UnsafeMutableRawPointer 
+            var iVarDestroyer: UnsafeRawPointer
+        }
+        
+        // TargetClassDescriptor内部成员变量，发现没有发现vtable相关属性，继续从该类的初始化方法开始查找ClassContextDescriptorBuilder
+        class TargetClassDescriptor {
+            ContextDescriptorFlags Flags;
+            TargetRelativeContextPointer<Runtime> Parent;
+            TargetRelativeDirectPointer<Runtime, const char, /*nullable*/ false> Name;
+            TargetRelativeDirectPointer<Runtime, MetadataResponse(...),
+                                      /*Nullable*/ true> AccessFunctionPtr;
+            TargetRelativeDirectPointer<Runtime, const reflection::FieldDescriptor,
+                                      /*nullable*/ true> Fields;
+            TargetRelativeDirectPointer<Runtime, const char> SuperclassType;
+            uint32_t MetadataNegativeSizeInWords;
+            uint32_t MetadataPositiveSizeInWords;
+            uint32_t NumImmediateMembers;
+            uint32_t NumFields;
+            uint32_t FieldOffsetVectorOffset;
+        }
+        
+        static void initClassVTable(ClassMetadata *self) {
+            //获取Description地址
+            const auto *description = self->getDescription();
+            auto *classWords = reinterpret_cast<void **>(self);
+            if (description->hasVTable()) {
+                auto *vtable = description->getVTableDescriptor();
+                auto vtableOffset = vtable->getVTableOffset(description);
+                auto descriptors = description->getMethodDescriptors();
+                //1.将本类中所有的方法存入到VTable表中
+                for (unsigned i = 0, e = vtable->VTableSize; i < e; ++i) {
+                  auto &methodDescription = descriptors[i];
+                  swift_ptrauth_init_code_or_data(
+                      &classWords[vtableOffset + i], methodDescription.Impl.get(),
+                      methodDescription.Flags.getExtraDiscriminator(),
+                      !methodDescription.Flags.isAsync());
+                }
+            }
+
+          if (description->hasOverrideTable()) {
+            auto *overrideTable = description->getOverrideTable();
+            auto overrideDescriptors = description->getMethodOverrideDescriptors();
+            for (unsigned i = 0, e = overrideTable->NumEntries; i < e; ++i) {
+              auto &descriptor = overrideDescriptors[i];
+              auto baseClassMethods = baseClass->getMethodDescriptors();
+              //2.将所有父类允许重载的方法全部加到本类的vtable中
+              auto baseVTable = baseClass->getVTableDescriptor();
+              auto offset = (baseVTable->getVTableOffset(baseClass) +
+                             (baseMethod - baseClassMethods.data()));
+              swift_ptrauth_init_code_or_data(&classWords[offset],
+                                              descriptor.Impl.get(),
+                                              baseMethod->Flags.getExtraDiscriminator(),
+                                              !baseMethod->Flags.isAsync());
+            }
+          }
+        }
+        
+#### 虚函数表的内存地址，是 TargetClassDescriptor 中的最后一个成员变量，添加方法的形式是追加到数组的末尾。所以这个虚函数表是按顺序连续存储类的方法的指针
+* VTable虚函数表的内存地址是通过对象底层的元数据metedata找到Descriptors，然后通过内存偏移找到虚函数表
+* VTable虚函数表首先会把当前类的所有方法都放在表中，然后将重载父类的方法也放进表中
+* 每个类在初始化的时候都会创建一个VTable虚函数表
+* 在类的元数据中，如果存在VTable，会通过元数据描述符Descriptor获取VTable的偏移量，并将类中的方法存入VTable表中。如果存在方法重载表（Override Table），则会将基类和子类的方法也加入到VTable中‌
+
 
 #### 接下来我们将swift源码通过编译器swiftc获取对应的SIL文件（swift使用的编译器为swiftc，OC使用的为Clang）
     1. 创建swift文件：WGSwiftMethodDispatch.swift
-    2. 终端cd到改文件的上级目录  
+    2. 终端cd到该文件的上级目录  
     3. 终端输入: swiftc -emit-sil WGMemAModelVC.swift >> WGMemAModelVC.sil   在同目录中生成.sil文件
              或 swiftc -emit-sil WGMemAModelVC.swift  在终端生成对应的SIL代码
              
@@ -384,153 +519,6 @@ key:函数名，value:子类重写的新的函数地址)，存放的是一个包
         #WGMethodDispatchStatic.deinit!deallocator: @$s21WGSwiftMethodDispatch08WGMethodC6StaticCfD    
     }
 #### 分析: **objc_method**关键字表明了方法已经转为了使用OC中的方法派发方式，即消息派发，并且方法签名中，返回类型已经变为了 NSString，vtable中也没有了**getMethodName**方法。
-
-
-
-
-#### 2.1 swift中方法调用情况汇总
-#### swift函数可以声明在两个地方，一个是类型声明的作用域，一个是扩展extension中
-                      类型声明所在的作用域内        扩展声明Extension 
-        class             Vtable派发                static派发
-        value type        static派发                static派发
-        protocol          Vtable派发                static派发
-        
-        
-        
-                     值类型           引用类型-纯swift类         引用类型-继承自NSObject的类
-        定义方法     static派发   Vtable派发(final时static派发)  Vtable派发(@objc时Vtable派发/final时static派发
-                                                                      /@objc+dynamic消息发送)
-        
-        扩展方法     static派发         static派发                  static派发(@objc/@objc+dynamic消息发送)
-        
-        遵守协议方法  static派发         Vtable派发                  Vtable派发
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-#### 静态调用：编译期就确定了函数内存地址，执行效率最高；缺点:因为函数调用的内存地址在编译期已经确定，则无法支持继承等动态修改调用的方式
-#### 函数表调用：每个类都有一份自己的v-table虚函数表，里面是以函数名为key, 函数地址为value;
-如果子类override了父类的方法，那么这个方法名key对应的value就是那个子类重写的新的函数地址
-
-
-#### 所有的值类型(结构体、枚举)无论是声明的作用域内方法还是扩展中的方法都是静态派发
-#### 类、协议、继承自NSObject的类在声明的作用域内方法都是函数表派发，在扩展中只有类、协议是静态派发，继承自NSObject的类在扩展中是消息派发
-#### Swift 的一些修饰符可以指定派发方式
-* struct是值类型，其中函数的调度属于直接调用地址，即静态调度；struct的extension的方法依然是直接调用(静态派发)
-* 在Swift中，调用一个结构体的方法是直接拿到函数的地址直接调用，包括初始化方法
-* Swift是一门静态语言，许多东西在编译器就已经确定了，所以才可以直接拿到函数的地址进行调用，这个调用的形式也可以称作静态派发
-* class是引用类型，其中函数的调度是通过V-Table函数表来进行调度的，即动态调度
-* extension中的函数调度方式是直接调度
-* final修饰的函数调度方式是直接调度
-* @objc修饰的函数调度方式是函数表调度，如果OC中需要使用，class还必须继承NSObject(@objc关键字是将swift中的方法暴露给OC)
-* dynamic修饰的函数的调度方式是函数表调度，使函数具有动态性(dynamic的意思是可以动态修改，意味着当类继承自NSObject时，可以使用method-swizzling)
-* @objc + dynamic 组合修饰的函数调度，是执行的是 objc_msgSend流程，即 动态消息转发
-* @inline 告诉编译器可以使用直接派发
-#### 2.2 建议
-1. 能用值类型地方就有值类型，不仅仅是因为其拷贝速度快，方法调度也快
-2. 多使用private final 等关键字，一方面提高代码阅读性，编译器内部也对消息调度进行优化
-3. 代码分类多使用拓展，拓展中的方法是静态派发（除了定义成运行时方法）
-4. 遵守的协议(这里说的是Swift协议)尽量写在拓展中，如果希望被子类重写的话。建议不要使用类的多态，而是使用协议进行抽象，将需要属性和多种实现的方法抽取到协议中，拓展实现一些共用方法。这样不仅移除对父类的依赖也可以实现‘多继承’
-5. OC混编时候，使用了一些OC特性的框架（例如KVO），不仅仅只需要对属性或者方法进行@objc 声明，还需要对其进行dynamic修饰才能按照预期的来
-6. Swift 编写函数大部分走的是静态方法，这也就是Swift快的原因所在
-7. 协议继承和类继承确保对象多态性会使用虚函数表进行动态派发
-8. 继承自NSObject对象通过 @objc + dynamic 关键字让其走消息机制派发
-
-#### 2.3 swift函数调用 https://www.jianshu.com/u/06658dd306de
-#### swift中函数调用分为了3个步骤
-1. 找到metadata
-2. 确定函数地址（metadata + 偏移量）；函数地址存放在函数表sil_vtable；函数表用来存储类中的方法，存储方式类似于数组，方法连续存放在函数表中
-3. 执行函数
-
-        struct HeapObject {
-            HeapMetadata const *metadata;  //8字节
-            InlineRefCounts refCounts      //8字节
-        }
-        
-        struct Metadata {
-            var kind: Int
-            var superClass: Any.Type
-            var cacheData: (Int, Int)
-            var data: Int
-            var classFlags: Int32
-            var instanceAddressPoint: UInt32
-            var instanceSize: UInt32
-            var instanceAlignmentMask: UInt16
-            var reserved: UInt16
-            var classSize: UInt32
-            var classAddressPoint: UInt32
-            //不管是Class，Struct还是Enum都有自己的Descriptor TargetClassDescriptor 类型的类 VTable虚函数表就是存放在这里的
-            var typeDescriptor: UnsafeMutableRawPointer 
-            var iVarDestroyer: UnsafeRawPointer
-        }
-        
-        // TargetClassDescriptor内部成员变量，发现没有发现vtable相关属性，继续从该类的初始化方法开始查找ClassContextDescriptorBuilder
-        class TargetClassDescriptor {
-            ContextDescriptorFlags Flags;
-            TargetRelativeContextPointer<Runtime> Parent;
-            TargetRelativeDirectPointer<Runtime, const char, /*nullable*/ false> Name;
-            TargetRelativeDirectPointer<Runtime, MetadataResponse(...),
-                                      /*Nullable*/ true> AccessFunctionPtr;
-            TargetRelativeDirectPointer<Runtime, const reflection::FieldDescriptor,
-                                      /*nullable*/ true> Fields;
-            TargetRelativeDirectPointer<Runtime, const char> SuperclassType;
-            uint32_t MetadataNegativeSizeInWords;
-            uint32_t MetadataPositiveSizeInWords;
-            uint32_t NumImmediateMembers;
-            uint32_t NumFields;
-            uint32_t FieldOffsetVectorOffset;
-        }
-        
-        static void initClassVTable(ClassMetadata *self) {
-            //获取Description地址
-            const auto *description = self->getDescription();
-            auto *classWords = reinterpret_cast<void **>(self);
-            if (description->hasVTable()) {
-                auto *vtable = description->getVTableDescriptor();
-                auto vtableOffset = vtable->getVTableOffset(description);
-                auto descriptors = description->getMethodDescriptors();
-                //1.将本类中所有的方法存入到VTable表中
-                for (unsigned i = 0, e = vtable->VTableSize; i < e; ++i) {
-                  auto &methodDescription = descriptors[i];
-                  swift_ptrauth_init_code_or_data(
-                      &classWords[vtableOffset + i], methodDescription.Impl.get(),
-                      methodDescription.Flags.getExtraDiscriminator(),
-                      !methodDescription.Flags.isAsync());
-                }
-            }
-
-          if (description->hasOverrideTable()) {
-            auto *overrideTable = description->getOverrideTable();
-            auto overrideDescriptors = description->getMethodOverrideDescriptors();
-            for (unsigned i = 0, e = overrideTable->NumEntries; i < e; ++i) {
-              auto &descriptor = overrideDescriptors[i];
-              auto baseClassMethods = baseClass->getMethodDescriptors();
-              //2.将所有父类允许重载的方法全部加到本类的vtable中
-              auto baseVTable = baseClass->getVTableDescriptor();
-              auto offset = (baseVTable->getVTableOffset(baseClass) +
-                             (baseMethod - baseClassMethods.data()));
-              swift_ptrauth_init_code_or_data(&classWords[offset],
-                                              descriptor.Impl.get(),
-                                              baseMethod->Flags.getExtraDiscriminator(),
-                                              !baseMethod->Flags.isAsync());
-            }
-          }
-        }
-        
-#### 虚函数表的内存地址，是 TargetClassDescriptor 中的最后一个成员变量，添加方法的形式是追加到数组的末尾。所以这个虚函数表是按顺序连续存储类的方法的指针
-* VTable虚函数表的内存地址是通过对象底层的元数据metedata找到Descriptors，然后通过内存偏移找到虚函数表
-* VTable虚函数表首先会把当前类的所有方法都放在表中，然后将重载父类的方法也放进表中
-* 每个类在初始化的时候都会创建一个VTable虚函数表
-* 在类的元数据中，如果存在VTable，会通过元数据描述符Descriptor获取VTable的偏移量，并将类中的方法存入VTable表中。如果存在方法重载表（Override Table），则会将基类和子类的方法也加入到VTable中‌
-
 
 
 #### 3.0 Swift底层原理-类与对象
