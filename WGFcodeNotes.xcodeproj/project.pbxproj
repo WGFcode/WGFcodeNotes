@@ -218,6 +218,9 @@
 		30D3DF72245E74790012F803 /* WGTestModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 30D3DF71245E74790012F803 /* WGTestModel.m */; };
 		30D5D08D2627CD1700F5A4EF /* Swift基础语法.md in Resources */ = {isa = PBXBuildFile; fileRef = 30D5D08C2627CD1700F5A4EF /* Swift基础语法.md */; };
 		30D67A8928A384310041FDB5 /* Xcode相关.md in Resources */ = {isa = PBXBuildFile; fileRef = 30D67A8828A384310041FDB5 /* Xcode相关.md */; };
+		30DD22BF2CFEA2CD005AC332 /* swiftMethod.png in Resources */ = {isa = PBXBuildFile; fileRef = 30DD22AA2CFEA2CD005AC332 /* swiftMethod.png */; };
+		30DD22C22CFEA33F005AC332 /* swiftMethod1.png in Resources */ = {isa = PBXBuildFile; fileRef = 30DD22C02CFEA33F005AC332 /* swiftMethod1.png */; };
+		30DD22C32CFEA33F005AC332 /* swiftMethod2.png in Resources */ = {isa = PBXBuildFile; fileRef = 30DD22C12CFEA33F005AC332 /* swiftMethod2.png */; };
 		30DD858B244F00C100897144 /* block.jpeg in Resources */ = {isa = PBXBuildFile; fileRef = 30DD858A244F00C100897144 /* block.jpeg */; };
 		30E9226F26EB331F008D151A /* WGSwiftMethodDispatch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30E9226E26EB331F008D151A /* WGSwiftMethodDispatch.swift */; };
 		30ECA52024580E9000E3D312 /* Response.md in Resources */ = {isa = PBXBuildFile; fileRef = 30ECA51F24580E9000E3D312 /* Response.md */; };
@@ -2299,6 +2302,9 @@
 		30D3DF71245E74790012F803 /* WGTestModel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WGTestModel.m; sourceTree = "<group>"; };
 		30D5D08C2627CD1700F5A4EF /* Swift基础语法.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Swift基础语法.md"; sourceTree = "<group>"; };
 		30D67A8828A384310041FDB5 /* Xcode相关.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Xcode相关.md"; sourceTree = "<group>"; };
+		30DD22AA2CFEA2CD005AC332 /* swiftMethod.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = swiftMethod.png; sourceTree = "<group>"; };
+		30DD22C02CFEA33F005AC332 /* swiftMethod1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = swiftMethod1.png; sourceTree = "<group>"; };
+		30DD22C12CFEA33F005AC332 /* swiftMethod2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = swiftMethod2.png; sourceTree = "<group>"; };
 		30DD858A244F00C100897144 /* block.jpeg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = block.jpeg; sourceTree = "<group>"; };
 		30E9226E26EB331F008D151A /* WGSwiftMethodDispatch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WGSwiftMethodDispatch.swift; sourceTree = "<group>"; };
 		30E9227026EB3672008D151A /* WGSwiftMethodDispatchSIL.sil */ = {isa = PBXFileReference; lastKnownFileType = text; path = WGSwiftMethodDispatchSIL.sil; sourceTree = "<group>"; };
@@ -5500,6 +5506,7 @@
 				303380F62CEDBA89005AE9A3 /* runtime.png */,
 				304154FE2CE4A4A70072A278 /* autoreleasepool_push.png */,
 				304155022CE4A4E10072A278 /* autoreleasepool_page.png */,
+				30DD22AA2CFEA2CD005AC332 /* swiftMethod.png */,
 				302AF2E72CE5A56900FC041A /* runloop_performSelect.png */,
 				304154E82CE4A4450072A278 /* autoreleasepool.png */,
 				30B4BCCE2CD895DF000DADC1 /* delegate.png */,
@@ -5514,6 +5521,8 @@
 				304155042CE4A7710072A278 /* KVO.png */,
 				30FD94D3243DDE8400EAFAA3 /* error1.png */,
 				30A7DC8024348703008DDCF9 /* lock1.png */,
+				30DD22C02CFEA33F005AC332 /* swiftMethod1.png */,
+				30DD22C12CFEA33F005AC332 /* swiftMethod2.png */,
 				30A7DC822434A43E008DDCF9 /* lock2.png */,
 				30FD75F924358F1E00431678 /* lock3.png */,
 				30FD75FB243596BB00431678 /* lock4.png */,
@@ -6287,6 +6296,7 @@
 				30A7DC832434A43E008DDCF9 /* lock2.png in Resources */,
 				300C18B52CDDDC1D00DA55DB /* check-order.sh in Resources */,
 				300D51442700607600BBFC4C /* 抓包工具.md in Resources */,
+				30DD22C32CFEA33F005AC332 /* swiftMethod2.png in Resources */,
 				300C18C32CDDDC1D00DA55DB /* ClangClCompileRules.cmake in Resources */,
 				302AF2FC2CE5A56900FC041A /* runloop_performSelect.png in Resources */,
 				548AC98C242F4CAD00EEE11C /* gitCocoaPodsCarthage.md in Resources */,
@@ -6330,6 +6340,7 @@
 				548AC98B242F4CAD00EEE11C /* WG.sh in Resources */,
 				300C18D42CDDDC1D00DA55DB /* libdispatch.aliases in Resources */,
 				543C213325485B44000212B6 /* NewBlock.md in Resources */,
+				30DD22BF2CFEA2CD005AC332 /* swiftMethod.png in Resources */,
 				30CAB9E82852EA980030BF1C /* iOS包体积优化.md in Resources */,
 				300C18E12CDDDC1D00DA55DB /* libdispatch.codes in Resources */,
 				300C18D12CDDDC1D00DA55DB /* libfirehose.xcconfig in Resources */,
@@ -6369,6 +6380,7 @@
 				300C18A52CDDDC1D00DA55DB /* dispatch_read.3 in Resources */,
 				5483CFEC25D3B95400613F40 /* RunTime.md in Resources */,
 				30ECA52024580E9000E3D312 /* Response.md in Resources */,
+				30DD22C22CFEA33F005AC332 /* swiftMethod1.png in Resources */,
 				30FD94D4243DDE8400EAFAA3 /* error1.png in Resources */,
 				300C18B92CDDDC1D00DA55DB /* install-manpages.sh in Resources */,
 				300C18AD2CDDDC1D00DA55DB /* dispatch_api.3 in Resources */,
