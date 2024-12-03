@@ -157,22 +157,50 @@ Debug Workflow
 6. Swift中的引用计数是对象内部由一个refCounts属性存储
 
 
-### 2. swift方法调用/派发
-#### swift中方法派发主要分两大类动态派发和静态派发，但是实际上应该有四种：内联inline(最快)、静态派发、动态虚拟表派发、动态消息派发
-* 静态派发 (直接派发): 直接调用函数地址,函数地址在编译、链接完成后就已经确定了，存放在Mach-O中的__text即代码段中，最快且最高效的
-一种方法派发类型，编译阶段编译器就已经知道了所有被静态派发的方法在内存中的地址，因而在运行阶段，这些方法可以被立即执行。
-缺点:因为函数调用的内存地址在编译期已经确定，则无法支持继承等动态修改调用的方式
-* 动态派发：表派发(VTable)和消息派发，方法地址是在运行时确定的
-1. vtable派发 (函数表派发): 编译阶段编译器会为每一个类创建一个vtable(里面是以函数名为key, 函数地址为value; 如果子类override了父类的方法，那么这个方法名key对应的value就是那个子类重写的新的函数地址),存放的是一个包含若干函数指针的数组，
-这些函数指针指向这个类中相对应函数的实现代码，运行阶段调用实现代码时，表派发需要比静态派发多执行两个指令(读取该类的vtable和该函数的指针)
-.函数表派发也是一种高效的方式。不过和直接派发相比，编译器对某些含有副作用的函数却无法优化，也是导致函数表派发变慢的原因之一。
-2. 消息派发: objc_method方式，和OC方法调用流程一样，是最动态但也是最慢的一种派发技术。在派发消息后，runtime需要爬遍该类的整个层级体系，
-才可以确定要执行哪个方法实现。不过这也为在运行阶段改变程序的行为提供了可能，也使得Swizzling技术得以实现。Objective-C非常依赖消息派发，
-同时，它通过Objective-C runtime为Swift也提供了消息派发这一功能。
-* 内联inline: 内联派发可以理解成不需要进行函数地址跳转，直接运行函数中的代码块
+### 二. swift方法调用/派发
+![图片](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGScreenshots/swiftMethod.png)
+#### swift方法调用分两大类
+1.静态派发
+
+2.动态派发
+
+        函数表派发(VTable)
+        消息派发(objc_msgSend)
+#### 静态派发
+##### 静态派发即直接派发基于编译期；直接调用函数地址进行调用。函数地址在编译、链接完成后就已经确定了，存放在Mach-O中的
+__text代码段中；是最快最高效的一种方法派发方式；缺点:编译期已经确定了函数地址所以缺乏动态性、不能实现继承；编译器可以
+对这种直接派发/静态派发方式进行更多优化，比如函数内联inline(在被调用时会直接将代码展开，以避免函数调用的开销)
+
+#### 动态派发是基于运行时的
+##### Swift 中存在两种函数表，一种是sil_vtable；一种是sil_witness_table
+##### 1.函数表派发,编译阶段编译器会为每一个类创建一个vtable(key:函数名，value:函数地址；若子类override了父类的方法
+key:函数名，value:子类重写的新的函数地址)，存放的是一个包含若干函数指针的数组，这些函数指针指向这个类中相对应函数的实现代码；
+运行阶段调用方法时，函数表派发需要比静态派发多执行两个指令(通过读取该类的vtable和函数的指针)来进行调用
+
+##### 2.Witness Table Dispatch派发。证明类型实现了协议。是Swift用于协议的动态分派机制。当一个类型遵循某个协议时，
+编译器会为该类生成一个Witness Table，存储该类型对协议中所有方法和属性的具体实现；当通过协议调用方法时，Swift使用Witness Table
+查找具体实现: 编译器会为MyClass生成一个Witness Table，调用object.doSomething时，通过Witness Table找到具体实现并调用
+
+        protocol MyProtocol {
+            func doSomething()
+        }
+        class MyClass: MyProtocol {
+            func doSomething() {
+                print("MyClass implementation of doSomething")
+            }
+        }
+
+        let object: MyProtocol = MyClass()
+        object.doSomething()
+
+
+##### 3.消息派发Objc_msgSend方法，和OC方法调用流程一样；是最动态但也是最慢的一种派发技术；缺点就是需要利用runtime遍历该类的整个层级
+才能确定要执行哪个方法实现；优点就是在运行阶段可以动态更改使得Swizzling技术(允许我们在运行时改变方法的实现,通过交换方法选择器对应的方法实现，
+来改变方法的行为)得以实现
+
 * swift中类的构造器函数init和析构函数deinit都是函数表派发
 
-![图片](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGScreenshots/swiftMethod.png)
+
 ![图片](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGScreenshots/swiftMethod1.png)
 ![图片](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGScreenshots/swiftMethod2.png)
     
