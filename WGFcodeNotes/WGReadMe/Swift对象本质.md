@@ -528,41 +528,41 @@ key:函数名，value:子类重写的新的函数地址)，存放的是一个包
 * 属性包装器
 
 ![图片](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGScreenshots/property1.png)
-![图片](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGScreenshots/property2.png)
 
 * enum枚举:定义计算属性(可读+可读可写)；定义static类型属性(var+let);不能定义存储属性;
 * struct结构体: 定义计算属性(可读+可读可写);定义存储属性(var+let);定义lazy懒加载存储属性;定义static类型属性(var+let)
+
+![图片](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGScreenshots/property2.png)
+
 * class类:定义计算属性(可读+可读可写);定义存储属性(var+let);定义lazy懒加载存储属性;定义static类型属性(var+let)
 * protocol协议: 可以定义属性，但不会区分存储属性还是计算属性，只是设置了属性是可读{ get }还是可读可写{ get set }
-* 存储属性占用实例的内存空间；计算属性不占用实例的内存空间，实际上计算属性本质就是个函数/方法(get/set)
-* 计算属性必须用var声明，因为计算属性依赖于其他属性计算所得，计算属性的值是可能发生变化的
-* 属性加上lazy就变成懒加载属性了且实例的内存空间会变大，因为加了lazy，系统会将该属性变成可选类型，在未访问时会变成nil，访问时才会赋值
-可选类型占用16个字节，所以加了lazy后，实例的内存空间会增大8个字节，lazy的本质是可选项Optional，可选项的本质是enum枚举
+
+1. 存储属性占用实例的内存空间；计算属性不占用实例的内存空间，实际上计算属性本质就是个函数/方法(get/set)    
+2. 计算属性必须用var声明，因为计算属性依赖于其他属性计算所得，计算属性的值是可能发生变化的    
+3. 属性加上lazy就变成懒加载属性了且实例的内存空间会变大，因为加了lazy，系统会将该属性变成可选类型，在未访问时会变成nil，访问时才会赋值
+lazy的本质是可选项Optional，可选项的本质是enum枚举     
+4. 类型属性: 严格意义属性分为实例属性:只能通过实例访问(存储实例属性/计算实例属性)和类型属性: 只能通过类型区访问(类型存储属性/类型计算属性)
+验证过了类型属性只能通过static进行定义。  
+
         enum            struct             class 
         计算属性          计算属性            计算属性
         static类型属性    存储属性            存储属性
                         lazy属性            lazy属性
                         static类型属性       static类型属性
+                        
 
-
-
-
-
-* 类型属性: 严格意义属性分为实例属性:只能通过实例访问(存储实例属性/计算实例属性)和类型属性: 只能通过类型区访问(类型存储属性/类型计算属性)
-* 可以通过static定义类型属性，如果是类，也可以通过class定义类型属性
 * 在init方法中调用set方法是不会触发属性观察器的，因为init方法还没完成初始化；如果init方法先调用了super.init方法，那么再调用set方法是可以
 触发属性观察器的，因为super.init后本对象已经完成了初始化工作了
 * 子类重写父类的属性观察者属性，当给子类的属性设置值时，调用顺序是这样的 子类的willSet-->父类的willSet-->父类的didSet-->子类的didSet
 * 什么属性可以添加属性观察器： 非lazy的存储属性/继承的存储属性/继承的计算属性
-
-
 
 #### 4.1 存储属性
 1. 存储属性是一个作为特定类和结构体实例一部分的常量或变量;类class、结构体struct可以定义存储属性，枚举不能定义存储属性
 2. 存储属性要么是变量存储属性 (由 var 关键字引入)要么是常量存储属性(由 let 关键字引入)
 3. 在类中有一个原则：当类实例被构造完成时，必须保证类中所有的属性都构造或者初始化完成
 4. 会占用分配实例对象的内存空间    
-
+5. 存储属性在编译的时候，编译器默认会合成get/set方式，而我们访问/赋值 存储属性的时候，实际上就是调用get/set
+6. let声明的属性默认不会提供setter
 
         class Test {
             let a: Int = 10
@@ -585,15 +585,12 @@ key:函数名，value:子类重写的新的函数地址)，存放的是一个包
             a
             b
         }
-         
-* 存储属性在编译的时候，编译器默认会合成get/set方式，而我们访问/赋值 存储属性的时候，实际上就是调用get/set
-* let声明的属性默认不会提供setter
 
 #### 4.2 计算属性
-1. 类、结构体和枚举也能够定义计算属性，计算属性并不存储值，他们提供 getter 和 setter 来修改和获取值
+1. 类/结构体/枚举都能够定义计算属性，计算属性并不存储值提供 getter 来获取值或提供getter+setter来修改和获取值
 2. 对于存储属性来说可以是常量let或变量var，但计算属性必须定义为变量var
 3. 我们定义计算属性时候必须包含类型，因为编译器需要知道返回值是什么
-4. 不占用内存空间，本质是get/set方法的属性    
+4. 不占用内存空间，本质是get/ get+set方法的属性    
            
         class Test {
             var a: Int = 0
@@ -615,17 +612,16 @@ key:函数名，value:子类重写的新的函数地址)，存放的是一个包
             @objc deinit
             init()
         }
-* a和b虽然后面都有{ get set }，但是前面修饰符有区别，a有@_hasStorage，b没有。说明a是一个可存储的值，b没有存储，只有getter和setter方法
-* b在setter中，成一个名为 newValue 的常量，并且会把外部传进来的值赋值给 newValue，然后调用setter方法，把newValue作为参数传递给setter方法
+* a和b虽然后面都有{ get set }，但前面修饰符有区别，a有@_hasStorage，b没有。说明a是一个可存储的值，b没有存储，只有get和set方法
+* b在setter中成了一个名为 newValue 的常量，并且会把外部传进来的值赋值给 newValue，然后调用setter方法，把newValue作为参数传递给setter方法
 * 计算属性根本不会有存储实例的成员变量，那也就意味着计算属性不占内存
 
 #### 4.3 延迟属性
 1. 使用 lazy 可以定义一个延迟存储属性，在第一次用到属性的时候才会进行初始化
-2. lazy 属性必须是 var，不能是 let，因为 let 必须在实例的初始化方法完成之前就拥有值
+2. lazy属性必须是变量（var修饰符），因为常量属性（let修饰符）必须在初始化之前就有值，所以常量属性不能定义为lazy
 3. 如果多条线程同时第一次访问 lazy 属性，无法保证属性只被初始化 1 次
 4. 定义延迟初始化的属性。这种属性不会在对象实例化时立即初始化，而是在第一次访问该属性时才进行初始化。
 这种技术可以提高对象初始化的效率，并且可以减少不必要的开销
-5. lazy属性必须是变量（var修饰符），因为常量属性（let修饰符）必须在初始化之前就有值，所以常量属性不能定义为lazy
 
         class Test {
             lazy var a: Int = 20
@@ -641,12 +637,44 @@ key:函数名，value:子类重写的新的函数地址)，存放的是一个包
         }
     
 * 存储属性在添加了lazy修饰后，除了拥有存储属性的特性之外，还拥有 final 修饰符，说明 lazy 修饰的属性不能被重写
-* 并且它是一个可选项。拥有可选项就意味着，其实在初始的时候是有值的，只是这个值是一个nil
-* lazy修饰的属性，底层默认是optional,可选的，没有被访问时，默认是nil，内存中表现就是0x0
+* 并且它是一个可选项。拥有可选项就意味着，其在初始的时候是有值的，只是这个值是一个nil
+* lazy修饰的属性，底层默认是optional可选的，没有被访问时，默认是nil，内存中表现就是0x0
 * 延迟属性必须有一个默认值 lazy var name: String?这种写法也不行编译器会报错；lazy var name: String?=nil这种写法可以
 * 只有在第一次被访问时才会赋值，且是线程不安全的
 * 使用lazy和不使用lazy会对实例对象的内存大小有影响，主要是因为lazy底层是可选类型optional,optional的本质是枚举，除了存储属性本身
 的内存大小，还需要一个字节用于存储case
+
+#### 4.4 类型属性
+1. 严格来说，属性可以分为实例属性和类型属性；使用关键字 static 来定义类型属性⚠️验证过了不能用class来定义类型属性
+2. 类型属性在整个程序运行过程中，就只有1份内存（类似于全局变量），且是线程安全的
+3. 类型属性必须设置初始值。因为类型属性不像实例存储属性有init那样的初始化器来初始化存储属性
+4. 存储类型属性默认就是 lazy ，会在第一次使用的时候才初始化，就算被多个线程同时访问，保证只会初始化一次
+5. 存储类型属性可以是 let + var
+6. 为类定义计算型类型属性时，可以改用关键字 class 来支持子类对父类的实现进行重写
+
+        class Test {
+            static var a: Int = 10
+        }
+
+        生成对应sil文件
+        
+        class Test {
+          @_hasStorage @_hasInitialValue static var a: Int { get set }
+          @objc deinit
+          init()
+        }
+
+        // one-time initialization token for a
+        sil_global private @$s4main4TestC1a_Wz : $Builtin.Word
+
+        // static Test.a
+        sil_global hidden @$s4main4TestC1aSivpZ : $Int
+* a变量变成了全局变量
+* 在a变量的初始化方法中，发现了swift_once函数的调用，在swift_once源码中发现调用了dispatch_once_f也就是GCD的实现
+* 所以在swift中单例的实现可以通过static
+* 类型属性必须有一个默认的初始值，且只会被初始化一次
+* 类型属性也是一个全局变量
+
 
 #### 4.4 属性观察器
 1.属性观察者会用来观察属性值的变化， willSet 当属性将被改变调用，即使这个值与原有的值相同，而 didSet 在属性已经改变之后调用    
@@ -681,36 +709,6 @@ key:函数名，value:子类重写的新的函数地址)，存放的是一个包
 #### 子类调用了父类的init方法会触发属性观察器吗？    
 * 会触发属性观察器，因为子类调用父类的init方法已经初始化过了,再次赋值就会触发属性观察器
 
-#### 4.5 类型属性
-1. 严格来说，属性可以分为实例属性和类型属性；使用关键字 static 来定义类型属性；如果是类中，也可以使用class定义类型属性
-2. 类型属性在整个程序运行过程中，就只有1份内存（类似于全局变量），且是线程安全的
-3. 不同于存储实例属性，你必须给存储类型属性设定初始值，因为类型没有像实例那样的 init 初始化器来初始化存储属性
-4. 存储类型属性默认就是 lazy ，会在第一次使用的时候才初始化，就算被多个线程同时访问，保证只会初始化一次
-5. 存储类型属性可以是 let
-6. 为类定义计算型类型属性时，可以改用关键字 class 来支持子类对父类的实现进行重写
-
-        class Test {
-            static var a: Int = 10
-        }
-
-        生成对应sil文件
-        
-        class Test {
-          @_hasStorage @_hasInitialValue static var a: Int { get set }
-          @objc deinit
-          init()
-        }
-
-        // one-time initialization token for a
-        sil_global private @$s4main4TestC1a_Wz : $Builtin.Word
-
-        // static Test.a
-        sil_global hidden @$s4main4TestC1aSivpZ : $Int
-* a变量变成了全局变量
-* 在a变量的初始化方法中，发现了swift_once函数的调用，在swift_once源码中发现调用了dispatch_once_f也就是GCD的实现
-* 所以在swift中单例的实现可以通过static
-* 类型属性必须有一个默认的初始值，且只会被初始化一次
-* 类型属性也是一个全局变量
 
 #### 总结
 存储属性： 结构体/类，存储属性可以是变量var也可以是常量let;   

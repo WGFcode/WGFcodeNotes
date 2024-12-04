@@ -138,8 +138,8 @@
 		302AF2FC2CE5A56900FC041A /* runloop_performSelect.png in Resources */ = {isa = PBXBuildFile; fileRef = 302AF2E72CE5A56900FC041A /* runloop_performSelect.png */; };
 		30313DC2253829F600941BE5 /* WGTargetProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 30313DC1253829F600941BE5 /* WGTargetProxy.m */; };
 		3033810B2CEDBA89005AE9A3 /* runtime.png in Resources */ = {isa = PBXBuildFile; fileRef = 303380F62CEDBA89005AE9A3 /* runtime.png */; };
-		303C3CD22D0025040053180D /* property1.png in Resources */ = {isa = PBXBuildFile; fileRef = 303C3CD02D0025030053180D /* property1.png */; };
-		303C3CD32D0025040053180D /* property2.png in Resources */ = {isa = PBXBuildFile; fileRef = 303C3CD12D0025030053180D /* property2.png */; };
+		303C3CD62D003D0F0053180D /* property2.png in Resources */ = {isa = PBXBuildFile; fileRef = 303C3CD42D003D0F0053180D /* property2.png */; };
+		303C3CD72D003D0F0053180D /* property1.png in Resources */ = {isa = PBXBuildFile; fileRef = 303C3CD52D003D0F0053180D /* property1.png */; };
 		304011B026734C0B00845393 /* WGTestKVCEntity.m in Sources */ = {isa = PBXBuildFile; fileRef = 304011AF26734C0B00845393 /* WGTestKVCEntity.m */; };
 		304154FD2CE4A4450072A278 /* autoreleasepool.png in Resources */ = {isa = PBXBuildFile; fileRef = 304154E82CE4A4450072A278 /* autoreleasepool.png */; };
 		304154FF2CE4A4A70072A278 /* autoreleasepool_push.png in Resources */ = {isa = PBXBuildFile; fileRef = 304154FE2CE4A4A70072A278 /* autoreleasepool_push.png */; };
@@ -622,8 +622,8 @@
 		30313DC0253829F600941BE5 /* WGTargetProxy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WGTargetProxy.h; sourceTree = "<group>"; };
 		30313DC1253829F600941BE5 /* WGTargetProxy.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WGTargetProxy.m; sourceTree = "<group>"; };
 		303380F62CEDBA89005AE9A3 /* runtime.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = runtime.png; sourceTree = "<group>"; };
-		303C3CD02D0025030053180D /* property1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = property1.png; sourceTree = "<group>"; };
-		303C3CD12D0025030053180D /* property2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = property2.png; sourceTree = "<group>"; };
+		303C3CD42D003D0F0053180D /* property2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = property2.png; sourceTree = "<group>"; };
+		303C3CD52D003D0F0053180D /* property1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = property1.png; sourceTree = "<group>"; };
 		304011AE26734C0B00845393 /* WGTestKVCEntity.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WGTestKVCEntity.h; sourceTree = "<group>"; };
 		304011AF26734C0B00845393 /* WGTestKVCEntity.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WGTestKVCEntity.m; sourceTree = "<group>"; };
 		304154E82CE4A4450072A278 /* autoreleasepool.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = autoreleasepool.png; sourceTree = "<group>"; };
@@ -5520,13 +5520,13 @@
 				301CF1BE2452F1750024EC69 /* runLoop1.png */,
 				30196F922CCB43BD00B09D5D /* init.jpg */,
 				5422AC58244F3E8E000CB747 /* block2.png */,
+				303C3CD52D003D0F0053180D /* property1.png */,
+				303C3CD42D003D0F0053180D /* property2.png */,
 				30DD858A244F00C100897144 /* block.jpeg */,
 				30A73F322447F14A00C86BB8 /* kvc_code.png */,
 				304155042CE4A7710072A278 /* KVO.png */,
 				30FD94D3243DDE8400EAFAA3 /* error1.png */,
 				30A7DC8024348703008DDCF9 /* lock1.png */,
-				303C3CD02D0025030053180D /* property1.png */,
-				303C3CD12D0025030053180D /* property2.png */,
 				30DD22C02CFEA33F005AC332 /* swiftMethod1.png */,
 				30DD22C12CFEA33F005AC332 /* swiftMethod2.png */,
 				30A7DC822434A43E008DDCF9 /* lock2.png */,
@@ -6302,7 +6302,6 @@
 				30A7DC832434A43E008DDCF9 /* lock2.png in Resources */,
 				300C18B52CDDDC1D00DA55DB /* check-order.sh in Resources */,
 				300D51442700607600BBFC4C /* 抓包工具.md in Resources */,
-				303C3CD32D0025040053180D /* property2.png in Resources */,
 				30DD22C32CFEA33F005AC332 /* swiftMethod2.png in Resources */,
 				300C18C32CDDDC1D00DA55DB /* ClangClCompileRules.cmake in Resources */,
 				302AF2FC2CE5A56900FC041A /* runloop_performSelect.png in Resources */,
@@ -6367,7 +6366,6 @@
 				300C18D22CDDDC1D00DA55DB /* libfirehose_kernel.xcconfig in Resources */,
 				300C18E72CDDDC1D00DA55DB /* CMakeLists.txt in Resources */,
 				300C18CA2CDDDC1D00DA55DB /* INSTALL.md in Resources */,
-				303C3CD22D0025040053180D /* property1.png in Resources */,
 				300C18C92CDDDC1D00DA55DB /* Dispatch.apinotes in Resources */,
 				30F7186C24F7AB020025AD98 /* 设计模式.md in Resources */,
 				300C18CF2CDDDC1D00DA55DB /* libdispatch-exclavekit.xcconfig in Resources */,
@@ -6382,8 +6380,10 @@
 				30FD75FE2435C88B00431678 /* lock5.png in Resources */,
 				3033810B2CEDBA89005AE9A3 /* runtime.png in Resources */,
 				54DA257225B47ADC00E1B980 /* 性能优化.md in Resources */,
+				303C3CD62D003D0F0053180D /* property2.png in Resources */,
 				301CF1BF2452F1750024EC69 /* runLoop1.png in Resources */,
 				300C189E2CDDDC1D00DA55DB /* dispatch_apply.3 in Resources */,
+				303C3CD72D003D0F0053180D /* property1.png in Resources */,
 				30D5D08D2627CD1700F5A4EF /* Swift基础语法.md in Resources */,
 				300C18A52CDDDC1D00DA55DB /* dispatch_read.3 in Resources */,
 				5483CFEC25D3B95400613F40 /* RunTime.md in Resources */,
