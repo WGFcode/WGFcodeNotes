@@ -138,7 +138,7 @@
 		302AF2FC2CE5A56900FC041A /* runloop_performSelect.png in Resources */ = {isa = PBXBuildFile; fileRef = 302AF2E72CE5A56900FC041A /* runloop_performSelect.png */; };
 		30313DC2253829F600941BE5 /* WGTargetProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 30313DC1253829F600941BE5 /* WGTargetProxy.m */; };
 		3033810B2CEDBA89005AE9A3 /* runtime.png in Resources */ = {isa = PBXBuildFile; fileRef = 303380F62CEDBA89005AE9A3 /* runtime.png */; };
-		303C3CCD2CFFFC560053180D /* 属性.png in Resources */ = {isa = PBXBuildFile; fileRef = 303C3CCC2CFFFC560053180D /* 属性.png */; };
+		303C3CCD2CFFFC560053180D /* propert.png in Resources */ = {isa = PBXBuildFile; fileRef = 303C3CCC2CFFFC560053180D /* propert.png */; };
 		304011B026734C0B00845393 /* WGTestKVCEntity.m in Sources */ = {isa = PBXBuildFile; fileRef = 304011AF26734C0B00845393 /* WGTestKVCEntity.m */; };
 		304154FD2CE4A4450072A278 /* autoreleasepool.png in Resources */ = {isa = PBXBuildFile; fileRef = 304154E82CE4A4450072A278 /* autoreleasepool.png */; };
 		304154FF2CE4A4A70072A278 /* autoreleasepool_push.png in Resources */ = {isa = PBXBuildFile; fileRef = 304154FE2CE4A4A70072A278 /* autoreleasepool_push.png */; };
@@ -621,7 +621,7 @@
 		30313DC0253829F600941BE5 /* WGTargetProxy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WGTargetProxy.h; sourceTree = "<group>"; };
 		30313DC1253829F600941BE5 /* WGTargetProxy.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WGTargetProxy.m; sourceTree = "<group>"; };
 		303380F62CEDBA89005AE9A3 /* runtime.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = runtime.png; sourceTree = "<group>"; };
-		303C3CCC2CFFFC560053180D /* 属性.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "属性.png"; sourceTree = "<group>"; };
+		303C3CCC2CFFFC560053180D /* propert.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = propert.png; sourceTree = "<group>"; };
 		304011AE26734C0B00845393 /* WGTestKVCEntity.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WGTestKVCEntity.h; sourceTree = "<group>"; };
 		304011AF26734C0B00845393 /* WGTestKVCEntity.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WGTestKVCEntity.m; sourceTree = "<group>"; };
 		304154E82CE4A4450072A278 /* autoreleasepool.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = autoreleasepool.png; sourceTree = "<group>"; };
@@ -5504,7 +5504,7 @@
 		30A7DC7D24348382008DDCF9 /* WGScreenshots */ = {
 			isa = PBXGroup;
 			children = (
-				303C3CCC2CFFFC560053180D /* 属性.png */,
+				303C3CCC2CFFFC560053180D /* propert.png */,
 				305A809D2CF0755200A0E129 /* swiftARC1.png */,
 				303380F62CEDBA89005AE9A3 /* runtime.png */,
 				304154FE2CE4A4A70072A278 /* autoreleasepool_push.png */,
@@ -6319,7 +6319,7 @@
 				30A6D128293885150064B18A /* rsaCert.crt in Resources */,
 				300C18A72CDDDC1D00DA55DB /* dispatch_object.3 in Resources */,
 				307C0B282CD4CD97007AE7C4 /* kvc_getter.jpg in Resources */,
-				303C3CCD2CFFFC560053180D /* 属性.png in Resources */,
+				303C3CCD2CFFFC560053180D /* propert.png in Resources */,
 				5463C26424B0115D008F9C9A /* CoreAnimal.md in Resources */,
 				300C18BB2CDDDC1D00DA55DB /* config.h.in in Resources */,
 				545638D324B36CE5007D5447 /* HTTPTCPUDP.md in Resources */,
