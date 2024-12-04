@@ -527,19 +527,21 @@ key:函数名，value:子类重写的新的函数地址)，存放的是一个包
 * 属性观察器
 * 属性包装器
 
-![图片](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGScreenshots/propert.png)
+![图片](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGScreenshots/property.png)
 
-* enum枚举:只能定义var类型的计算属性(可读+可读可写)；不能定义存储属性
-* struct结构体: 可以定义存储属性(var+let);可以定义var计算属性(可读+可读可写);可以定义var lazy的懒加载存储属性
-* class类:可以定义存储属性(var+let);可以定义var计算属性(可读+可读可写);可以定义var lazy的懒加载存储属性
-* protocol协议: 可以定义属性，但是不会区分存储属性还是计算属性，只是设置了属性是可读{ get }还是可读可写{ get set }
-* struct/class可以定义存储属性；struct/class/enum可以定义计算属性
+* enum枚举:定义计算属性(可读+可读可写)；定义static类型属性(var+let);不能定义存储属性;
+* struct结构体: 定义计算属性(可读+可读可写);定义存储属性(var+let);定义lazy懒加载存储属性;定义static类型属性(var+let)
+* class类:定义计算属性(可读+可读可写);定义存储属性(var+let);定义lazy懒加载存储属性;定义static类型属性(var+let)
+* protocol协议: 可以定义属性，但不会区分存储属性还是计算属性，只是设置了属性是可读{ get }还是可读可写{ get set }
 * 存储属性占用实例的内存空间；计算属性不占用实例的内存空间，实际上计算属性本质就是个函数/方法(get/set)
 * 计算属性必须用var声明，因为计算属性依赖于其他属性计算所得，计算属性的值是可能发生变化的
 * 属性加上lazy就变成懒加载属性了且实例的内存空间会变大，因为加了lazy，系统会将该属性变成可选类型，在未访问时会变成nil，访问时才会赋值
 可选类型占用16个字节，所以加了lazy后，实例的内存空间会增大8个字节，lazy的本质是可选项Optional，可选项的本质是enum枚举
-
-
+        enum            struct             class 
+        计算属性          计算属性            计算属性
+        static类型属性    存储属性            存储属性
+                        lazy属性            lazy属性
+                        static类型属性       static类型属性
 
 
 

@@ -139,6 +139,7 @@
 		30313DC2253829F600941BE5 /* WGTargetProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 30313DC1253829F600941BE5 /* WGTargetProxy.m */; };
 		3033810B2CEDBA89005AE9A3 /* runtime.png in Resources */ = {isa = PBXBuildFile; fileRef = 303380F62CEDBA89005AE9A3 /* runtime.png */; };
 		303C3CCD2CFFFC560053180D /* propert.png in Resources */ = {isa = PBXBuildFile; fileRef = 303C3CCC2CFFFC560053180D /* propert.png */; };
+		303C3CCF2D0021AF0053180D /* property.heic in Resources */ = {isa = PBXBuildFile; fileRef = 303C3CCE2D0021AF0053180D /* property.heic */; };
 		304011B026734C0B00845393 /* WGTestKVCEntity.m in Sources */ = {isa = PBXBuildFile; fileRef = 304011AF26734C0B00845393 /* WGTestKVCEntity.m */; };
 		304154FD2CE4A4450072A278 /* autoreleasepool.png in Resources */ = {isa = PBXBuildFile; fileRef = 304154E82CE4A4450072A278 /* autoreleasepool.png */; };
 		304154FF2CE4A4A70072A278 /* autoreleasepool_push.png in Resources */ = {isa = PBXBuildFile; fileRef = 304154FE2CE4A4A70072A278 /* autoreleasepool_push.png */; };
@@ -622,6 +623,7 @@
 		30313DC1253829F600941BE5 /* WGTargetProxy.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WGTargetProxy.m; sourceTree = "<group>"; };
 		303380F62CEDBA89005AE9A3 /* runtime.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = runtime.png; sourceTree = "<group>"; };
 		303C3CCC2CFFFC560053180D /* propert.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = propert.png; sourceTree = "<group>"; };
+		303C3CCE2D0021AF0053180D /* property.heic */ = {isa = PBXFileReference; lastKnownFileType = file; path = property.heic; sourceTree = "<group>"; };
 		304011AE26734C0B00845393 /* WGTestKVCEntity.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WGTestKVCEntity.h; sourceTree = "<group>"; };
 		304011AF26734C0B00845393 /* WGTestKVCEntity.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WGTestKVCEntity.m; sourceTree = "<group>"; };
 		304154E82CE4A4450072A278 /* autoreleasepool.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = autoreleasepool.png; sourceTree = "<group>"; };
@@ -5512,6 +5514,7 @@
 				30DD22AA2CFEA2CD005AC332 /* swiftMethod.png */,
 				302AF2E72CE5A56900FC041A /* runloop_performSelect.png */,
 				304154E82CE4A4450072A278 /* autoreleasepool.png */,
+				303C3CCE2D0021AF0053180D /* property.heic */,
 				30B4BCCE2CD895DF000DADC1 /* delegate.png */,
 				307C0B292CD4CDF1007AE7C4 /* kvc_setter.jpg */,
 				304155002CE4A4CE0072A278 /* autoreleasepool_pop.png */,
@@ -6311,6 +6314,7 @@
 				30AB3011284DE529009EC03C /* 常见面试题.md in Resources */,
 				300C18CD2CDDDC1D00DA55DB /* libdispatch-resolved.xcconfig in Resources */,
 				30FD76012435CD3100431678 /* NSThread.md in Resources */,
+				303C3CCF2D0021AF0053180D /* property.heic in Resources */,
 				300C18CB2CDDDC1D00DA55DB /* libdispatch.interposable in Resources */,
 				5422AC59244F3E8E000CB747 /* block2.png in Resources */,
 				30A6D12F293885150064B18A /* rsaCerReq.csr in Resources */,
