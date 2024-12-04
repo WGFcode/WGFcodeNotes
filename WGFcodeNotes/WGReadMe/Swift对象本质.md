@@ -527,7 +527,8 @@ key:函数名，value:子类重写的新的函数地址)，存放的是一个包
 * 属性观察器
 * 属性包装器
 
-![图片](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGScreenshots/property.png)
+![图片](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGScreenshots/property1.png)
+![图片](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGScreenshots/property2.png)
 
 * enum枚举:定义计算属性(可读+可读可写)；定义static类型属性(var+let);不能定义存储属性;
 * struct结构体: 定义计算属性(可读+可读可写);定义存储属性(var+let);定义lazy懒加载存储属性;定义static类型属性(var+let)
