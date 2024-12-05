@@ -853,18 +853,34 @@ lazy的本质是可选项Optional，可选项的本质是enum枚举
 
 
 
-### 5. Swift底层原理-内存管理之引用计数
+
+## 四. =============== Swift底层原理-内存管理之引用计数 ===============
+
+#### swift内存管理主要通过ARC(Automatic Reference Counting)自动引用计数机制来实现；ARC 用于管理对象类型（类的实例）
+的内存分配和释放
+* 值类型(如enum/strut/基础数据类型)存储在栈,由编译器负责管理内存；值类型的变量超出其作用域时，内存会自动释放
+* 值类型在赋值或传递参数时会进行复制copy;而对于集合类型(数组Array/字典Dictionary)的值类型采用的是写时拷贝Copy-On-Write
+优化策略(只有当值类型被修改时，才会发生拷贝，主要就是为了节约内存空间)
+* 引用类型存储在堆中，需要由开发人员自己管理(其实系统已经帮我们做了)
+* 对于swift的内存管理来将，我们主要关注强引用Strong、弱引用weak、无主引用unowned即可
 * Swift语言延续了和Objective-C语言一样的思路进行内存管理，都是采用引用计数的方式来管理实例的内存空间
 * Swift对象本质是一个HeapObject结构体指针。HeapObject结构中有两个成员变量，metadata 和 refCounts
 * metadata 是指向元数据对象的指针，里面存储着类的信息，比如属性信息，虚函数表等
-* swift本质上存在两种refCounts引用计数            
+* swift本质上存在两种refCounts引用计数  
+          
         1.如果是强引用,那么就是strong RC + unowned RC + flags
-        2.如果是弱引用,那么就是HeapObjectSideTableEntry          
+        2.如果是弱引用,那么就是HeapObjectSideTableEntry    
+              
+![图片](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGScreenshots/ARCStrong.png)
+![图片](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGScreenshots/ARCweak.png)
 
-#### 如果是强引用，则引用计数refCounts是通过64位位域计数bits存储  强引用stong+无主引用unowned
+#### 5.1 如果是强引用或unowned无主引用，则引用计数refCounts是通过64位位域计数bits存储( 强引用stong+无主引用unowned)
+
          struct HeapObject {
-             HeapMetadata const *metadata;  是指向元数据对象的指针，里面存储着类的信息，比如属性信息，虚函数表等
-             RefCounts<InlineRefCountBits> refCounts;      它是一个引用计数信息相关的东西
+             //指向元数据对象的指针，里面存储着类的信息，比如属性信息，虚函数表等
+             HeapMetadata const *metadata;  
+             //它是一个引用计数信息相关的东西
+             RefCounts<InlineRefCountBits> refCounts;      
                          ｜
                          ｜
             typedef RefCountBitsT<RefCountIsInline> InlineRefCountBits;
@@ -888,22 +904,35 @@ lazy的本质是可选项Optional，可选项的本质是enum枚举
                     第33-62位：标识强引用          strong RC 30位
                     第63位：是否使用SlowRC
          }
+         数据结构大概是
+         struct InlineRefCountBits {
+            var strongRef: UInt32 
+            var unownedRef: UInt32
+         }
          
-![图片](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGScreenshots/swiftARC1.png)
+#### 5.1.1 swift中默认都是强引用，强引用就是通过引用计数中的bits这种位域来实现引用计数的增加、减少。引用计数的变化，
+并不是直接+1，而是refercount存储的信息发生变化(第33-62位) 
+ 
+#### 5.1.2 在Swift中通过 unowned 定义无主引用，unowned 不会产生强引用，实例销毁后仍然存储着实例的内存地址(类似于OC中的 
+unsafe_unretained);实例销毁后访问无主引用，会产生运行时错误（野指针）;在使用unowned的时候，要确保其修饰的属性一定有值       
 
-#### 如果是弱引用，则引用计数refCounts不再通过位域来存储引用计数，而是一个指针，指向HeapObjectSideTableEntr散列表
-散列表存储着 weak弱引用，而散列表内部引用计数相关类是继承自RefCountBitsT(通过bits位域存储strong RC + unowned RX)
-所以散列表中存储的就是 weak RC + 继承而来的[strong RC + unowned RC],这也就是说项目中weak和unowned都可用的时候选择unowned效率更高点
-因为weak需要操作散列表来管理引用计数，而unowned直接通过位域来管理
+
+
+#### 5.2 如果是弱引用，则引用计数refCounts不再通过位域来存储引用计数，而是一个指针，指向HeapObjectSideTableEntr散列表
+* weak修饰后的变量会变成一个可选项Optional
+* 使用weak声明的变量会调用swift_weakInit方法生成一个WeakReference类；使用对象的HeapObject生成一个WeakReference类的散列表
+* 散列表存储着 weak弱引用，而散列表内部引用计数相关类是继承自RefCountBitsT(通过bits位域存储strong RC + unowned RX)
+* 所以散列表中存储的就是 weak RC + 继承而来的[strong RC + unowned RC]    
+* unowned比weak效率更高。因为weak还需要通过操作散列表来存储引用计数；而unowned通过64位位域来存储引用计数
        
         struct HeapObject {
              HeapMetadata const *metadata;  是指向元数据对象的指针，里面存储着类的信息，比如属性信息，虚函数表等
-             HeapObjectSideTableEntry* refCounts;      它是一个引用计数信息相关的东西
+             HeapObjectSideTableEntry* refCounts;      它是一个指向散列表(存储引用计数)的指针
                          ｜
                          ｜
-             HeapObjectSideTableEntry {       //散列表
+             HeapObjectSideTableEntry {  //散列表
                 SideTableRefCounts {
-                    object pointer       ////存着对象的指针
+                    object pointer       //存着对象的指针
                     atomic<SideTableRefCountBits> {
                         strong RC + unowned RC + weak RC + flags
                     }
@@ -919,18 +948,30 @@ lazy的本质是可选项Optional，可选项的本质是enum枚举
                 } 
                 当我们用 weak 修饰之后，这个散列表就会存储对象的指针和引用计数信息相关的东西。
          }
-#### 如果是无主引用unowned
-* unowned 不会产生强引用，实例销毁后仍然存储着实例的内存地址（类似于OC中的 unsafe_unretained）。
-需要注意的是试图在实例销毁后访问无主引用，会产生运行时错误（野指针）。
-* weak、unowned 都能解决循环引用的问题，unowned 要比 weak 少一些性能消耗    
-* 如果强引用的双方生命周期没有任何关系，使用weak；如果其中一个对象销毁，另一个对象也跟着销毁，则使用unowned；
-* weak相对于unowned更兼容，更安全，而unowned性能更高；这是因为weak需要操作散列表，而unowned只需要操作64位位域信息；
-在使用unowned的时候，要确保其修饰的属性一定有值
-
-
-#### 总结如下
          
-        
+        弱引用结构大概如下
+        struct WeakReference {
+            var entry: HeapObjectSideTableEntry
+        }
+         
+        struct HeapObjectSideTableEntry {
+            var object: HeapObject
+            var refCounts: SideTableRefCounts
+        }
+         
+        struct SideTableRefCounts {
+            var strongref: UInt32
+            var unownedRef: UInt32
+            var weakBits: UInt32
+        }
+         
+        struct HeapObject {
+            var kind: UnsafeRawPointer
+            var strongref: UInt32
+            var unownedRef: UInt32
+        }
+         
+        //总结如下
         HeapObject {
           isa
           InlineRefCounts {
@@ -950,25 +991,15 @@ lazy的本质是可选项Optional，可选项的本质是enum枚举
             }
           }   
         }
+         
+         
+#### unowned 和 weak总结
+* weak、unowned 都能解决循环引用的问题，unowned 要比 weak 少一些性能消耗    
+* 如果强引用的双方生命周期没有任何关系，使用weak；如果其中一个对象销毁，另一个对象也跟着销毁，则使用unowned；
+* weak相对于unowned更兼容，更安全，而unowned性能更高；这是因为weak需要操作散列表，而unowned只需要操作64位位域信息；
+在使用unowned的时候，要确保其修饰的属性一定有值
 
-* swift中默认都是强引用，强引用就是通过引用计数中的bits这种位域来实现引用计数的增加、减少
-* 引用计数的变化，并不是直接+1，而是refercount存储的信息发生变化(第33-62位)
 
-#### swift内存管理主要通过ARC(Automatic Reference Counting)自动引用计数机制来实现；ARC 用于管理对象类型（类的实例）的内存分配和释放；    
-对于值类型（如枚举、结构体、基础数据类型），他们通常存储在栈上，由编译器负责管理内存，当值类型的变量超出其作用域时，内存会自动释放
-值类型在赋值或传递参数时会进行复制，而对于集合类型的值类型采用的是 Copy-On-Write（COW，写时复制）优化策略，只有当值类型需要被修改时，
-Swift 才会进行实际的复制操作
-
-#### swift中没有像Objective-C中那么多涉及内存管理的关键字，所以谈swift内存管理，主要就是谈强引用、弱引用、无主引用
-* 一个新的实例被创建时，传入的是RefCountBits(strongExtraCount: 0，unownedCount: 1)
- 
-#### 5.1 强引用
-#### 默认情况下，引用都是强引用；通过前面对refCounts的结构分析，得知它是存储引用计数信息的东西，在创建一个对象之后它的初始值为 0x0000000000000003
-#### 如果我对这个实例对象进行多个引用，引用计数会增加。底层会通过调用_swift_retain_方法；在进行强引用的时候，本质上是调用 refCounts 的 increment 方法，也就是引用计数 +1
-
-#### 5.2 弱引用weak
-#### 在实际开发的过程中，我们大多使用的都是强引用，在某些场景下使用强引用，用不好的话会造成循环引用
-#### 在Swift中我们通过关键字**weak**来表明一个弱引用；
 * weak变量并没有持有被引用对象的指针,而是持有了被引用对象的sidetable,通过访问持有的sidetable的pointer指针间接访问引用的对象
 * 这跟Objective-C的weak实现是有区别的,Objective-C的sidetable是存储在一个全局数组里,而Swift则是每个对象都有自己的sidetable
 * weak关键字的作用是在使用这个实例的时候并不保有此实例的引用
@@ -1054,10 +1085,7 @@ Swift 才会进行实际的复制操作
 2.如果是弱引用，那么是 HeapObjectSideTableEntry    
 3.一个实例对象在首次初始化的时候，是没有sideTable的，当我们创建一个弱引用的时候，才会创建sideTable
 
-#### 5.3 无主引用unowned
-* 在Swift中通过 unowned 定义无主引用，unowned 不会产生强引用，实例销毁后仍然存储着实例的内存地址（类似于OC中的 unsafe_unretained）
-* 实例销毁后访问无主引用，会产生运行时错误（野指针）。
-* 在使用unowned的时候，要确保其修饰的属性一定有值
+
 
 #### weak弱引用 和 无主引用unowned的区别？
 1. unowned 要比 weak 少一些性能消耗，性能更高，因为weak需要操作散列表，而unowned只需要操作64位位域信息
