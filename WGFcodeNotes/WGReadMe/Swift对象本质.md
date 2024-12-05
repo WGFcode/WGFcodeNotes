@@ -654,7 +654,8 @@ lazy的本质是可选项Optional，可选项的本质是enum枚举
 4. 存储类型属性默认就是 lazy ，会在第一次使用的时候才初始化，就算被多个线程同时访问，保证只会初始化一次
 5. 存储型类型属性可以是 let + var 且只能用static修饰；计算型类型属性只能是var 且可以用static或class修饰
 6. 为类定义计算型类型属性时，可以改用关键字 class 来支持子类对父类的实现进行重写
-7. 类型属性是线程安全的。因为类型属性底层其实就是个全局变量且在初始化过程中会有swift_once函数的调用
+7. 类型属性是线程安全的。因为类型属性底层其实就是个全局变量且在初始化过程中会有swift_once函数的调用    
+
         class Test {
             static var a: Int = 10
         }
@@ -775,7 +776,11 @@ lazy的本质是可选项Optional，可选项的本质是enum枚举
 
 #### 在继承关系中；子类继承父类的存储属性 / 继承父类的{get set}计算属性 可以添加属性观察器
 * 父类的属性添加了{willSet didSet}，那么子类重写了这个属性并也添加了{ willSet didSet }
-那么调用顺序是先1.子类的willSet -> 2.父类的willSet方法 -> 3.父类的didSet方法  -> 子类的didSet方法                   
+那么调用顺序是先     
+1.子类的willSet             
+2.父类的willSet方法        
+3.父类的didSet方法       
+4.子类的didSet方法                           
 
         class WGClass {
             //存储属性
