@@ -515,8 +515,6 @@ key:函数名，value:子类重写的新的函数地址)，存放的是一个包
     }
 #### 分析: **objc_method**关键字表明了方法已经转为了使用OC中的方法派发方式，即消息派发，并且方法签名中，返回类型已经变为了 NSString，vtable中也没有了**getMethodName**方法。
 
-
-
   
 ### 4. Swift～属性
 #### swift属性中涉及到内容如下
@@ -529,12 +527,12 @@ key:函数名，value:子类重写的新的函数地址)，存放的是一个包
 
 ![图片](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGScreenshots/property1.png)
 
-* enum枚举:定义计算属性(可读+可读可写)；定义static类型属性(var+let);不能定义存储属性;
-* struct结构体: 定义计算属性(可读+可读可写);定义存储属性(var+let);定义lazy懒加载存储属性;定义static类型属性(var+let)
+* enum枚举:定义计算属性(可读+可读可写) / static类型属性(var+let); 不能定义存储属性;
+* struct结构体: 定义计算属性(可读+可读可写) / 存储属性(var+let) / lazy懒加载存储属性 / static类型属性(var+let)
 
 ![图片](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGScreenshots/property2.png)
 
-* class类:定义计算属性(可读+可读可写);定义存储属性(var+let);定义lazy懒加载存储属性;定义static类型属性(var+let)
+* class类:定义计算属性(可读+可读可写) / 存储属性(var+let) / lazy懒加载存储属性 / static类型属性(var+let) / class类型属性(计算型)
 * protocol协议: 可以定义属性，但不会区分存储属性还是计算属性，只是设置了属性是可读{ get }还是可读可写{ get set }
 
 1. 存储属性占用实例的内存空间；计算属性不占用实例的内存空间，实际上计算属性本质就是个函数/方法(get/set)    
@@ -544,11 +542,12 @@ lazy的本质是可选项Optional，可选项的本质是enum枚举
 4. 类型属性: 严格意义属性分为实例属性:只能通过实例访问(存储实例属性/计算实例属性)和类型属性: 只能通过类型区访问(类型存储属性/类型计算属性)
 验证过了类型属性只能通过static进行定义。  
 
-        enum            struct             class 
-        计算属性          计算属性            计算属性
-        static类型属性    存储属性            存储属性
-                        lazy属性            lazy属性
-                        static类型属性       static类型属性
+    enum                     struct                  class 
+    计算属性(var)             计算属性(var)             计算属性(var)
+    static类型属性(let+var)   存储属性(let+var)         存储属性(let+var)
+                            lazy属性(var)             lazy属性(var)
+                            static类型属性(let+var)    static类型属性(let+var)
+                                                     class类型属性(var计算型)
                         
 
 * 在init方法中调用set方法是不会触发属性观察器的，因为init方法还没完成初始化；如果init方法先调用了super.init方法，那么再调用set方法是可以
@@ -622,6 +621,7 @@ lazy的本质是可选项Optional，可选项的本质是enum枚举
 3. 如果多条线程同时第一次访问 lazy 属性，无法保证属性只被初始化 1 次
 4. 定义延迟初始化的属性。这种属性不会在对象实例化时立即初始化，而是在第一次访问该属性时才进行初始化。
 这种技术可以提高对象初始化的效率，并且可以减少不必要的开销
+5. lazy延迟属性是线程不安全的
 
         class Test {
             lazy var a: Int = 20
@@ -645,19 +645,17 @@ lazy的本质是可选项Optional，可选项的本质是enum枚举
 的内存大小，还需要一个字节用于存储case
 
 #### 4.4 类型属性
-1. 严格来说，属性可以分为实例属性和类型属性；使用关键字 static 来定义类型属性⚠️验证过了不能用class来定义类型属性
-2. 类型属性在整个程序运行过程中，就只有1份内存（类似于全局变量），且是线程安全的
+1. enum/struct/class使用关键字 static 来定义类型属性; class中可以用class定义计算型的类型属性
+2. 严格来说属性可以分为实例属性和类型属性；类型属性在整个程序运行过程中，就只有1份内存（类似于全局变量），且是线程安全的
 3. 类型属性必须设置初始值。因为类型属性不像实例存储属性有init那样的初始化器来初始化存储属性
 4. 存储类型属性默认就是 lazy ，会在第一次使用的时候才初始化，就算被多个线程同时访问，保证只会初始化一次
-5. 存储类型属性可以是 let + var
+5. 存储型类型属性可以是 let + var 且只能用static修饰；计算型类型属性只能是var 且可以用static或class修饰
 6. 为类定义计算型类型属性时，可以改用关键字 class 来支持子类对父类的实现进行重写
-
+7. 类型属性是线程安全的。因为类型属性底层其实就是个全局变量且在初始化过程中会有swift_once函数的调用
         class Test {
             static var a: Int = 10
         }
-
         生成对应sil文件
-        
         class Test {
           @_hasStorage @_hasInitialValue static var a: Int { get set }
           @objc deinit
@@ -669,52 +667,182 @@ lazy的本质是可选项Optional，可选项的本质是enum枚举
 
         // static Test.a
         sil_global hidden @$s4main4TestC1aSivpZ : $Int
-* a变量变成了全局变量
+* a变量变成了全局变量,即类型属性底层就是一个全局变量
 * 在a变量的初始化方法中，发现了swift_once函数的调用，在swift_once源码中发现调用了dispatch_once_f也就是GCD的实现
 * 所以在swift中单例的实现可以通过static
 * 类型属性必须有一个默认的初始值，且只会被初始化一次
-* 类型属性也是一个全局变量
-
-
-#### 4.4 属性观察器
-1.属性观察者会用来观察属性值的变化， willSet 当属性将被改变调用，即使这个值与原有的值相同，而 didSet 在属性已经改变之后调用    
-2.在初始化器中设置属性值不会触发 willSet 和 didSet。在属性定义时设置初始值也不会触发 willSet 和 didSet
-
-        class Test {
-            var a: Int = 10 {
-                willSet {
-                    print("new value = \(newValue)")
-                }
-                didSet {
-                    print("old value = \(oldValue)")
-                }
-            }
-        }
-* 在a的setter方法中，调用了willset 和 didset方法，这两个方法拥有两个参数，第一个参数对应的应该是 newValue 和 oldValue
-* willSet: 新值存储之前调用newValue
-* didSet: 新值存储之后调用oldValue
-* 在 init 方法中，如果调用属性，是不会触发属性观察者的； 在定义时设置默认值(即在didSet中调用其他属性值)，也不会触发属性观察者
-
-##### 哪里可以添加属性观察器？
-1. 类中定义的存储属性(非lazy的存储属性)
-2. 通过类继承的存储属性
-3. 通过类继承的计算属性
-
-##### 子类和父类的计算属性同时存在willSet、didSet，调用顺序是什么?
-1.先调用子类的willSet方法    
-2.调用父类的willSet方法             
-3.调用父类的didSet方法            
-4.调用子类的didSet方法            
-
-#### 子类调用了父类的init方法会触发属性观察器吗？    
-* 会触发属性观察器，因为子类调用父类的init方法已经初始化过了,再次赋值就会触发属性观察器
 
 
 #### 总结
-存储属性： 结构体/类，存储属性可以是变量var也可以是常量let;   
-计算属性：结构体/类/枚举，计算属性只能是变量var；计算属性必须声明类型；      
-延迟属性: lazy属性必须是变量,lazy本质是可选项Optional,Optional可选项的本质是枚举enum              
-类型属性： 结构体/类/枚举.类似一个全局变量               
+* 存储属性： 结构体/类，存储属性可以是变量var也可以是常量let;   
+* 计算属性：结构体/类/枚举，计算属性只能是变量var；计算属性必须声明类型；
+* 延迟属性: lazy属性必须是变量var,本质是可选项Optional，底层是final修饰的不能重写,Optional可选项的本质是枚举enum;              
+* 类型属性： 结构体/类/枚举.类似一个全局变量；结构体/枚举/类可以通过static定义(var+let);⚠️类中还可以通过class定义
+计算类型的类型属性            
+* 计算属性不能直接设置初始值；存储属性可以直接设置初始值也可以通过初始化进行赋值；
+* 计算属性不占用内容空间(通过getter/setter读写)；存储属性占用内存空间
+
+
+#### 4.5 属性观察器 willSet/ didSet
+1.属性观察器会用来观察属性值的变化，只能用于 var 修饰的属性，而不能用于 let 修饰的属性    
+2. willSet: 属性被修改前调用，用newValue获取属性即将被赋予的新值; 
+3. didSet: 属性被修改后调用,用oldValue来获取修改前的旧值
+
+#### 结构体中 存储属性 / lazy存储属性 可以添加属性观察器      
+
+        struct WGStruct {
+            var age = 0
+            //结构体中: 1.没有初始值的存储属性添加属性观察器
+            var name: String  {
+                willSet { NSLog("name-willSet---newValue:\(newValue)") }
+                didSet { NSLog("name-didSet---oldValue:\(oldValue)") }
+            }
+            //结构体中: 2.有初始值的存储属性添加属性观察器
+            var sex: Bool = false {
+                willSet { NSLog("sex-willSet---newValue:\(newValue)") }
+                didSet { NSLog("sex-didSet---oldValue:\(oldValue)") }
+            }
+            //结构体中: 3.lazy懒加载属性添加属性观察器
+            lazy var teacher: String = ""{
+                willSet { NSLog("teacher-willSet---newValue:\(newValue)") }
+                didSet { NSLog("teacher-didSet---oldValue:\(oldValue)") }
+            }
+        }
+
+        var str = WGStruct(name: "zhangsan")
+        str.name = "123"
+        str.age = 20
+        str.sex = true
+        str.teacher = "wang"
+        NSLog("name: \(str.name) age: \(str.age) sex: \(str.sex) teacher:\(str.teacher)")
+        //打印结果
+        
+        name-willSet---newValue:123
+        name-didSet---oldValue:zhangsan
+        sex-willSet---newValue:true
+        sex-didSet---oldValue:false
+        teacher-willSet---newValue:wang
+        teacher-didSet---oldValue:
+        name: 123 age: 20 sex: true teacher:wang
+        
+#### 类中 存储属性/ lazy存储属性 / static类型属性 可以添加属性观察器    
+
+        class WGClass {
+            var age = 0
+            //类中: 1.没有初始值的存储属性添加属性观察器(类中没有初始值的存储属性一定要在初始化器中给属性赋值)
+            var name: String  {
+                willSet { NSLog("name-willSet---newValue:\(newValue)") }
+                didSet { NSLog("name-didSet---oldValue:\(oldValue)") }
+            }
+            //类中: 2.有初始值的存储属性添加属性观察器
+            var sex: Bool = false {
+                willSet { NSLog("sex-willSet---newValue:\(newValue)") }
+                didSet { NSLog("sex-didSet---oldValue:\(oldValue)") }
+            }
+            //类中: 3.lazy懒加载属性添加属性观察器
+            lazy var teacher: String = ""{
+                willSet { NSLog("teacher-willSet---newValue:\(newValue)") }
+                didSet { NSLog("teacher-didSet---oldValue:\(oldValue)") }
+            }
+            //类中: 4.static(var)类型属性添加属性观察器
+            static var score: Double = 0.0 {
+                willSet { NSLog("score-willSet---newValue:\(newValue)") }
+                didSet { NSLog("score-didSet---oldValue:\(oldValue)") }
+            }
+            init(name: String) {
+                self.name = name
+            }
+        }
+        var str = WGStruct(name: "zhangsan")
+        str.name = "123"
+        str.age = 20
+        str.sex = true
+        str.teacher = "wang"
+        NSLog("name: \(str.name) age: \(str.age) sex: \(str.sex) teacher:\(str.teacher)")
+        //打印结果
+        name-willSet---newValue:123
+        name-didSet---oldValue:zhangsan
+        sex-willSet---newValue:true
+        sex-didSet---oldValue:false
+        teacher-willSet---newValue:wang
+        teacher-didSet---oldValue:
+        score-willSet---newValue:20.0
+        score-didSet---oldValue:0.0
+        name: 123 age: 20 sex: true teacher:wang score类属性值:20.0
+
+#### 在继承关系中；子类继承父类的存储属性 / 继承父类的{get set}计算属性 可以添加属性观察器
+* 父类的属性添加了{willSet didSet}，那么子类重写了这个属性并也添加了{ willSet didSet }
+那么调用顺序是先1.子类的willSet -> 2.父类的willSet方法 -> 3.父类的didSet方法  -> 子类的didSet方法                   
+
+        class WGClass {
+            //存储属性
+            var age = 8 {
+                willSet { NSLog("WGClass age willSet newValue: \(newValue)") }
+                didSet { NSLog("WGClass age didSet oldValue: \(oldValue)") }
+            }
+            //计算属性-(get)
+            var sex: Bool {
+                return false
+            }
+            //计算属性-(get set)
+            var name: String {
+                get { return "1" }
+                set { NSLog("调用了name的setter方法") }
+            }
+        }
+
+        class WGSubClass : WGClass {
+            //1.继承父类的存储属性
+            override var age: Int {
+                willSet { NSLog("WGSubClass override age willSet newValue: \(newValue)") }
+                didSet { NSLog("WGSubClass override age didSet oldValue: \(oldValue)") }
+            }
+            //2.继承父类的可读 (get) 计算属性
+            override var sex: Bool {
+                return true
+            }
+            //3.继承父类的可读可写 (get set) 计算属性
+            override var name: String {
+                willSet { NSLog("WGSubClass override name willSet newValue: \(newValue)") }
+                didSet { NSLog("WGSubClass override name didSet oldValue: \(oldValue)") }
+            }
+        }
+        let sub = WGSubClass()
+        sub.age = 10
+        //打印结果:
+        WGSubClass override age willSet newValue: 10
+        WGClass age willSet newValue: 10
+        WGClass age didSet oldValue: 8
+        WGSubClass override age didSet oldValue: 8
+        
+        
+        sub.name = "zhangsan"
+        //打印结果:
+        WGSubClass override name willSet newValue: zhangsan
+        调用了name的setter方法
+        WGSubClass override name didSet oldValue: 1
+
+
+4.在初始化器init中设置属性值不会触发 willSet 和 didSet。在属性定义时设置初始值也不会触发 willSet 和 didSet
+
+       class WGClass {
+            //1. 初始值不会触发{ willSet didSet}
+            var age: Int = 8{
+                willSet { NSLog("WGClass age willSet newValue: \(newValue)") }
+                didSet { NSLog("WGClass age didSet oldValue: \(oldValue)") }
+            }
+            //2. 初始化器中不会触发{ willSet didSet}
+            init(age: Int) {
+                self.age = age
+            }
+        }
+
+#### 哪里可以添加属性观察器 { willSet didSet }？
+* 结构体中 存储属性 / lazy存储属性 可以添加属性观察器
+* 类中 存储属性 / lazy存储属性 / static类型属性var 可以添加属性观察器
+* 继承关系中，子类继承 父亲的存储属性 / {get set}计算属性 可以添加属性观察器
+* 计算属性不能添加属性观察器(特例：只有子类重写继承自父亲的可读可写{get set}计算属性可以添加属性观察器)
+
 
 
 ### 5. Swift底层原理-内存管理之引用计数
