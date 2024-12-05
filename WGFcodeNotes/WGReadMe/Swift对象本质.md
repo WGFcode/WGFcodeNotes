@@ -1,5 +1,4 @@
-## swift对象的本质
-## 一. ======================== ** swift对象** ========================
+## 一. ======================== swift对象本质 ========================
 * swift类对象的底层是个HeapObject结构体，该结构体中包含了两个成员，一个是指向元数据的指针，占用8个字节，一个是引用计数，占用8个字节
 * 元数据类型是HeapMetadata，它的别名是TargetHeapMetadata类型，继承关系是： TargetHeapMetadata : TargetMetadata
 * TargetMetadata结构体中只有一个kind成员，用来表示该元数据是哪种类型
@@ -162,7 +161,7 @@ swift对象处打断点Debug Workflow
 6. Swift中的引用计数是对象内部由一个refCounts属性存储
 
 
-### 二. ========================swift方法调用/派发========================
+## 二. ========================swift方法调用/派发========================
 ![图片](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGScreenshots/swiftMethod.png)
 #### swift方法调用分两大类
 1.静态派发
@@ -516,7 +515,7 @@ key:函数名，value:子类重写的新的函数地址)，存放的是一个包
 #### 分析: **objc_method**关键字表明了方法已经转为了使用OC中的方法派发方式，即消息派发，并且方法签名中，返回类型已经变为了 NSString，vtable中也没有了**getMethodName**方法。
 
   
-### 三. ========================Swift属性========================
+## 三. ========================Swift属性========================
 #### swift属性中涉及到内容如下
 * 存储属性
 * 计算属性
