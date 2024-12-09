@@ -909,14 +909,20 @@ static可以定义类型属性(let+var),class只能在类中定义类型属性�
              var unownedRef: UInt32
          }
          
+         0位  1---------31位   32位   33位----------62位    63位
+               unowned RC                 strong RC
+         
 #### 1. swift中默认都是强引用，强引用就是通过引用计数中的bits这种位域来实现引用计数的增加、减少。引用计数的变化，
 并不是直接+1，而是refercount存储的信息发生变化(第33-62位) 
- 
-#### 2. 在Swift中通过 unowned 定义无主引用，unowned 不会产生强引用，实例销毁后仍然存储着实例的内存地址(类似于OC中的 
-unsafe_unretained);实例销毁后访问无主引用，会产生运行时错误（野指针）;在使用unowned的时候，要确保其修饰的属性一定有值       
 
 ![图片](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGScreenshots/ARCStrong1.png)
 
+ 
+#### 2. 在Swift中通过 unowned 定义无主引用，unowned 不会产生强引用，实例销毁后仍然存储着实例的内存地址(类似于OC中的 
+unsafe_unretained);实例销毁后访问无主引用，会产生运行时错误（野指针）;在使用unowned的时候，要确保其修饰的属性一定有值
+unowned无主引用引用计数是从1开始的
+
+![图片](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGScreenshots/ARCUnowned.png)
 
 
 #### 5.2 如果是弱引用，则引用计数refCounts不再通过位域来存储引用计数，而是一个指针，指向HeapObjectSideTableEntr散列表
@@ -1023,44 +1029,32 @@ unsafe_unretained);实例销毁后访问无主引用，会产生运行时错误�
             var unownedRef: UInt32
         }
          
-         
-         
-#### unowned 和 weak总结
+        0-2位  3位----------61位    62-63位
+                   weak RC   
+                   
+![图片](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGScreenshots/ARCWeak1.png)                           
+        
+#### 5.3 如何获取引用计数
+#### 通过**CFGetRetainCount**函数来获取引用计数   
+
+            var cls = WGClass()
+            NSLog("-------\(CFGetRetainCount(cls))----")
+            //打印结果: 
+            -------2----
+ 
+#### 5.4 从上面可以分析出
+* 一个实例对象在首次初始化的时候，是没有sideTable的，当我们创建一个弱引用的时候，才会创建sideTable
 * weak、unowned 都能解决循环引用的问题，unowned 要比 weak 少一些性能消耗    
 * 如果强引用的双方生命周期没有任何关系，使用weak；如果其中一个对象销毁，另一个对象也跟着销毁，则使用unowned；
 * weak相对于unowned更兼容，更安全，而unowned性能更高；这是因为weak需要操作散列表，而unowned只需要操作64位位域信息；
 在使用unowned的时候，要确保其修饰的属性一定有值
-
-
-* weak变量并没有持有被引用对象的指针,而是持有了被引用对象的sidetable,通过访问持有的sidetable的pointer指针间接访问引用的对象
-* 这跟Objective-C的weak实现是有区别的,Objective-C的sidetable是存储在一个全局数组里,而Swift则是每个对象都有自己的sidetable
-* weak关键字的作用是在使用这个实例的时候并不保有此实例的引用
-* 使用weak关键字修饰的引用类型数据在传递时不会使引用计数加1，不会对其引用的实例保持强引用，因此不会阻止ARC释放被引用的实例
-* 对象强引用计数归零时,并不会处理自己的sidetable,所以weak变量不会自动置为nil.此时如果weak变量去访问指向的对象,
-因为sidetable被标记为对象已经销毁,所以代码会返回nil.这里与Objective-C的自动将weak变量的值变成nil有很大区别
 * swift中弱引用必须是可选类型，因为引用的实例被释放后，ARC会自动将其置为nil
+* 散列表的创建可以分为4步操作步骤
 
-        WeakReference *swift::swift_weakInit(WeakReference *ref, HeapObject *value) {
-            ref->nativeInit(value);
-            return ref;
-        }
-        
-        void nativeInit(HeapObject *object) {
-            auto side = object ? object->refCounts.formWeakReference() : nullptr;
-            nativeValue.store(WeakReferenceBits(side), std::memory_order_relaxed);
-        }
-        // 本质就是创建了一个散列表，散列表的创建可以分为4步
-        HeapObjectSideTableEntry* RefCounts<InlineRefCountBits>::formWeakReference(){
-            auto side = allocateSideTable(true);
-            if (side)
-                return side->incrementWeak();
-            else
-                return nullptr;
-        }
-1.取出原来的 refCounts引用计数的信息
-2.判断原来的 refCounts 是否有散列表，如果有直接返回，如果没有并且正在析构直接返回nil
-3.创建一个散列表（存放weak弱引用的sideTable）
-4.对原来的散列表以及正在析构的一些处理
+        1.取出原来的 refCounts引用计数的信息。              
+        2.判断原来的 refCounts 是否有散列表，如果有直接返回，如果没有并且正在析构直接返回nil          
+        3.创建一个散列表（存放weak弱引用的sideTable）           
+        4.对原来的散列表以及正在析构的一些处理               
 
         //没有弱引用情况
         HeapObject {
@@ -1083,63 +1077,18 @@ unsafe_unretained);实例销毁后访问无主引用，会产生运行时错误�
                 }
             }   
         }
-        
-        typedef RefCounts<SideTableRefCountBits> SideTableRefCounts;
-        class HeapObjectSideTableEntry {
-            std::atomic<HeapObject*> object;  //存着对象的指针
-            SideTableRefCounts refCounts;     //SideTableRefCountBits继承自前面我们学习的RefCountBitsT
-    
-            public:
-            HeapObjectSideTableEntry(HeapObject *newObject)
-                : object(newObject), refCounts()
-            { }
-        }
-        
-        class alignas(sizeof(void*) * 2) SideTableRefCountBits : public RefCountBitsT<RefCountNotInline> {
-          uint32_t weakBits;       //存储者weak RC
-          public:
-          LLVM_ATTRIBUTE_ALWAYS_INLINE
-          SideTableRefCountBits() = default;
-        }
-        
-        //前面学习强引用时用到的RefCountBitsT类
-        class RefCountBitsT {
-            BitsType bits;  //该属性是由RefCountBitsInt的Type属性定义的
-        }
-        
-        总结:HeapObjectSideTableEntry存储的内容是
-        64位原有的strong RC + unowned RC + flags 再加上 32位的weak RC
-        当我们用 weak 修饰之后，这个散列表就会存储对象的指针和引用计数信息相关的东西
-        
-        
-#### 从上面可以分析出：在Swift中本质上存在两种引用计数
-1.如果是强引用，那么是strong RC + unowned RC + flags。 
-2.如果是弱引用，那么是 HeapObjectSideTableEntry    
-3.一个实例对象在首次初始化的时候，是没有sideTable的，当我们创建一个弱引用的时候，才会创建sideTable
+  
 
-
-
-#### weak弱引用 和 无主引用unowned的区别？
-1. unowned 要比 weak 少一些性能消耗，性能更高，因为weak需要操作散列表，而unowned只需要操作64位位域信息
-2. weak相对于unowned更兼容，更安全
-3. weak弱引用修饰的对象销毁时**会**将对象自动置为nil；而unowned无主引用修饰的对象销毁时**不会**将对象自动置为nil
-4. 不同于弱引用的是，无主引用是假定永远有值的
-
-
-#### weak弱引用 和 无主引用unowned如何选择？
-* 如果强引用的双方生命周期没有任何关系，使用weak
-* 如果其中一个对象销毁，另一个对象也跟着销毁，则使用unowned
-* 使用无主引用时，需要确保对象的生命周期至少与引用它的对象一样长
-
-
-### 6.Swift底层原理-枚举
+## 六. =============== Swift底层原理-枚举 ===============
 #### 在Swift中可以通过enum 关键字来声明一个枚举；枚举是一种包含自定义类型的数据类型，它是一组有共同特性的数据的集合
-#### 枚举中不能有存储属性，只能有计算属性、实例方法、类型方法
-#### 枚举分为以下三种： 无原始值 有原始值 有关联值
+* 枚举中可以定义计算属性、类型属性、实例方法、类型方法；不能定义存储属性和lazy属性
+* 无原始值(没有声明枚举类型)和有原始值的枚举 占用的内容空间都是1个字节，原始值不占用枚举的内存空间
+* 枚举分为以下三种： 无原始值 有原始值 有关联值
 
 
 #### 6.1 无原始值: 没有指定枚举类型
-
+* 无原始值的枚举，内部没有计算属性rawValue
+* 无原始值的枚举占用的内容大小是1个字节
 
         enum WGTestA {
             case A
@@ -1153,11 +1102,16 @@ unsafe_unretained);实例销毁后访问无主引用，会产生运行时错误�
         实际占用内存:------1个字节
         内存对齐占用内存------1个字节  
         
-        
-* 无原始值的枚举，内部没有计算属性rawValue
-* 无原始值的枚举占用的内容大小是1个字节
 
 #### 6.2 有原始值： 指定了枚举类型(枚举类型可以是字符串、字符、任意整型值、任意浮点型值)
+* 拥有原始值的枚举，内部有计算属性rawValue，通过rawValue可以获取到枚举的原始值
+* 枚举的原始值特性可以将枚举值与另一个数据类型进行绑定
+* 拥有原始值的枚举占用的内容大小是1个字节
+* 原始值并不会存储在枚举的内存空间中，而是给枚举添加原始值时，编译器帮我们实现了**RawRepresentable协议**,
+实现了init?(rawValue:）方法和计算属性rawValue
+* rawValue计算属性内部通过对self参数进行switch判断，依次返回不同的原始值
+* 给枚举添加原始值，不会影响枚举自身的任何结构
+
 
         //如果枚举的原始值类型是 Int、String、Double，Swift会自动分配原始值，隐式 RawValue 分配是建立在 Swift 的类型推断机制上的
         enum WGTestA: Int {
@@ -1187,14 +1141,6 @@ unsafe_unretained);实例销毁后访问无主引用，会产生运行时错误�
         
         实际占用内存:------1个字节
         内存对齐占用内存------1个字节 
-
-* 拥有原始值的枚举，内部有计算属性rawValue，通过rawValue可以获取到枚举的原始值
-* 枚举的原始值特性可以将枚举值与另一个数据类型进行绑定
-* 拥有原始值的枚举占用的内容大小是1个字节
-* 原始值并不会存储在枚举的内存空间中，而是给枚举添加原始值时，编译器帮我们实现了**RawRepresentable协议**,
-实现了init?(rawValue:）方法和属性rawValue
-* rawValue计算属性内部通过对self参数进行swift判断，一次返回不同的原始值
-* 给枚举添加原始值，不会影响枚举自身的任何结构
 
 
 #### 6.3 关联值： Swift中枚举值可以跟其他类型关联起来存储在一起，从而来表达更复杂的案例
