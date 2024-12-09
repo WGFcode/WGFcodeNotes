@@ -22,11 +22,11 @@ swift对象处打断点Debug Workflow
         }
     }
 #### 通过断点查看在创建swift对象过程中的汇编码我们可以发现，创建swift对象底层流程如下：然后通过swift源码全局搜索swift_allocObject，找到对应的底层方法
-1. __allocating_init()
-2. swift_allocObject
-3._swift_allocObject_ 
-4.swift_slowAlloc
-5.malloc
+1. __allocating_init()    
+2. swift_allocObject       
+3._swift_allocObject_      
+4.swift_slowAlloc    
+5.malloc              
 
         static HeapObject *_swift_allocObject_(HeapMetadata const *metadata, size_t requiredSize, size_t requiredAlignmentMask) {
             //⚠️swift_slowAlloc方法: 通过malloc在堆内存中开辟size大小的内存空间，并返回内存地址
@@ -543,7 +543,8 @@ key:函数名，value:子类重写的新的函数地址)，存放的是一个包
 3. 属性加上lazy就变成懒加载属性了且实例的内存空间会变大，因为加了lazy，系统会将该属性变成可选类型，在未访问时会变成nil，访问时才会赋值
 lazy的本质是可选项Optional，可选项的本质是enum枚举     
 4. 类型属性: 严格意义属性分为实例属性:只能通过实例访问(存储实例属性/计算实例属性)和类型属性: 只能通过类型区访问(类型存储属性/类型计算属性)
-验证过了类型属性只能通过static进行定义。  
+static可以定义类型属性(let+var),class只能在类中定义类型属性且类型属性属于计算型
+
 
     enum                     struct                  class 
     计算属性(var)             计算属性(var)             计算属性(var)
@@ -555,8 +556,6 @@ lazy的本质是可选项Optional，可选项的本质是enum枚举
 
 * 在init方法中调用set方法是不会触发属性观察器的，因为init方法还没完成初始化；如果init方法先调用了super.init方法，那么再调用set方法是可以
 触发属性观察器的，因为super.init后本对象已经完成了初始化工作了
-* 子类重写父类的属性观察者属性，当给子类的属性设置值时，调用顺序是这样的 子类的willSet-->父类的willSet-->父类的didSet-->子类的didSet
-* 什么属性可以添加属性观察器： 非lazy的存储属性/继承的存储属性/继承的计算属性
 
 #### 4.1 存储属性
 1. 存储属性是一个作为特定类和结构体实例一部分的常量或变量;类class、结构体struct可以定义存储属性，枚举不能定义存储属性
@@ -876,17 +875,18 @@ lazy的本质是可选项Optional，可选项的本质是enum枚举
 
 #### 5.1 如果是强引用或unowned无主引用，则引用计数refCounts是通过64位位域计数bits存储( 强引用stong+无主引用unowned)
 
-         struct HeapObject {
-             //指向元数据对象的指针，里面存储着类的信息，比如属性信息，虚函数表等
-             HeapMetadata const *metadata;  
-             //它是一个引用计数信息相关的东西
-             RefCounts<InlineRefCountBits> refCounts;      
-                         ｜
-                         ｜
+        struct HeapObject {                 
+            metadata(newMetadata)                       初始化默认strongExtraCount = 0 unownedCount = 1
+            refCounts(InlineRefCounts::Initialized) --->RefCounts(Initialized_t):refCounts(RefCountBits(0, 1))
+                            |
+            typedef RefCounts<InlineRefCountBits> InlineRefCounts;
+                            |
             typedef RefCountBitsT<RefCountIsInline> InlineRefCountBits;
-                         ｜
-                         ｜
+                            |
                     class RefCountBitsT {
+                        typedef typename RefCountBitsInt<refcountIsInline, sizeof(void*)>::Type
+                        BitsType;
+                        
                         BitsType bits;  //该属性是由RefCountBitsInt的Type属性定义的
                     }       ｜
                             ｜
@@ -906,48 +906,101 @@ lazy的本质是可选项Optional，可选项的本质是enum枚举
          }
          数据结构大概是
          struct InlineRefCountBits {
-            var strongRef: UInt32 
-            var unownedRef: UInt32
+             var strongRef: UInt32 
+             var unownedRef: UInt32
          }
          
-#### 5.1.1 swift中默认都是强引用，强引用就是通过引用计数中的bits这种位域来实现引用计数的增加、减少。引用计数的变化，
+#### 1. swift中默认都是强引用，强引用就是通过引用计数中的bits这种位域来实现引用计数的增加、减少。引用计数的变化，
 并不是直接+1，而是refercount存储的信息发生变化(第33-62位) 
  
-#### 5.1.2 在Swift中通过 unowned 定义无主引用，unowned 不会产生强引用，实例销毁后仍然存储着实例的内存地址(类似于OC中的 
+#### 2. 在Swift中通过 unowned 定义无主引用，unowned 不会产生强引用，实例销毁后仍然存储着实例的内存地址(类似于OC中的 
 unsafe_unretained);实例销毁后访问无主引用，会产生运行时错误（野指针）;在使用unowned的时候，要确保其修饰的属性一定有值       
+
+![图片](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGScreenshots/ARCStrong1.png)
 
 
 
 #### 5.2 如果是弱引用，则引用计数refCounts不再通过位域来存储引用计数，而是一个指针，指向HeapObjectSideTableEntr散列表
-* weak修饰后的变量会变成一个可选项Optional
+* weak修饰后的变量会变成一个可选项Optional,也就是可以将 nil 赋值给它
 * 使用weak声明的变量会调用swift_weakInit方法生成一个WeakReference类；使用对象的HeapObject生成一个WeakReference类的散列表
 * 散列表存储着 weak弱引用，而散列表内部引用计数相关类是继承自RefCountBitsT(通过bits位域存储strong RC + unowned RX)
 * 所以散列表中存储的就是 weak RC + 继承而来的[strong RC + unowned RC]    
 * unowned比weak效率更高。因为weak还需要通过操作散列表来存储引用计数；而unowned通过64位位域来存储引用计数
        
-        struct HeapObject {
-             HeapMetadata const *metadata;  是指向元数据对象的指针，里面存储着类的信息，比如属性信息，虚函数表等
-             HeapObjectSideTableEntry* refCounts;      它是一个指向散列表(存储引用计数)的指针
-                         ｜
-                         ｜
-             HeapObjectSideTableEntry {  //散列表
-                SideTableRefCounts {
-                    object pointer       //存着对象的指针
-                    atomic<SideTableRefCountBits> {
-                        strong RC + unowned RC + weak RC + flags
-                    }
-                }   
-             }
-                         ｜
-                         ｜
-                class SideTableRefCountBits : public RefCountBitsT<RefCountNotInline>
-                    uint32_t weakBits;  //32位Weak RC      
+        1.使用weak声明变量，会调用swift_weakInit方法生成WeakReference类
+        WeakReference *swift_weakInit(WeakReference *ref, HeapObject *value);
+                                ｜
+        WeakReference swift_weakInit(WeakReference *ref, HeapObject *value) {
+          ref->nativeInit(value);
+          return ref;
+        }
+        //1.1使用对象的HeapObject生成WeakReference的散列表
+        void nativeInit(HeapObject *object) {
+            auto side = object ? object->refCounts.formWeakReference() : nullptr;
+            nativeValue.store(WeakReferenceBits(side), std::memory_order_relaxed);
+        }
+        
+        HeapObjectSideTableEntry* RefCounts<InlineRefCountBits>::formWeakReference() {
+          auto side = allocateSideTable(true);  //1.2创建散列表
+          if (side)
+            return side->incrementWeak();       //1.3散列表中弱引用数+1
+          else
+            return nullptr;
+        }
+        //1.2创建散列表
+        HeapObjectSideTableEntry* RefCounts<InlineRefCountBits>::allocateSideTable(bool failIfDeiniting) {
+            //使用HeapObject初始化一个散列表
+            HeapObjectSideTableEntry *side = new HeapObjectSideTableEntry(getHeapObject());
+            
+            //使用散列表初始化一个RefCountBits
+            auto newbits = InlineRefCountBits(side);
+            
+            //使用散列表里面的HeapObject的RefCounts,初始化散列表的refCounts
+            side->initRefCounts(oldbits);
+            return side;
+        }
+        //散列表
+        class HeapObjectSideTableEntry {
+            //(1)继承自RefCountBits,有一个64位的属性bits存储strongRC + unownedRC
+            //(2)自己额外增加一个weakBits属性，记录弱引用数
+            std::atomic<HeapObject*> object;  对象的HeapObject
+            SideTableRefCounts refCounts;     散列表中的refCounts
+            
+            //通过HeapObject初始化散列表
+            HeapObjectSideTableEntry(HeapObject *newObject)
+                : object(newObject), refCounts()
+            { }
+        }
+        typedef RefCounts<SideTableRefCountBits> SideTableRefCounts;
+        
+        class SideTableRefCountBits : public RefCountBitsT<RefCountNotInline> {
+            uint32_t weakBits;
+        }
+        
+        //1.3散列表中弱引用数+1
+        HeapObjectSideTableEntry* incrementWeak() {
+            if (refCounts.isDeiniting()) return nullptr;
+            refCounts.incrementWeak();
+            return this;
+        }
+        void incrementWeak() {
+            auto oldbits = refCounts.load(SWIFT_MEMORY_ORDER_CONSUME);
+            RefCountBits newbits;
+            do {
+                newbits = oldbits;
+                assert(newbits.getWeakRefCount() != 0);
+                newbits.incrementWeakRefCount();
+              
+                if (newbits.getWeakRefCount() < oldbits.getWeakRefCount()) {
+                    swift_abortWeakRetainOverflow();
                 }
-                class RefCountBitsT {
-                    BitsType bits;  
-                } 
-                当我们用 weak 修饰之后，这个散列表就会存储对象的指针和引用计数信息相关的东西。
-         }
+            } while (!refCounts.compare_exchange_weak(oldbits, newbits,
+                                                      std::memory_order_relaxed));
+        }
+        void incrementWeakRefCount() { 
+            weakBits++;  //weakBits是SideTableRefCounts的新增属性，用来记录弱引用数
+        }
+       
          
         弱引用结构大概如下
         struct WeakReference {
@@ -959,9 +1012,9 @@ unsafe_unretained);实例销毁后访问无主引用，会产生运行时错误�
             var refCounts: SideTableRefCounts
         }
          
-        struct SideTableRefCounts {
-            var strongref: UInt32
-            var unownedRef: UInt32
+        struct SideTableRefCounts : InlineRefCountBits {
+                                    var strongref: UInt32
+                                    var unownedRef: UInt32
             var weakBits: UInt32
         }
          
@@ -971,26 +1024,6 @@ unsafe_unretained);实例销毁后访问无主引用，会产生运行时错误�
             var unownedRef: UInt32
         }
          
-        //总结如下
-        HeapObject {
-          isa
-          InlineRefCounts {
-            atomic<InlineRefCountBits> {
-              strong RC + unowned RC + flags
-              OR
-              HeapObjectSideTableEntry*
-            }
-          }
-        }
-
-        HeapObjectSideTableEntry {
-          SideTableRefCounts {
-            object pointer         //存着对象的指针
-            atomic<SideTableRefCountBits> {
-              strong RC + unowned RC + weak RC + flags
-            }
-          }   
-        }
          
          
 #### unowned 和 weak总结
