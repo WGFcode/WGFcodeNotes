@@ -23,10 +23,10 @@ swift对象处打断点Debug Workflow
     }
 #### 通过断点查看在创建swift对象过程中的汇编码我们可以发现，创建swift对象底层流程如下：然后通过swift源码全局搜索swift_allocObject，找到对应的底层方法
 1. __allocating_init()    
-2. swift_allocObject       
-3._swift_allocObject_      
-4.swift_slowAlloc    
-5.malloc              
+2. swift_allocObject              
+3._swift_allocObject_                 
+4.swift_slowAlloc                               
+5.malloc                   
 
         static HeapObject *_swift_allocObject_(HeapMetadata const *metadata, size_t requiredSize, size_t requiredAlignmentMask) {
             //⚠️swift_slowAlloc方法: 通过malloc在堆内存中开辟size大小的内存空间，并返回内存地址
@@ -543,15 +543,14 @@ key:函数名，value:子类重写的新的函数地址)，存放的是一个包
 3. 属性加上lazy就变成懒加载属性了且实例的内存空间会变大，因为加了lazy，系统会将该属性变成可选类型，在未访问时会变成nil，访问时才会赋值
 lazy的本质是可选项Optional，可选项的本质是enum枚举     
 4. 类型属性: 严格意义属性分为实例属性:只能通过实例访问(存储实例属性/计算实例属性)和类型属性: 只能通过类型区访问(类型存储属性/类型计算属性)
-static可以定义类型属性(let+var),class只能在类中定义类型属性且类型属性属于计算型
+static可以定义类型属性(let+var),class只能在类中定义类型属性且类型属性属于计算型         
 
-
-    enum                     struct                  class 
-    计算属性(var)             计算属性(var)             计算属性(var)
-    static类型属性(let+var)   存储属性(let+var)         存储属性(let+var)
-                            lazy属性(var)             lazy属性(var)
-                            static类型属性(let+var)    static类型属性(let+var)
-                                                     class类型属性(var计算型)
+        enum                     struct                  class 
+        计算属性(var)             计算属性(var)             计算属性(var)
+        static类型属性(let+var)   存储属性(let+var)         存储属性(let+var)
+                                lazy属性(var)             lazy属性(var)
+                                static类型属性(let+var)    static类型属性(let+var)
+                                                         class类型属性(var计算型)
                         
 
 * 在init方法中调用set方法是不会触发属性观察器的，因为init方法还没完成初始化；如果init方法先调用了super.init方法，那么再调用set方法是可以
