@@ -43,14 +43,14 @@
 #### struct 是苹果推荐的，原因在于使用struct是值类型，在传递值的时候它会进行值的copy，所以在多线程是安全的；
 struct存储在栈stack中，操作起来效率更高struct没有引用计数器，所以不会因为循环引用导致内存泄漏
 
-#### struct缺点  内存问题+
+#### struct缺点 内存问题+
 #### 值类型 有哪些问题？比如在两个 struct 赋值操作时，可能会发现如下问题： 解决方案：COW(copy-on-write) 写时拷贝机制
 * 内存中可能存在两个巨大的数组；
 * 两个数组数据是一样的；
 * 重复的复制。
 
 #### 写时拷贝 Copy-on-Write
-* Copy-on-Write 是一种用来优化占用内存大的值类型的拷贝操作的机制，写时拷贝只会发生在值类型的集合上
+* Copy-on-Write 是一种用来优化占用内存大的值类型的拷贝操作的机制，写时拷贝只会发生在值类型的集合(数组/字典)上
 * 对于Int，Double，String 等基本类型的值类型，它们在赋值的时候就是深拷贝(内存增加)
 * 对于 Array、Dictionary，当它们赋值的时候不会发生拷贝，只有在修改的之后才会发生拷贝
 * 写时拷贝机制减少的是内存的增加; 写时拷贝只会发生在数组Array、字典Dictionary中；而集合Set不会发生写时拷贝
@@ -111,9 +111,12 @@ struct存储在栈stack中，操作起来效率更高struct没有引用计数器
         a.age----1
         b:----18
         
-        isKnownUniquelyReferenced函数用于判断一个对象是否只被一个强引用持有，从而决定是否需要进行深拷贝。
+        /* 
+        1. isKnownUniquelyReferenced函数用于判断一个对象是否只被一个强引用持有，从而决定是否需要进行深拷贝。
         如果对象只被一个强引用持有，返回true；否则返回false
-        // 自定义实现写时拷贝：主要就是通过isKnownUniquelyReferenced函数 ⚠️⚠️⚠️这里必须在类Ref中写上final，否则赋值过程两个对象的地址还是不同的
+        2.自定义实现写时拷贝：主要就是通过isKnownUniquelyReferenced函数 
+        ⚠️⚠️⚠️这里必须在类Ref中写上final，否则赋值过程两个对象的地址还是不同的
+        */
         //final 1.避免类的继承 2.保持引用计数的一致性
         // 如果 Ref<T> 类是可继承的，其他子类可能会引入对引用计数的修改
         final class Ref<T> {
@@ -162,9 +165,9 @@ struct存储在栈stack中，操作起来效率更高struct没有引用计数器
 1. 声明一个final的泛型类，必须是final类型(避免类继承和保持引用计数的一致性)
 2. 定义一个装载泛型类的结构体，在这个结构体中，定义一个存储泛型类的属性
 3. 在这个结构体初始化是对这个泛型类进行初始化，然后定一个get/set属性用来获取外部传进来的结构体对象
-在get/set方法中通过isKnownUniquelyReferenced方法判断是否需要拷贝外部传进来的结构体对象
+在get/set方法中通过isKnownUniquelyReferenced方法判断是否需要拷贝外部传进来的结构体对象        
 4.自定义一个结构体，然后将其装载到定义好的结构体对象中，通过定义好的结构体对象中声明的get/set方法来获取到自定义的结构体
-进行修改对应属性的内容
+进行修改对应属性的内容        
 
 
 #### 3. swift定义常量和OC中定义常量有什么区别
@@ -180,17 +183,26 @@ struct存储在栈stack中，操作起来效率更高struct没有引用计数器
  
 
 #### 4. 说说Swift为什么将String,Array,Dictionary设计成值类型？
-##### 值类型相对引用类型，最大的优势在于内存使用的高效，值类型在栈上操作的，引用类型在堆上操作的；
-栈上的操作仅仅是单个指针的上下移动，而堆上的操作则涉及到合并、移动、重新链接等，swift将String,Array,Dictionary设计
-为值类型，大幅减少了堆上的内存分配和回收的次数，同时写时复制又将值传递和复制的开销降到了最低；同时设计为之值类型，也是为了线程安全考虑
+* 值类型相对引用类型，最大的优势在于内存使用的高效，值类型在栈上操作的，引用类型在堆上操作的；
+* 栈上的操作仅仅是单个指针的上下移动，而堆上的操作则涉及到合并、移动、重新链接等，
+* swift将String,Array,Dictionary设计为值类型，大幅减少了堆上的内存分配和回收的次数，
+同时写时复制又将值传递和复制的开销降到了最低；
+* 设计为之值类型，也是为了线程安全考虑
 
 
-#### 5. swift的静态派发
-#### OC中的方法都是**动态派发**(方法调用)，swift中的方法分为**动态派发**和**静态派发**
-1. 动态派发:  指的是方法在运行时才找到具体实现，swift中的动态派发和OC中的动态派发是一样的
-2. 静态派发: 静态派发是指运行时调用方法不需要查表，直接跳转到方法的代码中执行
-3. 静态派发特点：更高效(因为免去了查表操作);静态派发的条件是方法内部的代码必须对编译器透明，且在运行时不能被修改
-4. swift中的值类型不能被继承，也就是值类型的方法实现不能被修改或者被重写，因此值类型的方法满足静态派发
+#### 5. 聊聊swift的方法派发
+#### OC中的方法都是【动态派发】(方法调用)，swift中的方法分为【动态派发】和【静态派发】
+* swift静态派发就是在编译期方法的地址已经确定了，运行时直接调用函数地址即可
+* swift动态派发分为两种: 一种是虚函数表(Vtable)派发;一种是objc_msgSend动态派发(和OC的消息发送流程一样)
+* swift中值类型、扩展(值类型扩展引用类型扩展)中的方法都是通过静态派发的
+* 纯swift类和继承自NSObject的子类在声明位置定义的方法使用的是函数表(Vtable)派发;在扩展中使用的是静态派发
+* final修饰的方法采用静态派发/ @objc+dynamic采用的是objc_msgSend消息发送
+* 继承自NSObject的子类中@objc / dynamic采用的是函数表(VTable)派发/ 扩展了NSObject子类中的@objc是objc_msgSend消息发送
+* 协议中的方法，当调用方法时声明的对象类型是协议类型时，采用的是通过witness Table派发
+* witness Table派发实际上就是通过witness Table找到对应类型进行方法调用(若是值类型，通过witness Table找到值类型中的
+函数地址直接调用；弱是引用类型，则通过witness Table找到引用类型中的VTable进行方法调用)
+
+
 
 #### 6. dynamic framework 和 static framework的区别是什么？
 * 库(Library)是一段编译好的二进制代码,加上.h头文件后就可以供给别人使用；
@@ -235,202 +247,18 @@ struct存储在栈stack中，操作起来效率更高struct没有引用计数器
 * cd xxx.framework 然后file xxx 查看静态库包含current ar archive random library 动态库:dynamically linked shared library
 
 
-#### 8.构造器
 
-#### 构造器也就是初始化方法，主要任务是保证新实例在第一次使用前完成正确的初始化，swift的初始化方法和OC初始化方法区别如下 
-* OC初始化方法一定有返回值；swift初始化方法无需返回值
-* OC初始化方法可以自己命名的；swift所有构造方法名都是init(以参数列表里的参数名和参数类型来分区不同的初始化方法-参数标签)
-* OC中所有类都是继承于NSObject的；swift本身没继承任何类的类就叫做基类
-* OC中无论你是否自定义了初始化方法，只要是类都有个叫init的初始化方法；swift中只有所有属性都有默认值且没有定义构造器，
-系统才会默认给你生成个init()的构造器；一旦自定义了构造器，系统就不会给你提供这个init()方法了
-
-#### 属性(特指存储属性，计算属性不需要赋值因为其内部都是通过存储属性计算的)的初值既可以在申明属性时为其设置默认值，也可以在初始化方法内为
-其设置默认值,两者的效果是一样的.但是前者较好,因为申明属性和给其赋初值连在一起系统就能推断出属性的类型，而且对构造器来说也能使其更简洁清晰
-
-        class WGA {
-            let red, green, blue: Double
-            //没有参数标签，调用时系统会自动补上参数标签,参数标签的名称和参数名称一致
-            init(white: Double) {
-                self.red = white
-                self.green = white
-                self.blue = white
-            }
-            //没有参数标签，调用时系统会自动补上参数标签,参数标签的名称和参数名称一致
-            init(red: Double, green: Double, blue: Double) {
-                self.red = red
-                self.green = green
-                self.blue = blue
-            }
-            //用_占位符隐藏参数标签，调用的时候就不会存在参数标签了
-            init(_ red: Double, _ green: Double, _ blue: Double) {
-                self.red = red
-                self.green = green
-                self.blue = blue
-            }
-        }
-        
-        let a1 = WGA(white: <#T##Double#>)
-        let a2 = WGA(red: <#T##Double#>, green: <#T##Double#>, blue: <#T##Double#>)
-        let a3 = WGA.init(<#T##red: Double##Double#>, <#T##green: Double##Double#>, <#T##blue: Double##Double#>)
-        
-        
-
-
-
-
-
-1. 指定构造器: 标配，每个类至少要有一个指定构造器，可以没有便利构造器；初始化类中的所有属性
-2. 便利构造器: 次要、辅助；最终调用本类中的指定构造函数；
-
-        public class WGTest {
-            var name: String
-            //1.指定构造器: 将初始化类中提供的所有属性，并调用合适的父类构造器让构造过程沿着父类链继续往上进行
-            init(name: String) {
-                self.name = name
-                //若WGTest有父类，则需要调用父类的指定构造器 例如: super.init
-            }
-            
-            //2.便利构造器: 用convenience修饰的构造器都是便利构造器，便利构造器是类中比较次要的、辅助型的构造器
-            //定义便利构造器来调用同一个类中的指定构造器，并为部分形参提供默认值
-            convenience init() {
-                self.init(name: "zhangsan")
-            }
-        }
-#### 类类型的构造器规则
-1. 指定构造器必须调用其直接父类的的指定构造器(若有父类则调用，没有父类则不调用)
-2. 便利构造器必须调用同类中定义的其它构造器(可以是同类中的便利构造器，也可以是同类的指定构造器)
-3. 便利构造器最后必须调用指定构造器。
-4. 一个更方便记忆的方法是： (1)指定构造器必须总是向上代理 (2)便利构造器必须总是横向代理 
-
-![图片](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGScreenshots/init.jpg)
-                   
-#### 8.1 指定构造器和便利构造器的继承
-#### swift 中的子类默认情况下不会继承父类的构造器，子类去继承父类中的构造函数有条件，遵循规则
-1. 如果子类中没有任何构造函数，它会自动继承父类中所有的构造器
-2. 如果子类提供了所有父类指定构造函数的实现，那么它会自动继承所有父类的便利构造函数；如果重写了部分父类指定构造器，那么是不会自动继承便利构造器函数的
-
-        验证规则一
-        class Car{
-            var speed:Double
-            var banner:String
-            //指定构造函数
-            init(speed:Double,banner:String){
-                print("父类指定1------start")
-                self.speed = speed
-                self.banner = banner
-                print("父类指定1------end")
-            }
-            //指定构造函数
-             init(speed:Double){
-                 print("父类指定2------start")
-                 self.speed = speed
-                 self.banner = "A123"
-                 print("父类指定2------end")
-            }
-            //便利构造函数
-            convenience init(){
-                print("父类便利-----start")
-                self.init(speed:20,banner:"B890")
-                print("父类便利-----end")
-            }
-        }
-
-        class Bus:Car{
-        }
-        
-        //调用便利构造器
-        var b1 = Bus.init()       
-            父类便利-----start
-            父类指定1------start
-            父类指定1------end
-            父类便利-----end
-            
-        //调用指定构造器
-        var b2 = Bus.init(speed: 10) 
-            父类指定2------start
-            父类指定2------end
-            
-        //调用指定构造器
-        var b3 = Bus.init(speed: 20, banner: "zhangsan") 
-            父类指定1------start
-            父类指定1------end
-        
-        验证规则二
-        class Big:Car{
-            var weight:Double 
-            
-            //重写父类指定构造函数
-            override init(speed:Double,banner:String){
-                print("Bus---------start")
-                self.weight = 100
-                super.init(speed:speed,banner:banner)
-                print("Bus---------end")
-            }
-            //重写父类指定构造函数
-            override init(speed:Double){
-                print("Businit(speed---------start")
-                self.weight = 100
-                super.init(speed:speed,banner:"BBBB")
-                print("Businit(speed---------end")
-            }
-        }
-        
-        var B1 = Big()
-            父类便利-----start
-            Bus---------start
-            父类指定1------start
-            父类指定1------end
-            Bus---------end
-            父类便利-----end
-
-#### 8.2 可失败构造函数
-#### 为什么需要可失败的构造函数？
-* 对一个类或者结构体初始化的时候可能失效
-* 失败原因：初始化传入的形参值无效，缺少外部资源
-
-#### 如何来定义可失败的构造函数？
-* 其语法在 init 关键字后面添加问号 （init?)
-* 可失败的构造函数里应该设计一个return nil语句 （没有也不会报错）
-* 通过可失败的构造函数构造出来一个实例是一个可选型
-
-        普通的构造函数
-        class Animal{
-            var species:String 
-            init(species:String){
-                self.species = species
-            }
-        }
-
-        //提问：cat1是什么类型？  Animal 
-        var cat1 = Animal(species:"Cat")
-        
-        可失败的构造函数
-        class Animal2{
-            var species:String
-            init?(species:String){
-                if species.isEmpty{
-                    return nil //一旦传进来的是空值，就构造失败
-                }
-                self.species = species
-            }
-        }
-        //提问：dog是什么类型？Animal的可选型
-        var dog = Animal2(species:"Dog")
-        print(dog!.species)
-        var tmp = Animal2(species:"")
-        print(tmp)//传进去的是空值，构造失败，结果为nil
-
-#### 总结: 指定构造器和便利构造器有什么区别？
-1. 类必须要至少有一个指定构造器，可以没有便利构造器
-2. 便利构造器必须调用本类中的另一个构造器，最终调用到本类的指定构造器
-3. 便利构造器前面需要添加convenience关键字
-
-#### 9. Any和AnyObject的区别
+#### 8. Any和AnyObject的区别
 * Any: 表示任意类型，包括基本数据类型、结构体、枚举、类和函数等。适用于需要处理多种不同类型的值的情况
-* AnyObject: 表示任意**类类型**的实例。适用于需要处理任意类实例的情况;AnyObject是Any的子集
+* AnyObject: 表示任意**类类型**的实例。适用于需要处理任意类实例的情况;AnyObject是Any的子集;只能存储类的实例
 
-#### 10.inout关键字
-#### 总结：inout的本质就是引用传递（地址传递）
+
+#### 9.inout关键字
+* inout的本质就是引用传递（地址传递），用于解决在函数内修改外部变量，函数执行完成后将改变后的值反馈给外部变量
+* inout关键字只能修饰变量，无法修饰常量，因为常量和字面量不能被修改(若myName用let修饰，则编译器会报错)
+* inout参数不能有默认值，可变参数不能标记为inout
+* 调用函数的时候，应该在变量名前放置&符号表示该变量可以由函数修改
+
 #### 默认情况下，函数参数默认是常量，试图从函数体中去改变一个函数的参数值会报编译错误
 
         //编译器报错: Cannot assign to value: 'name' is a 'let' constant
@@ -451,10 +279,7 @@ struct存储在栈stack中，操作起来效率更高struct没有引用计数器
         start------myName:lisi
         end------myName:zhangsan
         
-        将外部变量传递给函数，函数内部对参数进行了修改，且在函数结束时，修改的值被保留了下来
-* inout关键字只能修饰变量，无法修饰常量，因为常量和字面量不能被修改(若myName用let修饰，则编译器会报错)
-* inout参数不能有默认值，可变参数不能标记为inout
-* 调用函数的时候，应该在变量名前放置&符号表示该变量可以由函数修改     
+#### 将外部变量传递给函数，函数内部对参数进行了修改，且在函数结束时，修改的值被保留了下来     
 
         struct Shape {
             //1.存储属性
@@ -503,8 +328,7 @@ struct存储在栈stack中，操作起来效率更高struct没有引用计数器
         getGirth
         width=20, side=4, girth=80
         show------end
-#### inout参数是存储属性时：
-#### 存储属性有自己的内存地址，所以直接把存储属性的地址传递给需要修改的函数，在函数内部修改存储属性的值
+#### inout参数是存储属性时：存储属性有自己的内存地址，所以直接把存储属性的地址传递给需要修改的函数，在函数内部修改存储属性的值
 把实例s中存储属性width的内存地址传给了test函数；结构体的存储属性使用inout的本质和全局/局部变量都一样，都是地址传递。
 
         //参数是计算类型
@@ -527,9 +351,8 @@ struct存储在栈stack中，操作起来效率更高struct没有引用计数器
 * 当修改局部变量内存时，会调用girth的setter方法，把局部变量的值作为参数传递给setter方法
 * 最终的结果就是值被修改了
 
-#### inout参数是计算属性时：
-#### 由于计算属性没有自己的地址值，所以会调用getter方法获取一个局部变量，把局部变量的值传递给需要修改的函数，在函数内部修改局部变量的值，
-最后把局部变量的值传递给setter方法
+#### inout参数是计算属性时：由于计算属性没有自己的地址值，所以会调用getter方法获取一个局部变量，把局部变量的值传递给
+需要修改的函数，在函数内部修改局部变量的值，最后把局部变量的值传递给setter方法
 
         //参数有属性观察器时
         var s = Shape(width: 10, side: 4)
@@ -550,7 +373,7 @@ struct存储在栈stack中，操作起来效率更高struct没有引用计数器
 才会真正修改属性的值，最后调用didset
 
 #### inout关键字总结:
-1. 如果实参有物理内存地址，且没有设置属性观察器
+1.如果实参有物理内存地址，且没有设置属性观察器(如存储属性)
 
         直接将实参的内存地址传入函数（实参进行引用传递）
         
@@ -559,16 +382,23 @@ struct存储在栈stack中，操作起来效率更高struct没有引用计数器
         调用该函数时，先复制实参的值，产生一个副本（局部变量-执行get方法）
         将副本的内存地址传入函数（副本进行引用传递），在函数内部可以修改副本的值
         函数返回后，再将副本的值覆盖实参的值（执行set方法）
-3.什么是Copy In Copy Out？先Copy到函数里，修改后再Copy到外面。   
+3.什么是Copy In Copy Out？先Copy到函数里，修改后再Copy到外面。     
+4.inout参数的本质是地址传递 (引用传递)，不管什么情况都是传入一个地址。                 
+5. Swift 值类型中，属性的默认行为是不可变的。mutating关键字，用于在结构体或枚举的方法中修改属性；
+使用mutating修饰的方法（func）在修改属性后更新原始值，而不是返回一个新的副本。     
+mutating关键字只能用于值类型，mutating关键字本质是包装了inout关键字，加上mutating关键字后参数值会变成地址传递。         
+类对象是指针，传递的本身就是地址值，所以 mutating关键字对类是透明的，加不加效果都一样           
 
-4.inout参数的本质是地址传递 (引用传递)，不管什么情况都是传入一个地址。    
+#### 10 聊聊swift中的闭包
+* 闭包是⼀个捕获了上下⽂的常量或者是变量的函数
+* swift闭包主要有以下几种形式: 
 
-5. Swift 值类型中，属性的默认行为是不可变的。mutating关键字，用于在结构体或枚举的方法中修改属性
-使用mutating修饰的方法（func）在修改属性后更新原始值，而不是返回一个新的副本
-mutating关键字只能用于值类型，mutating关键字本质是包装了inout关键字，加上mutating关键字后参数值会变成地址传递。
-类对象是指针，传递的本身就是地址值，所以 mutating关键字对类是透明的，加不加效果都一样
-
-
+        1.‌闭包表达式‌：闭包表达式是一种轻量级语法，用于表示内联闭包
+        2.全局函数‌：有名字但不会捕获任何值的闭包
+        3.‌嵌套函数‌：有名字并可以捕获其封闭函数域内值的闭包
+        4.尾随闭包‌：在函数调用时，将闭包作为最后一个参数传递
+        5.逃逸闭包‌：在异步操作中使用的闭包，其生命周期超过函数调用本身
+    
 #### 11.什么是自动闭包、逃逸闭包、非逃逸闭包？
 #### 11.1 非逃逸闭包: 
 #### 非逃逸闭包: 永远不会离开一个函数的局部作用域的闭包就是非逃逸闭包

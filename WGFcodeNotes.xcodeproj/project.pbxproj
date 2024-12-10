@@ -222,7 +222,6 @@
 		30D0899F278BD09F003EAFAC /* WGHashTab.m in Sources */ = {isa = PBXBuildFile; fileRef = 30D0899C278BD09F003EAFAC /* WGHashTab.m */; };
 		30D089A3278BD0F5003EAFAC /* LeetCodeInterview.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30D089A2278BD0F5003EAFAC /* LeetCodeInterview.swift */; };
 		30D3DF72245E74790012F803 /* WGTestModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 30D3DF71245E74790012F803 /* WGTestModel.m */; };
-		30D5D08D2627CD1700F5A4EF /* Swift基础语法.md in Resources */ = {isa = PBXBuildFile; fileRef = 30D5D08C2627CD1700F5A4EF /* Swift基础语法.md */; };
 		30D67A8928A384310041FDB5 /* Xcode相关.md in Resources */ = {isa = PBXBuildFile; fileRef = 30D67A8828A384310041FDB5 /* Xcode相关.md */; };
 		30DD22BF2CFEA2CD005AC332 /* swiftMethod.png in Resources */ = {isa = PBXBuildFile; fileRef = 30DD22AA2CFEA2CD005AC332 /* swiftMethod.png */; };
 		30DD22C22CFEA33F005AC332 /* swiftMethod1.png in Resources */ = {isa = PBXBuildFile; fileRef = 30DD22C02CFEA33F005AC332 /* swiftMethod1.png */; };
@@ -2312,7 +2311,6 @@
 		30D089A2278BD0F5003EAFAC /* LeetCodeInterview.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LeetCodeInterview.swift; sourceTree = "<group>"; };
 		30D3DF70245E74790012F803 /* WGTestModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WGTestModel.h; sourceTree = "<group>"; };
 		30D3DF71245E74790012F803 /* WGTestModel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WGTestModel.m; sourceTree = "<group>"; };
-		30D5D08C2627CD1700F5A4EF /* Swift基础语法.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Swift基础语法.md"; sourceTree = "<group>"; };
 		30D67A8828A384310041FDB5 /* Xcode相关.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Xcode相关.md"; sourceTree = "<group>"; };
 		30DD22AA2CFEA2CD005AC332 /* swiftMethod.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = swiftMethod.png; sourceTree = "<group>"; };
 		30DD22C02CFEA33F005AC332 /* swiftMethod1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = swiftMethod1.png; sourceTree = "<group>"; };
@@ -6055,7 +6053,6 @@
 			isa = PBXGroup;
 			children = (
 				30CAB9E72852EA980030BF1C /* iOS包体积优化.md */,
-				30D5D08C2627CD1700F5A4EF /* Swift基础语法.md */,
 				30AACDD8262D7FC500132AF5 /* Swift对象本质.md */,
 				548AC988242F4CAD00EEE11C /* KeyWords.md */,
 				300845CA24456B1700055737 /* KVC.md */,
@@ -6398,7 +6395,6 @@
 				301CF1BF2452F1750024EC69 /* runLoop1.png in Resources */,
 				300C189E2CDDDC1D00DA55DB /* dispatch_apply.3 in Resources */,
 				303C3CD72D003D0F0053180D /* property1.png in Resources */,
-				30D5D08D2627CD1700F5A4EF /* Swift基础语法.md in Resources */,
 				300C18A52CDDDC1D00DA55DB /* dispatch_read.3 in Resources */,
 				5483CFEC25D3B95400613F40 /* RunTime.md in Resources */,
 				30ECA52024580E9000E3D312 /* Response.md in Resources */,

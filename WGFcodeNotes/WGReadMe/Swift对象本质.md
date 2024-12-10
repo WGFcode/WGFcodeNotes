@@ -1651,7 +1651,7 @@ TargetFunctionTypeMetadata拥有自己的Flags和ResultType，以及参数列表
             func test2()
         }
 
-        //可选协议方式一
+        //可选协议方式一 @objc + optional
         @objc protocol WGTest {
             @objc optional func test1()
             func test2()
@@ -1813,6 +1813,7 @@ TargetFunctionTypeMetadata拥有自己的Flags和ResultType，以及参数列表
 
 
 ## 九. =============== Swift底层原理-反射Mirror ===============
+
 * 反射：是指可以动态获取类型、成员信息，在运行时可以调用方法、属性等行为的特性。对于一个纯swift类来说，
 并不支持直接像OC runtime那样的操作,但是swift标准库依旧提供了反射机制，用来访问成员信息，即Mirror
 
@@ -1865,3 +1866,193 @@ TargetFunctionTypeMetadata拥有自己的Flags和ResultType，以及参数列表
             MetatypeImpl元数据的反射
             OpaqueImpl不透明类型的反射
 
+
+## 十. =============== swift构造器 ===============
+
+
+#### 构造器也就是初始化方法，主要任务是保证新实例在第一次使用前完成正确的初始化，swift的初始化方法和OC初始化方法区别如下 
+* OC初始化方法一定有返回值；swift初始化方法无需返回值
+* OC初始化方法可以自己命名的；swift所有构造方法名都是init(以参数列表里的参数名和参数类型来分区不同的初始化方法-参数标签)
+* OC中所有类都是继承于NSObject的；swift本身没继承任何类的类就叫做基类
+* OC中无论你是否自定义了初始化方法，只要是类都有个叫init的初始化方法；swift中只有所有属性都有默认值且没有定义构造器，
+系统才会默认给你生成个init()的构造器；一旦自定义了构造器，系统就不会给你提供这个默认的init()方法了
+* 类必须要至少有一个指定构造器，可以没有便利构造器
+* 便利构造器必须调用本类中的另一个构造器，最终调用到本类的指定构造器
+* 便利构造器前面需要添加convenience关键字
+
+#### 属性(特指存储属性，计算属性不需要赋值因为其内部都是通过存储属性计算的)的初值既可以在申明属性时为其设置默认值，也可以在初始化方法内为
+其设置默认值,两者的效果是一样的.但是前者较好,因为申明属性和给其赋初值连在一起系统就能推断出属性的类型，而且对构造器来说也能使其更简洁清晰
+
+        class WGA {
+            let red, green, blue: Double
+            //没有参数标签，调用时系统会自动补上参数标签,参数标签的名称和参数名称一致
+            init(white: Double) {
+                self.red = white
+                self.green = white
+                self.blue = white
+            }
+            //没有参数标签，调用时系统会自动补上参数标签,参数标签的名称和参数名称一致
+            init(red: Double, green: Double, blue: Double) {
+                self.red = red
+                self.green = green
+                self.blue = blue
+            }
+            //用_占位符隐藏参数标签，调用的时候就不会存在参数标签了
+            init(_ red: Double, _ green: Double, _ blue: Double) {
+                self.red = red
+                self.green = green
+                self.blue = blue
+            }
+        }
+        
+        let a1 = WGA(white: <#T##Double#>)
+        let a2 = WGA(red: <#T##Double#>, green: <#T##Double#>, blue: <#T##Double#>)
+        let a3 = WGA.init(<#T##red: Double##Double#>, <#T##green: Double##Double#>, <#T##blue: Double##Double#>)
+        
+        
+
+
+1. 指定构造器: 标配，每个类至少要有一个指定构造器，可以没有便利构造器；初始化类中的所有属性
+2. 便利构造器: 次要、辅助；最终调用本类中的指定构造函数；
+
+        public class WGTest {
+            var name: String
+            //1.指定构造器: 将初始化类中提供的所有属性，并调用合适的父类构造器让构造过程沿着父类链继续往上进行
+            init(name: String) {
+                self.name = name
+                //若WGTest有父类，则需要调用父类的指定构造器 例如: super.init
+            }
+            
+            //2.便利构造器: 用convenience修饰的构造器都是便利构造器，便利构造器是类中比较次要的、辅助型的构造器
+            //定义便利构造器来调用同一个类中的指定构造器，并为部分形参提供默认值
+            convenience init() {
+                self.init(name: "zhangsan")
+            }
+        }
+#### 类类型的构造器规则
+1. 指定构造器必须调用其直接父类的的指定构造器(若有父类则调用，没有父类则不调用)
+2. 便利构造器必须调用同类中定义的其它构造器(可以是同类中的便利构造器，也可以是同类的指定构造器)
+3. 便利构造器最后必须调用同类中的指定构造器。
+4. 一个更方便记忆的方法是：
+ 
+        (1)指定构造器必须总是向上代理
+        (2)便利构造器必须总是横向代理 
+
+![图片](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGScreenshots/init.jpg)
+                   
+#### 10.1 指定构造器和便利构造器的继承
+#### swift 中的子类默认情况下不会继承父类的构造器，子类去继承父类中的构造函数有条件，遵循规则
+1. 如果子类中没有任何构造函数，它会自动继承父类中所有的构造器
+2. 如果子类提供了所有父类指定构造函数的实现，那么它会自动继承所有父类的便利构造函数；如果重写了部分父类指定构造器，
+那么是不会自动继承便利构造器函数的
+
+        验证规则一
+        class Car{
+            var speed:Double
+            var banner:String
+            //指定构造函数
+            init(speed:Double,banner:String){
+                print("父类指定1------start")
+                self.speed = speed
+                self.banner = banner
+                print("父类指定1------end")
+            }
+            //指定构造函数
+             init(speed:Double){
+                 print("父类指定2------start")
+                 self.speed = speed
+                 self.banner = "A123"
+                 print("父类指定2------end")
+            }
+            //便利构造函数
+            convenience init(){
+                print("父类便利-----start")
+                self.init(speed:20,banner:"B890")
+                print("父类便利-----end")
+            }
+        }
+
+        class Bus:Car{
+        }
+        
+        //调用便利构造器
+        var b1 = Bus.init()       
+            父类便利-----start
+            父类指定1------start
+            父类指定1------end
+            父类便利-----end
+            
+        //调用指定构造器
+        var b2 = Bus.init(speed: 10) 
+            父类指定2------start
+            父类指定2------end
+            
+        //调用指定构造器
+        var b3 = Bus.init(speed: 20, banner: "zhangsan") 
+            父类指定1------start
+            父类指定1------end
+        
+        验证规则二
+        class Big:Car{
+            var weight:Double 
+            
+            //重写父类指定构造函数
+            override init(speed:Double,banner:String){
+                print("Bus---------start")
+                self.weight = 100
+                super.init(speed:speed,banner:banner)
+                print("Bus---------end")
+            }
+            //重写父类指定构造函数
+            override init(speed:Double){
+                print("Businit(speed---------start")
+                self.weight = 100
+                super.init(speed:speed,banner:"BBBB")
+                print("Businit(speed---------end")
+            }
+        }
+        
+        var B1 = Big()
+            父类便利-----start
+            Bus---------start
+            父类指定1------start
+            父类指定1------end
+            Bus---------end
+            父类便利-----end
+
+#### 10.2 可失败构造函数
+#### 为什么需要可失败的构造函数？
+* 对一个类或者结构体初始化的时候可能失效
+* 失败原因：初始化传入的形参值无效，缺少外部资源
+
+#### 如何来定义可失败的构造函数？
+* 其语法在 init 关键字后面添加问号 （init?)
+* 可失败的构造函数里应该设计一个return nil语句 （没有也不会报错）
+* 通过可失败的构造函数构造出来一个实例是一个可选型
+
+        普通的构造函数
+        class Animal{
+            var species:String 
+            init(species:String){
+                self.species = species
+            }
+        }
+
+        //提问：cat1是什么类型？  Animal 
+        var cat1 = Animal(species:"Cat")
+        
+        可失败的构造函数
+        class Animal2{
+            var species:String
+            init?(species:String){
+                if species.isEmpty{
+                    return nil //一旦传进来的是空值，就构造失败
+                }
+                self.species = species
+            }
+        }
+        //提问：dog是什么类型？Animal的可选型
+        var dog = Animal2(species:"Dog")
+        print(dog!.species)
+        var tmp = Animal2(species:"")
+        print(tmp)//传进去的是空值，构造失败，结果为nil
