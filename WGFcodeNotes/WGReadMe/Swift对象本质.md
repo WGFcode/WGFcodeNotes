@@ -1319,6 +1319,14 @@ TargetFunctionTypeMetadata拥有自己的Flags和ResultType，以及参数列表
         { (param type) -> (returnType) in
             //to do
         }
+        //闭包表达式作为变量
+        var closure: (Int) -> Int = { (a: Int) -> Int in
+            return a + 100
+        }
+        //闭包表达式作为函数参数
+        func func3(_ someThing: @escaping (() -> Void)) {
+    
+        }
 
 #### 7.1.1闭包～捕获值
 * 闭包可以在其被定义的上下文中捕获常量或变量。即使定义这些常量和变量的原作用域已经不存在，闭包仍然可以在闭包函数体内引用和修改这些值
@@ -1336,18 +1344,20 @@ TargetFunctionTypeMetadata拥有自己的Flags和ResultType，以及参数列表
             }
             return incrementer
         }
-        //内联函数incrementer捕获了变量runningTotal，调用
+        //内联函数incrementer捕获了变量runningTotal
+        //申请了一个堆上的地址，并将地址给了runningTotal，将变量存储到堆上；从堆上取出变量交给闭包使用
         let fn = makeIncrementer()
         print(fn())      //11
         print(fn())      //12
         print(fn())      //13
+        
         //每次调用返回的是 runningTotal += 1的结果
         print(makeIncrementer()()) //11
         print(makeIncrementer()()) //11
         print(makeIncrementer()()) //11
         
 #### 7.1.2闭包～捕获全局变量
-* 闭包针对全局变量，不会捕获的，而是直接拿来用的，内部并没有进行任何堆内存开辟操作
+* 闭包针对全局变量，不会捕获的所以也就不会开辟堆空间，而是直接拿来用的，内部并没有进行任何堆内存开辟操作
 
         var runningTotal = 10
         func makeIncrementer() -> () -> Int {
@@ -1359,15 +1369,46 @@ TargetFunctionTypeMetadata拥有自己的Flags和ResultType，以及参数列表
         }
 
         let fn = makeIncrementer()
-        print(fn())     //11
-        print(fn())     //12
-        print(fn())     //13
+        NSLog("\(fn())")  //11
+        NSLog("\(fn())")  //12
+        NSLog("\(fn())")  //13
+        NSLog("------")
+        NSLog("\(makeIncrementer()())")  //14
+        NSLog("\(makeIncrementer()())")  //15
+        NSLog("\(makeIncrementer()())")  //16
 
 #### 7.1.3闭包～捕获引用类型
 * 闭包在捕获引用类型时候，其实也不需要捕获实例对象，因为它已经在堆区了，就不需要再去创建一个堆空间的实例包裹它了
 * 只需要将它的地址存储到闭包的结构中，操作实例对象的引用计数+1即可
 * 当闭包捕获一个引用类型的变量时，会捕获该变量的引用。即闭包内部使用的是外部变量的引用，而不是拷贝。这意味着闭包内部对
 外部变量的修改会影响外部作用域中的变量
+
+
+        class WGClass {
+            var age = 0
+        }
+        func makeIncrementer() -> () -> Int {
+            var runningTotal = 10
+            var cls = WGClass()
+            cls.age = 0
+            func incrementer() -> Int {
+                cls.age += 1
+                return cls.age
+            }
+            return incrementer
+        }
+        
+        let fn = makeIncrementer()
+        NSLog("\(fn())")    //1
+        NSLog("\(fn())")    //2
+        NSLog("\(fn())")    //3
+        
+        NSLog("------")
+        NSLog("\(makeIncrementer()())")  //1
+        NSLog("\(makeIncrementer()())")  //1
+        NSLog("\(makeIncrementer()())")  //1
+        
+    
 
 #### 7.1.4闭包～捕获多个值
 
@@ -1382,12 +1423,12 @@ TargetFunctionTypeMetadata拥有自己的Flags和ResultType，以及参数列表
         }
         let fn = makeIncrementer()
         
-        //闭包结构还原
+        //闭包结构还原: 闭包底层就是个结构体，里面有两个成员：一个存储函数地址 一个存储捕获堆空间地址的值
         struct ClosureData<Box> {
             // 函数地址
             var ptr: UnsafeRawPointer
             // 存储捕获堆空间地址的值
-            var object: UnsafePointer<Box>
+            var object: UnsafePointer<Box> //捕获单个值，堆空间地址直接就是这个值所在的堆空间
         }
         struct Box<T> {
             var object: HeapObject
@@ -1399,7 +1440,8 @@ TargetFunctionTypeMetadata拥有自己的Flags和ResultType，以及参数列表
             var refcount: Int
         }
         
-        //分析闭包 捕获多个值
+        
+        //分析闭包 捕获多个值：
         func makeIncrementer() -> () -> Int {
             var runningTotal = 10      //11  12
             var runningTotal1 = 11      //22  34
@@ -1416,13 +1458,12 @@ TargetFunctionTypeMetadata拥有自己的Flags和ResultType，以及参数列表
         print(fn())  //34
         print(fn())  //47
         
-     
         //闭包结构还原
         struct ClosureData<MutiValue> {
             /// 函数地址
             var ptr: UnsafeRawPointer
             /// 存储捕获堆空间地址的值
-            var object: UnsafePointer<MutiValue>
+            var object: UnsafePointer<MutiValue> //捕获多个值时存储的堆空间地址会变成一个可以存储很多个捕获值的结构
         }
 
         struct MutiValue<T1,T2> {
@@ -1458,7 +1499,6 @@ TargetFunctionTypeMetadata拥有自己的Flags和ResultType，以及参数列表
         test {
             
         }
-
         // 以下是不使用尾随闭包进行函数调用
         test(closure: {
             

@@ -193,7 +193,16 @@ struct存储在栈stack中，操作起来效率更高struct没有引用计数器
 #### 5. 聊聊swift的方法派发
 #### OC中的方法都是【动态派发】(方法调用)，swift中的方法分为【动态派发】和【静态派发】
 * swift静态派发就是在编译期方法的地址已经确定了，运行时直接调用函数地址即可
-* swift动态派发分为两种: 一种是虚函数表(Vtable)派发;一种是objc_msgSend动态派发(和OC的消息发送流程一样)
+* swift动态派发分为两种: 函数表派发(Vtable+witness Table) + objc_msgSend 
+
+                函数表派发                 objc_msgSend消息发送
+                   ｜
+        虚函数表(Vtable)派发   witness Table派发 
+* 影响swift方法派发的因素有
+
+        1.声明位置(初始声明的作用域 + 扩展声明的作用域)
+        2.关键词(final、@objc、dynamic、@objc+dynamic、@inline)
+        
 * swift中值类型、扩展(值类型扩展引用类型扩展)中的方法都是通过静态派发的
 * 纯swift类和继承自NSObject的子类在声明位置定义的方法使用的是函数表(Vtable)派发;在扩展中使用的是静态派发
 * final修饰的方法采用静态派发/ @objc+dynamic采用的是objc_msgSend消息发送
@@ -201,6 +210,18 @@ struct存储在栈stack中，操作起来效率更高struct没有引用计数器
 * 协议中的方法，当调用方法时声明的对象类型是协议类型时，采用的是通过witness Table派发
 * witness Table派发实际上就是通过witness Table找到对应类型进行方法调用(若是值类型，通过witness Table找到值类型中的
 函数地址直接调用；弱是引用类型，则通过witness Table找到引用类型中的VTable进行方法调用)
+* final修饰符允许类中的函数使用【直接派发】;final修饰符会让函数失去动态性;任何函数都可以使用final修饰符，包括extension中原本就是直接派发的函数
+* dynamic 修饰符允许类中的函数使用 消息派发。使用 dynamic 修饰符之前，必须导入 Foundation 框架，因为框架中包含了 NSObject 
+和 Objective-C 的运行时。dynamic 修饰符可以修饰所有的 NSObject 子类和 Swift 原生类    
+* dynamic 修饰符可以让扩展声明（extension）中的函数也能够被 override
+* @objc 典型的用法就是给 selector 一个命名空间 @objc(xxx_methodName)，从而允许该函数可以被 Objective-C 的运行时捕获到
+* @nonobjc： 会改变派发方式，可以禁用消息派发，从而阻止函数注册到 Objective-C 的运行时中。   
+@nonobjc 的效果类似于 final，使用的场景几乎也是一样，个人猜测，@nonobjc 主要是用于兼容 Objective-C，    
+final 则是作为原生修饰符，以用于让 Swift 写服务端之类的代码    
+* final+@objc： 在使用 final 修饰符的同时，可以使用 @objc 修饰符让函数可以使用消息派发。同时使用这两个修饰符的结果是：
+调用函数时会使用直接派发，但也会在 Objective-C 运行时中注册响应的 selector。函数可以响应 perform(seletor:) 
+以及别的 Objective-C 特性，但在直接调用时又可以具有直接派发的性能
+* @inline 修饰符告诉编译器函数可以使用直接派发。
 
 
 
@@ -390,7 +411,16 @@ mutating关键字只能用于值类型，mutating关键字本质是包装了inou
 类对象是指针，传递的本身就是地址值，所以 mutating关键字对类是透明的，加不加效果都一样           
 
 #### 10 聊聊swift中的闭包
-* 闭包是⼀个捕获了上下⽂的常量或者是变量的函数
+* 闭包是⼀个捕获了上下⽂的常量或者是变量的函数；闭包捕获值的本质是：在堆区开辟内存空间，并将捕获的值存储到这个堆空间中
+* 闭包是引用类型，底层是个结构体，结构体里面有两个成员：一个用来存储函数地址；一个用来存储捕获值的堆空间地址
+* 闭包底层结构就是： 闭包 = 函数地址 + 捕获变量的地址
+* Swift中闭包是非逃逸的，即闭包在函数结束之前被调用并完成，它不会"逃逸"出函数的范围;内存管理由编译器进行管理优化
+* 逃逸闭包: 当一个闭包作为参数传到一个函数中，但是这个闭包在函数返回之后才被执行；用@escaping来明确闭包是允许逃逸的
+* 逃逸闭包可能会导致循环引用(retain cycle)问题;需要使用捕获列表来指定捕获方式(weak 或 unowned)
+* 逃逸闭包使用场景: 常见于异步操作，比如网络请求或延时调用
+* 自动闭包: 用来将作为函数参数的表达式打包的闭包；自动闭包不接收任何参数；当被调用时会返回被包装在其中的表达式的值
+* 自动闭包使用场景: 常用于延迟计算或延迟执行特定表达式时;在函数参数类型前加上@autoclosure表示自动闭包
+* swift 将函数作为一等公民: 意味着它们可以像其他数据类型一样，被用作变量、常量、参数或返回值
 * swift闭包主要有以下几种形式: 
 
         1.‌闭包表达式‌：闭包表达式是一种轻量级语法，用于表示内联闭包
@@ -398,36 +428,17 @@ mutating关键字只能用于值类型，mutating关键字本质是包装了inou
         3.‌嵌套函数‌：有名字并可以捕获其封闭函数域内值的闭包
         4.尾随闭包‌：在函数调用时，将闭包作为最后一个参数传递
         5.逃逸闭包‌：在异步操作中使用的闭包，其生命周期超过函数调用本身
-    
-#### 11.什么是自动闭包、逃逸闭包、非逃逸闭包？
-#### 11.1 非逃逸闭包: 
-#### 非逃逸闭包: 永远不会离开一个函数的局部作用域的闭包就是非逃逸闭包
 
 
-#### 11.2 逃逸闭包: 
-#### 逃逸闭包: 当一个闭包作为参数传到一个函数中，但是这个闭包在函数返回之后才被执行，我们称该闭包从函数中逃逸。称为逃逸闭包，
-在形式参数前写@escaping来明确闭包是允许逃逸的；直白点就是逃逸闭包是**传递给函数的闭包会在函数返回后执行**
-#### ⚠️逃逸闭包可能导致循环引用（retain cycle）问题。当闭包在函数之外执行，尤其是在闭包和类实例之间产生相互引用时
-应使用捕获列表（capture list），指定捕获方式为 weak 或 unowned
+#### 11 什么是Optional(可选项或者叫可选类型)?
+* 在变量类型后面加问号？表示该变量可能有值可能没有值
+* 可选项底层是一个枚举类型Optional，包含None和Some(Wrapped)两种类型的泛枚举类型；Optional.None即nil，Optional.Some非nil
+* 在OC中， nil是一个指向不存在对象的指针(OC非对象类型也可以设置成nil但是会有警告⚠️：指针不兼容)
+* 在Swift中，nil不是指针，而是值缺失的一种特殊类型，任何类型的可选项都可以设置为nil而不仅仅是对象类型
+*Swift 是一种类型安全的语言，而 Objective-C 不是。这意味着在 Swift 中，每个类型的 nil 都是不同的，例如 Int? 的 nil 
+和 String? 的 nil 是不同的，它们所代表的空值的类型不同。
+* 非可选项类型，不可设置为nil。Optional既可以包装值类型也可以包装引用类型
 
-
-#### 11.3 自动闭包： 
-#### 自动闭包：是一种自动创建的闭包，用来把作为实际参数传递给函数的表达式打包的闭包.他不接受任何实际参数,
-并且当它被调用时,它会返回内部打包的表达式的值
-#### 自动闭包（autoclosure）是 Swift 中一种特殊的闭包类型，它可以自动将表达式封装在一个没有参数的闭包中。
-当函数需要延迟求值或执行特定表达式时，可以用自动闭包将表达式传递给函数。这种类型的闭包在调用时不需要使用括号
-
-#### 自动闭包： 主要特点
-1. **无参数**：自动闭包是一种无参数的闭包，它从上下文中捕获值，而不是通过参数传递
-2. **延迟求值**：自动闭包在调用时才执行，这意味着它们只有在显示调用时才对表达式求值。因此，可以在需要时触发表达式的执行，实现代码的延迟计算
-3. **语法简洁**：自动闭包允许对实际的闭包表达式进行简化，使代码更可读和易理解。
-4. 要使用自动闭包，可以在函数参数类型前加上 **@autoclosure** 关键字
-
-#### swift 将函数作为一等公民: 意味着它们可以像其他数据类型一样，被用作变量、常量、参数或返回值
-
-#### 12 什么是Optional(可选项或者叫可选类型)?
-#### 在变量类型后面加问号？表示该变量可能有值可能没有值
-#### 底层Optional是一个包含None和Some(Wrapped)两种类型的泛枚举类型，Optional.None即nil，Optional.Some非nil
         @frozen public enum Optional<Wrapped> : ExpressibleByNilLiteral {
             /// The absence of a value.
             ///
@@ -441,111 +452,40 @@ mutating关键字只能用于值类型，mutating关键字本质是包装了inou
         var optional1: String? = nil
         var optional2: String? = .none
 
-* 在OC中， nil是一个指向不存在对象的指针(OC非对象类型也可以设置成nil但是会有警告⚠️：指针不兼容)
-* 在Swift中，nil不是指针，而是值缺失的一种特殊类型，任何类型的可选项都可以设置为nil而不仅仅是对象类型
-*Swift 是一种类型安全的语言，而 Objective-C 不是。这意味着在 Swift 中，每个类型的 nil 都是不同的，例如 Int? 的 nil 和 String? 的 nil 是不同的，它们所代表的空值的类型不同。
-* 非可选项类型，不可设置为nil。Optional既可以包装值类型也可以包装引用类型
-
-#### 13. swift的派发机制
-#### 函数的派发机制：
-1. 静态派发（直接派发）
-2. 函数表派发
-3. 消息派发
-
-#### 影响 Swift 的派发方式有以下几个方面
-1. 声明位置
-2. 指定派发
-3. 优化派发
-#### 在 Swift 中，一个函数有两个可以声明的位置
-* 初始声明的作用域
-* 扩展声明的作用域
-
-        // 初始声明的作用域
-        class MyClass {
-            func mainMethod() { ... }
-        }
-
-        // 扩展声明的作用域
-        extension MyClass {
-            func extensionMethod() { ... }
-        }
-
-
-* swift中所有值类型：struct、enum使用直接派发。
-* swift中协议的extensions(扩展)使用直接派发，初始声明的作用域内函数使用函数表派发
-* swift中class中extensions使用直接派发，初始声明的作用域内函数使用函数表派发
-* swift中NSObject的子类用，初始声明的作用域内函数使用函数表派发，扩展声明的作用域内的函数使用消息发送
-
-                      Initial Declaration    Extension Declaration
-        Value Type          static                 static
-        Protocol            table                  static
-        Class               table                  static
-        NSObject Subclass   table                  message
-
-
-#### swift（关键字）显示指定派发方式
-1. 添加**final/static**关键字的函数使用直接派发
-2. 添加**dynamic/@objc**关键字函数使用消息派发
-3. 添加@inline关键字的函数告诉编译器可以使用直接派发
-
-#### final 修饰符允许类中的函数使用 直接派发。final 修饰符会让函数失去动态性。任何函数都可以使用 final 修饰符，包括 extension 中原本就是直接派发的函数
-#### dynamic 修饰符允许类中的函数使用 消息派发。使用 dynamic 修饰符之前，必须导入 Foundation 框架，因为框架中包含了 NSObject 和 Objective-C 的运行时。dynamic 修饰符可以修饰所有的 NSObject 子类和 Swift 原生类
-dynamic 修饰符可以让扩展声明（extension）中的函数也能够被 override
-#### @objc 典型的用法就是给 selector 一个命名空间 @objc(xxx_methodName)，从而允许该函数可以被 Objective-C 的运行时捕获到
-#### @nonobjc： 会改变派发方式，可以禁用消息派发，从而阻止函数注册到 Objective-C 的运行时中。
-@nonobjc 的效果类似于 final，使用的场景几乎也是一样，个人猜测，@nonobjc 主要是用于兼容 Objective-C，
-final 则是作为原生修饰符，以用于让 Swift 写服务端之类的代码
-
-####final+@objc： 在使用 final 修饰符的同时，可以使用 @objc 修饰符让函数可以使用消息派发。同时使用这两个修饰符的结果是：调用函数时会使用直接派发，但也会在 Objective-C 运行时中注册响应的 selector。函数可以响应 perform(seletor:) 以及别的 Objective-C 特性，但在直接调用时又可以具有直接派发的性能
-#### @inline 修饰符告诉编译器函数可以使用直接派发。
 
 
 
 
-#### 14 try、try？、try
-
-try: 需要用“ do catch”捕捉异常，如果在“try”代码块中出现异常，程序会跳转到相应的“catch”代码块中执行异常处理逻辑，然后继续执行“catch”代码块后面的代码
-try?: 是返回一个可选值类型，如果“try?”代码块中出现异常，返回值会是“nil”，否则返回可选值。可以在运行时判断是否有异常发生。
-try!: 类似于可选型中的强制解包，它不会对错误进行处理，如果“try!”代码块中出现异常，程序会在异常发生处崩溃
-
-
-#### 15.存储属性、计算属性、类型属性区别
-存储属性: 用来进行数据的存储；需要分配内存；子类(无论是let var static修饰)不能直接重写存储属性；
-         重写（Override）通常用于子类覆盖父类的方法、计算属性或观察者
-         
-计算属性: 用来定义计算的过程, 不需要分配空间.计算属性必须使用var关键字进行定义
-
-类型属性: 用于定义某个类所有实例共享的数据;oc和swift都可以有类型属性
-        oc需要添加属性关键字class定义类型属性
-        swift用static/class来定义类型属性；static(不支持重写) class(支持子类重写)
+#### 12 try、try？、try
+* try: 需要用“ do catch”捕捉异常，如果在“try”代码块中出现异常，程序会跳转到相应的“catch”代码块中执行异常处理逻辑，
+然后继续执行“catch”代码块后面的代码        
+* try?: 是返回一个可选值类型，如果“try?”代码块中出现异常，返回值会是“nil”，否则返回可选值。可以在运行时判断是否有异常发生。      
+* try!: 类似于可选型中的强制解包，它不会对错误进行处理，如果“try!”代码块中出现异常，程序会在异常发生处崩溃       
 
 
-#### 16.extension 中能增加存储属性吗?
-#### extension :可以增加计算属性，不能增加存储属性
-#### extension是用来给存在的类型添加新行为的并不能改变类型或者接口本身。因为 extension 不能为类或结构体增加实际的存储空间
+#### 13.extension 中能增加存储属性吗?
+* extension :可以增加计算属性，不能增加存储属性
+* extension是用来给存在的类型添加新行为的并不能改变类型或者接口本身。因为extension不能为类或结构体增加实际的存储空间
 
-#### 17.swift 中 closure闭包 与 OC 中 block 的区别？
-#### 相同点：都是一段可以执行的代码块
-1、closure 是匿名函数，block 是一个结构体对象。
-2、closure 可以通过逃逸闭包来在内部修改变量，block 通过 __block 修饰符
+#### 14.swift 中 closure闭包 与 OC 中 block 的区别？
+* 相同点：都是一段可以执行的代码块
+* closure 是匿名函数，block 是一个结构体对象。
+* closure 可以通过逃逸闭包来在内部修改变量，block 通过 __block 修饰符
 
-#### 18.作用域关键字的区别
+#### 15.作用域关键字的区别
 * private 只可以在本类而且在同一个作用域中被访问.
 * fileprivate 可以在本类中进行访问.
 * internal (默认值) 只能访问自己module(模块)的任何internal实体，不能访问其他模块中的internal实体.
 * public 类似于final，可以被其他module被访问，不可以被重载和继承.
 * open 可以被其他module被访问、被重载、被继承.
 
-#### 19 什么是柯里化？
+#### 16 什么是柯里化？
+* 柯里化：把接受多个参数的函数变成接受一个单一参数（最初函数的第一个）的函数，并且返回接受余下的参数和返回结果的新函数
 
-
-
-柯里化：把接受多个参数的函数变成接受一个单一参数（最初函数的第一个）的函数，并且返回接受余下的参数和返回结果的新函数
-
-#### 20 什么是函数式编程？
-面向对象编程：将要解决的问题抽象成一个类，通过给类定义属性和方法，让类帮助我们解决需要处理的问题(即命令式编程，给对象下一个个命令)
-函数式编程：数学意义上的函数，即映射关系（如：y = f(x)，就是 y 和 x 的对应关系，
-         可以理解为"像函数一样的编程")。它的主要思想是把运算过程尽量写成一系列嵌套的函数调用
+#### 17 什么是函数式编程？
+* 面向对象编程：将要解决的问题抽象成一个类，通过给类定义属性和方法，让类帮助我们解决需要处理的问题(即命令式编程，给对象下一个个命令)
+* 函数式编程：数学意义上的函数，即映射关系（如：y = f(x)，就是 y 和 x 的对应关系，
+可以理解为"像函数一样的编程")。它的主要思想是把运算过程尽量写成一系列嵌套的函数调用
 
         数学表达式
         (1 + 2) * 3 - 4
@@ -555,11 +495,11 @@ try!: 类似于可选型中的强制解包，它不会对错误进行处理，�
         var c = b - 4
         函数式编程
         var result = subtract(multiply(add(1,2), 3), 4)
-函数式编程的好处：代码简洁，开发迅速；接近自然语言，易于理解；更方便的代码管理；易于"并发编程"；
+* 函数式编程的好处：代码简洁，开发迅速；接近自然语言，易于理解；更方便的代码管理；易于"并发编程"；
 
-#### 21. associatedtype 的作用
-#### 为了解决协议支持泛型问题Swift提供 关联类型(associatetype) 以完善其语法体系
-#### 简单来说就是 protocol 使用的泛型
+#### 18. associatedtype 的作用
+* 为了解决协议支持泛型问题Swift提供 关联类型(associatetype) 以完善其语法体系
+* 简单来说就是 protocol 使用的泛型
 
         protocol ListProtcol {
             associatedtype Element
@@ -590,10 +530,11 @@ try!: 类似于可选型中的强制解包，它不会对错误进行处理，�
         }
 
 
-#### 22.Self 的使用场景
-#### Self 通常在协议中使用, 用来表示实现者或者实现者的子类类型.
-#### 在 Swift 中，self通常是指类或结构中的当前对象，Self表示任何当前类型
-#### 在 Swift 中，Self指的是一种类型——通常是当前上下文中的当前类型。正如小写self可以表示当前对象，大写Self可以表示当前类型
+#### 19.Self 的使用场景
+* Self 通常在协议中使用, 用来表示实现者或者实现者的子类类型.
+* 在Swift中，self通常是指类或结构中的当前对象，Self表示任何当前类型
+* 在Swift中，Self指的是一种类型——通常是当前上下文中的当前类型。正如小写self可以表示当前对象，大写Self可以表示当前类型
+
         protocol CopyProtocol {
             func copy() -> Self
         }
@@ -622,16 +563,16 @@ try!: 类似于可选型中的强制解包，它不会对错误进行处理，�
         2.squared() 
         2.0.squared() 
 
-#### 23. OC中的协议和swift中的协议 有什么区别？
-1. Objective-C 的协议：声明方法，不能实现
-2. Swift 中的协议：它可以定义计算属性、方法、关联类型、静态方法和静态计算属性等
-3. Swift 的协议还支持泛型、默认实现、条件约束。
+#### 20. OC中的协议和swift中的协议 有什么区别？
+* Objective-C 的协议：声明方法，不能实现
+* Swift 中的协议：它可以定义计算属性、方法、关联类型、静态方法和静态计算属性等
+* Swift 的协议还支持泛型、默认实现、条件约束。
 
 
-#### 24.Swift 中的类型擦除
-#### 协议如何支持泛型？在 Swift 中，protocol 支持泛型的方式与 class/struct/enum 不同
-1. 对于 class/struct/enum，其采用 类型参数（Type Parameters） 的方式
-2. 对于 protocol，其采用 抽象类型成员（Abstract Type Member） 的方式，具体技术称为 关联类型（Associated Type）
+#### 21.Swift 中的类型擦除
+* 协议如何支持泛型？在 Swift 中，protocol 支持泛型的方式与 class/struct/enum 不同
+* 对于 class/struct/enum，其采用 类型参数（Type Parameters） 的方式
+* 对于 protocol，其采用 抽象类型成员（Abstract Type Member） 的方式，具体技术称为 关联类型（Associated Type）
 
         class WGAAA<T> { }
         struct WGBBB<T> { }
@@ -653,7 +594,7 @@ try!: 类似于可选型中的强制解包，它不会对错误进行处理，�
 很明显，协议并不是用来表示某种类型，而是用来约束某种类型，比如：WGDDD 约束了 generate() 方法的返回类型，而不是定义 WGDDD的类型。
 而抽象类型成员则可以用来实现类型约束的
 
-#### 24.1如何存储非泛型协议？
+#### 21.1如何存储非泛型协议？
 
         protocol Drawable { 
             func draw() 
@@ -726,7 +667,7 @@ Existential Container 对具体类型进行封装，从而实现存储一致性
 1. 对于 Small Value，直接内联存储在 Existential Container 的 Value Buffer 中；
 2. 对于 Large Value，通过堆区分配进行存储，使用 Existential Containter 的 Value Buffer 进行索引。
 
-#### 24.2如何存储泛型协议？
+#### 21.2如何存储泛型协议？
 
         protocol Generator {
             associatedtype AbstractType
@@ -793,7 +734,7 @@ Existential Container 对具体类型进行封装，从而实现存储一致性
 将遵循了协议的对象进行封装。包装类型本身也遵循协议，它会将对协议方法的调用传递到内部的对象中
 
 
-#### 25. Swift中的any、some区别
+#### 22. Swift中的any、some区别
 #### 在swift中，any、some关键字是在处理泛型和协议时常用的概念；它们的作用是让我们能够在编写代码的时候处理未知类型的值
 * any表示可以是任意类型(包括值类型/引用类型/函数类型等)，它引入了"抽象类型"的概念
 * some用于表示返回某种特定类型，它引入了"具体类型"的概念；
@@ -829,12 +770,16 @@ Existential Container 对具体类型进行封装，从而实现存储一致性
 #### some比any更高效，some函数调用采用静态派发;any为动态派发
 
 
-#### 26 swift高阶函数
-#### sort是排序的；map/compactMap返回的是一个新的集合;reduce返回的是一个结果；reduce(info:)返回的是一个指定类型的数据可以是集合可以是单个值
-#### 26.1 sort、sorted排序
-#### sort排序的是基于原始集合数据，即不会产生新的集合数据，而是在原始数据集合中进行排序
-#### sorted排序会生成一个新的集合对象存放排好序的数据，不影响原始集合数据
-#### sort、sorted最大区别就是在对原始数据的处理上不同，sort在原始数据中进行排序；sorted将排序好的数据放在新的集合中
+#### 23 swift高阶函数
+* sort是排序的；
+* map/compactMap返回的是一个新的集合;
+* reduce返回的是一个结果；
+* reduce(info:)返回的是一个指定类型的数据可以是集合可以是单个值
+
+#### 23.1 sort、sorted排序
+* sort排序的是基于原始集合数据，即不会产生新的集合数据，而是在原始数据集合中进行排序
+* sorted排序会生成一个新的集合对象存放排好序的数据，不影响原始集合数据
+* sort、sorted最大区别就是在对原始数据的处理上不同，sort在原始数据中进行排序；sorted将排序好的数据放在新的集合中
 
         
         let arr = [100,3,45,99]
@@ -855,7 +800,7 @@ Existential Container 对具体类型进行封装，从而实现存储一致性
         newArr2:[100, 99, 45, 3]
         newArr3:[3, 45, 99, 100]
 
-#### 26.2 map高阶函数
+#### 23.2 map高阶函数
 * 将集合中的每一个元素通过映射转换为另外一个类型。
 * map函数返回一个新的数组，并且数组的类型不要求和原数组类型一致
 * map 函数不会自动帮我们去掉转换失败的 nil 值(可以使用 compactMap 函数)
@@ -896,8 +841,8 @@ Existential Container 对具体类型进行封装，从而实现存储一致性
         
         newArr:["wanglaoshi"]
 
-#### 26.3 flatMap (flatMap在swift4.1已经被移除了，需要使用compactMap代替)
-#### flatMap和map其实类似，都是对每个元素做转换，返回一个新的集合。不同的是它对每个元素转换的返回值可以是集合类型的，
+#### 23.3 flatMap (flatMap在swift4.1已经被移除了，需要使用compactMap代替)
+* flatMap和map其实类似，都是对每个元素做转换，返回一个新的集合。不同的是它对每个元素转换的返回值可以是集合类型的，
 并会将所有的结果集合合并成一个；多于用于数组的降维度
 * 能把数组中存有数组的数组（二维数组、N维数组）一同打开变成一个新的数组
 * flatMap也能把两个不同的数组合并成一个数组，这个合并的数组元素个数是前面两个数组元素个数的乘积
@@ -945,8 +890,8 @@ Existential Container 对具体类型进行封装，从而实现存储一致性
         
         newArr:["apple1", "orange1", "apple2", "orange2", "apple3", "orange3"]
 
-#### 26.4 compactMap
-#### compactMap函数作用和 map、flatMap 函数一样，唯一不同的是它会剔除结果集合中转换失败的 nil 值
+#### 23.4 compactMap
+* compactMap函数作用和 map、flatMap 函数一样，唯一不同的是它会剔除结果集合中转换失败的 nil 值
 
         let arr = ["1", "orange", "5"]
         let newArr = arr.map { item in
@@ -978,8 +923,8 @@ Existential Container 对具体类型进行封装，从而实现存储一致性
         }
         //arr2结果： [4, 8]  虽然闭包的返回值是可选的，但是这个函数的返回值结果并不是可选的
 
-#### 26.5 filer过滤函数
-#### 它主要用于过滤数组、集合和字典等类型对象中的元素。它接受一个闭包参数，该闭包返回的结果为 true，该元素就会保留，否则就会被移除
+#### 23.5 filer过滤函数
+* 它主要用于过滤数组、集合和字典等类型对象中的元素。它接受一个闭包参数，该闭包返回的结果为 true，该元素就会保留，否则就会被移除
 
         let arr = ["1", "orange", "5"]
         let newArr = arr.filter { item in
@@ -989,9 +934,9 @@ Existential Container 对具体类型进行封装，从而实现存储一致性
         
         newArr:["orange"]
 
-#### 26.6 reduce 函数
-#### 基础思想是将一个序列转换为一个不同类型的数据，期间通过一个累加器（Accumulator）来持续记录递增状态
-#### reduce 是 map、flatMap 或 filter 的一种扩展的形式（后三个函数能干嘛，reduce 就能用另外一种方式实现
+#### 23.6 reduce 函数
+* 基础思想是将一个序列转换为一个不同类型的数据，期间通过一个累加器（Accumulator）来持续记录递增状态
+* reduce 是 map、flatMap 或 filter 的一种扩展的形式（后三个函数能干嘛，reduce 就能用另外一种方式实现
 
 
         两种方式的reduce高阶函数
@@ -1049,8 +994,8 @@ Existential Container 对具体类型进行封装，从而实现存储一致性
         newArr: 48
         newArr1: [2, 4, 86, 4]
 
-#### 26.7 stride 函数
-#### 用于创建一个由指定范围内元素组成的序列
+#### 23.7 stride 函数
+* 用于创建一个由指定范围内元素组成的序列
         // 创建一个【10，20),步长为2的序列
         for i in stride(from: 10, to: 20, by: 2) {
             NSLog("1-----\(i)")
@@ -1062,8 +1007,9 @@ Existential Container 对具体类型进行封装，从而实现存储一致性
         }
         //10 12 14 16 18 20
 
-#### 26.8 partition(by:):  partition(分区)
-#### 将集合划分成两个部分，使得满足某个条件的元素放在前面，不满足条件的放在后面，并返回分界点索引
+#### 23.8 partition(by:):  partition(分区)
+*  将集合划分成两个部分，使得满足某个条件的元素放在前面，不满足条件的放在后面，并返回分界点索引
+
         //大于30的放在右边(后面) 不满足条件的放在左边(前面) 40满足条件放在最后边(和10的位置进行交换)
         var numbers = [30, 40, 20, 30, 30, 60, 10]
         //分区分界点索引
@@ -1073,8 +1019,8 @@ Existential Container 对具体类型进行封装，从而实现存储一致性
         p:-----5
         numbers:-----[30, 10, 20, 30, 30, 60, 40]
         
-#### 26.9 zip: 
-#### 将两个集合中的元素一一对应起来，组成一个新的元组数组。
+#### 23.9 zip: 
+* 将两个集合中的元素一一对应起来，组成一个新的元组数组。
         let numbs = [1, 2, 3]
         let letters = ["A", "B", "C"]
         let pairs = zip(numbs, letters)
@@ -1083,9 +1029,10 @@ Existential Container 对具体类型进行封装，从而实现存储一致性
         pairs:-----[(1, "A"), (2, "B"), (3, "C")]
 
 
-#### 27 无论是类还是结构体都存在如下规则；以结构体为例
+#### 24 无论是类还是结构体都存在如下规则；以结构体为例
 * 如果协议中有方法声明，则会根据对象的实际类型进行调用; 
-* 如果协议中没有方法声明，则会根据对象的声明类型进行调用。       
+* 如果协议中没有方法声明，则会根据对象的声明类型进行调用。
+       
             protocol Chef {
                 func makeFood()
             }
@@ -1134,7 +1081,10 @@ Existential Container 对具体类型进行封装，从而实现存储一致性
             make food
             make seafood
     
-#### 28 下面代码会有问题，编译器会报错，因为weak 关键词是ARC环境下，为引用类型提供引用计数这样的内存管理，它是不能被用来修饰值类型的
+#### 25 下面代码会有问题，编译器会报错，因为weak 关键词是ARC环境下，为引用类型提供引用计数这样的内存管理，
+它是不能被用来修饰值类型的。   
+
+
         protocol SomeProtocol {
             func doSomething()
         }
@@ -1153,24 +1103,26 @@ Existential Container 对具体类型进行封装，从而实现存储一致性
             func doSomething()
         }  
         
-#### 29.当声明闭包的时候，捕获列表会创建一份变量的 copy，被捕获到的值是不会改变的，即使外界变量的值发生了改变
-        var car = "Benz" 
-        let closure = { [car] in 
-          print("I drive \(car)")
-        } 
-        car = "Tesla" 
-        closure()
-        打印结果: I drive Benz
-        
-        
-        var car = "Benz" 
-        let closure = {
-          print("I drive \(car)")
-        } 
-        car = "Tesla" 
-        closure()
-        打印结果: I drive Tesla
-#### 如果去掉闭包中的捕获列表，编译器会使用引用代替 copy。在这种情况下，当闭包被调用时，变量的值是可以改变的。所以 clousre 用的还是全局的 car 变量      
+#### 26.当声明闭包的时候，捕获列表会创建一份变量的 copy，被捕获到的值是不会改变的，即使外界变量的值发生了改变       
+      
+            var car = "Benz" 
+            let closure = { [car] in 
+              print("I drive \(car)")
+            } 
+            car = "Tesla" 
+            closure()
+            打印结果: I drive Benz
+            
+            
+            var car = "Benz" 
+            let closure = {
+              print("I drive \(car)")
+            } 
+            car = "Tesla" 
+            closure()
+            打印结果: I drive Tesla
+#### 如果去掉闭包中的捕获列表，编译器会使用引用代替 copy。在这种情况下，当闭包被调用时，变量的值是可以改变的。
+所以 clousre 用的还是全局的 car 变量      
 
 
 
