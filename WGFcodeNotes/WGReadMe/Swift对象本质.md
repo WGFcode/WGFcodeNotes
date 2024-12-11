@@ -171,7 +171,7 @@ swift对象处打断点Debug Workflow
 
 2.动态派发
 
-        函数表派发: VTable + witness Table
+        函数表派发: VTable(虚函数表) + witness Table(见证表)
         消息派发(objc_msgSend)
 #### 静态派发
 ##### 静态派发即直接派发基于编译期；直接调用函数地址进行调用。函数地址在编译、链接完成后就已经确定了，存放在Mach-O中
@@ -183,6 +183,28 @@ swift对象处打断点Debug Workflow
 ##### (1).函数表派发,编译阶段编译器会为每一个类创建一个vtable(key:函数名，value:函数地址；若子类override了父类的方法
 key:函数名，value:子类重写的新的函数地址)，存放的是一个包含若干函数指针的数组，这些函数指针指向这个类中相对应函数的实现代码；
 运行阶段调用方法时，函数表派发需要比静态派发多执行两个指令(通过读取该类的vtable和函数的指针)来进行调用
+
+        class WGClass {
+            func eat() {
+                NSLog("WGClass-eat")
+            }
+            func sleep() {
+                NSLog("WGClass-sleep")
+            }
+        }
+
+        class WGSubClss : WGClass {
+            override func eat() {
+                NSLog("WGSubClss-eat")
+            }
+        }
+        let cls = WGSubClss()
+        cls.sleep()
+        
+        WGClass函数表    WGSubClss函数表
+        函数名 指针地址    函数名 指针地址
+        eat   0x1000     eat   0x2000 (重写)
+        sleep 0x1008     sloop 0x1008 (继承)
 
 ##### (2).Witness Table Dispatch派发。证明类型实现了协议。是Swift用于协议的动态分派机制。当一个类型遵循某个协议时，编译器会
 为该类生成一个Witness Table，存储该类型对协议中所有方法和属性的具体实现；当通过协议调用方法时，Swift使用Witness Table

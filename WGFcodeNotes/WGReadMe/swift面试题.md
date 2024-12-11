@@ -195,9 +195,9 @@ struct存储在栈stack中，操作起来效率更高struct没有引用计数器
 * swift静态派发就是在编译期方法的地址已经确定了，运行时直接调用函数地址即可
 * swift动态派发分为两种: 函数表派发(Vtable+witness Table) + objc_msgSend 
 
-                函数表派发                 objc_msgSend消息发送
-                   ｜
-        虚函数表(Vtable)派发   witness Table派发 
+                        函数表派发                   objc_msgSend消息发送
+                           ｜
+        虚函数表(Vtable)派发 + witness Table见证表派发 
 * 影响swift方法派发的因素有
 
         1.声明位置(初始声明的作用域 + 扩展声明的作用域)
@@ -208,7 +208,7 @@ struct存储在栈stack中，操作起来效率更高struct没有引用计数器
 * final修饰的方法采用静态派发/ @objc+dynamic采用的是objc_msgSend消息发送
 * 继承自NSObject的子类中@objc / dynamic采用的是函数表(VTable)派发/ 扩展了NSObject子类中的@objc是objc_msgSend消息发送
 * 协议中的方法，当调用方法时声明的对象类型是协议类型时，采用的是通过witness Table派发
-* witness Table派发实际上就是通过witness Table找到对应类型进行方法调用(若是值类型，通过witness Table找到值类型中的
+* witness Table见证表派发实际上就是通过witness Table找到对应类型进行方法调用(若是值类型，通过witness Table找到值类型中的
 函数地址直接调用；弱是引用类型，则通过witness Table找到引用类型中的VTable进行方法调用)
 * final修饰符允许类中的函数使用【直接派发】;final修饰符会让函数失去动态性;任何函数都可以使用final修饰符，包括extension中原本就是直接派发的函数
 * dynamic 修饰符允许类中的函数使用 消息派发。使用 dynamic 修饰符之前，必须导入 Foundation 框架，因为框架中包含了 NSObject 
@@ -1021,13 +1021,22 @@ Existential Container 对具体类型进行封装，从而实现存储一致性
         
 #### 23.9 zip: 
 * 将两个集合中的元素一一对应起来，组成一个新的元组数组。
+
         let numbs = [1, 2, 3]
         let letters = ["A", "B", "C"]
         let pairs = zip(numbs, letters)
         NSLog("pairs:-----\(Array(pairs))")
         
         pairs:-----[(1, "A"), (2, "B"), (3, "C")]
+#### 23.10 reverse
+* 用于反转数组或字符串中的元素顺序
 
+        var a = ["1","2","3"]
+        var b = "1234567"
+        a.reverse()
+        b.reverse()
+        NSLog("------a:\(a)---b:\(b)")
+        ------a:["3", "2", "1"]---b:7654321
 
 #### 24 无论是类还是结构体都存在如下规则；以结构体为例
 * 如果协议中有方法声明，则会根据对象的实际类型进行调用; 
@@ -1124,10 +1133,44 @@ Existential Container 对具体类型进行封装，从而实现存储一致性
 #### 如果去掉闭包中的捕获列表，编译器会使用引用代替 copy。在这种情况下，当闭包被调用时，变量的值是可以改变的。
 所以 clousre 用的还是全局的 car 变量      
 
+#### 27 class 和 static区别
+* 1. 声明位置不同
 
+        static: 可以在class类/结构体struct/枚举enum中声明类型方法、类型属性(存储属性或计算属性)
+        class只能用在纯swift类或继承自NSObject的子类中声明类型方法、类型属性(只能是计算型的类型属性)
+* 2.继承和重写不同
 
+        static声明的类型方法、类型属性不能被重写；不能被子类继承
+        class声明的类型方法、类型属性可以被重写；可以被继承
+        
+        
+        class WGClass {
+            static var staticName = ""
+            static func thisStaticFunc() {
+                NSLog("thisStaticFunc")
+            }
+            //class只能声明计算型的类型属性
+            class var classAge: Int {
+                get { return 18 }
+            }
+            class func thisClassFunc() {
+                NSLog("thisClassFunc")
+            }
+        }
 
+        class WGSubClss : WGClass {
+            //⚠️子类继承父类的class修饰的类型属性，可以是可读的、也可以是可读可写的 
+            override class var classAge: Int {
+                get { return 10 }
+                set { NSLog("111") }
+            }
+            override class func thisClassFunc() {
+            }
+        }
+* 3.调用方法本质不同
 
+        static声明的类型方法无论在class/struct/enum中，都是通过静态派发方式进行调用的
+        class声明的类型方法在纯swift类或继承自NSObject子类中，都是通过动态派发的
 
 
 
