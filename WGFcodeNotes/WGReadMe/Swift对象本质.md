@@ -2119,3 +2119,278 @@ TargetFunctionTypeMetadata拥有自己的Flags和ResultType，以及参数列表
         print(dog!.species)
         var tmp = Animal2(species:"")
         print(tmp)//传进去的是空值，构造失败，结果为nil
+
+## 十一. =============== swift-MemoryLayout 与class_getInstanceSize 内存地址打印分析 ===============
+
+#### Swift中提供了一个名为 MemoryLayout 的结构体，它用于获取类型或变量在内存中所占用的字节数、对齐方式以及元素的数量等信息。
+这个结构体对于了解和优化内存布局非常有用，特别是在需要与底层内存交互、进行性能优化或了解数据结构的情况下
+* 为了提高性能，任何的对象都会先进行内存对齐再使用
+* size: 指的是变量实际所占用的内存大小
+* stride: 是经过内存对齐后创建变量需要开辟的内存空间大小
+* alignment: 返回一个类型的内存对齐要求;内存对齐是计算机系统为了提高内存访问效率而采取的一种措施
+
+        //泛型枚举 内含三个计算属性 四个静态方法
+        @frozen public enum MemoryLayout<T> {
+            //获取类型实际占用的内存大小
+            public static var size: Int { get }
+            
+            //获取类型所需要分配的内存大小
+            public static var stride: Int { get }
+            
+            //获取类型的内存对齐数
+            public static var alignment: Int { get }
+            
+            //获取变量实际占用的内存大小
+            public static func size(ofValue value: T) -> Int
+            //获取创建变量所需要的分配的内存大小
+            public static func stride(ofValue value: T) -> Int
+            //获取变量的内存对齐数
+            public static func alignment(ofValue value: T) -> Int
+            
+            //获取结构体中指定成员的偏移量 ⚠️只适用于结构体
+            public static func offset(of key: PartialKeyPath<T>) -> Int?
+        }
+        
+        class WGClass {
+            var age = 0
+            var age1 = 1
+            var age2 = 2
+        }
+        
+        var cls = WGClass()
+        NSLog("WGClass类型:size----\(MemoryLayout<WGClass>.size)")
+        NSLog("WGClass类型:stride----\(MemoryLayout<WGClass>.stride)")
+        NSLog("WGClass类型:alignment----\(MemoryLayout<WGClass>.alignment)")
+        NSLog("cls变量:size----\(MemoryLayout.size(ofValue: cls))")
+        NSLog("cls变量:stride----\(MemoryLayout.stride(ofValue: cls))")
+        NSLog("cls变量:alignment----\(MemoryLayout.alignment(ofValue: cls))")
+        
+        //打印结果
+        WGClass类型:size----8
+        WGClass类型:stride----8
+        WGClass类型:alignment----8
+        cls变量:size----8
+        cls变量:stride----8
+        cls变量:alignment----8
+#### Why? 类对象不是至少占用16字节大小吗(8字节元数据+8字节引用计数)? 为什么打印的是8字节？
+#### 实际上我们使用错了方法，MemoryLayout方法是用来查询类型的内存布局信息，注意是类型，比如Int、String、Double、struct等
+要想获取类内存大小，我们应该使用class_getInstanceSize方法: 获取一个类的实例所占用的内存大小
+
+        //MemoryLayout主要就是用来获取类型的内存情况
+        NSLog("Int类型:size----\(MemoryLayout<Int>.size)")
+        NSLog("Int类型:stride----\(MemoryLayout<Int>.stride)")
+        NSLog("Int类型:alignment----\(MemoryLayout<Int>.alignment)")
+      
+        NSLog("String类型:size----\(MemoryLayout<String>.size)")
+        NSLog("String类型:stride----\(MemoryLayout<String>.stride)")
+        NSLog("String类型:alignment----\(MemoryLayout<String>.alignment)")
+        //打印结果
+        Int类型:size----8
+        Int类型:stride----8
+        Int类型:alignment----8
+        String类型:size----16
+        String类型:stride----16
+        String类型:alignment----8
+        
+        
+        //class_getInstanceSize获取一个类的实例所占用的内存大小
+        //class_getInstanceSize(cls: AnyClass?)  
+        //typealias AnyClass = AnyObject.Type  
+        //type(of: cls): 获取实例对象cls的类
+        
+        NSLog("----\(class_getInstanceSize(type(of: cls)))字节")
+        //打印结果
+        ----40字节
+        
+        (lldb) po cls
+        <WGClass: 0x303331ad0>     
+        (lldb) x/8gx 0x303331ad0    x:打印  g:8个字节为一段 x:十六进制 (打印8段,8个字节为一段的十六进制内存地址) 
+        0x303331ad0: 0x0000000104033838 0x0000000200000003
+        0x303331ae0: 0x0000000000000000 0x0000000000000001
+        0x303331af0: 0x0000000000000002 0x0000000000000000
+        0x303331b00: 0x0000b6a21a101b00 0x000000000000008d
+        
+        第1个8字节: 存储元数据metaData
+        第2个8字节: 存储引用计数refCounts
+        第3个8字节: 存储存储属性age的值
+        第4个8字节: 存储存储属性age1的值
+        第5个8字节: 存储存储属性age2的值
+#### 因为swift类本身占用16字节 + 三个int成员变量的内存大小24(3*8) 所以等于40个字节          
+
+        struct WGStruct {
+            var age = 0
+            var age1 = 1
+            var age2 = 2
+        }
+        var str = WGStruct()
+        NSLog("WGStruct类型:size----\(MemoryLayout<WGStruct>.size)")
+        NSLog("WGStruct类型:stride----\(MemoryLayout<WGStruct>.stride)")
+        NSLog("WGStruct类型:alignment----\(MemoryLayout<WGStruct>.alignment)")
+        
+        NSLog("str实例:size----\(MemoryLayout.size(ofValue: str))")
+        NSLog("str实例:stride----\(MemoryLayout.stride(ofValue: str))")
+        NSLog("str实例:alignment----\(MemoryLayout.alignment(ofValue: str))")
+        
+        //打印结果: 
+        WGStruct类型:size----24
+        WGStruct类型:stride----24
+        WGStruct类型:alignment----8
+        str实例:size----24
+        str实例:stride----24
+        str实例:alignment----8
+#### 发现MemoryLayout方法可以用来获取结构体、枚举的内存空间占用情况；而class_getInstanceSize方法是获取类的内存占用情况
+
+        struct WGStruct {
+            var age = 1
+            var age1 = 3
+        }
+        class WGClass {
+            var age = 1
+            var age1 = 3
+        }
+        func address(of object: UnsafeRawPointer) {
+            let addr = Int(bitPattern: object)
+            print(String(format: "%p", addr))
+        }
+        
+        var str = WGStruct()
+        var cls = WGClass()
+        
+        NSLog("WGStruct类型:size----\(MemoryLayout<WGStruct>.size)")
+        NSLog("WGStruct类型:stride----\(MemoryLayout<WGStruct>.stride)")
+        NSLog("WGStruct类型:alignment----\(MemoryLayout<WGStruct>.alignment)")
+        //打印结果:
+        WGStruct类型:size----16
+        WGStruct类型:stride----16
+        WGStruct类型:alignment----8
+        
+        
+#### 11.1 如何打印class类对象的变量、struct变量的内存地址？      
+
+        struct WGStruct {
+            var age = 1
+            var age1 = 3
+        }
+        class WGClass {
+            var age = 1
+            var age1 = 3
+        }
+        func address(of object: UnsafeRawPointer) {
+            let addr = Int(bitPattern: object)
+            print(String(format: "%p", addr))
+        }
+
+        var cls = WGClass()
+        NSLog("方式一: 类实例cls地址/指针: \(Unmanaged.passUnretained(cls).toOpaque())")
+        NSLog("方式二: 类实例cls地址/指针: \(ObjectIdentifier(cls))")
+        
+        var str = WGStruct()
+        withUnsafePointer(to: &str) { point in
+            NSLog("11111结构体变量str地址: \(point)")
+        }
+        address(of: &str)
+        
+        NSLog("WGStruct类型:size----\(MemoryLayout<WGStruct>.size)")
+        NSLog("WGStruct类型:stride----\(MemoryLayout<WGStruct>.stride)")
+        NSLog("WGStruct类型:alignment----\(MemoryLayout<WGStruct>.alignment)")
+        NSLog("WGClass类实例占用内存大小:\(class_getInstanceSize(type(of: cls)))")
+        
+        //打印结果:
+        0x16bceea28
+        方式一: 类实例cls地址/指针: 0x0000000300615d00
+        方式二: 类实例cls地址/指针: ObjectIdentifier(0x0000000300615d00)
+        11111结构体变量str地址: 0x000000016bceea28
+        WGStruct类型:size----16
+        WGStruct类型:stride----16
+        WGStruct类型:alignment----8
+        WGClass类实例占用内存大小:32
+        
+        //WGClass类内存信息 占32个字节
+        (lldb) po cls
+        <WGClass: 0x300615d00>
+        (lldb) x/8gx 0x300615d00
+        0x300615d00: 0x0000000105c3f8a0 0x0000000000000003   //元数据指针:8字节 + 引用计数:8字节
+        0x300615d10: 0x0000000000000001 0x0000000000000003   //属性age=1的值:8字节 + 属性age1=3的值:8字节
+        0x300615d20: 0x01000001edb5f8e1 0x0000000000013680
+        0x300615d30: 0x0000000109534000 0x00000001ef3ce3d8
+    
+        //WGStruct结构体内存信息 占16个字节
+        (lldb) po str
+        ▿ WGStruct
+          - age : 1
+          - age1 : 3
+        (lldb) x/8gx 0x000000016bceea28
+        0x16bceea28: 0x0000000000000001 0x0000000000000003  //属性age=1的值:8字节 + 属性age1=3的值:8字节
+        0x16bceea38: 0x0000000300615d00 0x300000000000004a
+        0x16bceea48: 0x0000000303478900 0x0000000300615d00
+        0x16bceea58: 0x3000000000000038 0x0000000303478900
+* 获取打印类对象变量的地址采用两种方式   
+ 
+        1. ObjectIdentifier(x: AnyObject)
+        2. Unmanaged.passUnretained(cls).toOpaque()
+* 获取打印结构体类型变量的地址采用两种方式：推荐使用第一种方式
+
+        1.withUnsafePointer(to: &str) { point in
+            NSLog("结构体变量str地址: \(point)")
+        }
+        2.通过定义方法来获取
+        func address(of object: UnsafeRawPointer) {
+            let addr = Int(bitPattern: object)
+            print(String(format: "%p", addr))
+        }
+#### 11.2 分析enum枚举内存信息
+
+        enum WGEnum {
+            case A
+            case B
+        }
+        enum WGEnum1 : String {
+            case A
+            case B
+        }
+
+        enum WGEnum2 {
+            case A(name: String)
+            case B(sex: Bool)
+        }
+
+        var en = WGEnum.A
+        var en1 = WGEnum1.A
+        var en2 = WGEnum2.A(name: "1")
+        withUnsafePointer(to: &en) { point in
+            NSLog("WGEnum无原始值变量地址:\(point)")
+        }
+        withUnsafePointer(to: &en1) { point in
+            NSLog("WGEnum1有原始值变量地址:\(point)")
+        }
+        withUnsafePointer(to: &en2) { point in
+            NSLog("WGEnum2有关联值变量地址:\(point)")
+        }
+        NSLog("WGEnum无原始值类型:size----\(MemoryLayout<WGEnum>.size)")
+        NSLog("WGEnum无原始值类型:stride----\(MemoryLayout<WGEnum>.stride)")
+        NSLog("WGEnum无原始值类型:alignment----\(MemoryLayout<WGEnum>.alignment)")
+        
+        NSLog("WGEnum1有原始值类型:size----\(MemoryLayout<WGEnum1>.size)")
+        NSLog("WGEnum1有原始值类型:stride----\(MemoryLayout<WGEnum1>.stride)")
+        NSLog("WGEnum1有原始值类型:alignment----\(MemoryLayout<WGEnum1>.alignment)")
+        
+        NSLog("WGEnum2有关联值类型:size----\(MemoryLayout<WGEnum2>.size)")
+        NSLog("WGEnum2有关联值类型:stride----\(MemoryLayout<WGEnum2>.stride)")
+        NSLog("WGEnum2有关联值类型:alignment----\(MemoryLayout<WGEnum2>.alignment)")
+        
+
+        WGEnum无原始值类型:size----1
+        WGEnum无原始值类型:stride----1
+        WGEnum无原始值类型:alignment----1
+        WGEnum1有原始值类型:size----1
+        WGEnum1有原始值类型:stride----1
+        WGEnum1有原始值类型:alignment----1
+        WGEnum2有关联值类型:size----17
+        WGEnum2有关联值类型:stride----24
+        WGEnum2有关联值类型:alignment----8
+        
+        WGEnum无原始值变量地址:0x000000016bbf6a97
+        WGEnum1有原始值变量地址:0x000000016bbf6a96
+        WGEnum2有关联值变量地址:0x000000016bbf6a80
+* enum枚举原始值不占用枚举的内存空间
+* enum枚举的关联值占用枚举的内存空间(内存大小 = 枚举成员中关联值占用内存最大的 + 1字节 条件是最大关联值内存 > 1个字节)
