@@ -2350,8 +2350,12 @@ TargetFunctionTypeMetadata拥有自己的Flags和ResultType，以及参数列表
         }
 
         enum WGEnum2 {
-            case A(name: String)
-            case B(sex: Bool)
+            case A(name: String)  //16字节
+            case B(sex: Bool)     //1字节
+        }
+        
+        enum WGEnum3 {
+            case A
         }
 
         var en = WGEnum.A
@@ -2378,6 +2382,9 @@ TargetFunctionTypeMetadata拥有自己的Flags和ResultType，以及参数列表
         NSLog("WGEnum2有关联值类型:stride----\(MemoryLayout<WGEnum2>.stride)")
         NSLog("WGEnum2有关联值类型:alignment----\(MemoryLayout<WGEnum2>.alignment)")
         
+        NSLog("WGEnum3:size----\(MemoryLayout<WGEnum3>.size)")
+        NSLog("WGEnum3:stride----\(MemoryLayout<WGEnum3>.stride)")
+        NSLog("WGEnum3:alignment----\(MemoryLayout<WGEnum3>.alignment)")
 
         WGEnum无原始值类型:size----1
         WGEnum无原始值类型:stride----1
@@ -2388,9 +2395,102 @@ TargetFunctionTypeMetadata拥有自己的Flags和ResultType，以及参数列表
         WGEnum2有关联值类型:size----17
         WGEnum2有关联值类型:stride----24
         WGEnum2有关联值类型:alignment----8
+        WGEnum3:size----0
+        WGEnum3:stride----1
+        WGEnum3:alignment----1
         
         WGEnum无原始值变量地址:0x000000016bbf6a97
         WGEnum1有原始值变量地址:0x000000016bbf6a96
         WGEnum2有关联值变量地址:0x000000016bbf6a80
 * enum枚举原始值不占用枚举的内存空间
 * enum枚举的关联值占用枚举的内存空间(内存大小 = 枚举成员中关联值占用内存最大的 + 1字节 条件是最大关联值内存 > 1个字节)
+* 获取enum枚举变量内存地址用方法 withUnsafePointer(to: &st)
+* 获取enum枚举变量内存大小用方法 MemoryLayout 中的size/stride/alignment
+
+#### 11.3 分析Struct结构体内存信息     
+
+        struct WGStruct {
+            var age = 1
+            var age1 = 3
+            var age2 = 8
+        }
+        var st = WGStruct()
+        withUnsafePointer(to: &st) { point in
+            NSLog("WGStruct变量地址:\(point)")
+        }
+        NSLog("WGStruct:size----\(MemoryLayout<WGStruct>.size)")
+        NSLog("WGStruct:stride----\(MemoryLayout<WGStruct>.stride)")
+        NSLog("WGStruct:alignment----\(MemoryLayout<WGStruct>.alignment)")
+        
+        //打印结果: 
+        WGStruct变量地址:0x000000016b0eaa80
+        WGStruct:size----24
+        WGStruct:stride----24
+        WGStruct:alignment----8
+        
+        (lldb) x/8gx 0x000000016b0eaa80
+        0x16b0eaa80: 0x0000000000000001 0x0000000000000003  //age=1 age1 = 3
+        0x16b0eaa90: 0x0000000000000008 0x0000000301811ef0  //age3 = 8
+        0x16b0eaaa0: 0x0000000000000000 0x00000001094767c0
+        0x16b0eaab0: 0x0000000000000000 0x0000000000000001
+* 结构体内存大小是由各个成员变量内存相加组成的
+* 成员变量的值存储在结构体变量的地址中
+* 为了节省内存空间，将成员变量占用内存大的成员写在最前面，利用内存对齐法则可以控制变量内存大小(控制分配内存大小stride才是目标)
+* 获取结构体变量内存地址用方法 withUnsafePointer(to: &st)
+* 获取结构体变量内存大小用方法 MemoryLayout 中的size/stride/alignment
+
+        struct WGStruct {
+            var sex: Bool = false  //1字节 内存对齐原则分配8字节
+            var name = ""          //16字节
+            var love = true        //1字节 内存对齐原则分配8字节 8字节
+        }
+        var st = WGStruct()
+        NSLog("WGStruct:size----\(MemoryLayout<WGStruct>.size)")
+        NSLog("WGStruct:stride----\(MemoryLayout<WGStruct>.stride)")
+        NSLog("WGStruct:alignment----\(MemoryLayout<WGStruct>.alignment)")
+        // 打印结果: 
+        WGStruct:size----25
+        WGStruct:stride----32
+        WGStruct:alignment----8
+        
+        调整下成员位置
+        struct WGStruct {
+            var name = ""          //16字节
+            var sex: Bool = false  //1字节 内存对齐原则分配8字节，只用一位来存储
+            var love = true        //1字节 
+        }
+        var st = WGStruct()
+        NSLog("WGStruct:size----\(MemoryLayout<WGStruct>.size)")
+        NSLog("WGStruct:stride----\(MemoryLayout<WGStruct>.stride)")
+        NSLog("WGStruct:alignment----\(MemoryLayout<WGStruct>.alignment)")
+        // 打印结果: 
+        WGStruct:size----18
+        WGStruct:stride----24
+        WGStruct:alignment----8
+        
+#### 11.4 分析Class类内存信息
+
+        class WGClass {
+            var age = 1
+            var age1 = 3
+            var age2 = 8
+        }
+        var cls = WGClass()
+        NSLog("WGClass变量地址:\(Unmanaged.passUnretained(cls).toOpaque())")
+        NSLog("WGClass变量地址:\(ObjectIdentifier(cls))")
+        NSLog("WGClass:size----\(class_getInstanceSize(type(of: cls)))")
+
+        //打印结果:
+        WGClass变量地址:0x0000000300a13b10
+        WGClass变量地址:ObjectIdentifier(0x0000000300a13b10)
+        WGClass:size----40
+
+        (lldb) x/8gx 0x0000000300a13b10
+        0x300a13b10: 0x00000001064638e0 0x0000000000000003  //元数据指针  引用计数
+        0x300a13b20: 0x0000000000000001 0x0000000000000003  //age=1的值  age1=3的值
+        0x300a13b30: 0x0000000000000008 0x0000000000000000  //age2=3的值
+        0x300a13b40: 0x01000001ffcef6a9 0x0000000000000000
+   
+* 获取swift中类class的变量的内存地址用方法 Unmanaged.passUnretained / ObjectIdentifier(cls)
+* 获取swift中类class的变量的内存大小用方法 class_getInstanceSize
+* ⚠️swift中类的成员变量的值是存储在类变量的内存空间的，而不是存储在元数据中的
