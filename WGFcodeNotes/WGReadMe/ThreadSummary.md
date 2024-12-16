@@ -63,6 +63,11 @@
             11111--<NSThread: 0x6000029cb5c0>{number = 3, name = (null)}
             回到主线程中执行任务--<NSThread: 0x600002996d80>{number = 1, name = main}
 ### 2. GCD和Operation的区别
-#### Operation可以设置操作的最大并发数来实现串行或者并发执行任务；可以设置操作间依赖方便控制操作间执行顺序；设定操作的优先级；可以取消单个或多个操作；可以暂停/恢复操作队列中的任务；可以使用KVO来观察操作的执行状态(isExecuteing/isFinished/isCancelled),一般用于复杂的业务，比如网络库Alamofire中就大量用到了Operation
+* Operation可以设置操作的最大并发数来实现串行或者并发执行任务；
+* 可以设置操作间依赖方便控制操作间执行顺序；
+* 设定操作的优先级；
+* 可以取消单个或多个操作；
+* 可以暂停/恢复操作队列中的任务；
+* 可以使用KVO来观察操作的执行状态(isExecuteing/isFinished/isCancelled),一般用于复杂的业务，比如网络库Alamofire中就大量用到了Operation
 
 
