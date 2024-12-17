@@ -640,6 +640,7 @@ KVC和直接访问属性区别就是：直接访问属性是在编译期确定�
 #### 2.1 正常情况下，我们通过对象.属性方式对属性进行修改是会触发KVO的；那么通过KVC修改属性会触发KVO吗？会
 #### 对象的属性或者成员变量(包括.m文件中的私有成员变量)都可以通过KVC获取/设置值
 (前提条件就是对属性添加了KVO，然后通过KVC去修改属性的值时是否会触发KVO)
+
     //Person.h文件
     @interface Person : NSObject
     @property(nonatomic, assign)int age;
@@ -749,7 +750,7 @@ KVC和直接访问属性区别就是：直接访问属性是在编译期确定�
 #### 感悟 
 1. KVC对属性、成员变量(包含私有成员变量)都可以进行设值/取值
 2. 通过KVC对属性、成员变量进行赋值，都会触发KVO的(前提就是对属性、成员变量都添加了KVO观察)
-3. 继承自NSObject的所有类都可以实现KVC; 想关闭KVC就是重写类属性accessInstanceVariablesDirectly且返回NO 
+3. 继承自NSObject的所有类都可以实现KVC; 想关闭KVC就要重写类属性accessInstanceVariablesDirectly且返回NO 
 4. accessInstanceVariablesDirectly是个类属性，重写后就变成了一个类方法
 5. KVC与直接访问属性的区别： 访问方式不同：直接访问属性是在编译器确定的；KVC是在运行时动态确定的
 6. kVC优点: KVC使得代码更加灵活，适用于动态属性访问和序列化/反序列化操作，减少了代码量
