@@ -46,7 +46,7 @@
 
 ### [22.设计模式](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGReadMe/设计模式.md)
 
-### [23.数据结构](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGReadMe/数据结构.md)
+### [23.数据结构与算法](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGReadMe/数据结构与算法.md)
 
 ### [24.LLVM](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGReadMe/LLVM.md)
 

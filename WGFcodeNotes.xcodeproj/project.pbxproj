@@ -249,7 +249,7 @@
 		542D3D8F251A48CC00394130 /* Student.m in Sources */ = {isa = PBXBuildFile; fileRef = 542D3D8E251A48CC00394130 /* Student.m */; };
 		542D3D92251A48F500394130 /* Student+StudentCategory.m in Sources */ = {isa = PBXBuildFile; fileRef = 542D3D91251A48F500394130 /* Student+StudentCategory.m */; };
 		543110B42530A23D007D0061 /* OC对象的本质.md in Resources */ = {isa = PBXBuildFile; fileRef = 543110B32530A23D007D0061 /* OC对象的本质.md */; };
-		54347D3224F69F1C006EE9F2 /* 数据结构.md in Resources */ = {isa = PBXBuildFile; fileRef = 54347D3124F69F1C006EE9F2 /* 数据结构.md */; };
+		54347D3224F69F1C006EE9F2 /* 数据结构与算法.md in Resources */ = {isa = PBXBuildFile; fileRef = 54347D3124F69F1C006EE9F2 /* 数据结构与算法.md */; };
 		5438813425445D6F00F5E4D1 /* WGGCDTimer.m in Sources */ = {isa = PBXBuildFile; fileRef = 5438813325445D6F00F5E4D1 /* WGGCDTimer.m */; };
 		543C213325485B44000212B6 /* NewBlock.md in Resources */ = {isa = PBXBuildFile; fileRef = 543C213225485B44000212B6 /* NewBlock.md */; };
 		543FF0B225CEDFA2006B72E6 /* WGPermanentThreadOC.m in Sources */ = {isa = PBXBuildFile; fileRef = 543FF0B125CEDFA2006B72E6 /* WGPermanentThreadOC.m */; };
@@ -2516,7 +2516,7 @@
 		542D3D91251A48F500394130 /* Student+StudentCategory.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Student+StudentCategory.m"; sourceTree = "<group>"; };
 		543110AF251CD966007D0061 /* Student+WGStudent.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Student+WGStudent.h"; sourceTree = "<group>"; };
 		543110B32530A23D007D0061 /* OC对象的本质.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "OC对象的本质.md"; sourceTree = "<group>"; };
-		54347D3124F69F1C006EE9F2 /* 数据结构.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "数据结构.md"; sourceTree = "<group>"; };
+		54347D3124F69F1C006EE9F2 /* 数据结构与算法.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "数据结构与算法.md"; sourceTree = "<group>"; };
 		5438813225445D6F00F5E4D1 /* WGGCDTimer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WGGCDTimer.h; sourceTree = "<group>"; };
 		5438813325445D6F00F5E4D1 /* WGGCDTimer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WGGCDTimer.m; sourceTree = "<group>"; };
 		543C213225485B44000212B6 /* NewBlock.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = NewBlock.md; sourceTree = "<group>"; };
@@ -6077,7 +6077,7 @@
 				548AC98A242F4CAD00EEE11C /* Framework.md */,
 				54DA257125B47ADC00E1B980 /* 性能优化.md */,
 				30F7186B24F7AB020025AD98 /* 设计模式.md */,
-				54347D3124F69F1C006EE9F2 /* 数据结构.md */,
+				54347D3124F69F1C006EE9F2 /* 数据结构与算法.md */,
 				54C118BD2584EF8B00B39379 /* LLVM.md */,
 				545638D224B36CE5007D5447 /* HTTPTCPUDP.md */,
 				5405874A2614AEEA0047AD5E /* 逆向工程.md */,
@@ -6382,7 +6382,7 @@
 				300C18CF2CDDDC1D00DA55DB /* libdispatch-exclavekit.xcconfig in Resources */,
 				300C18C12CDDDC1D00DA55DB /* DispatchWindowsSupport.cmake in Resources */,
 				300C18BA2CDDDC1D00DA55DB /* postprocess-headers.sh in Resources */,
-				54347D3224F69F1C006EE9F2 /* 数据结构.md in Resources */,
+				54347D3224F69F1C006EE9F2 /* 数据结构与算法.md in Resources */,
 				300C18AA2CDDDC1D00DA55DB /* dispatch_after.3 in Resources */,
 				300845CB24456B2800055737 /* KVC.md in Resources */,
 				30F8F49E243F142900968177 /* ThreadSummary.md in Resources */,
