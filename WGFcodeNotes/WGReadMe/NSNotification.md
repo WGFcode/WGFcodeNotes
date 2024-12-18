@@ -372,6 +372,17 @@
 1. 这种情况直接把obs对象存放在了Observation  *wildcard链表结构中
 
 
+2.添加观察者会将观察者及观察者接收到通知后实现的方法封装到一个observation对象中
+
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(receiveBusTypeNotification:) name:WGNotificationName_BusTypeName object:nil];
+        若添加观察者时，通知名称name存在，则存储在name表中(以name为key找到name表中的)
+        若添加观察者时，通知名称name不存在但object存在，则存储在nameless表中
+        若添加观察者时，name、object都为空，则存储到wildcard链表中
+            
+        wildcard  链表
+        name      哈希表  [name: [object]]
+        nameless  哈希表
+        
         
 ### 3.通知的优缺点
 #### 优点

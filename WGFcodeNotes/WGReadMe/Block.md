@@ -1,5 +1,77 @@
 ##  Block
 #### 什么是Block: 带有自动变量(局部变量)的匿名函数;是封装函数实现及上下文环境的匿名函数,
+* Block可以作为属性、方法参数、方法返回值
+* Block本质是一个OC对象，底层也是一个结构体，结构体内部包含两个变量 impl 和desc
+
+        struct XXX_block_impl_0 {
+            struct __block_impl impl;
+            struct XXX_block_desc_0* Desc;
+        }
+        struct __block_impl {
+            void *isa;
+            int Flags;
+            int Reserved;
+            void *FuncPtr;  //函数指针
+        };
+        static struct XXX_block_desc_0 {
+            size_t reserved;
+            size_t Block_size;  //BLock的大小
+        } 
+* Block对自动变量auto的捕获是Block内部新增成员变量来存储捕获到的自动变量的值，外部修改auto变量不影响block内部，是值捕获
+* Block对静态static局部变量的捕获是捕获的局部变量的地址(静态变量即便除了作用域但是内存仍存在)；Block对全局变量、全局静态变量不需要捕获直接使用即可
+* Block对成员变量是可以捕获的，其实是对成员变量的捕获捕获的是self引用
+* Block对对象类型的变量是指针捕获，外部是强引用则block内部对对象也是强引用；若外部是若引用则block内部对对象也是弱引用，靠block内部的copy/dispost函数实现的
+* Block分为全局Block、堆Block、栈Block
+* 全局Block存储在数据区(.data)；全局变量不存在捕获变量，因为全局Block内不能使用自动变量；copy操作后无变化
+* 栈Block存储在栈空间；超出作用域就会被销毁；copy操作后会从栈区拷贝到堆区
+* 堆Block存储在堆区；copy操作后引用计数会增加
+* __block主要解决block内部无法修改外部自动变量auto的问题；__block不能修饰全局变量、静态变量
+* 编译器会将__block修饰的变量包装成一个结构体，在这个结构体中有对应成员变量来存储捕获的变量值；
+而block的底层结构体中也会有成员变量的指针指向这个新生成的结构体
+* Block不是直接捕获__block变量，而是捕获的__block变量的地址
+
+        __block int age = 18;
+        
+        struct XXX_block_impl_0 {
+            struct __block_impl impl;
+            struct XXX_block_desc_0* Desc;
+            //Block的底层结构体中持有__block变量的结构体指针
+            __Block_byref_age_0 *age;  
+        }
+        struct __Block_byref_age_0 {
+            void *__isa;
+            //指向自身结构体的指针,即__Block_byref_age_0结构体的指针
+            __Block_byref_age_0 *__forwarding;
+            int __flags;
+            int __size;
+            int age;  
+        };
+* 栈上的Block,若所属作用域结束，那么栈上的block也会销毁；__block修饰的变量在栈上，同理作用域结束也会销毁；为了解决这个问题
+Block提供了从栈区拷贝到堆区的方法，这样即便作用域销毁，堆上的block仍然存在；对于__block来说可以通过自身结构体中的__forwarding
+指针即可以访问栈上的也可以访问堆上的__block变量
+* 为什么栈Block要从栈区拷贝到堆区: 因为栈上的block，在变量作用域结束后，栈上block就会销毁，所以需要拷贝到堆上
+* Block内部访问对象类型的auto变量时；若block在栈上，对该对象不会产生强引用；若block在堆上，则若外部对对象是强应用则block内部也是
+强应用，若外部对对象是弱引用，则block内部对对象也是弱引用
+* ARC环境下block从栈拷贝到堆情况: block作为函数返回值 / block赋值给__strong强引用 / block作为Cocoa API或GCD API方法参数时
+* __block修饰普通变量时
+
+        1.__block变量在栈上时，不会对指向的对象产生强引用；
+        2.当Block从栈拷贝到堆上时，会调用Block内部的copy函数；copy函数内部会调用_Block_object_assign；
+        _Block_object_assign函数会对__block修饰的变量(底层是个结构体)形成强引用
+        3.当Block从堆上移除时，会调用Block内部的dispose函数；dispose函数内部会调用_Block_object_dispose；
+        _Block_object_dispose函数会对__block修饰的变量(底层是个结构体)进行释放
+* __block修饰对象类型时
+
+        1.__block变量在栈上时，不会对指向的对象产生强引用；
+        2.当__block变量被copy到堆时，会调用__block变量内部的copy函数；copy函数内部会调用_Block_object_assign函数；
+        _Block_object_assign函数会根据所指向对象的修饰符是强引用 还是 弱引用来决定对该对象是强引用还是弱引用
+        3.如果__block变量从堆上移除,会调用__block变量内部dispose函数；dispose函数内部会调用_Block_object_dispose函
+        数;_Block_object_dispose函数会自动释放指向的对象
+* Block解决循环引用三种方式：
+
+        __weak: 弱引用，不持有对象，对象释放时会将对象置nil。
+        __unsafe_unretained: 弱引用，不持有对象，对象释放时不会将对象置nil。
+        __block: 必须把引用对象置为nil，并且要调用该block
 
 ### 1.Block基本语法
 ### 1.1 Block声明及定义
@@ -136,6 +208,7 @@
 ### 1.3 Block本质探索
 #### 结论: Block本质是一个对象,底层也是一个结构体, 我们可以通过**clang -rewrite-objc 源代码文件名**将源代码变换为C++的源代码,说是C++其实就是使用了struct结果,其本质是C语言源代码
     源代码
+    
     @implementation WGMainObjcVC
     - (void)viewDidLoad {
         [super viewDidLoad];
@@ -281,7 +354,7 @@
 
 
 #### 1.3.2 __block说明符
-#### 如果想修改Block内自动变量的值怎么办? 可以使用__block, __block主要用来解决Block中不能保存值的问题,即变量如果用 __block修饰,那么在Block表达式中就可以修改改自动变量的值
+#### 如果想修改Block内自动变量的值怎么办? 可以使用__block, __block主要用来解决Block中不能修改值的问题,即变量如果用 __block修饰,那么在Block表达式中就可以修改该自动变量的值
  如果我们直接在Block内修改自动变量的值,会报编译错误的, 但是在自定变量前加__block就可以解决可
  
     - (void)viewDidLoad {
@@ -585,7 +658,7 @@
 ### 2.2 __block变量与__forwarding
 #### 我们知道在copy操作之后,__block变量也会被拷贝到堆中,那么访问该变量访问的是栈上的还是堆上的?
 
-![图片](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGScreenshots/block2.jpeg)
+![图片](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGScreenshots/block2.png)
 
 * 通过__forwarding无论在Block内还是Block外访问__block修饰的变量,也不管该变量在堆上还是栈上,都能顺利的访问同一个__block修饰的变量
 
