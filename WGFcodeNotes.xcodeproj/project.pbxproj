@@ -135,7 +135,6 @@
 		30146C572D02F25F00AAE01C /* ARCStrong1.png in Resources */ = {isa = PBXBuildFile; fileRef = 30146C562D02F25F00AAE01C /* ARCStrong1.png */; };
 		3015810D245577A600EC6001 /* WGMonitorManage.m in Sources */ = {isa = PBXBuildFile; fileRef = 3015810C245577A600EC6001 /* WGMonitorManage.m */; };
 		30179F9A24401E8000EED9BD /* Note.md in Resources */ = {isa = PBXBuildFile; fileRef = 30179F9924401E8000EED9BD /* Note.md */; };
-		30196F932CCB43BD00B09D5D /* init.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 30196F922CCB43BD00B09D5D /* init.jpg */; };
 		301CF1BC2452BE310024EC69 /* WGFirstVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 301CF1BB2452BE310024EC69 /* WGFirstVC.m */; };
 		301CF1BF2452F1750024EC69 /* runLoop1.png in Resources */ = {isa = PBXBuildFile; fileRef = 301CF1BE2452F1750024EC69 /* runLoop1.png */; };
 		302AF2FC2CE5A56900FC041A /* runloop_performSelect.png in Resources */ = {isa = PBXBuildFile; fileRef = 302AF2E72CE5A56900FC041A /* runloop_performSelect.png */; };
@@ -169,8 +168,10 @@
 		306C696028F4081900285592 /* ReadWriteLockTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 306C695F28F4081900285592 /* ReadWriteLockTest.m */; };
 		306C696328F40E4400285592 /* ReadWriteLockTest1.m in Sources */ = {isa = PBXBuildFile; fileRef = 306C696228F40E4400285592 /* ReadWriteLockTest1.m */; };
 		307A0E7B24456BD3006E5429 /* RunLoop.md in Resources */ = {isa = PBXBuildFile; fileRef = 307A0E7A24456BD3006E5429 /* RunLoop.md */; };
-		307C0B282CD4CD97007AE7C4 /* kvc_getter.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 307C0B272CD4CD97007AE7C4 /* kvc_getter.jpg */; };
-		307C0B2A2CD4CDF1007AE7C4 /* kvc_setter.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 307C0B292CD4CDF1007AE7C4 /* kvc_setter.jpg */; };
+		307C0B2A2CD4CDF1007AE7C4 /* kvc_setter.png in Resources */ = {isa = PBXBuildFile; fileRef = 307C0B292CD4CDF1007AE7C4 /* kvc_setter.png */; };
+		309368622D190E2400A1A5D3 /* init.png in Resources */ = {isa = PBXBuildFile; fileRef = 309368612D190E2400A1A5D3 /* init.png */; };
+		309368652D190E3C00A1A5D3 /* kvc_getter.png in Resources */ = {isa = PBXBuildFile; fileRef = 309368632D190E3C00A1A5D3 /* kvc_getter.png */; };
+		309368662D190E3C00A1A5D3 /* block.png in Resources */ = {isa = PBXBuildFile; fileRef = 309368642D190E3C00A1A5D3 /* block.png */; };
 		30975813260C27D100709A73 /* Person+PersonTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 30975812260C27D100709A73 /* Person+PersonTest.m */; };
 		30975816260C2DF800709A73 /* Person+PersonAAAAA.m in Sources */ = {isa = PBXBuildFile; fileRef = 30975815260C2DF800709A73 /* Person+PersonAAAAA.m */; };
 		309A2DB42665D97900212257 /* swift面试题.md in Resources */ = {isa = PBXBuildFile; fileRef = 309A2DB32665D97900212257 /* swift面试题.md */; };
@@ -226,7 +227,6 @@
 		30DD22BF2CFEA2CD005AC332 /* swiftMethod.png in Resources */ = {isa = PBXBuildFile; fileRef = 30DD22AA2CFEA2CD005AC332 /* swiftMethod.png */; };
 		30DD22C22CFEA33F005AC332 /* swiftMethod1.png in Resources */ = {isa = PBXBuildFile; fileRef = 30DD22C02CFEA33F005AC332 /* swiftMethod1.png */; };
 		30DD22C32CFEA33F005AC332 /* swiftMethod2.png in Resources */ = {isa = PBXBuildFile; fileRef = 30DD22C12CFEA33F005AC332 /* swiftMethod2.png */; };
-		30DD858B244F00C100897144 /* block.jpeg in Resources */ = {isa = PBXBuildFile; fileRef = 30DD858A244F00C100897144 /* block.jpeg */; };
 		30E9226F26EB331F008D151A /* WGSwiftMethodDispatch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30E9226E26EB331F008D151A /* WGSwiftMethodDispatch.swift */; };
 		30ECA52024580E9000E3D312 /* Response.md in Resources */ = {isa = PBXBuildFile; fileRef = 30ECA51F24580E9000E3D312 /* Response.md */; };
 		30F7186C24F7AB020025AD98 /* 设计模式.md in Resources */ = {isa = PBXBuildFile; fileRef = 30F7186B24F7AB020025AD98 /* 设计模式.md */; };
@@ -620,7 +620,6 @@
 		3015810B245577A600EC6001 /* WGMonitorManage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WGMonitorManage.h; sourceTree = "<group>"; };
 		3015810C245577A600EC6001 /* WGMonitorManage.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WGMonitorManage.m; sourceTree = "<group>"; };
 		30179F9924401E8000EED9BD /* Note.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Note.md; sourceTree = "<group>"; };
-		30196F922CCB43BD00B09D5D /* init.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = init.jpg; sourceTree = "<group>"; };
 		301CF1BA2452BE310024EC69 /* WGFirstVC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WGFirstVC.h; sourceTree = "<group>"; };
 		301CF1BB2452BE310024EC69 /* WGFirstVC.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WGFirstVC.m; sourceTree = "<group>"; };
 		301CF1BE2452F1750024EC69 /* runLoop1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = runLoop1.png; sourceTree = "<group>"; };
@@ -2233,8 +2232,10 @@
 		3071641D26E0B33B00DDCE9A /* GSIMap.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GSIMap.h; sourceTree = "<group>"; };
 		307A0E7A24456BD3006E5429 /* RunLoop.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = RunLoop.md; sourceTree = "<group>"; };
 		307A0E7E24456BF8006E5429 /* Block.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Block.md; sourceTree = "<group>"; };
-		307C0B272CD4CD97007AE7C4 /* kvc_getter.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = kvc_getter.jpg; sourceTree = "<group>"; };
-		307C0B292CD4CDF1007AE7C4 /* kvc_setter.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = kvc_setter.jpg; sourceTree = "<group>"; };
+		307C0B292CD4CDF1007AE7C4 /* kvc_setter.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = kvc_setter.png; sourceTree = "<group>"; };
+		309368612D190E2400A1A5D3 /* init.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = init.png; sourceTree = "<group>"; };
+		309368632D190E3C00A1A5D3 /* kvc_getter.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = kvc_getter.png; sourceTree = "<group>"; };
+		309368642D190E3C00A1A5D3 /* block.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = block.png; sourceTree = "<group>"; };
 		30975811260C27D100709A73 /* Person+PersonTest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Person+PersonTest.h"; sourceTree = "<group>"; };
 		30975812260C27D100709A73 /* Person+PersonTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Person+PersonTest.m"; sourceTree = "<group>"; };
 		30975814260C2DF800709A73 /* Person+PersonAAAAA.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Person+PersonAAAAA.h"; sourceTree = "<group>"; };
@@ -2315,7 +2316,6 @@
 		30DD22AA2CFEA2CD005AC332 /* swiftMethod.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = swiftMethod.png; sourceTree = "<group>"; };
 		30DD22C02CFEA33F005AC332 /* swiftMethod1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = swiftMethod1.png; sourceTree = "<group>"; };
 		30DD22C12CFEA33F005AC332 /* swiftMethod2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = swiftMethod2.png; sourceTree = "<group>"; };
-		30DD858A244F00C100897144 /* block.jpeg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = block.jpeg; sourceTree = "<group>"; };
 		30E9226E26EB331F008D151A /* WGSwiftMethodDispatch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WGSwiftMethodDispatch.swift; sourceTree = "<group>"; };
 		30E9227026EB3672008D151A /* WGSwiftMethodDispatchSIL.sil */ = {isa = PBXFileReference; lastKnownFileType = text; path = WGSwiftMethodDispatchSIL.sil; sourceTree = "<group>"; };
 		30ECA51F24580E9000E3D312 /* Response.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Response.md; sourceTree = "<group>"; };
@@ -5512,6 +5512,8 @@
 		30A7DC7D24348382008DDCF9 /* WGScreenshots */ = {
 			isa = PBXGroup;
 			children = (
+				309368642D190E3C00A1A5D3 /* block.png */,
+				309368632D190E3C00A1A5D3 /* kvc_getter.png */,
 				303380F62CEDBA89005AE9A3 /* runtime.png */,
 				304154FE2CE4A4A70072A278 /* autoreleasepool_push.png */,
 				304155022CE4A4E10072A278 /* autoreleasepool_page.png */,
@@ -5519,15 +5521,13 @@
 				302AF2E72CE5A56900FC041A /* runloop_performSelect.png */,
 				304154E82CE4A4450072A278 /* autoreleasepool.png */,
 				30B4BCCE2CD895DF000DADC1 /* delegate.png */,
-				307C0B292CD4CDF1007AE7C4 /* kvc_setter.jpg */,
+				307C0B292CD4CDF1007AE7C4 /* kvc_setter.png */,
 				304155002CE4A4CE0072A278 /* autoreleasepool_pop.png */,
-				307C0B272CD4CD97007AE7C4 /* kvc_getter.jpg */,
 				301CF1BE2452F1750024EC69 /* runLoop1.png */,
-				30196F922CCB43BD00B09D5D /* init.jpg */,
 				5422AC58244F3E8E000CB747 /* block2.png */,
 				303C3CD52D003D0F0053180D /* property1.png */,
 				303C3CD42D003D0F0053180D /* property2.png */,
-				30DD858A244F00C100897144 /* block.jpeg */,
+				309368612D190E2400A1A5D3 /* init.png */,
 				30A73F322447F14A00C86BB8 /* kvc_code.png */,
 				304155042CE4A7710072A278 /* KVO.png */,
 				30049FB72D01AF9F000456FF /* ARCStrong.png */,
@@ -6317,9 +6317,9 @@
 				302AF2FC2CE5A56900FC041A /* runloop_performSelect.png in Resources */,
 				548AC98C242F4CAD00EEE11C /* gitCocoaPodsCarthage.md in Resources */,
 				30A73F332447F14A00C86BB8 /* kvc_code.png in Resources */,
+				309368622D190E2400A1A5D3 /* init.png in Resources */,
 				300C18A82CDDDC1D00DA55DB /* dispatch_benchmark.3 in Resources */,
 				30BB26BB244BF62B00255288 /* NSNotification.md in Resources */,
-				30DD858B244F00C100897144 /* block.jpeg in Resources */,
 				300C18D72CDDDC1D00DA55DB /* libdispatch-resolver.xcconfig in Resources */,
 				30AB3011284DE529009EC03C /* 常见面试题.md in Resources */,
 				300C18CD2CDDDC1D00DA55DB /* libdispatch-resolved.xcconfig in Resources */,
@@ -6332,7 +6332,6 @@
 				300C18BF2CDDDC1D00DA55DB /* DispatchAppleOptions.cmake in Resources */,
 				30A6D128293885150064B18A /* rsaCert.crt in Resources */,
 				300C18A72CDDDC1D00DA55DB /* dispatch_object.3 in Resources */,
-				307C0B282CD4CD97007AE7C4 /* kvc_getter.jpg in Resources */,
 				5463C26424B0115D008F9C9A /* CoreAnimal.md in Resources */,
 				300C18BB2CDDDC1D00DA55DB /* config.h.in in Resources */,
 				545638D324B36CE5007D5447 /* HTTPTCPUDP.md in Resources */,
@@ -6350,7 +6349,6 @@
 				300C18C42CDDDC1D00DA55DB /* FindLibRT.cmake in Resources */,
 				300C189F2CDDDC1D00DA55DB /* dispatch_queue_create.3 in Resources */,
 				300C18B82CDDDC1D00DA55DB /* run-on-install.sh in Resources */,
-				30196F932CCB43BD00B09D5D /* init.jpg in Resources */,
 				30FD75FC243596BB00431678 /* lock4.png in Resources */,
 				300C18B32CDDDC1D00DA55DB /* LICENSE in Resources */,
 				300C18A22CDDDC1D00DA55DB /* dispatch.3 in Resources */,
@@ -6406,6 +6404,7 @@
 				300C18AB2CDDDC1D00DA55DB /* dispatch_time.3 in Resources */,
 				30A6D12E293885150064B18A /* public_key.der in Resources */,
 				543110B42530A23D007D0061 /* OC对象的本质.md in Resources */,
+				309368662D190E3C00A1A5D3 /* block.png in Resources */,
 				548AC990242F4CAD00EEE11C /* Framework.md in Resources */,
 				300C18E52CDDDC1D00DA55DB /* BlocksRuntime.def in Resources */,
 				30A6D12B293885150064B18A /* private_key.pem in Resources */,
@@ -6432,7 +6431,7 @@
 				548AC95A242F4B3100EEE11C /* Main.storyboard in Resources */,
 				5406AA77259A144D0053E251 /* iOS签名机制.md in Resources */,
 				300C18CE2CDDDC1D00DA55DB /* libdispatch.clean in Resources */,
-				307C0B2A2CD4CDF1007AE7C4 /* kvc_setter.jpg in Resources */,
+				307C0B2A2CD4CDF1007AE7C4 /* kvc_setter.png in Resources */,
 				300C18C02CDDDC1D00DA55DB /* dispatchConfig.cmake.in in Resources */,
 				300C18A32CDDDC1D00DA55DB /* dispatch_async.3 in Resources */,
 				300C18A62CDDDC1D00DA55DB /* dispatch_data_create.3 in Resources */,
@@ -6440,6 +6439,7 @@
 				300C18D62CDDDC1D00DA55DB /* libdispatch.order in Resources */,
 				30A6D129293885150064B18A /* rsa_public_key.pem in Resources */,
 				300C18BC2CDDDC1D00DA55DB /* DTrace.cmake in Resources */,
+				309368652D190E3C00A1A5D3 /* kvc_getter.png in Resources */,
 				300C18B62CDDDC1D00DA55DB /* install-headers.sh in Resources */,
 				300C18D32CDDDC1D00DA55DB /* libdispatch-introspection.xcconfig in Resources */,
 				300C18BD2CDDDC1D00DA55DB /* CMakeLists.txt in Resources */,

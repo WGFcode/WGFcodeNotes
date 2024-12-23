@@ -1,10 +1,10 @@
 ## KVC 
 #### 话术:
 KVC是基于运行时的通过字符串key或者keyPath可以直接访问和修改对象的属性(包含私有属性)，
-内部提供了三个方法setValueforundefineKey/setnilValueForKey/valueforUndefineKey来对调用KVC过程中出现的异常进行捕获  
-继承自NSObject的对象都可以实现KVC，如果要关闭KVC可以通过重写类属性accessInstanceVariableDirectly方法并设置为NO来关闭KVC
-通过KVC对对象的属性或成员变量进行赋值修改都是可以触发KVO的，因为KVC内部会调用willchangevalueforkey和didchangevalueforkey
-KVC使用需要注意就是key可能容易拼写错误，KVC优点就是代码更加灵活，适用于动态属性访问和系列化/反序列化操作，减少代码量
+内部提供了三个方法setValueforundefineKey/setnilValueForKey/valueforUndefineKey来对调用KVC过程中出现的异常进行捕获        
+继承自NSObject的对象都可以实现KVC，如果要关闭KVC可以通过重写类属性accessInstanceVariableDirectly方法并设置为NO来关闭KVC       
+通过KVC对对象的属性或成员变量进行赋值修改都是可以触发KVO的，因为KVC内部会调用willchangevalueforkey和didchangevalueforkey          
+KVC使用需要注意就是key可能容易拼写错误，KVC优点就是代码更加灵活，适用于动态属性访问和系列化/反序列化操作，减少代码量               
 KVC和直接访问属性区别就是：直接访问属性是在编译期确定的，KVC是在动态运行时操作的；因为运行时需要解析键值对增加了处理时间所以性能低
 破坏了类的封装性和只读属性增加安全风险
 
