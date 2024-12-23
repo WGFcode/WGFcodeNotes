@@ -1,5 +1,5 @@
 ##  RunLoop
-### RunLoop就是通过内部维护的【事件循环】来对事件/消息进行管理的一个对象。没有消息处理时，处于休眠状态避免资源占用;有消息需要处理时立刻被唤醒；所谓的【事件循环】实质上就是runloop内部状态的转换而不是while死循环，分为两种状态
+#### RunLoop就是通过内部维护的【事件循环】来对事件/消息进行管理的一个对象。没有消息处理时，处于休眠状态避免资源占用;有消息需要处理时立刻被唤醒；所谓的【事件循环】实质上就是runloop内部状态的转换而不是while死循环，分为两种状态
 * 用户态:应用程序都是在用户态，平时开发用到的api等都是用户态的操作
 * 内核态:系统调用，牵涉到操作系统，底层内核相关的指令
 * 有消息时，从内核态 -> 用户态; 无消息休眠时，从用户态 -> 内核态
@@ -8,7 +8,7 @@
 1. 保证RunLoop所在的线程不退出(保证程序不退出)；
 2. 负责监听事件(触摸事件/时钟事件/网络事件等)；
 3. 保持程序持续运行
-4. 处理app各种事件(定时器Timer/方法调用PerformSelector/GCD Async Main Queue/事件响应、手势识别、界面刷新/网络请求/自动释放池 AutoreleasePool)
+4. 处理app各种事件(定时器Timer/方法调用PerformSelector/GCD Async Main Queue/事件响应、手势识别、界面刷新/网络请求/自动释放池 AutoreleasePool)      
 5.节省CPU资源，提高程序性能
 
 
@@ -50,7 +50,7 @@
             kCFRunLoopBeforeSources = (1UL << 2),        即将处理Sources
             kCFRunLoopBeforeWaiting = (1UL << 5),        即将进入休眠
             kCFRunLoopAfterWaiting = (1UL << 6),         刚从休眠中唤醒
-            kCFRunLoopExit = (1UL << 7),                 即将推出RunLoop
+            kCFRunLoopExit = (1UL << 7),                 即将退出RunLoop
             kCFRunLoopAllActivities = 0x0FFFFFFFU
         };
         
@@ -498,7 +498,7 @@
             selector:@selector(timerChange) userInfo:nil repeats:YES];
             [[NSRunLoop currentRunLoop] addTimer:timer forMode:NSRunLoopCommonModes];
             //3. 如果while里面是Yes就开始开启RunLoop, 直到遇到NO才退出RunLoop循环
-            while (!self.finish) { //
+            while (!self.finish) { 
                 //每隔极短的时间就开启一次RunLoop
                 [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.0001]];
             }
@@ -528,7 +528,7 @@
 
 #### 从上面打印结果得出结论: 想让子线程销毁, 可以通过设置变量来控制死循环的进入和退出,这样当子线程中的没有任务时,子线程就销毁了
 
-### 结论: 线程和RunLoop是一一对应的, 在子线程中,想保住子线程的命, 就是让子线程中一直有任务在处理,可以通过开启RunLoop来进入死循环老保证子线程中一直存在任务; 如果想销毁子线程,那么就要设置变量来控制while死循环的进入和进出条件, 然后在while循环中每隔极端的时间开启一次RunLoop, 在需要销毁子线程时,设置变量来控制while循环退出, 当while退出循环时, RunLoop也不再开启了, 子线程中没有任务了,子线程也就销毁了
+#### 结论: 线程和RunLoop是一一对应的, 在子线程中,想保住子线程的命, 就是让子线程中一直有任务在处理,可以通过开启RunLoop来进入死循环来保证子线程中一直存在任务; 如果想销毁子线程,那么就要设置变量来控制while死循环的进入和进出条件, 然后在while循环中每隔极端的时间开启一次RunLoop, 在需要销毁子线程时,设置变量来控制while循环退出, 当while退出循环时, RunLoop也不再开启了, 子线程中没有任务了,子线程也就销毁了
 
 
 
@@ -580,7 +580,7 @@
             
             
             /* 3.2 开启RunLoop方法二
-            如果没有输入源或者Timer事件添加到运行循环中,次方法将立即退出, 否则会重复调用该方法直到指定的时间到来
+            如果没有输入源或者Timer事件添加到运行循环中,此方法将立即退出, 否则会重复调用该方法直到指定的时间到来
             因为我们设置了到指定的未来时间截止,所以该RunLoop开启后会一直运行
             我们也可以理解成死循环了 所以下面打印的结果就是: 11111 22222
             */
@@ -600,243 +600,7 @@
     }
 ![图片](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGScreenshots/runloop_performSelect.png)
 
-#### 11.2 线程保活及保活后的销毁(退出)
-#### 如果项目中我们需要在后台线程频繁的处理任务, 那么我们频繁的创建和销毁线程会导致一定的性能问题, 所以我们需要进行线程保活
-    // WGRunLoopVC.m文件
-    @interface WGRunLoopVC ()
-    @property(nonatomic, strong) WGThread *thread;
-    @end
 
-    @implementation WGRunLoopVC
-
-    - (void)viewDidLoad {
-        [super viewDidLoad];
-        self.view.backgroundColor = [UIColor redColor];
-
-        _thread = [[WGThread alloc]initWithTarget:self selector:@selector(threadTest) object:nil];
-        [_thread start];
-    }
-
-    -(void)threadTest {
-        NSLog(@"当前子线程开始执行任务");
-        //当任务执行完成后,子线程就会被销毁, 如果想保证子线程存活,就需要在子线程中添加RunLoop
-        //@autoreleasepool作用: 回收当前我们在子线程中创建的临时变量或资源
-        @autoreleasepool {
-            // 1. 这种方式启动RunLoop并不能保证线程存活,因为当前子线程RunLoop并没有添加任何事件源,  
-            所以开启的RunLoop直接就死掉了
-            //NSRunLoop *currentThreadRunLoop = [NSRunLoop currentRunLoop];
-            //[currentThreadRunLoop run];
-            
-            // 2. 开启当前子线程的RunLoop,并添加事件源(source1)到RunLoop中,这样子线程中就一直  
-            有任务需要处理,所以子线程也就不会销毁了
-            NSRunLoop *currentThreadRunLoop = [NSRunLoop currentRunLoop];
-            //[currentThreadRunLoop addPort:[NSPort port] forMode:NSRunLoopCommonModes];
-            [currentThreadRunLoop addPort:[NSMachPort port] forMode:NSRunLoopCommonModes];
-            [currentThreadRunLoop run];
-            
-            /*
-             思考: 为什么我们添加 [NSMachPort port] 或者 [NSPort port] 到RunLoop中,就能保证线程存活?
-             为什么添加 [NSMachPort port] 或者 [NSPort port] 到RunLoop中,使用的是NSRunLoopCommonModes运行模式
-             问题1. RunLoop中处理的事件(任务)包含: source: source0/source1 observer Timer,
-             而我们为了做到线程保活,不能在额外添加其他输入源或Timer,所以我们就添加了输入源source1,而source1事件  
-             是基于系统或者说基于端口的系统消息事件,不需要我们添加其他额外的事件就能唤醒RunLoop来达到线程保活目的
-             问题2: 为了保活的子线程, 即可以处理UI事件又可以同时处理Timer事件,
-             */
-        }
-    }
-
-    // 验证子线程并没有销毁
-    -(void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
-        [self performSelector:@selector(threadTask) onThread:self.thread withObject:nil waitUntilDone:YES];
-    }
-    -(void)threadTask {
-        NSLog(@"在保活的线程下执行了任务");
-    }
-    @end
-
-#### 上面我们已经验证了通过在子线程中开启RunLoop,并且来在RunLoop中添加了基于source1事件源(基于端口的系统消息事件)来让RunLoop中一直有任务在处理,从而保证了子线程一直存活, 但是我们又如何优雅的退出哪?
-
-#### 11.2.1 保活的线程退出方式一:  **该方式不能在项目中用**
-#### 通过将当前的RunLoop移除基于端口Port事件来保证RunLoop的退出,但是这种方式并不能保证线程的真正退出, 因为系统在创建和使用这个RunLoop时,不能保证系统不去添加一些额外的事件
-
-    @interface WGRunLoopVC ()
-    @property(nonatomic, strong) WGThread *thread;
-    @property(nonatomic, strong) NSPort *port;
-    @end
-
-    @implementation WGRunLoopVC
-
-    - (void)viewDidLoad {
-        [super viewDidLoad];
-        self.view.backgroundColor = [UIColor redColor];
-        _port = [NSMachPort port];
-        _thread = [[WGThread alloc]initWithTarget:self selector:@selector(threadTest) object:nil];
-        [_thread start];
-    }
-
-    -(void)threadTest {
-        NSLog(@"当前子线程开始执行任务");
-        @autoreleasepool {
-            NSRunLoop *currentThreadRunLoop = [NSRunLoop currentRunLoop];
-            [currentThreadRunLoop addPort:_port forMode:NSRunLoopCommonModes];
-            // 2秒后销毁子线程
-            [self performSelector:@selector(removeThread) withObject:nil afterDelay:2];
-            [currentThreadRunLoop run];
-            NSLog(@"========");
-        }
-    }
-
-    -(void)removeThread {
-        NSLog(@"---%s---",__func__);
-        [[NSRunLoop currentRunLoop] removePort:_port forMode:NSRunLoopCommonModes];
-    }
-
-    // 验证子线程并没有销毁
-    -(void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
-        [self performSelector:@selector(threadTask) onThread:self.thread  
-        withObject:nil waitUntilDone:YES];
-    }
-
-    -(void)threadTask {
-        NSLog(@"在保活的线程下执行了任务");
-    }
-    
-    打印结果: 23:11:13.386176+0800 当前子线程开始执行任务
-            2020-09-15 23:11:15.391892+0800  ----[WGRunLoopVC removeThread]---
-            2020-09-15 23:11:15.392447+0800  ========
-    接着点击屏幕程序crash了
-#### 分析: 打印了========,说明RunLoop已经退出循环了,但是为什么程序会crash, 暂时还没找到原因,但是如果将touchesBegan方法中的waitUntilDone设置为NO(设置为NO,就表示这个方法依赖于当前的RunLoop),程序就不会crash, 但是threadTask方法还是不会执行, 这里需要明白一个问题: 就是通过当前RunLoop的removePort方法,看似RunLoop退出了,但是我们不能保证系统在创建子线程RunLoop时没有添加Timer/Source事件,并且我们在touchesBegan方法中的performSelector方法会额外的再次唤醒当前的RunLoop(前提条件就是waitUntilDone被设置为了NO), 所以这种退出方式一般不被采用
-
-
-#### 11.2.2 保活的线程退出方式二:  **该方式不能在项目中用**
-#### 如果我们简单一点直接将当前线程退出exit,会有什么效果哪?
-    -(void)removeThread {
-        NSLog(@"---%s---",__func__);
-        //1. 退出子线程方式一
-        //[[NSRunLoop currentRunLoop] removePort:_port forMode:NSRunLoopCommonModes];
-        //2. 退出子线程方式二
-        [NSThread exit];
-    }
-    打印结果: 21:46:51.592322+0800  当前子线程开始执行任务
-            21:46:53.601248+0800  ----[WGRunLoopVC removeThread]---
-#### 当我们点击屏幕时,什么都没有打印,但是NSLog(@"========");也没有打印,说明我们的RunLoop并没有退出,所以这种方式也是不可取的
-
-#### 11.2.3 保活的线程退出方式三:  **该方式不能在项目中用**
-#### 如果我们直接通过调用CFRunLoop(c语言)中的stop来停止当前RunLoop会怎么样哪?
-    -(void)viewDidLoad {
-        [super viewDidLoad];
-        self.view.backgroundColor = [UIColor redColor];
-        _port = [NSMachPort port];
-        _thread = [[WGThread alloc]initWithTarget:self selector:@selector(threadTest)  
-        object:nil];
-        [_thread start];
-    }
-
-    -(void)threadTest {
-        NSLog(@"当前子线程开始执行任务");
-        @autoreleasepool {
-            NSRunLoop *currentThreadRunLoop = [NSRunLoop currentRunLoop];
-            [currentThreadRunLoop addPort:_port forMode:NSRunLoopCommonModes];
-            //注册观察者
-            [self addObserverForCurrentRunloop];
-            // 2秒后销毁子线程
-            [self performSelector:@selector(removeThread) withObject:nil afterDelay:2];
-            [currentThreadRunLoop run];
-            NSLog(@"========");
-        }
-    }
-
-    -(void)removeThread {
-        //1. 退出子线程方式一
-        //[[NSRunLoop currentRunLoop] removePort:_port forMode:NSRunLoopCommonModes];
-        //2. 退出子线程方式二
-        //[NSThread exit];
-        //2. 退出子线程方式三
-        CFRunLoopStop(CFRunLoopGetCurrent());
-        NSLog(@"---%s---",__func__);
-    }
-
-    // 验证子线程并没有销毁
-    -(void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
-        [self performSelector:@selector(threadTask) onThread:self.thread withObject:nil  
-        waitUntilDone:NO];
-    }
-
-    -(void)threadTask {
-        NSLog(@"在保活的线程下执行了任务");
-    }
-    
-    打印结果: 22:23:59.282266+0800  当前子线程开始执行任务
-             22:23:59.284975+0800  current RunLoop activity: Entry
-             22:23:59.286667+0800  current RunLoop activity: BeforeTimers
-             22:23:59.297584+0800  current RunLoop activity: BeforeSources
-             22:23:59.299511+0800  current RunLoop activity: BeforeWaiting
-             22:24:01.288256+0800  current RunLoop activity: AfterWaiting
-             22:24:01.288705+0800  ----[WGRunLoopVC removeThread]---
-             22:24:01.289285+0800  current RunLoop activity: Exit
-             22:24:01.289921+0800  current RunLoop activity: Entry
-             22:24:01.290581+0800  current RunLoop activity: BeforeTimers
-             22:24:01.290985+0800  current RunLoop activity: BeforeSources
-             22:24:01.291390+0800  current RunLoop activity: BeforeWaiting
-#### 首先我们先来分析这个打印结果,进入页面后子线程任务开始执行,RunLoop开始打印状态, 但是在2秒后的这个时间点“22:24:01.288256+0800” RunLoop又再次被唤醒了,主要是因为performSelector:withObject:afterDelay:这个方法底层实际上是注册了一个定时器Timer,所以RunLoop再次被唤醒了,其实到第一个BeforeWaiting打印时,RunLoop已经处于休眠状态了,但是因为Timer又再次唤醒了RunLoop,所以又打印了AfterWaiting, 从这里我们可以知道后续要通过RunLoop来检测卡顿的时间点就在BeforeWaiting和AfterWaiting这两个状态之间,此时的RunLoop状态是我们上面打印的最后一行信息: 即BeforeWaiting,此时RunLoop处于休眠状态, 当我们继续点击屏幕时,打印结果如下
-         22:33:23.968195+0800  current RunLoop activity: AfterWaiting
-         22:33:23.968358+0800  current RunLoop activity: BeforeTimers
-         22:33:23.968586+0800   current RunLoop activity: BeforeSources
-         22:33:23.970373+0800  在保活的线程下执行了任务
-         22:33:23.977320+0800  current RunLoop activity: Exit
-         22:33:23.978638+0800  current RunLoop activity: Entry
-         22:33:23.980891+0800  current RunLoop activity: BeforeTimers
-         22:33:23.983252+0800  current RunLoop activity: BeforeSources
-         22:33:23.983425+0800  current RunLoop activity: BeforeWaiting
-#### 分析:当我们再次点击屏幕时, 看第一行打印的结果:AfterWaiting,RunLoop又被唤醒了,所以继续执行threadTask任务,这里可以看出这种通过stop当前RunLoop的方式并不能销毁子线程,所以在项目中我们也不采用这种方式, 有疑问? stop没有退出将当前的RunLoop退出吗? 实际上事退出了,但是我们来看下源码
-
-    -(void)threadTest {
-        NSLog(@"当前子线程开始执行任务");
-        @autoreleasepool {
-            NSRunLoop *currentThreadRunLoop = [NSRunLoop currentRunLoop];
-            [currentThreadRunLoop addPort:_port forMode:NSRunLoopCommonModes];
-            //注册观察者
-            [self addObserverForCurrentRunloop];
-            // 2秒后销毁子线程
-            [self performSelector:@selector(removeThread) withObject:nil afterDelay:2];
-            // ⚠️: 将runLoop开启
-            [currentThreadRunLoop run];
-            NSLog(@"========");
-        }
-    }
-        
-    我们在swift源码的RunLoop.swift文件下找到run的源码
-    // 这个方法就是我们当前调用的[currentThreadRunLoop run]方法, 
-    public func run(until limitDate: Date) {
-        // while循环 如果想让当前的RunLoop退出, 这个white里面的(条件1&条件2)必须为false
-        //这个方法实际上是两层循环,上面我们stop的实际上是跳出条件1的循环,但是我们外面的循环并没有跳出,所以我们得  
-        出结论⚠️⚠️⚠️: 通过RunLoop进行线程保活,一定不能使用[currentThreadRunLoop run]的方法,因为这种方式下  
-        无法退出RunLoop,所以我们线程保活用的只能是run(mode: RunLoop.Mode, before limitDate: Date)这种方法  
-        来保活,那么我们退出RunLoop就可以借鉴下面这个方法来操作
-        while run(mode: .default, before: limitDate) && limitDate.timeIntervalSinceReferenceDate >  
-        CFAbsoluteTimeGetCurrent() { 
-         }
-    }
-    //这种开启runLoop的方法就是上面的条件1 这个也是个循环, 而我们上面提到的stop当前RunLoop,  
-    实际上stop的是这个循环
-    public func run(mode: RunLoop.Mode, before limitDate: Date) -> Bool {
-        if _cfRunLoop !== CFRunLoopGetCurrent() {
-            return false
-        }
-        let modeArg = mode._cfStringUniquingKnown
-        if _CFRunLoopFinished(_cfRunLoop, modeArg) {
-            return false
-        }
-        let limitTime = limitDate.timeIntervalSinceReferenceDate
-        let ti = limitTime - CFAbsoluteTimeGetCurrent()
-        CFRunLoopRunInMode(modeArg, ti, true)
-        return true
-    }
-
-#### 11.2.4 保活的线程退出方式四:  **该方式不能在项目中用**
-#### 上面我们分析了源码,所以我们需要一个标示来表示退出RunLoop的条件
-    
-  
 ### 4.RunLoop在项目中应用场景
 * 控制线程的声明周期（线程保活）；常驻线程
 * NSTimer定时器使用/解决NSTimer在滚动的时候停止的问题/
@@ -1066,7 +830,7 @@
             WGMainObjcVC销毁了                  (点击页面返回按钮)
             线程销毁了
 #### 分析: 可以发现RunLoop确实停止了，并且销毁也销毁了；不过有个不方便的地方，就是每次退出页面前，必须先点击stopBtn按钮停止RunLoop，然后再返回页面，能不能退出页面的时候就调用stopRunLoop方法,下面是改进的方法
-![图片](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGScreenshots/runloop1.png)
+![图片](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGScreenshots/runLoop1.png)
 
     //.m文件
     @implementation WGThread
@@ -1092,7 +856,7 @@
             [[NSRunLoop currentRunLoop] addPort:[[NSPort alloc]init] forMode:NSDefaultRunLoopMode];
             //self强引用thread,thread强引用Block，Block内又引用self,weakSelf来避免循环引用
             while (!weakSelf.isStop) {
-                //[NSDate distantFuture]表示未来某一不可达到的事件点，说白了等同与正无穷大的事件
+                //[NSDate distantFuture]表示未来某一不可达到的时间点，说白了等同与正无穷大的事件
                 //beforeDat:过期时间，传入distantFuture遥远的未来，就是永远不会过期
                 [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:  
                 [NSDate distantFuture]];
@@ -1224,6 +988,8 @@
             线程中任务执行完成
             程序crash                          （退出页面）
 #### 分析: 为什么在退出页面的时候，程序会crash?当我们点击stopBtn按钮后，Runloop确实停掉了，那么这个时候Runloop对应的线程就不能用了，但这个时候线程thread还没有销毁，因为还没有调用dealloc方法，当我们返回的页面的时候，是调用的dealloc方法，但是在dealloc方法执行完成前先调用了stop方法，在stop方法中，我们使用了方法performSelector来将任务添加到thread线程上，但是此时thread是不能用的，把一个任务添加到不能用的线程thread上，所以程序会crash。那么如何解决那？我们可以在暂停RunLoop后，可以将thread线程置为nil，这时候如果发现子线程thread为nil，就不要在这个子线程上添加任务了 
+#### 最终线程保活的方案
+
     //.m文件
     @implementation WGThread
     -(void)dealloc {

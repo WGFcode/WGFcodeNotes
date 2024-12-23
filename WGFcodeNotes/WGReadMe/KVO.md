@@ -2,10 +2,8 @@
 ![图片](https://github.com/WGFcode/WGFcodeNotes/blob/master/WGFcodeNotes/WGScreenshots/KVO.png)
 
 ### 话术:
-* KVO键值观察，对对象的属性通过addObserver添加观察者，当对象属性发生改变时，会触发观察者的observeValueForKeyPath方法，观察者需要在合适的时机
-进行释放；         
-* KVO底层原理是基于Runtime运行时的，当对对象属性添加观察者时，系统会创建这个对象的派生类，并将对象的isa指针指向这个派生类，在这个派生类中会
-重写监听属性的setter方法、class方法、_isKOV、dealloc方法，重写class方法就是避免KVO的底层实现细节暴漏给外部。      
+* KVO键值观察，对对象的属性通过addObserver添加观察者，当对象属性发生改变时，会触发观察者的observeValueForKeyPath方法，观察者需要在合适的时机进行释放；     
+* KVO底层原理是基于Runtime运行时的，当对对象属性添加观察者时，系统会创建这个对象的派生类，并将对象的isa指针指向这个派生类，在这个派生类中会重写监听属性的setter方法、class方法、_isKOV、dealloc方法，重写class方法就是避免KVO的底层实现细节暴漏给外部。      
 * 在重写的setter方法中首先会调用Foundation框架下的C函数_NSSetXXXValueAndNotify，这个函数内部会调用
 
         1，willchangevalueforkey方法 
@@ -1126,7 +1124,7 @@ automaticallyNotifiesObserversForKey且返回NO
     -(void)didChangeValueForKey:(NSString *)key {
         NSLog(@"didChangeValueForKey---begin");
         [super didChangeValueForKey:key];
-        NSLog(@"didChangeValueForKey---begin");
+        NSLog(@"didChangeValueForKey---end");
     }
     @end
         
@@ -1153,7 +1151,7 @@ automaticallyNotifiesObserversForKey且返回NO
                 new = 20;
                 old = 0;
              }
-             didChangeValueForKey---begin
+             didChangeValueForKey---end
         
 #### 2.1 如何手动触发KVO
 
@@ -1186,7 +1184,7 @@ automaticallyNotifiesObserversForKey且返回NO
 
 
 #### 2.2 直接修改成员变量会触发KVO吗?
-#### 不会触发KVO, 因为KVO的本质的Runtime动态生成对象的子类NSKVONotifying_类名称,在子类中重写setter方法,然后调用willChangeValueForKey、原类的setter方法、didChangeValueForKey.而成员变量没有setter方法,所以不会触发,想要触发的话,只能手动触发,在成员变量值改变前后手动添加willChangeValueForKey和didChangeValueForKey方法
+#### 不会触发KVO, 因为KVO的本质是Runtime动态生成对象的子类NSKVONotifying_类名称,在子类中重写setter方法,然后调用willChangeValueForKey、原类的setter方法、didChangeValueForKey.而成员变量没有setter方法,所以不会触发,想要触发的话,只能手动触发,在成员变量值改变前后手动添加willChangeValueForKey和didChangeValueForKey方法
 
 #### 感悟
 * KVO是基于Runtime机制实现的，运用了isa-swizzling技术,当对一个对象属性添加观察者时，runtime会动态的创建该对象所属类的派生类
