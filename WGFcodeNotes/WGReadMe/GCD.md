@@ -31,6 +31,7 @@
 * 一般项目中用到的最多的就是 并发队列+异步任务 来实现并发执行(多条线程同一时间执行多个任务)，提高执行效率
 * GCD中DispatchGroup组其实就是用来将多个任务存放在group中，然后实现异步调用
 * GCD组中notify方法，当添加到group中所有的任务都执行完成后，才开始执行 notify 中Block内的任务，一般可以用于任务C依赖任务A任务B的完成这样的业务逻辑中，notify不会阻塞当前线程
+* GCD组中的group.notify(queue: DispatchQueue, work: DispatchWorkItem)方法,notify方法只能通知到系统创建的队列(主队列和全局队列)，而手动创建的串行队列/并发队列并不能通知到
 * 在GCD组中，如果我想控制组内的任务执行顺序，比如组内有任务A，任务B，任务C都是异步执行的，执行顺序是无序的，如果想让组内的任务按照任务A->任务B->任务C顺序执行，怎么办？这时候就可以用group中的wait方法来控制，任务A->group.wait()->任务B->group.wait()-任务C， wait方法会阻塞当前线程
 * 除了wait方法控制group组内的任务执行顺序(实现多线程中的同步，还可以使用信号量DispatchSemaphore来控制)，创建信号量并设置初始信号量值为0->任务A(A执行完成后调用signal方法使信号量+1)->wait(信号量为0时，阻塞wait后的任务执行，直到信号量值大于0)->任务B(signal)-wait()->任务C
 * GCD中实现多线程任务的同步执行，其实同步执行就是控制多个异步任务的执行顺序，有两种方式：第一种就是GCD组内可以利用wait方法阻塞当前线程达到同步，第二种就是利用信号量的signal和wait方法实现多个任务之间的同步执行，区别就是第一种只能用在group种，第二种可以用在group中也可以用在非group中使用
@@ -1122,7 +1123,8 @@
     结束了
 
 
-### GCD组中的group.notify(queue: DispatchQueue, work: DispatchWorkItem)方法，通过验证我们得出结论:notify方法只能通知到的队列有主队列和全局队列，都是由系统创建的，而手动创建的串行队列/并发队列并不能通知到
+#### GCD组中的group.notify(queue: DispatchQueue, work: DispatchWorkItem)方法，通过验证我们得出结论:notify方法只能通知到的队列有主队列和全局队列，都是由系统创建的，而手动创建的串行队列/并发队列并不能通知到
+
 ### 下面是验证结论的
 
     NSLog("开始了")

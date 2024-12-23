@@ -905,7 +905,7 @@ weak_entry_t里面拥有数组用来存储弱引用的地址，如果引用个�
 
 #### 两个方法都有对应的类方法和实例方法，结合底层源码总结如下
 * 如果是类方法
-1. [A isMemberOfClass: B] A的元类对象是否 是指定的B 或者B的子类
+1. [A isMemberOfClass: B] A的元类对象是否 是指定的B 
 2. [A isKindOfClass: B] A的元类对象是否 是指定的B 或者B的子类
 3. 2中有个特例：NSObject的元类对象的superClass指向的是NSObject类对象
 * 如果是对象方法
