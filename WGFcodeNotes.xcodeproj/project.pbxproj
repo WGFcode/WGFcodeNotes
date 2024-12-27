@@ -140,6 +140,7 @@
 		302AF2FC2CE5A56900FC041A /* runloop_performSelect.png in Resources */ = {isa = PBXBuildFile; fileRef = 302AF2E72CE5A56900FC041A /* runloop_performSelect.png */; };
 		30313DC2253829F600941BE5 /* WGTargetProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 30313DC1253829F600941BE5 /* WGTargetProxy.m */; };
 		3033810B2CEDBA89005AE9A3 /* runtime.png in Resources */ = {isa = PBXBuildFile; fileRef = 303380F62CEDBA89005AE9A3 /* runtime.png */; };
+		303394432D1D221900F720A4 /* xcframework.png in Resources */ = {isa = PBXBuildFile; fileRef = 3033942E2D1D221800F720A4 /* xcframework.png */; };
 		303C3CD62D003D0F0053180D /* property2.png in Resources */ = {isa = PBXBuildFile; fileRef = 303C3CD42D003D0F0053180D /* property2.png */; };
 		303C3CD72D003D0F0053180D /* property1.png in Resources */ = {isa = PBXBuildFile; fileRef = 303C3CD52D003D0F0053180D /* property1.png */; };
 		304011B026734C0B00845393 /* WGTestKVCEntity.m in Sources */ = {isa = PBXBuildFile; fileRef = 304011AF26734C0B00845393 /* WGTestKVCEntity.m */; };
@@ -168,6 +169,7 @@
 		306C696028F4081900285592 /* ReadWriteLockTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 306C695F28F4081900285592 /* ReadWriteLockTest.m */; };
 		306C696328F40E4400285592 /* ReadWriteLockTest1.m in Sources */ = {isa = PBXBuildFile; fileRef = 306C696228F40E4400285592 /* ReadWriteLockTest1.m */; };
 		307A0E7B24456BD3006E5429 /* RunLoop.md in Resources */ = {isa = PBXBuildFile; fileRef = 307A0E7A24456BD3006E5429 /* RunLoop.md */; };
+		307BB3642D1E50EA00ACD8F5 /* WGMonitorManageDM.m in Sources */ = {isa = PBXBuildFile; fileRef = 307BB3632D1E50EA00ACD8F5 /* WGMonitorManageDM.m */; };
 		307C0B2A2CD4CDF1007AE7C4 /* kvc_setter.png in Resources */ = {isa = PBXBuildFile; fileRef = 307C0B292CD4CDF1007AE7C4 /* kvc_setter.png */; };
 		309368622D190E2400A1A5D3 /* init.png in Resources */ = {isa = PBXBuildFile; fileRef = 309368612D190E2400A1A5D3 /* init.png */; };
 		309368652D190E3C00A1A5D3 /* kvc_getter.png in Resources */ = {isa = PBXBuildFile; fileRef = 309368632D190E3C00A1A5D3 /* kvc_getter.png */; };
@@ -627,6 +629,7 @@
 		30313DC0253829F600941BE5 /* WGTargetProxy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WGTargetProxy.h; sourceTree = "<group>"; };
 		30313DC1253829F600941BE5 /* WGTargetProxy.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WGTargetProxy.m; sourceTree = "<group>"; };
 		303380F62CEDBA89005AE9A3 /* runtime.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = runtime.png; sourceTree = "<group>"; };
+		3033942E2D1D221800F720A4 /* xcframework.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = xcframework.png; sourceTree = "<group>"; };
 		303C3CD42D003D0F0053180D /* property2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = property2.png; sourceTree = "<group>"; };
 		303C3CD52D003D0F0053180D /* property1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = property1.png; sourceTree = "<group>"; };
 		304011AE26734C0B00845393 /* WGTestKVCEntity.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WGTestKVCEntity.h; sourceTree = "<group>"; };
@@ -2232,6 +2235,8 @@
 		3071641D26E0B33B00DDCE9A /* GSIMap.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GSIMap.h; sourceTree = "<group>"; };
 		307A0E7A24456BD3006E5429 /* RunLoop.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = RunLoop.md; sourceTree = "<group>"; };
 		307A0E7E24456BF8006E5429 /* Block.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Block.md; sourceTree = "<group>"; };
+		307BB3622D1E50EA00ACD8F5 /* WGMonitorManageDM.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = WGMonitorManageDM.h; path = "WGFcodeNotes/WGCore/卡顿检测/WGMonitorManageDM.h"; sourceTree = SOURCE_ROOT; };
+		307BB3632D1E50EA00ACD8F5 /* WGMonitorManageDM.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = WGMonitorManageDM.m; path = "WGFcodeNotes/WGCore/卡顿检测/WGMonitorManageDM.m"; sourceTree = SOURCE_ROOT; };
 		307C0B292CD4CDF1007AE7C4 /* kvc_setter.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = kvc_setter.png; sourceTree = "<group>"; };
 		309368612D190E2400A1A5D3 /* init.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = init.png; sourceTree = "<group>"; };
 		309368632D190E3C00A1A5D3 /* kvc_getter.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = kvc_getter.png; sourceTree = "<group>"; };
@@ -3151,14 +3156,13 @@
 		3015810A2455778B00EC6001 /* WGCore */ = {
 			isa = PBXGroup;
 			children = (
+				307BB3792D1E50F600ACD8F5 /* 卡顿检测 */,
 				30A6D11B2938803D0064B18A /* Encrypt */,
 				30313DC0253829F600941BE5 /* WGTargetProxy.h */,
 				30313DC1253829F600941BE5 /* WGTargetProxy.m */,
 				30D089A0278BD0D8003EAFAC /* 数据结构与算法 */,
 				30E9227026EB3672008D151A /* WGSwiftMethodDispatchSIL.sil */,
 				30FCCF82256F8D9100AEC012 /* MJMemoryTool */,
-				3015810B245577A600EC6001 /* WGMonitorManage.h */,
-				3015810C245577A600EC6001 /* WGMonitorManage.m */,
 				54E19656250909050064027B /* WGRunLoopVC.h */,
 				54E19657250909050064027B /* WGRunLoopVC.m */,
 				54E19659250A70A90064027B /* WGThread.h */,
@@ -5492,6 +5496,17 @@
 			path = GNUstepBase;
 			sourceTree = "<group>";
 		};
+		307BB3792D1E50F600ACD8F5 /* 卡顿检测 */ = {
+			isa = PBXGroup;
+			children = (
+				307BB3622D1E50EA00ACD8F5 /* WGMonitorManageDM.h */,
+				307BB3632D1E50EA00ACD8F5 /* WGMonitorManageDM.m */,
+				3015810B245577A600EC6001 /* WGMonitorManage.h */,
+				3015810C245577A600EC6001 /* WGMonitorManage.m */,
+			);
+			path = "卡顿检测";
+			sourceTree = "<group>";
+		};
 		30A6D11B2938803D0064B18A /* Encrypt */ = {
 			isa = PBXGroup;
 			children = (
@@ -5526,6 +5541,7 @@
 				301CF1BE2452F1750024EC69 /* runLoop1.png */,
 				5422AC58244F3E8E000CB747 /* block2.png */,
 				303C3CD52D003D0F0053180D /* property1.png */,
+				3033942E2D1D221800F720A4 /* xcframework.png */,
 				303C3CD42D003D0F0053180D /* property2.png */,
 				309368612D190E2400A1A5D3 /* init.png */,
 				30A73F322447F14A00C86BB8 /* kvc_code.png */,
@@ -6421,6 +6437,7 @@
 				30A6D12D293885150064B18A /* 保存的密码.rtf in Resources */,
 				30B4BCCF2CD895DF000DADC1 /* delegate.png in Resources */,
 				30AACDD9262D7FC500132AF5 /* Swift对象本质.md in Resources */,
+				303394432D1D221900F720A4 /* xcframework.png in Resources */,
 				304155052CE4A7710072A278 /* KVO.png in Resources */,
 				300C18D52CDDDC1D00DA55DB /* libdispatch-mp-static.xcconfig in Resources */,
 				304154FF2CE4A4A70072A278 /* autoreleasepool_push.png in Resources */,
@@ -6469,6 +6486,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				307BB3642D1E50EA00ACD8F5 /* WGMonitorManageDM.m in Sources */,
 				300C19112CDDDC1D00DA55DB /* event.c in Sources */,
 				30C4AC4528FD5A5800B1EE03 /* Car+Car1.m in Sources */,
 				30D08971278BCF3B003EAFAC /* WGDoubleNode.m in Sources */,

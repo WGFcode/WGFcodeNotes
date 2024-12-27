@@ -25,6 +25,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let newScnen = scene as? UIWindowScene else {
             return
         }
+        
         self.window = UIWindow(windowScene: newScnen)
         self.window?.frame = newScnen.coordinateSpace.bounds
 //        self.window?.rootViewController = WGMainVC()

@@ -39,6 +39,7 @@
         while (!self.stopRunLoop) {
             [currentThreadRunLoop runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]];
         };
+        
         NSLog(@"========");
     }
 }
