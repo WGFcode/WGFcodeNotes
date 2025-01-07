@@ -178,6 +178,7 @@
 		30975816260C2DF800709A73 /* Person+PersonAAAAA.m in Sources */ = {isa = PBXBuildFile; fileRef = 30975815260C2DF800709A73 /* Person+PersonAAAAA.m */; };
 		309A2DB42665D97900212257 /* swift面试题.md in Resources */ = {isa = PBXBuildFile; fileRef = 309A2DB32665D97900212257 /* swift面试题.md */; };
 		309F9D682435D98700FFB705 /* ThreadLock.md in Resources */ = {isa = PBXBuildFile; fileRef = 309F9D672435D98700FFB705 /* ThreadLock.md */; };
+		30A67C112D26748B00A71069 /* ipa.png in Resources */ = {isa = PBXBuildFile; fileRef = 30A67BFC2D26748B00A71069 /* ipa.png */; };
 		30A6D11A293876550064B18A /* WGEncrypt.m in Sources */ = {isa = PBXBuildFile; fileRef = 30A6D119293876550064B18A /* WGEncrypt.m */; };
 		30A6D128293885150064B18A /* rsaCert.crt in Resources */ = {isa = PBXBuildFile; fileRef = 30A6D120293885140064B18A /* rsaCert.crt */; };
 		30A6D129293885150064B18A /* rsa_public_key.pem in Resources */ = {isa = PBXBuildFile; fileRef = 30A6D121293885140064B18A /* rsa_public_key.pem */; };
@@ -2247,6 +2248,7 @@
 		30975815260C2DF800709A73 /* Person+PersonAAAAA.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Person+PersonAAAAA.m"; sourceTree = "<group>"; };
 		309A2DB32665D97900212257 /* swift面试题.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "swift面试题.md"; sourceTree = "<group>"; };
 		309F9D672435D98700FFB705 /* ThreadLock.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = ThreadLock.md; sourceTree = "<group>"; };
+		30A67BFC2D26748B00A71069 /* ipa.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ipa.png; sourceTree = "<group>"; };
 		30A6D118293876550064B18A /* WGEncrypt.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WGEncrypt.h; sourceTree = "<group>"; };
 		30A6D119293876550064B18A /* WGEncrypt.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WGEncrypt.m; sourceTree = "<group>"; };
 		30A6D120293885140064B18A /* rsaCert.crt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = rsaCert.crt; sourceTree = "<group>"; };
@@ -5547,6 +5549,7 @@
 				30A73F322447F14A00C86BB8 /* kvc_code.png */,
 				304155042CE4A7710072A278 /* KVO.png */,
 				30049FB72D01AF9F000456FF /* ARCStrong.png */,
+				30A67BFC2D26748B00A71069 /* ipa.png */,
 				30146C562D02F25F00AAE01C /* ARCStrong1.png */,
 				30049FCC2D01AF9F000456FF /* ARCweak.png */,
 				3068863C2D06E6C500578D8A /* ARCWeak1.png */,
@@ -6346,6 +6349,7 @@
 				30A6D12F293885150064B18A /* rsaCerReq.csr in Resources */,
 				54CBAE2824FFE4E500AEA0E5 /* iOS内存相关.md in Resources */,
 				300C18BF2CDDDC1D00DA55DB /* DispatchAppleOptions.cmake in Resources */,
+				30A67C112D26748B00A71069 /* ipa.png in Resources */,
 				30A6D128293885150064B18A /* rsaCert.crt in Resources */,
 				300C18A72CDDDC1D00DA55DB /* dispatch_object.3 in Resources */,
 				5463C26424B0115D008F9C9A /* CoreAnimal.md in Resources */,
