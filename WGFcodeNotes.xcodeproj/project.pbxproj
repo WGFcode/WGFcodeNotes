@@ -171,6 +171,9 @@
 		307A0E7B24456BD3006E5429 /* RunLoop.md in Resources */ = {isa = PBXBuildFile; fileRef = 307A0E7A24456BD3006E5429 /* RunLoop.md */; };
 		307BB3642D1E50EA00ACD8F5 /* WGMonitorManageDM.m in Sources */ = {isa = PBXBuildFile; fileRef = 307BB3632D1E50EA00ACD8F5 /* WGMonitorManageDM.m */; };
 		307C0B2A2CD4CDF1007AE7C4 /* kvc_setter.png in Resources */ = {isa = PBXBuildFile; fileRef = 307C0B292CD4CDF1007AE7C4 /* kvc_setter.png */; };
+		308DF3192D2E683E006051A6 /* macho.png in Resources */ = {isa = PBXBuildFile; fileRef = 308DF3042D2E683D006051A6 /* macho.png */; };
+		308DF31B2D2E6EC3006051A6 /* macho_header.png in Resources */ = {isa = PBXBuildFile; fileRef = 308DF31A2D2E6EC3006051A6 /* macho_header.png */; };
+		308DF31D2D2E77AD006051A6 /* macho_loadCom.png in Resources */ = {isa = PBXBuildFile; fileRef = 308DF31C2D2E77AD006051A6 /* macho_loadCom.png */; };
 		309368622D190E2400A1A5D3 /* init.png in Resources */ = {isa = PBXBuildFile; fileRef = 309368612D190E2400A1A5D3 /* init.png */; };
 		309368652D190E3C00A1A5D3 /* kvc_getter.png in Resources */ = {isa = PBXBuildFile; fileRef = 309368632D190E3C00A1A5D3 /* kvc_getter.png */; };
 		309368662D190E3C00A1A5D3 /* block.png in Resources */ = {isa = PBXBuildFile; fileRef = 309368642D190E3C00A1A5D3 /* block.png */; };
@@ -193,6 +196,18 @@
 		30A7DC832434A43E008DDCF9 /* lock2.png in Resources */ = {isa = PBXBuildFile; fileRef = 30A7DC822434A43E008DDCF9 /* lock2.png */; };
 		30AACDD9262D7FC500132AF5 /* Swift对象本质.md in Resources */ = {isa = PBXBuildFile; fileRef = 30AACDD8262D7FC500132AF5 /* Swift对象本质.md */; };
 		30AB3011284DE529009EC03C /* 常见面试题.md in Resources */ = {isa = PBXBuildFile; fileRef = 30AB3010284DE529009EC03C /* 常见面试题.md */; };
+		30AB64E82D2F62DF0069731B /* macho_sign.png in Resources */ = {isa = PBXBuildFile; fileRef = 30AB64D32D2F62DF0069731B /* macho_sign.png */; };
+		30AB64EA2D2F63D30069731B /* macho_symtab.png in Resources */ = {isa = PBXBuildFile; fileRef = 30AB64E92D2F63D30069731B /* macho_symtab.png */; };
+		30AB64EE2D2F674E0069731B /* macho_dysymtab.png in Resources */ = {isa = PBXBuildFile; fileRef = 30AB64ED2D2F674E0069731B /* macho_dysymtab.png */; };
+		30AB64F02D2F68C30069731B /* macho_dylib.png in Resources */ = {isa = PBXBuildFile; fileRef = 30AB64EF2D2F68C30069731B /* macho_dylib.png */; };
+		30AB64F22D2F6A940069731B /* macho_dylinker.png in Resources */ = {isa = PBXBuildFile; fileRef = 30AB64F12D2F6A940069731B /* macho_dylinker.png */; };
+		30AB64F42D2F6AFB0069731B /* macho_uuid.png in Resources */ = {isa = PBXBuildFile; fileRef = 30AB64F32D2F6AFB0069731B /* macho_uuid.png */; };
+		30AB64F62D2F6BB90069731B /* macho_segment64.png in Resources */ = {isa = PBXBuildFile; fileRef = 30AB64F52D2F6BB90069731B /* macho_segment64.png */; };
+		30AB64F82D2F6C190069731B /* macho_main.png in Resources */ = {isa = PBXBuildFile; fileRef = 30AB64F72D2F6C190069731B /* macho_main.png */; };
+		30AB64FA2D2F6CED0069731B /* macho_rpath.png in Resources */ = {isa = PBXBuildFile; fileRef = 30AB64F92D2F6CED0069731B /* macho_rpath.png */; };
+		30AB64FC2D2F6DA80069731B /* macho_function_start.png in Resources */ = {isa = PBXBuildFile; fileRef = 30AB64FB2D2F6DA80069731B /* macho_function_start.png */; };
+		30AB64FE2D2F6FC80069731B /* macho_dataInCode.png in Resources */ = {isa = PBXBuildFile; fileRef = 30AB64FD2D2F6FC80069731B /* macho_dataInCode.png */; };
+		30AB65022D2F9CA20069731B /* macho_lcsegment.png in Resources */ = {isa = PBXBuildFile; fileRef = 30AB65012D2F9CA20069731B /* macho_lcsegment.png */; };
 		30B4BCCF2CD895DF000DADC1 /* delegate.png in Resources */ = {isa = PBXBuildFile; fileRef = 30B4BCCE2CD895DF000DADC1 /* delegate.png */; };
 		30BB26BB244BF62B00255288 /* NSNotification.md in Resources */ = {isa = PBXBuildFile; fileRef = 30BB26BA244BF62B00255288 /* NSNotification.md */; };
 		30C4AC4528FD5A5800B1EE03 /* Car+Car1.m in Sources */ = {isa = PBXBuildFile; fileRef = 30C4AC4428FD5A5800B1EE03 /* Car+Car1.m */; };
@@ -2239,6 +2254,9 @@
 		307BB3622D1E50EA00ACD8F5 /* WGMonitorManageDM.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = WGMonitorManageDM.h; path = "WGFcodeNotes/WGCore/卡顿检测/WGMonitorManageDM.h"; sourceTree = SOURCE_ROOT; };
 		307BB3632D1E50EA00ACD8F5 /* WGMonitorManageDM.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = WGMonitorManageDM.m; path = "WGFcodeNotes/WGCore/卡顿检测/WGMonitorManageDM.m"; sourceTree = SOURCE_ROOT; };
 		307C0B292CD4CDF1007AE7C4 /* kvc_setter.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = kvc_setter.png; sourceTree = "<group>"; };
+		308DF3042D2E683D006051A6 /* macho.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = macho.png; sourceTree = "<group>"; };
+		308DF31A2D2E6EC3006051A6 /* macho_header.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = macho_header.png; sourceTree = "<group>"; };
+		308DF31C2D2E77AD006051A6 /* macho_loadCom.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = macho_loadCom.png; sourceTree = "<group>"; };
 		309368612D190E2400A1A5D3 /* init.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = init.png; sourceTree = "<group>"; };
 		309368632D190E3C00A1A5D3 /* kvc_getter.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = kvc_getter.png; sourceTree = "<group>"; };
 		309368642D190E3C00A1A5D3 /* block.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = block.png; sourceTree = "<group>"; };
@@ -2264,6 +2282,18 @@
 		30A7DC822434A43E008DDCF9 /* lock2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = lock2.png; sourceTree = "<group>"; };
 		30AACDD8262D7FC500132AF5 /* Swift对象本质.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "Swift对象本质.md"; sourceTree = "<group>"; };
 		30AB3010284DE529009EC03C /* 常见面试题.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "常见面试题.md"; sourceTree = "<group>"; };
+		30AB64D32D2F62DF0069731B /* macho_sign.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = macho_sign.png; sourceTree = "<group>"; };
+		30AB64E92D2F63D30069731B /* macho_symtab.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = macho_symtab.png; sourceTree = "<group>"; };
+		30AB64ED2D2F674E0069731B /* macho_dysymtab.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = macho_dysymtab.png; sourceTree = "<group>"; };
+		30AB64EF2D2F68C30069731B /* macho_dylib.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = macho_dylib.png; sourceTree = "<group>"; };
+		30AB64F12D2F6A940069731B /* macho_dylinker.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = macho_dylinker.png; sourceTree = "<group>"; };
+		30AB64F32D2F6AFB0069731B /* macho_uuid.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = macho_uuid.png; sourceTree = "<group>"; };
+		30AB64F52D2F6BB90069731B /* macho_segment64.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = macho_segment64.png; sourceTree = "<group>"; };
+		30AB64F72D2F6C190069731B /* macho_main.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = macho_main.png; sourceTree = "<group>"; };
+		30AB64F92D2F6CED0069731B /* macho_rpath.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = macho_rpath.png; sourceTree = "<group>"; };
+		30AB64FB2D2F6DA80069731B /* macho_function_start.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = macho_function_start.png; sourceTree = "<group>"; };
+		30AB64FD2D2F6FC80069731B /* macho_dataInCode.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = macho_dataInCode.png; sourceTree = "<group>"; };
+		30AB65012D2F9CA20069731B /* macho_lcsegment.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = macho_lcsegment.png; sourceTree = "<group>"; };
 		30B4BCCE2CD895DF000DADC1 /* delegate.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = delegate.png; sourceTree = "<group>"; };
 		30BB26BA244BF62B00255288 /* NSNotification.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = NSNotification.md; sourceTree = "<group>"; };
 		30C4AC4328FD5A5800B1EE03 /* Car+Car1.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Car+Car1.h"; sourceTree = "<group>"; };
@@ -5529,7 +5559,21 @@
 		30A7DC7D24348382008DDCF9 /* WGScreenshots */ = {
 			isa = PBXGroup;
 			children = (
+				308DF31C2D2E77AD006051A6 /* macho_loadCom.png */,
+				30AB65012D2F9CA20069731B /* macho_lcsegment.png */,
+				30AB64FD2D2F6FC80069731B /* macho_dataInCode.png */,
+				30AB64F72D2F6C190069731B /* macho_main.png */,
+				30AB64F12D2F6A940069731B /* macho_dylinker.png */,
+				30AB64FB2D2F6DA80069731B /* macho_function_start.png */,
+				30AB64D32D2F62DF0069731B /* macho_sign.png */,
+				30AB64EF2D2F68C30069731B /* macho_dylib.png */,
+				308DF31A2D2E6EC3006051A6 /* macho_header.png */,
+				30AB64F92D2F6CED0069731B /* macho_rpath.png */,
+				30AB64F32D2F6AFB0069731B /* macho_uuid.png */,
+				30AB64F52D2F6BB90069731B /* macho_segment64.png */,
+				308DF3042D2E683D006051A6 /* macho.png */,
 				309368642D190E3C00A1A5D3 /* block.png */,
+				30AB64ED2D2F674E0069731B /* macho_dysymtab.png */,
 				309368632D190E3C00A1A5D3 /* kvc_getter.png */,
 				303380F62CEDBA89005AE9A3 /* runtime.png */,
 				304154FE2CE4A4A70072A278 /* autoreleasepool_push.png */,
@@ -5542,6 +5586,7 @@
 				304155002CE4A4CE0072A278 /* autoreleasepool_pop.png */,
 				301CF1BE2452F1750024EC69 /* runLoop1.png */,
 				5422AC58244F3E8E000CB747 /* block2.png */,
+				30AB64E92D2F63D30069731B /* macho_symtab.png */,
 				303C3CD52D003D0F0053180D /* property1.png */,
 				3033942E2D1D221800F720A4 /* xcframework.png */,
 				303C3CD42D003D0F0053180D /* property2.png */,
@@ -6330,7 +6375,9 @@
 				30A7DC832434A43E008DDCF9 /* lock2.png in Resources */,
 				30146C572D02F25F00AAE01C /* ARCStrong1.png in Resources */,
 				300C18B52CDDDC1D00DA55DB /* check-order.sh in Resources */,
+				30AB64F02D2F68C30069731B /* macho_dylib.png in Resources */,
 				300D51442700607600BBFC4C /* 抓包工具.md in Resources */,
+				30AB64F42D2F6AFB0069731B /* macho_uuid.png in Resources */,
 				30DD22C32CFEA33F005AC332 /* swiftMethod2.png in Resources */,
 				300C18C32CDDDC1D00DA55DB /* ClangClCompileRules.cmake in Resources */,
 				302AF2FC2CE5A56900FC041A /* runloop_performSelect.png in Resources */,
@@ -6348,7 +6395,9 @@
 				5422AC59244F3E8E000CB747 /* block2.png in Resources */,
 				30A6D12F293885150064B18A /* rsaCerReq.csr in Resources */,
 				54CBAE2824FFE4E500AEA0E5 /* iOS内存相关.md in Resources */,
+				30AB64FE2D2F6FC80069731B /* macho_dataInCode.png in Resources */,
 				300C18BF2CDDDC1D00DA55DB /* DispatchAppleOptions.cmake in Resources */,
+				30AB64E82D2F62DF0069731B /* macho_sign.png in Resources */,
 				30A67C112D26748B00A71069 /* ipa.png in Resources */,
 				30A6D128293885150064B18A /* rsaCert.crt in Resources */,
 				300C18A72CDDDC1D00DA55DB /* dispatch_object.3 in Resources */,
@@ -6362,10 +6411,12 @@
 				300C18C82CDDDC1D00DA55DB /* CMakeLists.txt in Resources */,
 				306886532D06EB7500578D8A /* ARCUnowned.png in Resources */,
 				300C18AE2CDDDC1D00DA55DB /* dispatch_io_read.3 in Resources */,
+				30AB64EA2D2F63D30069731B /* macho_symtab.png in Resources */,
 				307A0E7B24456BD3006E5429 /* RunLoop.md in Resources */,
 				30FD75FA24358F1E00431678 /* lock3.png in Resources */,
 				548AC98E242F4CAD00EEE11C /* KeyWords.md in Resources */,
 				300C18C22CDDDC1D00DA55DB /* DispatchSanitization.cmake in Resources */,
+				308DF31B2D2E6EC3006051A6 /* macho_header.png in Resources */,
 				300C18C42CDDDC1D00DA55DB /* FindLibRT.cmake in Resources */,
 				300C189F2CDDDC1D00DA55DB /* dispatch_queue_create.3 in Resources */,
 				300C18B82CDDDC1D00DA55DB /* run-on-install.sh in Resources */,
@@ -6383,11 +6434,13 @@
 				300C18A02CDDDC1D00DA55DB /* dispatch_once.3 in Resources */,
 				3066E0F02435DD48004C71F7 /* GCD.md in Resources */,
 				300C19022CDDDC1D00DA55DB /* Dispatch.apinotes in Resources */,
+				308DF31D2D2E77AD006051A6 /* macho_loadCom.png in Resources */,
 				300C18A42CDDDC1D00DA55DB /* dispatch_source_create.3 in Resources */,
 				30A6D12A293885150064B18A /* pkcs8_private_key.pem in Resources */,
 				300C18C62CDDDC1D00DA55DB /* DispatchCompilerWarnings.cmake in Resources */,
 				5405874B2614AEEA0047AD5E /* 逆向工程.md in Resources */,
 				54C118BE2584EF8B00B39379 /* LLVM.md in Resources */,
+				30AB64F82D2F6C190069731B /* macho_main.png in Resources */,
 				548AC95F242F4B3200EEE11C /* LaunchScreen.storyboard in Resources */,
 				300C18C52CDDDC1D00DA55DB /* FindBlocksRuntime.cmake in Resources */,
 				30D67A8928A384310041FDB5 /* Xcode相关.md in Resources */,
@@ -6401,6 +6454,7 @@
 				300C18C12CDDDC1D00DA55DB /* DispatchWindowsSupport.cmake in Resources */,
 				300C18BA2CDDDC1D00DA55DB /* postprocess-headers.sh in Resources */,
 				54347D3224F69F1C006EE9F2 /* 数据结构与算法.md in Resources */,
+				30AB64F62D2F6BB90069731B /* macho_segment64.png in Resources */,
 				300C18AA2CDDDC1D00DA55DB /* dispatch_after.3 in Resources */,
 				300845CB24456B2800055737 /* KVC.md in Resources */,
 				30F8F49E243F142900968177 /* ThreadSummary.md in Resources */,
@@ -6419,6 +6473,8 @@
 				30DD22C22CFEA33F005AC332 /* swiftMethod1.png in Resources */,
 				30FD94D4243DDE8400EAFAA3 /* error1.png in Resources */,
 				300C18B92CDDDC1D00DA55DB /* install-manpages.sh in Resources */,
+				30AB65022D2F9CA20069731B /* macho_lcsegment.png in Resources */,
+				308DF3192D2E683E006051A6 /* macho.png in Resources */,
 				300C18AD2CDDDC1D00DA55DB /* dispatch_api.3 in Resources */,
 				300C18A12CDDDC1D00DA55DB /* CMakeLists.txt in Resources */,
 				300C18AB2CDDDC1D00DA55DB /* dispatch_time.3 in Resources */,
@@ -6426,6 +6482,7 @@
 				543110B42530A23D007D0061 /* OC对象的本质.md in Resources */,
 				309368662D190E3C00A1A5D3 /* block.png in Resources */,
 				548AC990242F4CAD00EEE11C /* Framework.md in Resources */,
+				30AB64EE2D2F674E0069731B /* macho_dysymtab.png in Resources */,
 				300C18E52CDDDC1D00DA55DB /* BlocksRuntime.def in Resources */,
 				30A6D12B293885150064B18A /* private_key.pem in Resources */,
 				306886512D06E6C600578D8A /* ARCWeak1.png in Resources */,
@@ -6435,6 +6492,7 @@
 				548AC95C242F4B3200EEE11C /* Assets.xcassets in Resources */,
 				309F9D682435D98700FFB705 /* ThreadLock.md in Resources */,
 				300C18B42CDDDC1D00DA55DB /* install-dtrace.sh in Resources */,
+				30AB64FA2D2F6CED0069731B /* macho_rpath.png in Resources */,
 				304154FD2CE4A4450072A278 /* autoreleasepool.png in Resources */,
 				30A6D12C293885150064B18A /* private_key.p12 in Resources */,
 				309A2DB42665D97900212257 /* swift面试题.md in Resources */,
@@ -6459,12 +6517,14 @@
 				300C18F92CDDDC1D00DA55DB /* CMakeLists.txt in Resources */,
 				300C18D62CDDDC1D00DA55DB /* libdispatch.order in Resources */,
 				30A6D129293885150064B18A /* rsa_public_key.pem in Resources */,
+				30AB64FC2D2F6DA80069731B /* macho_function_start.png in Resources */,
 				300C18BC2CDDDC1D00DA55DB /* DTrace.cmake in Resources */,
 				309368652D190E3C00A1A5D3 /* kvc_getter.png in Resources */,
 				300C18B62CDDDC1D00DA55DB /* install-headers.sh in Resources */,
 				300C18D32CDDDC1D00DA55DB /* libdispatch-introspection.xcconfig in Resources */,
 				300C18BD2CDDDC1D00DA55DB /* CMakeLists.txt in Resources */,
 				30049FCE2D01AF9F000456FF /* ARCweak.png in Resources */,
+				30AB64F22D2F6A940069731B /* macho_dylinker.png in Resources */,
 				300C18D92CDDDC1D00DA55DB /* CMakeLists.txt in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
