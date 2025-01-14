@@ -208,6 +208,7 @@
 		30AB64FC2D2F6DA80069731B /* macho_function_start.png in Resources */ = {isa = PBXBuildFile; fileRef = 30AB64FB2D2F6DA80069731B /* macho_function_start.png */; };
 		30AB64FE2D2F6FC80069731B /* macho_dataInCode.png in Resources */ = {isa = PBXBuildFile; fileRef = 30AB64FD2D2F6FC80069731B /* macho_dataInCode.png */; };
 		30AB65022D2F9CA20069731B /* macho_lcsegment.png in Resources */ = {isa = PBXBuildFile; fileRef = 30AB65012D2F9CA20069731B /* macho_lcsegment.png */; };
+		30B1870E2D36348D009A7A92 /* system0.png in Resources */ = {isa = PBXBuildFile; fileRef = 30B186F92D36348D009A7A92 /* system0.png */; };
 		30B4BCCF2CD895DF000DADC1 /* delegate.png in Resources */ = {isa = PBXBuildFile; fileRef = 30B4BCCE2CD895DF000DADC1 /* delegate.png */; };
 		30BB26BB244BF62B00255288 /* NSNotification.md in Resources */ = {isa = PBXBuildFile; fileRef = 30BB26BA244BF62B00255288 /* NSNotification.md */; };
 		30C4AC4528FD5A5800B1EE03 /* Car+Car1.m in Sources */ = {isa = PBXBuildFile; fileRef = 30C4AC4428FD5A5800B1EE03 /* Car+Car1.m */; };
@@ -246,6 +247,7 @@
 		30DD22C22CFEA33F005AC332 /* swiftMethod1.png in Resources */ = {isa = PBXBuildFile; fileRef = 30DD22C02CFEA33F005AC332 /* swiftMethod1.png */; };
 		30DD22C32CFEA33F005AC332 /* swiftMethod2.png in Resources */ = {isa = PBXBuildFile; fileRef = 30DD22C12CFEA33F005AC332 /* swiftMethod2.png */; };
 		30E9226F26EB331F008D151A /* WGSwiftMethodDispatch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30E9226E26EB331F008D151A /* WGSwiftMethodDispatch.swift */; };
+		30EC5B862D364E6F00F3898E /* NXYXE-LinkMap-normal-arm64.txt in Resources */ = {isa = PBXBuildFile; fileRef = 30EC5B712D364E6F00F3898E /* NXYXE-LinkMap-normal-arm64.txt */; };
 		30ECA52024580E9000E3D312 /* Response.md in Resources */ = {isa = PBXBuildFile; fileRef = 30ECA51F24580E9000E3D312 /* Response.md */; };
 		30F7186C24F7AB020025AD98 /* 设计模式.md in Resources */ = {isa = PBXBuildFile; fileRef = 30F7186B24F7AB020025AD98 /* 设计模式.md */; };
 		30F8F49E243F142900968177 /* ThreadSummary.md in Resources */ = {isa = PBXBuildFile; fileRef = 30F8F49D243F142900968177 /* ThreadSummary.md */; };
@@ -2294,6 +2296,7 @@
 		30AB64FB2D2F6DA80069731B /* macho_function_start.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = macho_function_start.png; sourceTree = "<group>"; };
 		30AB64FD2D2F6FC80069731B /* macho_dataInCode.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = macho_dataInCode.png; sourceTree = "<group>"; };
 		30AB65012D2F9CA20069731B /* macho_lcsegment.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = macho_lcsegment.png; sourceTree = "<group>"; };
+		30B186F92D36348D009A7A92 /* system0.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = system0.png; sourceTree = "<group>"; };
 		30B4BCCE2CD895DF000DADC1 /* delegate.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = delegate.png; sourceTree = "<group>"; };
 		30BB26BA244BF62B00255288 /* NSNotification.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = NSNotification.md; sourceTree = "<group>"; };
 		30C4AC4328FD5A5800B1EE03 /* Car+Car1.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Car+Car1.h"; sourceTree = "<group>"; };
@@ -2355,6 +2358,7 @@
 		30DD22C12CFEA33F005AC332 /* swiftMethod2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = swiftMethod2.png; sourceTree = "<group>"; };
 		30E9226E26EB331F008D151A /* WGSwiftMethodDispatch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WGSwiftMethodDispatch.swift; sourceTree = "<group>"; };
 		30E9227026EB3672008D151A /* WGSwiftMethodDispatchSIL.sil */ = {isa = PBXFileReference; lastKnownFileType = text; path = WGSwiftMethodDispatchSIL.sil; sourceTree = "<group>"; };
+		30EC5B712D364E6F00F3898E /* NXYXE-LinkMap-normal-arm64.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "NXYXE-LinkMap-normal-arm64.txt"; sourceTree = "<group>"; };
 		30ECA51F24580E9000E3D312 /* Response.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Response.md; sourceTree = "<group>"; };
 		30F47E6A28DD4FC60086C9EF /* Student.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Student.cpp; sourceTree = "<group>"; };
 		30F7186B24F7AB020025AD98 /* 设计模式.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "设计模式.md"; sourceTree = "<group>"; };
@@ -5599,6 +5603,7 @@
 				30049FCC2D01AF9F000456FF /* ARCweak.png */,
 				3068863C2D06E6C500578D8A /* ARCWeak1.png */,
 				30FD94D3243DDE8400EAFAA3 /* error1.png */,
+				30B186F92D36348D009A7A92 /* system0.png */,
 				30A7DC8024348703008DDCF9 /* lock1.png */,
 				30DD22C02CFEA33F005AC332 /* swiftMethod1.png */,
 				30DD22C12CFEA33F005AC332 /* swiftMethod2.png */,
@@ -5676,6 +5681,7 @@
 		5409CDD325CAEDE300E704CF /* SourceCode */ = {
 			isa = PBXGroup;
 			children = (
+				30EC5B712D364E6F00F3898E /* NXYXE-LinkMap-normal-arm64.txt */,
 				300C177A2CDDDC0300DA55DB /* GCD源码 */,
 				3071623226E0AC1000DDCE9A /* GNUstepSourceCode */,
 				307001E72637A9D800E1DF19 /* SwiftSourceCode */,
@@ -6382,6 +6388,7 @@
 				300C18C32CDDDC1D00DA55DB /* ClangClCompileRules.cmake in Resources */,
 				302AF2FC2CE5A56900FC041A /* runloop_performSelect.png in Resources */,
 				548AC98C242F4CAD00EEE11C /* gitCocoaPodsCarthage.md in Resources */,
+				30EC5B862D364E6F00F3898E /* NXYXE-LinkMap-normal-arm64.txt in Resources */,
 				30A73F332447F14A00C86BB8 /* kvc_code.png in Resources */,
 				309368622D190E2400A1A5D3 /* init.png in Resources */,
 				300C18A82CDDDC1D00DA55DB /* dispatch_benchmark.3 in Resources */,
@@ -6434,6 +6441,7 @@
 				300C18A02CDDDC1D00DA55DB /* dispatch_once.3 in Resources */,
 				3066E0F02435DD48004C71F7 /* GCD.md in Resources */,
 				300C19022CDDDC1D00DA55DB /* Dispatch.apinotes in Resources */,
+				30B1870E2D36348D009A7A92 /* system0.png in Resources */,
 				308DF31D2D2E77AD006051A6 /* macho_loadCom.png in Resources */,
 				300C18A42CDDDC1D00DA55DB /* dispatch_source_create.3 in Resources */,
 				30A6D12A293885150064B18A /* pkcs8_private_key.pem in Resources */,
