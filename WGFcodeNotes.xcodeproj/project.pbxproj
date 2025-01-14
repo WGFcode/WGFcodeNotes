@@ -248,6 +248,7 @@
 		30DD22C32CFEA33F005AC332 /* swiftMethod2.png in Resources */ = {isa = PBXBuildFile; fileRef = 30DD22C12CFEA33F005AC332 /* swiftMethod2.png */; };
 		30E9226F26EB331F008D151A /* WGSwiftMethodDispatch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30E9226E26EB331F008D151A /* WGSwiftMethodDispatch.swift */; };
 		30EC5B862D364E6F00F3898E /* NXYXE-LinkMap-normal-arm64.txt in Resources */ = {isa = PBXBuildFile; fileRef = 30EC5B712D364E6F00F3898E /* NXYXE-LinkMap-normal-arm64.txt */; };
+		30EC5B882D36567500F3898E /* system1.png in Resources */ = {isa = PBXBuildFile; fileRef = 30EC5B872D36567500F3898E /* system1.png */; };
 		30ECA52024580E9000E3D312 /* Response.md in Resources */ = {isa = PBXBuildFile; fileRef = 30ECA51F24580E9000E3D312 /* Response.md */; };
 		30F7186C24F7AB020025AD98 /* 设计模式.md in Resources */ = {isa = PBXBuildFile; fileRef = 30F7186B24F7AB020025AD98 /* 设计模式.md */; };
 		30F8F49E243F142900968177 /* ThreadSummary.md in Resources */ = {isa = PBXBuildFile; fileRef = 30F8F49D243F142900968177 /* ThreadSummary.md */; };
@@ -2359,6 +2360,7 @@
 		30E9226E26EB331F008D151A /* WGSwiftMethodDispatch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WGSwiftMethodDispatch.swift; sourceTree = "<group>"; };
 		30E9227026EB3672008D151A /* WGSwiftMethodDispatchSIL.sil */ = {isa = PBXFileReference; lastKnownFileType = text; path = WGSwiftMethodDispatchSIL.sil; sourceTree = "<group>"; };
 		30EC5B712D364E6F00F3898E /* NXYXE-LinkMap-normal-arm64.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "NXYXE-LinkMap-normal-arm64.txt"; sourceTree = "<group>"; };
+		30EC5B872D36567500F3898E /* system1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = system1.png; sourceTree = "<group>"; };
 		30ECA51F24580E9000E3D312 /* Response.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = Response.md; sourceTree = "<group>"; };
 		30F47E6A28DD4FC60086C9EF /* Student.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Student.cpp; sourceTree = "<group>"; };
 		30F7186B24F7AB020025AD98 /* 设计模式.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "设计模式.md"; sourceTree = "<group>"; };
@@ -5600,6 +5602,7 @@
 				30049FB72D01AF9F000456FF /* ARCStrong.png */,
 				30A67BFC2D26748B00A71069 /* ipa.png */,
 				30146C562D02F25F00AAE01C /* ARCStrong1.png */,
+				30EC5B872D36567500F3898E /* system1.png */,
 				30049FCC2D01AF9F000456FF /* ARCweak.png */,
 				3068863C2D06E6C500578D8A /* ARCWeak1.png */,
 				30FD94D3243DDE8400EAFAA3 /* error1.png */,
@@ -6411,6 +6414,7 @@
 				5463C26424B0115D008F9C9A /* CoreAnimal.md in Resources */,
 				300C18BB2CDDDC1D00DA55DB /* config.h.in in Resources */,
 				545638D324B36CE5007D5447 /* HTTPTCPUDP.md in Resources */,
+				30EC5B882D36567500F3898E /* system1.png in Resources */,
 				300C18C72CDDDC1D00DA55DB /* PATCHES in Resources */,
 				300C189D2CDDDC1D00DA55DB /* dispatch_group_create.3 in Resources */,
 				300C18A92CDDDC1D00DA55DB /* dispatch_semaphore_create.3 in Resources */,
