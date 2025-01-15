@@ -171,6 +171,9 @@
 		307A0E7B24456BD3006E5429 /* RunLoop.md in Resources */ = {isa = PBXBuildFile; fileRef = 307A0E7A24456BD3006E5429 /* RunLoop.md */; };
 		307BB3642D1E50EA00ACD8F5 /* WGMonitorManageDM.m in Sources */ = {isa = PBXBuildFile; fileRef = 307BB3632D1E50EA00ACD8F5 /* WGMonitorManageDM.m */; };
 		307C0B2A2CD4CDF1007AE7C4 /* kvc_setter.png in Resources */ = {isa = PBXBuildFile; fileRef = 307C0B292CD4CDF1007AE7C4 /* kvc_setter.png */; };
+		307C10532D379BA200001228 /* LaunchVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 307C10522D379BA200001228 /* LaunchVC.m */; };
+		307C10562D37ACED00001228 /* system3.png in Resources */ = {isa = PBXBuildFile; fileRef = 307C10542D37ACED00001228 /* system3.png */; };
+		307C10572D37ACED00001228 /* system2.png in Resources */ = {isa = PBXBuildFile; fileRef = 307C10552D37ACED00001228 /* system2.png */; };
 		308DF3192D2E683E006051A6 /* macho.png in Resources */ = {isa = PBXBuildFile; fileRef = 308DF3042D2E683D006051A6 /* macho.png */; };
 		308DF31B2D2E6EC3006051A6 /* macho_header.png in Resources */ = {isa = PBXBuildFile; fileRef = 308DF31A2D2E6EC3006051A6 /* macho_header.png */; };
 		308DF31D2D2E77AD006051A6 /* macho_loadCom.png in Resources */ = {isa = PBXBuildFile; fileRef = 308DF31C2D2E77AD006051A6 /* macho_loadCom.png */; };
@@ -2257,6 +2260,9 @@
 		307BB3622D1E50EA00ACD8F5 /* WGMonitorManageDM.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = WGMonitorManageDM.h; path = "WGFcodeNotes/WGCore/卡顿检测/WGMonitorManageDM.h"; sourceTree = SOURCE_ROOT; };
 		307BB3632D1E50EA00ACD8F5 /* WGMonitorManageDM.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = WGMonitorManageDM.m; path = "WGFcodeNotes/WGCore/卡顿检测/WGMonitorManageDM.m"; sourceTree = SOURCE_ROOT; };
 		307C0B292CD4CDF1007AE7C4 /* kvc_setter.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = kvc_setter.png; sourceTree = "<group>"; };
+		307C10522D379BA200001228 /* LaunchVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LaunchVC.m; sourceTree = "<group>"; };
+		307C10542D37ACED00001228 /* system3.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = system3.png; sourceTree = "<group>"; };
+		307C10552D37ACED00001228 /* system2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = system2.png; sourceTree = "<group>"; };
 		308DF3042D2E683D006051A6 /* macho.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = macho.png; sourceTree = "<group>"; };
 		308DF31A2D2E6EC3006051A6 /* macho_header.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = macho_header.png; sourceTree = "<group>"; };
 		308DF31C2D2E77AD006051A6 /* macho_loadCom.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = macho_loadCom.png; sourceTree = "<group>"; };
@@ -3194,6 +3200,7 @@
 		3015810A2455778B00EC6001 /* WGCore */ = {
 			isa = PBXGroup;
 			children = (
+				307C103D2D379B6900001228 /* 启动优化之二进制重排demo */,
 				307BB3792D1E50F600ACD8F5 /* 卡顿检测 */,
 				30A6D11B2938803D0064B18A /* Encrypt */,
 				30313DC0253829F600941BE5 /* WGTargetProxy.h */,
@@ -5545,6 +5552,14 @@
 			path = "卡顿检测";
 			sourceTree = "<group>";
 		};
+		307C103D2D379B6900001228 /* 启动优化之二进制重排demo */ = {
+			isa = PBXGroup;
+			children = (
+				307C10522D379BA200001228 /* LaunchVC.m */,
+			);
+			path = "启动优化之二进制重排demo";
+			sourceTree = "<group>";
+		};
 		30A6D11B2938803D0064B18A /* Encrypt */ = {
 			isa = PBXGroup;
 			children = (
@@ -5582,6 +5597,8 @@
 				30AB64ED2D2F674E0069731B /* macho_dysymtab.png */,
 				309368632D190E3C00A1A5D3 /* kvc_getter.png */,
 				303380F62CEDBA89005AE9A3 /* runtime.png */,
+				307C10552D37ACED00001228 /* system2.png */,
+				307C10542D37ACED00001228 /* system3.png */,
 				304154FE2CE4A4A70072A278 /* autoreleasepool_push.png */,
 				304155022CE4A4E10072A278 /* autoreleasepool_page.png */,
 				30DD22AA2CFEA2CD005AC332 /* swiftMethod.png */,
@@ -6401,6 +6418,7 @@
 				300C18CD2CDDDC1D00DA55DB /* libdispatch-resolved.xcconfig in Resources */,
 				30049FCD2D01AF9F000456FF /* ARCStrong.png in Resources */,
 				30FD76012435CD3100431678 /* NSThread.md in Resources */,
+				307C10562D37ACED00001228 /* system3.png in Resources */,
 				300C18CB2CDDDC1D00DA55DB /* libdispatch.interposable in Resources */,
 				5422AC59244F3E8E000CB747 /* block2.png in Resources */,
 				30A6D12F293885150064B18A /* rsaCerReq.csr in Resources */,
@@ -6458,6 +6476,7 @@
 				30D67A8928A384310041FDB5 /* Xcode相关.md in Resources */,
 				300C18B22CDDDC1D00DA55DB /* CMakeLists.txt in Resources */,
 				300C18D22CDDDC1D00DA55DB /* libfirehose_kernel.xcconfig in Resources */,
+				307C10572D37ACED00001228 /* system2.png in Resources */,
 				300C18E72CDDDC1D00DA55DB /* CMakeLists.txt in Resources */,
 				300C18CA2CDDDC1D00DA55DB /* INSTALL.md in Resources */,
 				300C18C92CDDDC1D00DA55DB /* Dispatch.apinotes in Resources */,
@@ -6657,6 +6676,7 @@
 				306C694828F3C18C00285592 /* MutextConditionLock.m in Sources */,
 				300C19012CDDDC1D00DA55DB /* Queue.swift in Sources */,
 				30D08970278BCF3B003EAFAC /* WGDoubleList.m in Sources */,
+				307C10532D379BA200001228 /* LaunchVC.m in Sources */,
 				300C18E32CDDDC1D00DA55DB /* transform.c in Sources */,
 				30D0898C278BCFD4003EAFAC /* WGBinarySearchTree.m in Sources */,
 				30D0898D278BCFD4003EAFAC /* AVLTree.swift in Sources */,
