@@ -114,7 +114,7 @@ $ fdupes -Sr /User/augus/Documents/xxx > /User/augus/Documents/xxxFdupesResult.t
 #### 5.1图片的压缩
 #### 将图片放入xcassets，因为xcassets里的@2x和@3x图片，在上传时，会根据具体设备分开对应分辨率的图片，不会同时包含。而放入.bundle中的都会包含，所以要尽量把图片放入xcassets中。Assets.car编译过程中有时会选择一些图片，拼凑成一张大图来提高图片的加载效率。被放进这张大图的小图会变为通过偏移量的引用，建议使用频率高且小的图片放到xcassets中，xcassets能保证加载和渲染速度最优。
 
-### 大于100KB就不要放入xcassets中了。大的图片可以考虑将图片转成WebP。WebP是Google公司的一个开源项目，能够把图片压缩到很小，但是肉眼看不出来差别，目前iOS常用的图片显示类库都支持该格式解析的拓展。可使用鹅厂的一个工具iSparta(http://isparta.github.io/)进行批量转换
+### 大于100KB就不要放入xcassets中了。大的图片可以考虑将图片转成WebP。WebP是Google公司的一个开源项目，能够把图片压缩到很小，但是肉眼看不出来差别，目前iOS常用的图片显示类库都支持该格式解析的拓展。可使用[WebP Converter - AnyWebP](https://apps.apple.com/us/app/webp-converter-anywebp/id1527716894?mt=12) 进行批量转换
 
 
 

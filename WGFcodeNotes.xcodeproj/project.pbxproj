@@ -143,6 +143,7 @@
 		303394432D1D221900F720A4 /* xcframework.png in Resources */ = {isa = PBXBuildFile; fileRef = 3033942E2D1D221800F720A4 /* xcframework.png */; };
 		303C3CD62D003D0F0053180D /* property2.png in Resources */ = {isa = PBXBuildFile; fileRef = 303C3CD42D003D0F0053180D /* property2.png */; };
 		303C3CD72D003D0F0053180D /* property1.png in Resources */ = {isa = PBXBuildFile; fileRef = 303C3CD52D003D0F0053180D /* property1.png */; };
+		303FE7C22D3906F0005AC5F3 /* timerProfile.png in Resources */ = {isa = PBXBuildFile; fileRef = 303FE7AD2D3906F0005AC5F3 /* timerProfile.png */; };
 		304011B026734C0B00845393 /* WGTestKVCEntity.m in Sources */ = {isa = PBXBuildFile; fileRef = 304011AF26734C0B00845393 /* WGTestKVCEntity.m */; };
 		304154FD2CE4A4450072A278 /* autoreleasepool.png in Resources */ = {isa = PBXBuildFile; fileRef = 304154E82CE4A4450072A278 /* autoreleasepool.png */; };
 		304154FF2CE4A4A70072A278 /* autoreleasepool_push.png in Resources */ = {isa = PBXBuildFile; fileRef = 304154FE2CE4A4A70072A278 /* autoreleasepool_push.png */; };
@@ -174,6 +175,8 @@
 		307C10532D379BA200001228 /* LaunchVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 307C10522D379BA200001228 /* LaunchVC.m */; };
 		307C10562D37ACED00001228 /* system3.png in Resources */ = {isa = PBXBuildFile; fileRef = 307C10542D37ACED00001228 /* system3.png */; };
 		307C10572D37ACED00001228 /* system2.png in Resources */ = {isa = PBXBuildFile; fileRef = 307C10552D37ACED00001228 /* system2.png */; };
+		3086BD382D38B17C0066DDF4 /* InstrumentsTool.md in Resources */ = {isa = PBXBuildFile; fileRef = 3086BD372D38B17C0066DDF4 /* InstrumentsTool.md */; };
+		3086BD4E2D38B2410066DDF4 /* instrument1.png in Resources */ = {isa = PBXBuildFile; fileRef = 3086BD4D2D38B2410066DDF4 /* instrument1.png */; };
 		308DF3192D2E683E006051A6 /* macho.png in Resources */ = {isa = PBXBuildFile; fileRef = 308DF3042D2E683D006051A6 /* macho.png */; };
 		308DF31B2D2E6EC3006051A6 /* macho_header.png in Resources */ = {isa = PBXBuildFile; fileRef = 308DF31A2D2E6EC3006051A6 /* macho_header.png */; };
 		308DF31D2D2E77AD006051A6 /* macho_loadCom.png in Resources */ = {isa = PBXBuildFile; fileRef = 308DF31C2D2E77AD006051A6 /* macho_loadCom.png */; };
@@ -654,6 +657,7 @@
 		3033942E2D1D221800F720A4 /* xcframework.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = xcframework.png; sourceTree = "<group>"; };
 		303C3CD42D003D0F0053180D /* property2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = property2.png; sourceTree = "<group>"; };
 		303C3CD52D003D0F0053180D /* property1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = property1.png; sourceTree = "<group>"; };
+		303FE7AD2D3906F0005AC5F3 /* timerProfile.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = timerProfile.png; sourceTree = "<group>"; };
 		304011AE26734C0B00845393 /* WGTestKVCEntity.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WGTestKVCEntity.h; sourceTree = "<group>"; };
 		304011AF26734C0B00845393 /* WGTestKVCEntity.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WGTestKVCEntity.m; sourceTree = "<group>"; };
 		304154E82CE4A4450072A278 /* autoreleasepool.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = autoreleasepool.png; sourceTree = "<group>"; };
@@ -2263,6 +2267,8 @@
 		307C10522D379BA200001228 /* LaunchVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LaunchVC.m; sourceTree = "<group>"; };
 		307C10542D37ACED00001228 /* system3.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = system3.png; sourceTree = "<group>"; };
 		307C10552D37ACED00001228 /* system2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = system2.png; sourceTree = "<group>"; };
+		3086BD372D38B17C0066DDF4 /* InstrumentsTool.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = InstrumentsTool.md; sourceTree = "<group>"; };
+		3086BD4D2D38B2410066DDF4 /* instrument1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = instrument1.png; sourceTree = "<group>"; };
 		308DF3042D2E683D006051A6 /* macho.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = macho.png; sourceTree = "<group>"; };
 		308DF31A2D2E6EC3006051A6 /* macho_header.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = macho_header.png; sourceTree = "<group>"; };
 		308DF31C2D2E77AD006051A6 /* macho_loadCom.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = macho_loadCom.png; sourceTree = "<group>"; };
@@ -5628,7 +5634,9 @@
 				30DD22C02CFEA33F005AC332 /* swiftMethod1.png */,
 				30DD22C12CFEA33F005AC332 /* swiftMethod2.png */,
 				306886522D06EB7400578D8A /* ARCUnowned.png */,
+				3086BD4D2D38B2410066DDF4 /* instrument1.png */,
 				30A7DC822434A43E008DDCF9 /* lock2.png */,
+				303FE7AD2D3906F0005AC5F3 /* timerProfile.png */,
 				30FD75F924358F1E00431678 /* lock3.png */,
 				30FD75FB243596BB00431678 /* lock4.png */,
 				30FD75FD2435C88B00431678 /* lock5.png */,
@@ -6176,6 +6184,7 @@
 				300D51432700607600BBFC4C /* 抓包工具.md */,
 				30AB3010284DE529009EC03C /* 常见面试题.md */,
 				30D67A8828A384310041FDB5 /* Xcode相关.md */,
+				3086BD372D38B17C0066DDF4 /* InstrumentsTool.md */,
 			);
 			path = WGReadMe;
 			sourceTree = "<group>";
@@ -6418,6 +6427,7 @@
 				300C18CD2CDDDC1D00DA55DB /* libdispatch-resolved.xcconfig in Resources */,
 				30049FCD2D01AF9F000456FF /* ARCStrong.png in Resources */,
 				30FD76012435CD3100431678 /* NSThread.md in Resources */,
+				3086BD4E2D38B2410066DDF4 /* instrument1.png in Resources */,
 				307C10562D37ACED00001228 /* system3.png in Resources */,
 				300C18CB2CDDDC1D00DA55DB /* libdispatch.interposable in Resources */,
 				5422AC59244F3E8E000CB747 /* block2.png in Resources */,
@@ -6523,6 +6533,7 @@
 				548AC95C242F4B3200EEE11C /* Assets.xcassets in Resources */,
 				309F9D682435D98700FFB705 /* ThreadLock.md in Resources */,
 				300C18B42CDDDC1D00DA55DB /* install-dtrace.sh in Resources */,
+				3086BD382D38B17C0066DDF4 /* InstrumentsTool.md in Resources */,
 				30AB64FA2D2F6CED0069731B /* macho_rpath.png in Resources */,
 				304154FD2CE4A4450072A278 /* autoreleasepool.png in Resources */,
 				30A6D12C293885150064B18A /* private_key.p12 in Resources */,
@@ -6543,6 +6554,7 @@
 				300C18CE2CDDDC1D00DA55DB /* libdispatch.clean in Resources */,
 				307C0B2A2CD4CDF1007AE7C4 /* kvc_setter.png in Resources */,
 				300C18C02CDDDC1D00DA55DB /* dispatchConfig.cmake.in in Resources */,
+				303FE7C22D3906F0005AC5F3 /* timerProfile.png in Resources */,
 				300C18A32CDDDC1D00DA55DB /* dispatch_async.3 in Resources */,
 				300C18A62CDDDC1D00DA55DB /* dispatch_data_create.3 in Resources */,
 				300C18F92CDDDC1D00DA55DB /* CMakeLists.txt in Resources */,
