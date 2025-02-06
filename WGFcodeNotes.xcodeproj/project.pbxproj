@@ -153,6 +153,7 @@
 		304727C62750E70F00BF3AFC /* WGLeetCode.m in Sources */ = {isa = PBXBuildFile; fileRef = 304727C52750E70F00BF3AFC /* WGLeetCode.m */; };
 		3052130F28F2D08400271C3B /* WGBaseTestLock.m in Sources */ = {isa = PBXBuildFile; fileRef = 3052130E28F2D08400271C3B /* WGBaseTestLock.m */; };
 		3052131228F2D3AD00271C3B /* OSSpinLockTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 3052131128F2D3AD00271C3B /* OSSpinLockTest.m */; };
+		3061F93D2D40975D00A0EF03 /* zombies.png in Resources */ = {isa = PBXBuildFile; fileRef = 3061F9282D40975D00A0EF03 /* zombies.png */; };
 		3066E0F02435DD48004C71F7 /* GCD.md in Resources */ = {isa = PBXBuildFile; fileRef = 3066E0EF2435DD48004C71F7 /* GCD.md */; };
 		306886512D06E6C600578D8A /* ARCWeak1.png in Resources */ = {isa = PBXBuildFile; fileRef = 3068863C2D06E6C500578D8A /* ARCWeak1.png */; };
 		306886532D06EB7500578D8A /* ARCUnowned.png in Resources */ = {isa = PBXBuildFile; fileRef = 306886522D06EB7400578D8A /* ARCUnowned.png */; };
@@ -671,6 +672,7 @@
 		3052130E28F2D08400271C3B /* WGBaseTestLock.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WGBaseTestLock.m; sourceTree = "<group>"; };
 		3052131028F2D3AD00271C3B /* OSSpinLockTest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OSSpinLockTest.h; sourceTree = "<group>"; };
 		3052131128F2D3AD00271C3B /* OSSpinLockTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OSSpinLockTest.m; sourceTree = "<group>"; };
+		3061F9282D40975D00A0EF03 /* zombies.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = zombies.png; sourceTree = "<group>"; };
 		3066E0EF2435DD48004C71F7 /* GCD.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = GCD.md; sourceTree = "<group>"; };
 		3068863C2D06E6C500578D8A /* ARCWeak1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ARCWeak1.png; sourceTree = "<group>"; };
 		306886522D06EB7400578D8A /* ARCUnowned.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ARCUnowned.png; sourceTree = "<group>"; };
@@ -5631,6 +5633,7 @@
 				30FD94D3243DDE8400EAFAA3 /* error1.png */,
 				30B186F92D36348D009A7A92 /* system0.png */,
 				30A7DC8024348703008DDCF9 /* lock1.png */,
+				3061F9282D40975D00A0EF03 /* zombies.png */,
 				30DD22C02CFEA33F005AC332 /* swiftMethod1.png */,
 				30DD22C12CFEA33F005AC332 /* swiftMethod2.png */,
 				306886522D06EB7400578D8A /* ARCUnowned.png */,
@@ -6418,6 +6421,7 @@
 				302AF2FC2CE5A56900FC041A /* runloop_performSelect.png in Resources */,
 				548AC98C242F4CAD00EEE11C /* gitCocoaPodsCarthage.md in Resources */,
 				30EC5B862D364E6F00F3898E /* NXYXE-LinkMap-normal-arm64.txt in Resources */,
+				3061F93D2D40975D00A0EF03 /* zombies.png in Resources */,
 				30A73F332447F14A00C86BB8 /* kvc_code.png in Resources */,
 				309368622D190E2400A1A5D3 /* init.png in Resources */,
 				300C18A82CDDDC1D00DA55DB /* dispatch_benchmark.3 in Resources */,

@@ -1,13 +1,6 @@
 ### ios包体积优化 (这里以NXYXE有案例进行分析)
 
 
-
-
-
-
-
-
-
 #### 1.准备NXYXE.ipa包，然后将其后缀修改为NXYXE.zip，然后解压缩, 选择NXYXE右键显示包内容
     NXYXE.ipa -> NXYXE.zip ->解压缩 -> Payload -> NXYXE
 1. _CodeSignature: ipa包签名文件的存放文件夹
@@ -18,7 +11,10 @@
 6. .Iproj：App所支持的语言文件
 7. exec文件：可执行文件
 8. 图片资源：.png，.jpg，.webp，.gif
-9. 其它资源文件：.xml，.json/ .plist：项目中使用资源的.plist文件/ .bundle：Mac OS下的资源包集合 / .conf：相关的配置文件 / .cer，.der，.p12：钥匙串文件 / .wav：音频文件 / .js，.html / .nib：Xcode自带的数据文件，包含一个窗口程序和应用程序委托对象 / .sqlite：数据库文件 / .txt：文本文件 / .mom：Xcode创建的数据模型文件 / 
+9. 其它资源文件：
+        项目中使用资源的.plist文件、.xml、.json；
+        相关的证书配置文件.cer，.der，.p12；
+        音频文件.wav、.m4a 
 
 #### 2. 各文件大小
 NXYXE.ipa   38.8MB       解压缩后67.6MB
@@ -34,9 +30,9 @@ exec                           29.1MB
 others                         28.5MB
 
 #### 3. 知道ipa内部组成后，我们优化包体积主要从以下三方面进行优化
-一、Xcode编译优化：一次设置永久有效，不需要持续关注
-二、资源文件优化
-三、代码优化
+一、Xcode编译优化：一次设置永久有效，不需要持续关注       
+二、资源文件优化        
+三、代码优化            
 
 #### 4. Xcode编译优化
 #### 4.1编译指令集: 就是剔除项目中不需要适配的架构
@@ -61,13 +57,14 @@ Architectures指定工程可以编译出多个指令集的代码包，ipa就会�
 
 #### 4.2 Xcode中设置代码优化
 #### Build Settings-Optimization Level在发布模式设置为[-Oz]，其他模式根据场景进行选择；这个设置指的是生成的代码在速度和二进制大小方面的优化程度；Optimization Level默认是-Os，-Oz是Xcode 11新增的编译优化选项，该设置通过将重复的代码模式隔离到编译器生成的函数中来实现额外的尺寸节省
-#### 以下是不同的选项对应的编译速度和二进制文件大小变化趋势
-｜
-｜    -o3
-｜            -o2
-｜                     -os
-｜                              -oz          
-｜
+#### 以下是不同的选项对应的编译速度和二进制文件大小变化趋势      
+
+        ｜
+        ｜    -o3
+        ｜            -o2
+        ｜                     -os
+        ｜                              -oz          
+        ｜
 
 
 #### 4.3 Xcode中设置资源目录优化
@@ -114,7 +111,7 @@ $ fdupes -Sr /User/augus/Documents/xxx > /User/augus/Documents/xxxFdupesResult.t
 #### 5.1图片的压缩
 #### 将图片放入xcassets，因为xcassets里的@2x和@3x图片，在上传时，会根据具体设备分开对应分辨率的图片，不会同时包含。而放入.bundle中的都会包含，所以要尽量把图片放入xcassets中。Assets.car编译过程中有时会选择一些图片，拼凑成一张大图来提高图片的加载效率。被放进这张大图的小图会变为通过偏移量的引用，建议使用频率高且小的图片放到xcassets中，xcassets能保证加载和渲染速度最优。
 
-### 大于100KB就不要放入xcassets中了。大的图片可以考虑将图片转成WebP。WebP是Google公司的一个开源项目，能够把图片压缩到很小，但是肉眼看不出来差别，目前iOS常用的图片显示类库都支持该格式解析的拓展。可使用[WebP Converter - AnyWebP](https://apps.apple.com/us/app/webp-converter-anywebp/id1527716894?mt=12) 进行批量转换
+#### 大于100KB就不要放入xcassets中了。大的图片可以考虑将图片转成WebP。WebP是Google公司的一个开源项目，能够把图片压缩到很小，但是肉眼看不出来差别，目前iOS常用的图片显示类库都支持该格式解析的拓展。可使用[WebP Converter - AnyWebP](https://apps.apple.com/us/app/webp-converter-anywebp/id1527716894?mt=12) 进行批量转换
 
 
 
